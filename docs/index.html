@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gray's Games</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    h1 {
+      font-size: 3rem;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+      text-shadow: 2px 2px 8px #0008;
+    }
+    .game-link {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
+      color: #222;
+      font-size: 1.5rem;
+      font-weight: bold;
+      border-radius: 2rem;
+      text-decoration: none;
+      box-shadow: 0 4px 16px #0004;
+      transition: transform 0.15s, box-shadow 0.15s;
+      margin-top: 1rem;
+    }
+    .game-link:hover {
+      transform: scale(1.07);
+      box-shadow: 0 8px 32px #0006;
+      background: linear-gradient(90deg, #ffe259 0%, #ffa751 100%);
+    }
+    .subtitle {
+      font-size: 1.2rem;
+      margin-bottom: 2.5rem;
+      color: #e0e0e0;
+      text-shadow: 1px 1px 4px #0006;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gray's Games</h1>
+  <div class="subtitle">A collection of fun games by Gray. Ready to play?</div>
+  <a class="game-link" href="games/treasure-hunt/index.html">Play Treasure Hunt 🗺️</a>
+</body>
+</html>

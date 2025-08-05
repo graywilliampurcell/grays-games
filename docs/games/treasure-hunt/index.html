@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treasure Hunt Grid</title>
+  <style>
+    body {
+      background: #6b4f2c;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    canvas {
+      border: 4px solid #3e2a14;
+      background: #a67c52;
+      box-shadow: 0 0 20px #3e2a14;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="420" height="420"></canvas>
+  <div style="text-align:center; margin-top:20px;">
+    <button id="restartBtn" style="font-size:1.2em; padding:0.5em 1.5em; background:#a259e6; color:#fff; border:none; border-radius:8px; cursor:pointer;">Restart Game</button>
+  </div>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const gridSize = 7;
+    const tileSize = 60;
+    const dirtColors = ['#b97a57', '#a67c52', '#8b5c2a'];
+
+    function drawDirtTile(x, y) {
+      // Draw base dirt
+      ctx.fillStyle = dirtColors[0];
+      ctx.fillRect(x, y, tileSize, tileSize);
+      // Add some random speckles for texture
+      for (let i = 0; i < 20; i++) {
+        ctx.fillStyle = dirtColors[1 + Math.floor(Math.random() * 2)];
+        const px = x + Math.random() * tileSize;
+        const py = y + Math.random() * tileSize;
+        ctx.beginPath();
+        ctx.arc(px, py, 2 + Math.random() * 2, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+      // Add a subtle border
+      ctx.strokeStyle = '#6b4f2c';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, tileSize, tileSize);
+    }
+
+    // 10 sad face emoji options
+    const sadFaces = [
+      '😢', '😭', '😞', '😔', '😟', '😕', '🙁', '☹️', '😫', '🥺'
+    ];
+    let currentSadFace = sadFaces[0];
+
+    function drawSadFaceTile(x, y) {
+      // Draw flipped tile background with high contrast
+      ctx.fillStyle = '#fffbe6'; // light yellow for strong contrast
+      ctx.fillRect(x, y, tileSize, tileSize);
+      ctx.strokeStyle = '#6b4f2c';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, tileSize, tileSize);
+      // Draw sad face emoji with shadow for visibility
+      ctx.font = '40px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.save();
+      ctx.shadowColor = '#000';
+      ctx.shadowBlur = 4;
+      ctx.fillText(currentSadFace, x + tileSize / 2, y + tileSize / 2);
+      ctx.restore();
+    }
+
+    function allTreasureRevealed() {
+      for (let r = treasureStartRow; r <= treasureStartRow + 1; r++) {
+        for (let c = treasureStartCol; c <= treasureStartCol + 1; c++) {
+          if (!flipped[r][c]) return false;
+        }
+      }
+      return true;
+    }
+
+    function drawTreasureTile(row, col, x, y) {
+      // All treasure tiles: black background
+      ctx.fillStyle = '#111';
+      ctx.fillRect(x, y, tileSize, tileSize);
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, tileSize, tileSize);
+    }
+
+    function drawGemOnTop() {
+      // Draw the gem spanning the 2x2 area, on top of all 4 black backgrounds
+      const x = treasureStartCol * tileSize;
+      const y = treasureStartRow * tileSize;
+      ctx.save();
+      ctx.translate(x, y);
+      // Gem base (ellipse)
+      ctx.beginPath();
+      ctx.ellipse(tileSize, tileSize, tileSize * 0.85, tileSize * 0.85, 0, 0, 2 * Math.PI);
+      ctx.fillStyle = '#a259e6';
+      ctx.shadowColor = '#fff';
+      ctx.shadowBlur = 16;
+      ctx.fill();
+      // Gem facets (polygon)
+      ctx.beginPath();
+      ctx.moveTo(tileSize, tileSize * 0.2);
+      ctx.lineTo(tileSize * 1.8, tileSize * 0.7);
+      ctx.lineTo(tileSize * 1.6, tileSize * 1.7);
+      ctx.lineTo(tileSize * 0.4, tileSize * 1.7);
+      ctx.lineTo(tileSize * 0.2, tileSize * 0.7);
+      ctx.closePath();
+      ctx.fillStyle = '#c084fc';
+      ctx.globalAlpha = 0.7;
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+      // Gem shine
+      ctx.beginPath();
+      ctx.arc(tileSize * 1.2, tileSize * 0.7, tileSize * 0.25, Math.PI * 1.2, Math.PI * 2, false);
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 4;
+      ctx.globalAlpha = 0.5;
+      ctx.stroke();
+      ctx.globalAlpha = 1.0;
+      ctx.restore();
+    }
+
+    // Track flipped tiles and treasure location
+    let flipped, treasureStartRow, treasureStartCol;
+
+    function randomizeTreasure() {
+      treasureStartRow = Math.floor(Math.random() * (gridSize - 1));
+      treasureStartCol = Math.floor(Math.random() * (gridSize - 1));
+    }
+
+    function isTreasure(row, col) {
+      return (
+        row >= treasureStartRow && row <= treasureStartRow + 1 &&
+        col >= treasureStartCol && col <= treasureStartCol + 1
+      );
+    }
+
+    function resetGame() {
+      flipped = Array.from({ length: gridSize }, () => Array(gridSize).fill(false));
+      randomizeTreasure();
+      // Pick a new sad face for this game
+      currentSadFace = sadFaces[Math.floor(Math.random() * sadFaces.length)];
+      drawGrid();
+    }
+
+    function drawGrid() {
+      for (let row = 0; row < gridSize; row++) {
+        for (let col = 0; col < gridSize; col++) {
+          if (flipped[row][col]) {
+            if (isTreasure(row, col)) {
+              drawTreasureTile(row, col, col * tileSize, row * tileSize);
+            } else {
+              drawSadFaceTile(col * tileSize, row * tileSize);
+            }
+          } else {
+            drawDirtTile(col * tileSize, row * tileSize);
+          }
+        }
+      }
+    }
+
+    // Initial game setup
+    resetGame();
+
+    document.getElementById('restartBtn').addEventListener('click', resetGame);
+
+    canvas.addEventListener('click', function (e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const col = Math.floor(x / tileSize);
+      const row = Math.floor(y / tileSize);
+      if (
+        row >= 0 && row < gridSize &&
+        col >= 0 && col < gridSize &&
+        !flipped[row][col]
+      ) {
+        flipped[row][col] = true;
+        if (isTreasure(row, col)) {
+          // Check if this is the last treasure tile to be revealed
+          let revealed = 0;
+          for (let r = treasureStartRow; r <= treasureStartRow + 1; r++) {
+            for (let c = treasureStartCol; c <= treasureStartCol + 1; c++) {
+              if (flipped[r][c]) revealed++;
+            }
+          }
+          if (revealed === 4) {
+            // Redraw all 4 treasure tiles so the gem appears on top
+            for (let r = treasureStartRow; r <= treasureStartRow + 1; r++) {
+              for (let c = treasureStartCol; c <= treasureStartCol + 1; c++) {
+                drawTreasureTile(r, c, c * tileSize, r * tileSize);
+              }
+            }
+            drawGemOnTop();
+          } else {
+            drawTreasureTile(row, col, col * tileSize, row * tileSize);
+          }
+        } else {
+          drawSadFaceTile(col * tileSize, row * tileSize);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
