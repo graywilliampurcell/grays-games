@@ -49,7 +49,95 @@
 </head>
 <body>
   <h1>When You're at the Creek</h1>
-  <div class="subtitle">A new adventure game is coming soon. Stay tuned!</div>
+  <div class="subtitle">Explore the river! The blue river can flow in any direction. Everything else is sand.</div>
+  <canvas id="creek-canvas" width="800" height="500" style="border-radius: 1.5rem; box-shadow: 0 4px 32px #0006;"></canvas>
   <a class="back-link" href="../../index.html">← Back to Gray's Games</a>
+  <script>
+    // 1 inch = 96px (CSS standard)
+    const minRiverWidth = 96; // 1 inch
+    const maxRiverWidth = 192; // 2 inches
+    const canvas = document.getElementById('creek-canvas');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    // Fill sand background
+    ctx.fillStyle = '#ffe4b5';
+    ctx.fillRect(0, 0, w, h);
+
+    // Generate a random river path
+    let points = [];
+    let x = Math.random() * w * 0.3 + w * 0.35;
+    let y = -maxRiverWidth; // Start above the canvas
+    let angle = Math.PI / 2 + (Math.random() - 0.5) * 0.5;
+    let riverWidth = Math.random() * (maxRiverWidth - minRiverWidth) + minRiverWidth;
+    points.push({x, y, width: riverWidth});
+    // Continue until the river is fully off the bottom edge
+    while (y < h + riverWidth) {
+      angle += (Math.random() - 0.5) * 0.5; // random curve
+      x += Math.cos(angle) * 40;
+      y += Math.sin(angle) * 40;
+      riverWidth += (Math.random() - 0.5) * 16;
+      riverWidth = Math.max(minRiverWidth, Math.min(maxRiverWidth, riverWidth));
+      if (x < riverWidth/2) x = riverWidth/2;
+      if (x > w - riverWidth/2) x = w - riverWidth/2;
+      points.push({x, y, width: riverWidth});
+    }
+
+    // Draw river
+    ctx.save();
+    ctx.beginPath();
+    for (let i = 0; i < points.length; i++) {
+      let p = points[i];
+      if (i === 0) {
+        ctx.moveTo(p.x, p.y);
+      } else {
+        ctx.lineTo(p.x, p.y);
+      }
+    }
+    ctx.lineWidth = points[0].width;
+    ctx.strokeStyle = '#2196f3';
+    ctx.shadowColor = '#1976d2';
+    ctx.shadowBlur = 16;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    // Add river edge highlight
+    ctx.lineWidth = points[0].width + 8;
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.stroke();
+    ctx.restore();
+
+    // Draw trees (green dots) on sand, avoiding river
+    function pointToRiverDist(px, py) {
+      // Find closest point on river path
+      let minDist = Infinity;
+      for (let i = 0; i < points.length; i++) {
+        let dx = px - points[i].x;
+        let dy = py - points[i].y;
+        let d = Math.sqrt(dx*dx + dy*dy) - points[i].width/2;
+        if (d < minDist) minDist = d;
+      }
+      return minDist;
+    }
+    const treeCount = 120;
+    for (let i = 0; i < treeCount; i++) {
+      let tries = 0;
+      let px, py, dist;
+      do {
+        px = Math.random() * w;
+        py = Math.random() * h;
+        dist = pointToRiverDist(px, py);
+        tries++;
+      } while (dist < 18 && tries < 10); // at least 18px from river edge
+      if (dist >= 0) {
+        ctx.beginPath();
+        ctx.arc(px, py, 6, 0, 2 * Math.PI);
+        ctx.fillStyle = '#2ecc40';
+        ctx.globalAlpha = 0.85;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+      }
+    }
+  </script>
 </body>
 </html>
