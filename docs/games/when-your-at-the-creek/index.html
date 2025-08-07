@@ -138,6 +138,154 @@
         ctx.globalAlpha = 1.0;
       }
     }
+    // --- Shiny spot logic ---
+    let shiny = null;
+    let shinyTimeout = null;
+    let foundCrystal = false;
+
+    function randomRiverPoint() {
+      // Pick a random segment and interpolate
+      let i = Math.floor(Math.random() * (points.length - 1));
+      let t = Math.random();
+      let x = points[i].x * (1 - t) + points[i + 1].x * t;
+      let y = points[i].y * (1 - t) + points[i + 1].y * t;
+      let width = points[i].width * (1 - t) + points[i + 1].width * t;
+      // Place shiny spot not too close to top/bottom
+      if (y < 40 || y > h - 40) return randomRiverPoint();
+      return { x, y, width };
+    }
+
+    function drawShiny() {
+      if (!shiny || foundCrystal) return;
+      // Draw shiny spot
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(shiny.x, shiny.y, 16, 0, 2 * Math.PI);
+      let grad = ctx.createRadialGradient(shiny.x, shiny.y, 2, shiny.x, shiny.y, 16);
+      grad.addColorStop(0, '#fffbe6');
+      grad.addColorStop(0.5, '#fff176');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = grad;
+      ctx.globalAlpha = 0.85;
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+      ctx.restore();
+    }
+
+    function drawCrystal() {
+      if (!shiny || !foundCrystal) return;
+      // Draw a simple crystal (diamond shape)
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(shiny.x, shiny.y - 18);
+      ctx.lineTo(shiny.x + 12, shiny.y);
+      ctx.lineTo(shiny.x, shiny.y + 18);
+      ctx.lineTo(shiny.x - 12, shiny.y);
+      ctx.closePath();
+      ctx.fillStyle = '#b3e5fc';
+      ctx.globalAlpha = 0.95;
+      ctx.fill();
+      ctx.strokeStyle = '#0288d1';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function redraw() {
+      // Redraw everything
+      ctx.clearRect(0, 0, w, h);
+      // Sand
+      ctx.fillStyle = '#ffe4b5';
+      ctx.fillRect(0, 0, w, h);
+      // River
+      ctx.save();
+      ctx.beginPath();
+      for (let i = 0; i < points.length; i++) {
+        let p = points[i];
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.lineWidth = points[0].width;
+      ctx.strokeStyle = '#2196f3';
+      ctx.shadowColor = '#1976d2';
+      ctx.shadowBlur = 16;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = points[0].width + 8;
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.stroke();
+      ctx.restore();
+      // Trees
+      for (let i = 0; i < treePositions.length; i++) {
+        let t = treePositions[i];
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 6, 0, 2 * Math.PI);
+        ctx.fillStyle = '#2ecc40';
+        ctx.globalAlpha = 0.85;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+      }
+      // Shiny or crystal
+      drawShiny();
+      drawCrystal();
+    }
+
+    // Store tree positions for redraw
+    let treePositions = [];
+    for (let i = 0; i < treeCount; i++) {
+      let tries = 0;
+      let px, py, dist;
+      do {
+        px = Math.random() * w;
+        py = Math.random() * h;
+        dist = pointToRiverDist(px, py);
+        tries++;
+      } while (dist < 18 && tries < 10);
+      if (dist >= 0) {
+        treePositions.push({x: px, y: py});
+        ctx.beginPath();
+        ctx.arc(px, py, 6, 0, 2 * Math.PI);
+        ctx.fillStyle = '#2ecc40';
+        ctx.globalAlpha = 0.85;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+      }
+    }
+
+    function spawnShiny() {
+      if (foundCrystal) return;
+      shiny = randomRiverPoint();
+      redraw();
+      // Remove shiny after 5-8 seconds if not picked
+      shinyTimeout = setTimeout(() => {
+        shiny = null;
+        redraw();
+        // Respawn after a random interval
+        setTimeout(spawnShiny, 2000 + Math.random() * 3000);
+      }, 5000 + Math.random() * 3000);
+    }
+
+    canvas.addEventListener('click', function(e) {
+      if (!shiny || foundCrystal) return;
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const dx = mx - shiny.x;
+      const dy = my - shiny.y;
+      if (dx*dx + dy*dy < 20*20) {
+        foundCrystal = true;
+        shiny = shiny; // keep position
+        clearTimeout(shinyTimeout);
+        redraw();
+        setTimeout(() => {
+          alert('You found a crystal!');
+        }, 100);
+      }
+    });
+
+    // Start the shiny spot cycle
+    setTimeout(spawnShiny, 1500 + Math.random() * 2000);
+
   </script>
 </body>
 </html>
