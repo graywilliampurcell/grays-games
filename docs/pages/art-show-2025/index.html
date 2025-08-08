@@ -4,6 +4,16 @@
   <meta charset="UTF-8">
   <title>Gray's Art Show Invitation</title>
   <style>
+    ul.details-list {
+      color: #222; /* black text */
+      list-style-type: disc;
+    }
+    ul.details-list li::marker {
+      color: #d12c2c; /* medium red for bullets */
+    }
+    .details strong {
+      color: #b22222; /* firebrick, a dark but clearly red color */
+    }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
       background: #f7f6f2;
@@ -21,7 +31,7 @@
       text-align: center;
     }
     h1 {
-      color: #7c3aed;
+      color: #e4572e;
       margin-bottom: 0.5em;
       font-size: 2.2em;
     }
@@ -52,8 +62,8 @@
       <strong>All artwork is available for purchase!</strong>
     </div>
     <div style="margin-top:2.5em; text-align:left; border-top:1px solid #eee; padding-top:1.2em;">
-      <h2 style="font-size:1.15em; color:#7c3aed; margin-bottom:0.5em;">Details</h2>
-      <ul style="font-size:1em; color:#444; line-height:1.6; padding-left:1.2em;">
+      <h2 style="font-size:1.15em; color:#e4572e; margin-bottom:0.5em;">Details</h2>
+      <ul class="details-list" style="font-size:1em; line-height:1.6; padding-left:1.2em;">
         <li>Everything is priced as labeled, first come first served</li>
         <li>Venmo, Zelle, cash, or check are accepted</li>
         <li><em>"The Book That Can Read Your Mind: Gray Edition"</em> is available for digital sale as an event exclusive</li>
@@ -61,5 +71,8 @@
       </ul>
     </div>
   </div>
+    <footer style="margin-top:2.5em; text-align:center; color:#888; font-size:0.95em;">
+      Designed by Gray using VSCode with Github Copilot (GPT-4.1)
+    </footer>
 </body>
 </html>
