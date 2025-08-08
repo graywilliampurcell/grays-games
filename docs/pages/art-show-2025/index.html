@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gray's Art Show Invitation</title>
   <style>
     ul.details-list {
@@ -29,6 +30,21 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
       padding: 32px 24px;
       text-align: center;
+      box-sizing: border-box;
+    }
+    @media (max-width: 600px) {
+      .invitation {
+        max-width: 98vw;
+        margin: 12px 1vw;
+        padding: 16px 4vw;
+        font-size: 1em;
+      }
+      h1 {
+        font-size: 1.4em;
+      }
+      .details, .why, .details-list {
+        font-size: 1em !important;
+      }
     }
     h1 {
       color: #e4572e;
@@ -73,6 +89,8 @@
   </div>
     <footer style="margin-top:2.5em; text-align:center; color:#888; font-size:0.95em;">
       Designed by Gray using VSCode with Github Copilot (GPT-4.1)
+      <br>
+      <a href="/docs/assets/art-show-2025-qr.png" style="font-size:0.85em; color:#b22222; text-decoration:underline;" target="_blank">QR code for invitation</a>
     </footer>
 </body>
 </html>
