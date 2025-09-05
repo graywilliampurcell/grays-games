@@ -5,7 +5,7 @@ PDF_FILE='dist/The Book That Can Read Your Mind: Gray Edition.pdf'
 if [ ! -f "$PDF_FILE" ]
 then
     echo "Generating PDF..."
-    convert mod/*.png $PDF_FILE
+    convert mod/page*.png "$PDF_FILE"
 else
     echo "PDF already exists."
 fi
