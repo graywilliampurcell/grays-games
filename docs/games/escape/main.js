@@ -49,7 +49,43 @@ for (let i = 0; i < MAX_LEVEL; i++) {
       [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     ];
-  } else if (i >= 2) {
+  } else if (i === 6) {
+    // Level 7: Maze with secret doors/passages
+    let maze = generateMaze(MAP_W, MAP_H);
+    // Secret doors: represented by 3
+    // Place a few secret doors in walls
+    maze[5][10] = 3; // vertical wall
+    maze[10][3] = 3; // horizontal wall
+    // Secret passage logic: connect two sides
+    // For example, 5,10 <-> 5,11 and 10,3 <-> 11,3
+    levels[i] = maze;
+  } else if (i >= 6) {
+    // Levels 7-30: Maze with 0-3 useful secret doors
+    let maze = generateMaze(MAP_W, MAP_H);
+    let numDoors = Math.floor(Math.random()*4); // 0-3
+    let placed = 0;
+    let pairs = [];
+    // Find candidate wall pairs that separate two pathways
+    for (let y = 1; y < MAP_H-1; y++) {
+      for (let x = 1; x < MAP_W-1; x++) {
+        // Vertical wall between two pathways
+        if (maze[y][x] === 1 && maze[y][x-1] === 0 && maze[y][x+1] === 0) {
+          pairs.push({x, y, dir: 'v'});
+        }
+        // Horizontal wall between two pathways
+        if (maze[y][x] === 1 && maze[y-1][x] === 0 && maze[y+1][x] === 0) {
+          pairs.push({x, y, dir: 'h'});
+        }
+      }
+    }
+    pairs = pairs.sort(() => Math.random()-0.5);
+    for (let p of pairs) {
+      if (placed >= numDoors) break;
+      maze[p.y][p.x] = 3;
+      placed++;
+    }
+    levels[i] = maze;
+  } else {
     // Maze generation for levels 3+
     // 0 = empty, 1 = wall, 2 = exit
     function generateMaze(width, height) {
@@ -113,12 +149,37 @@ function draw() {
       } else if (map[y][x] === 2) {
         ctx.fillStyle = '#0f0';
         ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
+      } else if (map[y][x] === 3) {
+        // Secret door: thin line, background same as wall
+        ctx.fillStyle = '#444'; // wall color
+        ctx.fillRect(x*TILE, y*TILE, TILE, TILE); // draw wall background
+        ctx.fillStyle = '#7a5230'; // subtle brown
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(x*TILE + TILE/2 - 1, y*TILE + 4, 2, TILE-8);
+        ctx.globalAlpha = 1.0;
       }
     }
   }
   // Draw player
   ctx.fillStyle = '#ff0';
   ctx.fillRect(player.x*TILE+2, player.y*TILE+2, TILE-4, TILE-4);
+  // Show number of secret doors below level number (outside canvas)
+  let secretCount = 0;
+  for (let y = 0; y < MAP_H; y++) for (let x = 0; x < MAP_W; x++) if (map[y][x] === 3) secretCount++;
+  let infoElem = document.getElementById('level-info');
+  if (infoElem) {
+    infoElem.textContent = `Level ${currentLevel + 1} / ${MAX_LEVEL}`;
+    let secretInfo = document.getElementById('secret-info');
+    if (!secretInfo) {
+      secretInfo = document.createElement('div');
+      secretInfo.id = 'secret-info';
+      secretInfo.style.fontSize = '1em';
+      secretInfo.style.marginTop = '4px';
+      secretInfo.style.color = '#fff';
+      infoElem.parentNode.insertBefore(secretInfo, infoElem.nextSibling);
+    }
+    secretInfo.textContent = 'Secret doors: ' + secretCount;
+  }
 }
 
 document.addEventListener('keydown', e => {
@@ -132,12 +193,36 @@ document.addEventListener('keydown', e => {
     let nx = player.x + dx, ny = player.y + dy;
     let map = levels[currentLevel];
     if (map[ny][nx] !== 1) {
-      player.x = nx;
-      player.y = ny;
-      if (map[ny][nx] === 2) {
+      // Secret door logic for level 7
+      if (map[ny][nx] === 3 && currentLevel === 6) {
+        // Teleport through the wall to the other side
+        if (ny === 5 && nx === 10) {
+          player.x = 11; player.y = 5;
+        } else if (ny === 10 && nx === 3) {
+          player.x = 3; player.y = 11;
+        } else {
+          player.x = nx; player.y = ny;
+        }
+      } else {
+        player.x = nx;
+        player.y = ny;
+      }
+      if (map[player.y][player.x] === 2) {
         nextLevel();
       }
     }
+    draw();
+  }
+});
+
+canvas.addEventListener('click', function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left) / TILE);
+  const y = Math.floor((e.clientY - rect.top) / TILE);
+  let map = levels[currentLevel];
+  if (map[y] && map[y][x] === 0) {
+    player.x = x;
+    player.y = y;
     draw();
   }
 });
@@ -181,7 +266,8 @@ function showLevelSelect() {
     btn.onclick = () => {
       currentLevel = i;
       resetPlayer();
-      sel.style.display = 'none';
+      // Do NOT hide level select after jumping
+      // sel.style.display = 'none';
       gameState = 'playing';
       draw();
     };
