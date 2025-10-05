@@ -49,15 +49,44 @@ for (let i = 0; i < MAX_LEVEL; i++) {
       [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     ];
-  } else if (i === 6) {
-    // Level 7: Maze with secret doors/passages
+  } else if (i > 9) {
+    // Levels 11-30: Maze with 0-3 secret doors, some trap you
     let maze = generateMaze(MAP_W, MAP_H);
-    // Secret doors: represented by 3
-    // Place a few secret doors in walls
-    maze[5][10] = 3; // vertical wall
-    maze[10][3] = 3; // horizontal wall
-    // Secret passage logic: connect two sides
-    // For example, 5,10 <-> 5,11 and 10,3 <-> 11,3
+    let numDoors = Math.floor(Math.random()*4); // 0-3
+    let placed = 0;
+    let pairs = [];
+    // Find candidate wall pairs that separate two pathways
+    for (let y = 1; y < MAP_H-1; y++) {
+      for (let x = 1; x < MAP_W-1; x++) {
+        // Vertical wall between two pathways
+        if (maze[y][x] === 1 && maze[y][x-1] === 0 && maze[y][x+1] === 0) {
+          pairs.push({x, y, dir: 'v'});
+        }
+        // Horizontal wall between two pathways
+        if (maze[y][x] === 1 && maze[y-1][x] === 0 && maze[y+1][x] === 0) {
+          pairs.push({x, y, dir: 'h'});
+        }
+      }
+    }
+    pairs = pairs.sort(() => Math.random()-0.5);
+    for (let p of pairs) {
+      if (placed >= numDoors) break;
+      // 50% chance to be a trap (leads to a dead end)
+      if (Math.random() < 0.5) {
+        // Place a trap: connect to a dead end
+        if (p.dir === 'v') {
+          maze[p.y][p.x] = 3;
+          // Make one side a dead end
+          if (maze[p.y][p.x-1] === 0) maze[p.y][p.x-2] = 1;
+        } else {
+          maze[p.y][p.x] = 3;
+          if (maze[p.y-1][p.x] === 0) maze[p.y-2][p.x] = 1;
+        }
+      } else {
+        maze[p.y][p.x] = 3;
+      }
+      placed++;
+    }
     levels[i] = maze;
   } else if (i >= 6) {
     // Levels 7-30: Maze with 0-3 useful secret doors

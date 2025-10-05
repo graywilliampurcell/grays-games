@@ -17,6 +17,7 @@
   <canvas id="game" width="320" height="240"></canvas>
   <div id="level-select"></div>
   <button id="restart-btn" style="margin-top:16px;">Restart Game</button>
+  <button id="skip-btn" style="margin-top:16px;">Skip</button>
   <button id="home-btn" style="margin-top:16px;">Home</button>
   <script src="main.js"></script>
   <script>
@@ -24,6 +25,12 @@
       // Restart the game from the beginning
       if (typeof window.restartGame === 'function') {
         window.restartGame();
+      }
+    };
+    document.getElementById('skip-btn').onclick = function() {
+      // Skip to the next level
+      if (typeof window.nextLevel === 'function') {
+        window.nextLevel();
       }
     };
     document.getElementById('home-btn').onclick = function() {
