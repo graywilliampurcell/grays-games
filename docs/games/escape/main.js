@@ -45,9 +45,61 @@ function generateMaze(width, height) {
   return padded;
 }
 
-// expose generator for test harnesses
+// expose generator for test harnesses and helper utilities
 const MAP_W = 20, MAP_H = 15;
+// export to window for test harnesses
 window.generateMaze = generateMaze;
+window.MAP_W = MAP_W;
+window.MAP_H = MAP_H;
+
+// Generic pathfinder usable by tests: returns path array [[x,y],...] or null
+function findPath(maze, sx, sy, ex, ey) {
+  const H = maze.length, W = maze[0].length;
+  let stack = [[sx, sy, []]];
+  let visited = Array.from({length: H}, () => Array(W).fill(false));
+  while (stack.length) {
+    let [x, y, path] = stack.pop();
+    if (x === ex && y === ey) return [...path, [x, y]];
+    if (visited[y][x]) continue;
+    visited[y][x] = true;
+    for (let [dx, dy] of [[0,1],[0,-1],[1,0],[-1,0]]) {
+      let nx = x + dx, ny = y + dy;
+      if (nx >= 0 && nx < W && ny >= 0 && ny < H && (maze[ny][nx] === 0 || maze[ny][nx] === 2) && !visited[ny][nx]) {
+        stack.push([nx, ny, [...path, [x, y]]]);
+      }
+    }
+  }
+  return null;
+}
+window.findPath = findPath;
+
+// Helper to place secret/trap tiles into an existing maze (mutates maze)
+window.placeExtras = function(maze, numSecret, numTrap) {
+  const H = maze.length, W = maze[0].length;
+  let candidates = [];
+  for (let y = 1; y < H-1; y++) {
+    for (let x = 1; x < W-1; x++) {
+      if (maze[y][x] === 1) {
+        if ((maze[y][x-1] === 0 && maze[y][x+1] === 0) || (maze[y-1][x] === 0 && maze[y+1][x] === 0)) {
+          candidates.push({x, y});
+        }
+      }
+    }
+  }
+  candidates = candidates.sort(() => Math.random()-0.5);
+  let secretPairs = [];
+  for (let i = 0; i < Math.min(numSecret, candidates.length); i++) {
+    let p = candidates.shift();
+    maze[p.y][p.x] = 3;
+    secretPairs.push(p);
+  }
+  for (let i = 0; i < Math.min(numTrap, candidates.length); i++) {
+    let p = candidates.shift();
+    maze[p.y][p.x] = 4;
+  }
+  return { secretPairs };
+};
+
 const canvas = document.getElementById('game');
 if (canvas) {
   const ctx = canvas.getContext('2d');
