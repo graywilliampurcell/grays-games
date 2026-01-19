@@ -22,13 +22,18 @@
 <body>
   <h1>Map generation — test harness</h1>
   <div class="controls">
-    <label>Width: <input id="w" type="number" value="20" min="3"></label>
-    <label>Height: <input id="h" type="number" value="15" min="3"></label>
+    <label>Width: <input id="w" type="number" value="21" min="3" step="2"></label>
+    <label>Height: <input id="h" type="number" value="21" min="3" step="2"></label>
+    <label>Secret doors: <input id="num-secret" type="number" value="2" min="0" max="10"></label>
+    <label>Trap doors: <input id="num-trap" type="number" value="2" min="0" max="10"></label>
     <button id="gen">Generate Maze</button>
     <button id="run-tests">Run Tests</button>
   </div>
 
   <div id="info"></div>
+  <div id="legend" style="margin-top:8px; font-size:0.9em; color:#ddd">
+    <!-- legend populated by test.js -->
+  </div>
   <div id="maze" class="maze"></div>
   <pre id="grid"></pre>
   <div id="results" class="test-result"></div>

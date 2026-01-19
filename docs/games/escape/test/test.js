@@ -1,12 +1,10 @@
 (function(){
 // Test harness that uses the exported generateMaze from main.js
-// Avoid declaring a top-level generateMaze to prevent redeclaration errors.
 
 function safeGet(fnName) {
   return window[fnName] || null;
 }
 
-// use local name `gen` to avoid colliding with global function declarations
 let gen = safeGet('generateMaze');
 if (!gen) {
   console.warn('main.js did not expose generateMaze — using local fallback');
@@ -40,6 +38,26 @@ const mazeEl = document.getElementById('maze');
 const gridPre = document.getElementById('grid');
 const info = document.getElementById('info');
 const results = document.getElementById('results');
+const secretInput = document.getElementById('num-secret');
+const trapInput = document.getElementById('num-trap');
+const legend = document.getElementById('legend');
+
+if (legend) {
+  legend.innerHTML = '<span style="display:inline-block;width:14px;height:14px;background:#a33;margin-right:6px;vertical-align:middle;border:1px solid #700"></span> Secret door &nbsp;&nbsp; <span style="display:inline-block;width:14px;height:14px;background:#a60;margin-right:6px;vertical-align:middle;border:1px solid #740"></span> Trap door';
+}
+
+function ensureOddInput(input) {
+  if (!input) return;
+  input.addEventListener('change', () => {
+    let v = parseInt(input.value, 10) || 3;
+    if (v < 3) v = 3;
+    if (v % 2 === 0) v += 1;
+    input.value = v;
+  });
+}
+
+ensureOddInput(wInput);
+ensureOddInput(hInput);
 
 function renderMaze(maze) {
   mazeEl.innerHTML = '';
@@ -55,12 +73,44 @@ function renderMaze(maze) {
   gridPre.textContent = maze.map(r=>r.join(' ')).join('\n');
 }
 
+function applyExtras(maze, secrets, traps) {
+  // Place secrets and traps by replacing suitable wall tiles across the maze
+  const H = maze.length, W = maze[0].length;
+  let candidates = [];
+  for (let y = 1; y < H-1; y++) for (let x = 1; x < W-1; x++) {
+    if (maze[y][x] === 1) {
+      if ((maze[y][x-1] === 0 && maze[y][x+1] === 0) || (maze[y-1][x] === 0 && maze[y+1][x] === 0)) {
+        candidates.push({x,y});
+      }
+    }
+  }
+  candidates = candidates.sort(() => Math.random()-0.5);
+  for (let i = 0; i < secrets && candidates.length; i++) {
+    let p = candidates.shift();
+    maze[p.y][p.x] = 3;
+  }
+  for (let i = 0; i < traps && candidates.length; i++) {
+    let p = candidates.shift();
+    maze[p.y][p.x] = 4;
+  }
+}
+
 function genAndShow() {
   const W = parseInt(wInput.value,10);
   const H = parseInt(hInput.value,10);
-  const m = gen(W,H);
+  const secrets = parseInt(secretInput.value,10) || 0;
+  const traps = parseInt(trapInput.value,10) || 0;
+  let m = null;
+  // If main.js generator accepts only width/height, call it and then apply extras here
+  // call generator and then apply extras
+  // ensure odd values
+  const useW = (W % 2 === 0) ? W+1 : W;
+  const useH = (H % 2 === 0) ? H+1 : H;
+  m = gen(useW,useH);
+  applyExtras(m, secrets, traps);
   renderMaze(m);
-  info.textContent = `Generated maze ${m[0].length} x ${m.length}`;
+  const actualW = m[0].length, actualH = m.length;
+  info.textContent = `Generated maze ${actualW} x ${actualH} (secrets=${secrets} traps=${traps})`;
 }
 
 if (genBtn) genBtn.addEventListener('click', genAndShow);
@@ -68,12 +118,17 @@ if (genBtn) genBtn.addEventListener('click', genAndShow);
 function runTests() {
   results.innerHTML = '';
   const tests = [];
+  // odd dims test should read from inputs
   tests.push(() => {
-    let m = gen(10,10);
-    return {name:'Odd dims', pass: m[0].length %2 ===1 && m.length%2===1, details:`${m[0].length}x${m.length}`};
+    const W = parseInt(wInput.value, 10) || 21;
+    const H = parseInt(hInput.value, 10) || 21;
+    let m = gen(W,H);
+    return {name:'Odd dims', pass: m[0].length %2 ===1 && m.length%2===1 && m[0].length===((W%2===0)?W+1:W) && m.length===((H%2===0)?H+1:H), details:`requested=${W}x${H} generated=${m[0].length}x${m.length}`};
   });
   tests.push(() => {
-    let m = gen(20,15);
+    const W = parseInt(wInput.value, 10) || 21;
+    const H = parseInt(hInput.value, 10) || 21;
+    let m = gen(W,H);
     let startOpen = m[1][1]===0;
     let exitPlaced = m[Math.floor(m.length/2)][m[0].length-2]===2;
     return {name:'Start/exit', pass:startOpen && exitPlaced, details:`start=${m[1][1]} exit=${m[Math.floor(m.length/2)][m[0].length-2]}`};
