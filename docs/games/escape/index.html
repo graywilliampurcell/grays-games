@@ -20,8 +20,10 @@
   <button id="restart-btn" style="margin-top:16px;">Restart Game</button>
   <button id="skip-btn" style="margin-top:16px;">Skip</button>
   <button id="home-btn" style="margin-top:16px;">Home</button>
+
   <pre id="maze-array"></pre>
   <script src="main.js"></script>
+  <script src="lib/util.js"></script>
   <script>
     document.getElementById('restart-btn').onclick = function() {
       // Restart the game from the beginning
@@ -45,6 +47,45 @@
         pre.textContent = JSON.stringify(maze, null, 2);
       }
     }
+
+    // Prevent the page from scrolling when the user presses ArrowUp/ArrowDown
+    // but allow arrow keys when typing into inputs/textareas or contenteditable elements.
+    document.addEventListener('keydown', function(e) {
+      try {
+        const el = document.activeElement;
+        const tag = el && el.tagName;
+        const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || (el && el.isContentEditable);
+        if (isTyping) return;
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+          e.preventDefault();
+        }
+      } catch (err) {
+        // ignore
+      }
+    }, false);
+
+    // If util is available, attach seed UI and wire loading to replace the current level
+    if (window.attachSeedUI) {
+      window.attachSeedUI({
+        insertBefore: document.getElementById('maze-array'),
+        label: 'Load seed (paste and click Load):',
+        onLoad: function(m) {
+          // Always use the game's loadMazeForCurrentLevel API from main.js
+          if (typeof window.loadMazeForCurrentLevel === 'function') {
+            window.loadMazeForCurrentLevel(m);
+          } else {
+            var pre = document.getElementById('maze-array');
+            if (pre) pre.textContent = 'Error: loadMazeForCurrentLevel not available';
+          }
+          updateMazeArray();
+        },
+        onError: function(msg) {
+          var pre = document.getElementById('maze-array');
+          if (pre) pre.textContent = msg;
+        }
+      });
+    }
+
     // Patch draw to also update maze array
     var origDraw = window.draw;
     window.draw = function() {

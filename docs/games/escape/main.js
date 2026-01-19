@@ -243,22 +243,32 @@ if (canvas) {
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let map = levels[currentLevel];
+    let map = levels[currentLevel] || [];
+    const H = map.length || 0;
+    const W = H ? (map[0].length || 0) : 0;
+
+    // Resize canvas so the whole maze is visible
+    if (W > 0 && H > 0) {
+      canvas.width = W * TILE;
+      canvas.height = H * TILE;
+    }
+
     // Update level info display
     const info = document.getElementById('level-info');
     if (info) {
       info.textContent = `Level ${currentLevel + 1} / ${MAX_LEVEL}`;
     }
-    for (let y = 0; y < MAP_H; y++) {
-      for (let x = 0; x < MAP_W; x++) {
-        if (map[y][x] === 1) {
+
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const cell = map[y][x];
+        if (cell === 1) {
           ctx.fillStyle = '#444';
           ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
-        } else if (map[y][x] === 2) {
+        } else if (cell === 2) {
           ctx.fillStyle = '#0f0';
           ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
-        } else if (map[y][x] === 3 || map[y][x] === 4) {
-          // Secret door and trap door: thin reddish line, background same as wall
+        } else if (cell === 3 || cell === 4) {
           ctx.fillStyle = '#444';
           ctx.fillRect(x*TILE, y*TILE, TILE, TILE);
           ctx.fillStyle = '#a33';
@@ -268,18 +278,23 @@ if (canvas) {
         }
       }
     }
-    // Draw player
+
+    // Draw player (clamp within bounds)
+    player.x = Math.max(0, Math.min(player.x, W-1));
+    player.y = Math.max(0, Math.min(player.y, H-1));
     ctx.fillStyle = '#ff0';
     ctx.fillRect(player.x*TILE+2, player.y*TILE+2, TILE-4, TILE-4);
+
     // Count secret and trap doors
     let secretCount = 0;
     let trapCount = 0;
-    for (let y = 0; y < MAP_H; y++) {
-      for (let x = 0; x < MAP_W; x++) {
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
         if (map[y][x] === 3) secretCount++;
         if (map[y][x] === 4) trapCount++;
       }
     }
+
     // Show number of secret doors and trap doors below level number (outside canvas)
     let infoElem = document.getElementById('level-info');
     if (infoElem) {
@@ -306,6 +321,7 @@ if (canvas) {
       trapInfo.textContent = 'Trap doors: ' + trapCount;
       trapInfo.style.display = 'block';
     }
+
     // Display maze array in grid format in preformatted text area
     var mazePre = document.getElementById('maze-array');
     if (mazePre) {
@@ -323,41 +339,45 @@ if (canvas) {
     if (e.key === 'ArrowRight') dx = 1;
     if (dx !== 0 || dy !== 0) {
       let nx = player.x + dx, ny = player.y + dy;
-      let map = levels[currentLevel];
-      if (map[ny][nx] !== 1) {
-        // Secret door logic for level 7
-        if (map[ny][nx] === 3 && currentLevel === 6) {
-          // Teleport through the wall to the other side
-          if (ny === 5 && nx === 10) {
-            player.x = 11; player.y = 5;
-          } else if (ny === 10 && nx === 3) {
-            player.x = 3; player.y = 11;
-          } else {
-            player.x = nx; player.y = ny;
-          }
-        } else {
-          player.x = nx;
-          player.y = ny;
-        }
-        if (map[player.y][player.x] === 2) {
-          nextLevel();
-        }
-      }
-      draw();
-    }
-  });
+      let map = levels[currentLevel] || [];
+      const H = map.length || 0;
+      const W = H ? (map[0].length || 0) : 0;
+      if (nx >= 0 && nx < W && ny >= 0 && ny < H && map[ny][nx] !== 1) {
+         // Secret door logic for level 7
+         if (map[ny][nx] === 3 && currentLevel === 6) {
+           // Teleport through the wall to the other side
+           if (ny === 5 && nx === 10) {
+             player.x = 11; player.y = 5;
+           } else if (ny === 10 && nx === 3) {
+             player.x = 3; player.y = 11;
+           } else {
+             player.x = nx; player.y = ny;
+           }
+         } else {
+           player.x = nx;
+           player.y = ny;
+         }
+         if (map[player.y][player.x] === 2) {
+           nextLevel();
+         }
+       }
+       draw();
+     }
+   });
 
-  canvas.addEventListener('click', function(e) {
+   canvas.addEventListener('click', function(e) {
     const rect = canvas.getBoundingClientRect();
     const x = Math.floor((e.clientX - rect.left) / TILE);
     const y = Math.floor((e.clientY - rect.top) / TILE);
-    let map = levels[currentLevel];
-    if (map[y] && map[y][x] === 0) {
+    let map = levels[currentLevel] || [];
+    const H = map.length || 0;
+    const W = H ? (map[0].length || 0) : 0;
+    if (x >= 0 && x < W && y >= 0 && y < H && map[y][x] === 0) {
       player.x = x;
       player.y = y;
       draw();
     }
-  });
+   });
 
   function nextLevel() {
     if (currentLevel < MAX_LEVEL-1) {
@@ -416,6 +436,15 @@ if (canvas) {
     if (sel) sel.style.display = 'none';
     draw();
   }
+
+  // Expose API to allow external seed loaders to replace the current level's maze
+  window.loadMazeForCurrentLevel = function(maze) {
+    if (!Array.isArray(maze) || !Array.isArray(maze[0])) return false;
+    levels[currentLevel] = maze;
+    resetPlayer();
+    draw();
+    return true;
+  };
 
   resetPlayer();
   draw();

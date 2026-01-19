@@ -40,6 +40,49 @@
 
   <!-- load the app code first, then the test harness -->
   <script src="../main.js"></script>
+  <script src="../lib/util.js"></script>
+
+  <!-- Seed UI: displays current seed and allows loading a seed to reproduce a map -->
+  <div style="width:90%;max-width:600px;margin:12px auto 0;text-align:left;">
+    <div style="font-size:13px;margin-bottom:6px;color:#ddd;">Seed (copy to reproduce exact map):</div>
+    <textarea id="seed" rows="2" style="width:100%;box-sizing:border-box;padding:6px;border-radius:4px;border:1px solid #444;background:#111;color:#fff;"></textarea>
+    <div style="margin-top:6px;text-align:right;">
+      <button id="load-seed-btn">Load Seed</button>
+    </div>
+  </div>
+
   <script src="test.js"></script>
+  <script>
+    // wire the load seed button to util's seed decoder (if available) and the test renderer
+    (function(){
+      const loadBtn = document.getElementById('load-seed-btn');
+      if (!loadBtn) return;
+      loadBtn.addEventListener('click', () => {
+        const s = document.getElementById('seed').value.trim();
+        let m = null;
+        if (window.seedToMaze) {
+          m = window.seedToMaze(s);
+        } else {
+          // fallback decoder (v1 base64 JSON)
+          try {
+            if (s.indexOf('v1:') === 0) {
+              m = JSON.parse(decodeURIComponent(escape(atob(s.slice(3)))));
+            }
+          } catch (e) { m = null; }
+        }
+        if (!m) {
+          const info = document.getElementById('info');
+          if (info) info.textContent = 'Invalid seed';
+          return;
+        }
+        // render using test harness renderer
+        if (typeof renderMaze === 'function') {
+          renderMaze(m);
+          const info = document.getElementById('info');
+          if (info) info.textContent = `Loaded seed — maze ${m[0].length} x ${m.length}`;
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

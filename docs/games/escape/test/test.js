@@ -72,6 +72,50 @@ function renderMaze(maze) {
   gridPre.textContent = maze.map(r=>r.join(' ')).join('\n');
 }
 
+// helper: encode/decode base64 safe for UTF-8
+function _encodeBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
+function _decodeBase64(b64) { return decodeURIComponent(escape(atob(b64))); }
+
+function mazeToSeed(maze) {
+  // v1: base64(JSON)
+  try {
+    const json = JSON.stringify(maze);
+    return 'v1:' + _encodeBase64(json);
+  } catch (e) {
+    return null;
+  }
+}
+
+function seedToMaze(seed) {
+  if (!seed || typeof seed !== 'string') return null;
+  if (seed.indexOf('v1:') === 0) {
+    try {
+      const json = _decodeBase64(seed.slice(3));
+      return JSON.parse(json);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+}
+
+// create or find seed UI (textarea + load button)
+let seedWidget = null;
+if (window.attachSeedUI) {
+  seedWidget = window.attachSeedUI({
+    insertBefore: info ? info.nextSibling : null,
+    onLoad: function(m) {
+      renderMaze(m);
+      if (info) info.textContent = `Loaded seed — maze ${m[0].length} x ${m.length}`;
+    },
+    onError: function(msg) {
+      if (info) info.textContent = msg;
+    }
+  });
+} else {
+  if (info) info.textContent = 'Seed UI not available (lib/util.js not loaded).';
+}
+
 function genAndShow() {
   const W = parseInt(wInput.value,10);
   const H = parseInt(hInput.value,10);
@@ -91,6 +135,11 @@ function genAndShow() {
   renderMaze(m);
   const actualW = m[0].length, actualH = m.length;
   info.textContent = `Generated maze ${actualW} x ${actualH} (secrets=${secrets} traps=${traps})`;
+  // populate seed widget
+  if (seedWidget && window.mazeToSeed) {
+    const seed = window.mazeToSeed(m);
+    seedWidget.setSeed(seed);
+  }
 }
 
 if (genBtn) genBtn.addEventListener('click', genAndShow);
