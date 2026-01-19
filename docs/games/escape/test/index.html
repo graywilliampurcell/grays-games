@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Escape — Map Generation Tests</title>
+  <style>
+    body { font-family: system-ui, Arial; background:#111; color:#eee; padding:16px }
+    .controls { margin-bottom:12px }
+    label { margin-right:8px }
+    .maze { margin-top:12px; line-height:0; }
+    .cell { width:16px; height:16px; display:inline-block; box-sizing:border-box; }
+    .wall { background:#444; }
+    .empty { background:#222; border:1px solid #333; }
+    .exit { background:#0a0; }
+    .secret { background:#a33; }
+    .trap { background:#a60; }
+    pre { background:#000; color:#0f0; padding:8px; overflow:auto }
+    .pass { color:#8f8 } .fail { color:#f88 }
+    .test-result { margin-top:8px }
+  </style>
+</head>
+<body>
+  <h1>Map generation — test harness</h1>
+  <div class="controls">
+    <label>Width: <input id="w" type="number" value="20" min="3"></label>
+    <label>Height: <input id="h" type="number" value="15" min="3"></label>
+    <button id="gen">Generate Maze</button>
+    <button id="run-tests">Run Tests</button>
+  </div>
+
+  <div id="info"></div>
+  <div id="maze" class="maze"></div>
+  <pre id="grid"></pre>
+  <div id="results" class="test-result"></div>
+
+  <!-- load the app code first, then the test harness -->
+  <script src="../main.js"></script>
+  <script src="test.js"></script>
+</body>
+</html>
