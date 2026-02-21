@@ -22,15 +22,15 @@ OLD FLOW (Phase 1):
 Select player count → Press START → Move around board
 
 NEW FLOW (Phase 2):
-Select player count → Each player picks a job → Press START → Move around board
+Select player count (3-6) → Each player picks a job → [Groomate RPS if 2 Groomates] → Press START → Move around board
 ```
 
 ---
 
-### Jobs (6 total)
+### Jobs (5 total)
 
 ```typescript
-type JobType = 'miner' | 'wood_maker' | 'maker' | 'groomate' | 'crewmate' | 'none';
+type JobType = 'miner' | 'wood_maker' | 'maker' | 'groomate' | 'crewmate';
 
 interface Job {
   id: JobType;
@@ -39,6 +39,7 @@ interface Job {
   startingHealth: number;
   startingOrb: OrbType | null;
   canHaveBook: boolean;
+  maxCount: number;  // Maximum players who can pick this job
 }
 
 const JOBS: Record<JobType, Job> = {
@@ -48,7 +49,8 @@ const JOBS: Record<JobType, Job> = {
     description: 'Goes underground to find valuable stones and crystals.',
     startingHealth: 25,
     startingOrb: 'stone_orb',
-    canHaveBook: true
+    canHaveBook: true,
+    maxCount: 1
   },
   wood_maker: {
     id: 'wood_maker',
@@ -56,7 +58,8 @@ const JOBS: Record<JobType, Job> = {
     description: 'Mines trees for wood, leaves, bark and sticks.',
     startingHealth: 12.5,
     startingOrb: 'wood_orb',
-    canHaveBook: true
+    canHaveBook: true,
+    maxCount: 1
   },
   maker: {
     id: 'maker',
@@ -64,31 +67,26 @@ const JOBS: Record<JobType, Job> = {
     description: 'Crafts items for the whole team using resources others bring.',
     startingHealth: 5,
     startingOrb: null,
-    canHaveBook: true
+    canHaveBook: true,
+    maxCount: 1
   },
   groomate: {
     id: 'groomate',
     displayName: 'Groomate',
-    description: 'No fixed job. Finds food and orbs for the team.',
+    description: 'Fights monsters and collects orbs. If 2 groomates, they play rock-paper-scissors to decide roles.',
     startingHealth: 10,
     startingOrb: null,
-    canHaveBook: false
+    canHaveBook: false,
+    maxCount: 2
   },
   crewmate: {
     id: 'crewmate',
     displayName: 'Crewmate',
-    description: 'Starts on the Prairie. Chops plants and gathers resources.',
+    description: 'Helps find food for the team. Does not fight.',
     startingHealth: 10,
     startingOrb: null,
-    canHaveBook: true
-  },
-  none: {
-    id: 'none',
-    displayName: 'No Job',
-    description: 'Finds stuff from other players and does their own thing.',
-    startingHealth: 10,
-    startingOrb: null,
-    canHaveBook: false
+    canHaveBook: true,
+    maxCount: 1
   }
 };
 ```
@@ -98,11 +96,15 @@ const JOBS: Record<JobType, Job> = {
 ### Job Selection Screen
 
 **Rules:**
-- Happens AFTER player count is selected, BEFORE the START button
+- Happens AFTER player count is selected (3-6 players), BEFORE the START button
 - Each player picks one at a time in order (Player 1 picks, then Player 2, etc.)
-- No two players can pick the same job
-- Once a job is picked it grays out for other players
-- Groomate and "No Job" are always available (multiple players can pick them)
+- Each job has a maximum number of players who can pick it:
+  - Miner: 1
+  - Wood Maker: 1
+  - Maker: 1
+  - Groomate: 2
+  - Crewmate: 1
+- Once a job reaches its max count, it grays out for other players
 
 **UI Layout:**
 ```
@@ -118,9 +120,55 @@ const JOBS: Record<JobType, Job> = {
 │  HP: 5 ❤️     HP: 10 ❤️             │
 │  No Orb       No Orb               │
 │                                     │
-│  [Crewmate]   [No Job]              │
-│  HP: 10 ❤️    HP: 10 ❤️             │
-│  No Orb       No Orb               │
+│  [Crewmate]                         │
+│  HP: 10 ❤️                          │
+│  No Orb                             │
+└─────────────────────────────────────┘
+```
+
+---
+
+### Groomate Role Assignment
+
+When there are 2 Groomates, they play rock-paper-scissors to determine their roles:
+
+**Rules:**
+- If only 1 Groomate: They do both jobs (fight monsters AND collect orbs)
+- If 2 Groomates: Play rock-paper-scissors at game start
+  - **Winner:** Fights monsters (that is all they do)
+  - **Loser:** Collects orbs for the team
+
+```typescript
+type GroomateRole = 'fighter' | 'collector' | 'both';
+
+interface GroomatePlayer extends Player {
+  groomateRole: GroomateRole;
+}
+
+// Determine groomate roles after job selection
+function assignGroomateRoles(players: Player[]): void {
+  const groomates = players.filter(p => p.job?.id === 'groomate');
+
+  if (groomates.length === 1) {
+    groomates[0].groomateRole = 'both';
+  } else if (groomates.length === 2) {
+    // Rock-paper-scissors happens here
+    // Winner gets 'fighter', loser gets 'collector'
+  }
+}
+```
+
+**Rock-Paper-Scissors UI:**
+```
+┌─────────────────────────────────────┐
+│     GROOMATE SHOWDOWN!              │
+│                                     │
+│  Player 1 vs Player 2               │
+│                                     │
+│  [🪨 Rock]  [📄 Paper]  [✂️ Scissors] │
+│                                     │
+│  Winner: Fights monsters            │
+│  Loser: Collects orbs               │
 └─────────────────────────────────────┘
 ```
 
@@ -142,6 +190,8 @@ interface Job {
   canHaveBook: boolean;
 }
 
+type GroomateRole = 'fighter' | 'collector' | 'both';
+
 // Update existing Player interface
 interface Player {
   id: number;
@@ -154,6 +204,7 @@ interface Player {
   inventory: InventoryItem[]; // NEW - items player is carrying
   orb: OrbType | null;        // NEW - starting orb companion
   hasBook: boolean;           // NEW - whether player has their book
+  groomateRole: GroomateRole | null; // NEW - only for Groomates
 }
 
 // NEW - inventory item
@@ -173,7 +224,7 @@ interface GameState {
   currentPlayerIndex: number; // already exists
   gameStarted: boolean;       // already exists
   playerCount: number;        // already exists
-  phase: 'job_select' | 'playing'; // NEW - tracks which screen we're on
+  phase: 'job_select' | 'groomate_rps' | 'playing'; // NEW - tracks which screen we're on
   jobSelectPlayerIndex: number;    // NEW - which player is currently picking a job
 }
 ```
@@ -283,8 +334,9 @@ function getStartingInventory(job: Job): InventoryItem[] {
 
 ```typescript
 type GamePhase =
-  | 'player_count_select'   // Pick how many players (3-5)
+  | 'player_count_select'   // Pick how many players (3-6)
   | 'job_select'            // Each player picks a job one at a time
+  | 'groomate_rps'          // Rock-paper-scissors if 2 Groomates
   | 'playing';              // Main game loop
 
 function handleGamePhase(state: GameState, action: GameAction): GameState {
@@ -297,7 +349,15 @@ function handleGamePhase(state: GameState, action: GameAction): GameState {
     case 'job_select':
       // Current player picks a job
       // Move to next player's job selection
-      // When all players have picked → move to 'playing'
+      // When all players have picked:
+      //   - If 2 Groomates → move to 'groomate_rps'
+      //   - Otherwise → move to 'playing'
+      break;
+
+    case 'groomate_rps':
+      // Both Groomates play rock-paper-scissors
+      // Winner becomes 'fighter', loser becomes 'collector'
+      // Then move to 'playing'
       break;
 
     case 'playing':
@@ -345,9 +405,10 @@ terran-avengers/
     │   ├── gameState.ts      ← UPDATE (add job_select phase logic)
     │   └── jobConfig.ts      ← NEW (job definitions and starting inventory)
     └── components/
-        ├── JobSelect.svelte  ← NEW (job selection screen)
-        ├── PlayerPanel.svelte ← NEW (side panel showing player status)
-        └── HealthBar.svelte  ← NEW (health bar component)
+        ├── JobSelect.svelte      ← NEW (job selection screen)
+        ├── GroomateRPS.svelte    ← NEW (rock-paper-scissors for 2 Groomates)
+        ├── PlayerPanel.svelte    ← NEW (side panel showing player status)
+        └── HealthBar.svelte      ← NEW (health bar component)
 ```
 
 ---
@@ -358,7 +419,7 @@ When Phase 2 is complete, the game should have:
 
 - [ ] Job selection screen appears after player count is chosen
 - [ ] Players pick jobs one at a time in order
-- [ ] Already-taken jobs are grayed out (except Groomate and No Job)
+- [ ] Jobs gray out when max count is reached (Groomate allows 2, others allow 1)
 - [ ] Each job shows its health, orb, and description on the selection screen
 - [ ] Each player starts with correct health for their job
 - [ ] Each player starts with their book (if eligible)
@@ -370,6 +431,10 @@ When Phase 2 is complete, the game should have:
 - [ ] Book indicator shows in side panel
 - [ ] Player panel highlights when it's that player's turn
 - [ ] Actions remaining shows in side panel
+- [ ] If 2 Groomates, rock-paper-scissors screen appears after job selection
+- [ ] Winner of rock-paper-scissors becomes the Fighter (fights monsters)
+- [ ] Loser of rock-paper-scissors becomes the Collector (collects orbs)
+- [ ] If only 1 Groomate, they get the "both" role automatically
 - [ ] All Phase 1 functionality still works
 
 ---
