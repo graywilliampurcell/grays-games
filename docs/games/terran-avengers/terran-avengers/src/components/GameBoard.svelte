@@ -63,6 +63,7 @@
 		{#each tiles as tile (tile.coord.q + ',' + tile.coord.r)}
 			{@const pos = getTilePosition(tile.coord)}
 			{@const isCenterTile = tile.coord.q === 0 && tile.coord.r === 0}
+			{@const tilePlayers = getPlayersOnTile(tile.coord)}
 			<HexTile
 				coord={tile.coord}
 				biome={tile.biome}
@@ -71,6 +72,7 @@
 				isValidMove={isValidMove(tile.coord)}
 				isCurrentPlayerTile={isCurrentPlayerTile(tile.coord)}
 				showStart={!gameStarted && isCenterTile}
+				playersOnTile={gameStarted ? tilePlayers : []}
 				onclick={() => {
 					if (!gameStarted && isCenterTile) {
 						onStartClick();

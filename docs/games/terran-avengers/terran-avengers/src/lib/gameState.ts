@@ -143,9 +143,9 @@ export function selectJob(jobType: JobType): boolean {
 				// Single groomate gets 'both' role
 				const playersWithRoles = updatedPlayers.map((p, idx) => {
 					if (p.job?.id === 'groomate') {
-						return { ...p, groomateRole: 'both' as GroomateRole, actionsRemaining: idx === 0 ? 1 : 0 };
+						return { ...p, groomateRole: 'both' as GroomateRole, actionsRemaining: idx === 0 ? 4 : 0 };
 					}
-					return { ...p, actionsRemaining: idx === 0 ? 1 : 0 };
+					return { ...p, actionsRemaining: idx === 0 ? 4 : 0 };
 				});
 				return {
 					...s,
@@ -159,7 +159,7 @@ export function selectJob(jobType: JobType): boolean {
 				// No groomates, start playing
 				const playersWithActions = updatedPlayers.map((p, idx) => ({
 					...p,
-					actionsRemaining: idx === 0 ? 1 : 0
+					actionsRemaining: idx === 0 ? 4 : 0
 				}));
 				return {
 					...s,
@@ -227,7 +227,7 @@ export function resolveGroomateRPS(player1Choice: RPSChoice, player2Choice: RPSC
 
 		// Reset actions for first player's turn
 		const playersWithActions = updatedPlayers.map((p, idx) =>
-			idx === 0 ? { ...p, actionsRemaining: 1 } : p
+			idx === 0 ? { ...p, actionsRemaining: 4 } : p
 		);
 
 		return {
@@ -293,7 +293,7 @@ export function endTurn(): void {
 
 		// Reset actions for all players when it's their turn
 		const players = state.players.map((p, idx) =>
-			idx === nextPlayerIndex ? { ...p, actionsRemaining: 1 } : p
+			idx === nextPlayerIndex ? { ...p, actionsRemaining: 4 } : p
 		);
 
 		return {

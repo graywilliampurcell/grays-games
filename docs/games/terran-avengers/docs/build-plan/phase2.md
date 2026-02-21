@@ -1,7 +1,7 @@
 ## TERRAN AVENGERS - PHASE 2: Jobs & Health
 
 ### What's Being Added
-Phase 2 adds player identity. Each player picks a job at the start of the game, which gives them different health, a starting orb companion, and special abilities that will be used in later phases.
+Phase 2 adds player identity. Each player picks a job at the start of the game, which gives them different health, a starting orb companion, and special abilities that will be used in later phases. Players now get 4 actions per turn instead of 1, and tile hover tooltips show biome information.
 
 ---
 
@@ -12,6 +12,8 @@ Phase 2 adds player identity. Each player picks a job at the start of the game, 
 4. The Miner gets a Stone Orb companion shown next to them
 5. The Wood Maker gets a Wood Orb companion shown next to them
 6. The job panel shows each player's name, color, shape, job, and health
+7. Players get 4 actions per turn (up from 1 in Phase 1)
+8. Hovering over any tile shows a tooltip with the biome type and which players are on that tile
 
 ---
 
@@ -277,7 +279,7 @@ Each player gets a panel on the side of the board showing:
 │ ❤️ ████████░░ 25/25  │
 │ Orb: 🪨 Stone Orb    │
 │ 📖 Has Book          │
-│ Actions: 1           │
+│ Actions: 4           │
 └─────────────────────┘
 ```
 
@@ -395,6 +397,39 @@ const ORB_DISPLAY = {
 
 ---
 
+### Actions Per Turn
+
+Players now get **4 actions per turn** instead of 1. This allows for more movement and exploration each turn.
+
+```typescript
+// When transitioning to playing phase or ending turn:
+actionsRemaining: 4  // Was 1 in Phase 1
+```
+
+---
+
+### Tile Hover Tooltips
+
+When hovering over any tile on the board, a tooltip appears showing:
+- The biome type (Prairie, Forest, Field, Crop, Lake, Mountain, Cave)
+- Which players are currently on that tile (with their colored shape icons)
+
+```
+┌─────────────────┐
+│     Forest      │
+│  ● P1  ▲ P2     │
+└─────────────────┘
+```
+
+**Implementation:**
+- Tooltip appears above the hovered tile
+- Shows biome name in bold
+- Lists players with their shape symbol and player number
+- Player symbols are colored to match their jewel color
+- Tooltip does not appear when hovering the START button
+
+---
+
 ### New Files Needed
 
 ```
@@ -402,13 +437,18 @@ terran-avengers/
 └── src/
     ├── lib/
     │   ├── types.ts          ← UPDATE (add Job, OrbType, InventoryItem)
-    │   ├── gameState.ts      ← UPDATE (add job_select phase logic)
+    │   ├── gameState.ts      ← UPDATE (add job_select phase logic, 4 actions per turn)
+    │   ├── playerConfig.ts   ← UPDATE (add 6th player, 6-player offsets)
     │   └── jobConfig.ts      ← NEW (job definitions and starting inventory)
     └── components/
         ├── JobSelect.svelte      ← NEW (job selection screen)
         ├── GroomateRPS.svelte    ← NEW (rock-paper-scissors for 2 Groomates)
         ├── PlayerPanel.svelte    ← NEW (side panel showing player status)
-        └── HealthBar.svelte      ← NEW (health bar component)
+        ├── HealthBar.svelte      ← NEW (health bar component)
+        ├── HexTile.svelte        ← UPDATE (add hover tooltip with biome/players)
+        ├── GameBoard.svelte      ← UPDATE (pass players to tiles for tooltip)
+        ├── PlayerToken.svelte    ← UPDATE (show orb icon above player)
+        └── PlayerSelect.svelte   ← UPDATE (support 3-6 players)
 ```
 
 ---
@@ -417,25 +457,28 @@ terran-avengers/
 
 When Phase 2 is complete, the game should have:
 
-- [ ] Job selection screen appears after player count is chosen
-- [ ] Players pick jobs one at a time in order
-- [ ] Jobs gray out when max count is reached (Groomate allows 2, others allow 1)
-- [ ] Each job shows its health, orb, and description on the selection screen
-- [ ] Each player starts with correct health for their job
-- [ ] Each player starts with their book (if eligible)
-- [ ] Miner starts with Stone Orb in inventory
-- [ ] Wood Maker starts with Wood Orb in inventory
-- [ ] Health bar shows in side panel for each player
-- [ ] Health bar changes color at 50% (orange) and 25% (red)
-- [ ] Orb icon shows in side panel and above token on board
-- [ ] Book indicator shows in side panel
-- [ ] Player panel highlights when it's that player's turn
-- [ ] Actions remaining shows in side panel
-- [ ] If 2 Groomates, rock-paper-scissors screen appears after job selection
-- [ ] Winner of rock-paper-scissors becomes the Fighter (fights monsters)
-- [ ] Loser of rock-paper-scissors becomes the Collector (collects orbs)
-- [ ] If only 1 Groomate, they get the "both" role automatically
-- [ ] All Phase 1 functionality still works
+- [x] Job selection screen appears after player count is chosen
+- [x] Players pick jobs one at a time in order
+- [x] Jobs gray out when max count is reached (Groomate allows 2, others allow 1)
+- [x] Each job shows its health, orb, and description on the selection screen
+- [x] Each player starts with correct health for their job
+- [x] Each player starts with their book (if eligible)
+- [x] Miner starts with Stone Orb in inventory
+- [x] Wood Maker starts with Wood Orb in inventory
+- [x] Health bar shows in side panel for each player
+- [x] Health bar changes color at 50% (orange) and 25% (red)
+- [x] Orb icon shows in side panel and above token on board
+- [x] Book indicator shows in side panel
+- [x] Player panel highlights when it's that player's turn
+- [x] Actions remaining shows in side panel
+- [x] If 2 Groomates, rock-paper-scissors screen appears after job selection
+- [x] Winner of rock-paper-scissors becomes the Fighter (fights monsters)
+- [x] Loser of rock-paper-scissors becomes the Collector (collects orbs)
+- [x] If only 1 Groomate, they get the "both" role automatically
+- [x] Players get 4 actions per turn
+- [x] Hovering a tile shows tooltip with biome type
+- [x] Tile tooltip shows which players are on that tile
+- [x] All Phase 1 functionality still works
 
 ---
 

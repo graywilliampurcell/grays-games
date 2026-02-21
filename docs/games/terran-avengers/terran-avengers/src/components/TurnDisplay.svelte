@@ -19,7 +19,7 @@
 
 		<div class="actions-remaining">
 			{#if currentPlayer.actionsRemaining > 0}
-				<span class="actions">{currentPlayer.actionsRemaining} action remaining</span>
+				<span class="actions">{currentPlayer.actionsRemaining} {currentPlayer.actionsRemaining === 1 ? 'action' : 'actions'} remaining</span>
 			{:else}
 				<span class="no-actions">No actions remaining</span>
 			{/if}
