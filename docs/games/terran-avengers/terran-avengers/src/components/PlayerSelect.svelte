@@ -8,7 +8,7 @@
 
 	let { selectedCount, onchange }: Props = $props();
 
-	const playerOptions = [3, 4, 5];
+	const playerOptions = [3, 4, 5, 6];
 </script>
 
 <div class="player-select">

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { PlayerConfig, PlayerShape } from '$lib/types';
+	import type { PlayerConfig, PlayerShape, OrbType } from '$lib/types';
+	import { ORB_DISPLAY } from '$lib/jobConfig';
 
 	interface Props {
 		x: number;
@@ -7,9 +8,10 @@
 		config: PlayerConfig;
 		size?: number;
 		isCurrentPlayer?: boolean;
+		orb?: OrbType | null;
 	}
 
-	let { x, y, config, size = 12, isCurrentPlayer = false }: Props = $props();
+	let { x, y, config, size = 12, isCurrentPlayer = false, orb = null }: Props = $props();
 
 	const borderWidth = 2;
 	const borderColor = '#FFFFFF';
@@ -97,6 +99,19 @@
 			class="pulse-ring"
 		/>
 	{/if}
+
+	<!-- Orb indicator (floating above player) -->
+	{#if orb}
+		<text
+			x={x}
+			y={y - size - 8}
+			text-anchor="middle"
+			font-size="10"
+			class="orb-icon"
+		>
+			{ORB_DISPLAY[orb].icon}
+		</text>
+	{/if}
 </g>
 
 <style>
@@ -106,6 +121,10 @@
 
 	.pulse-ring {
 		animation: pulse 1.5s ease-in-out infinite;
+	}
+
+	.orb-icon {
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 	}
 
 	@keyframes pulse {

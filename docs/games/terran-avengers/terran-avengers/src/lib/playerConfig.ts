@@ -35,6 +35,13 @@ export const PLAYER_CONFIGS: PlayerConfig[] = [
 		color: '#9B59B6', // Amethyst Purple
 		shape: 'star',
 		displayName: 'Amethyst Player (Purple Star)'
+	},
+	{
+		id: 6,
+		name: 'player6',
+		color: '#E91E63', // Rose Pink
+		shape: 'circle',
+		displayName: 'Rose Player (Pink Circle)'
 	}
 ];
 
@@ -91,6 +98,15 @@ export function getPlayerOffsets(
 		case 5:
 			return [
 				{ x: 0, y: -offset },
+				{ x: -offset, y: 0 },
+				{ x: offset, y: 0 },
+				{ x: -offset / 2, y: offset },
+				{ x: offset / 2, y: offset }
+			];
+		case 6:
+			return [
+				{ x: -offset / 2, y: -offset },
+				{ x: offset / 2, y: -offset },
 				{ x: -offset, y: 0 },
 				{ x: offset, y: 0 },
 				{ x: -offset / 2, y: offset },

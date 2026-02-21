@@ -96,6 +96,7 @@
 						config={player.config}
 						size={TOKEN_SIZE}
 						isCurrentPlayer={player.id === players[currentPlayerIndex]?.id}
+						orb={player.orb}
 					/>
 				{/each}
 			{/each}
