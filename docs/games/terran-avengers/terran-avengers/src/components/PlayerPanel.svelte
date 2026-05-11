@@ -1,7 +1,8 @@
 <script lang="ts">
-	import type { Player } from '$lib/types';
+	import type { Player, ResourceId } from '$lib/types';
 	import { SHAPE_SYMBOLS } from '$lib/playerConfig';
 	import { ORB_DISPLAY } from '$lib/jobConfig';
+	import { RESOURCE_DISPLAY } from '$lib/mineRules';
 	import HealthBar from './HealthBar.svelte';
 
 	interface Props {
@@ -20,6 +21,17 @@
 			case 'both': return 'Fighter & Collector';
 			default: return '';
 		}
+	}
+
+	function inventoryDisplay(item: { id: string; name: string; type: string; quantity: number }) {
+		if (item.type === 'resource') {
+			const r = item.id as ResourceId;
+			const meta = RESOURCE_DISPLAY[r];
+			if (meta) return { icon: meta.icon, label: meta.name };
+		}
+		if (item.type === 'orb') return { icon: '✨', label: item.name };
+		if (item.type === 'book') return { icon: '📖', label: item.name };
+		return { icon: '•', label: item.name };
 	}
 </script>
 
@@ -69,6 +81,19 @@
 							<span class="stat-text">Has Book</span>
 						</div>
 					{/if}
+
+					<div class="inventory-section">
+						<div class="inventory-label">Inventory:</div>
+						{#each player.inventory.filter((i) => i.type !== 'orb' && i.type !== 'book') as item}
+							{@const display = inventoryDisplay(item)}
+							<div class="inventory-row">
+								<span class="stat-icon">{display.icon}</span>
+								<span class="stat-text">{display.label} × {item.quantity}</span>
+							</div>
+						{:else}
+							<div class="inventory-empty">(empty)</div>
+						{/each}
+					</div>
 
 					<div class="stat-row actions">
 						<span class="stat-label">Actions:</span>
@@ -189,6 +214,33 @@
 		margin-top: 4px;
 		padding-top: 4px;
 		border-top: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.inventory-section {
+		margin-top: 6px;
+		padding-top: 6px;
+		border-top: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.inventory-label {
+		font-size: 0.8rem;
+		color: rgba(255, 255, 255, 0.6);
+		margin-bottom: 4px;
+	}
+
+	.inventory-row {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 0.8rem;
+		padding-left: 8px;
+	}
+
+	.inventory-empty {
+		font-size: 0.75rem;
+		color: rgba(255, 255, 255, 0.4);
+		font-style: italic;
+		padding-left: 8px;
 	}
 
 	.stat-label {

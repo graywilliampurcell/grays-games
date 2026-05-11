@@ -1,8 +1,20 @@
 import { writable, derived, get } from 'svelte/store';
-import type { GameState, Player, HexCoordinate, Tile, Job, JobType, GroomateRole } from './types';
+import type {
+	GameState,
+	Player,
+	HexCoordinate,
+	Tile,
+	Job,
+	JobType,
+	GroomateRole,
+	ResourceId,
+	TradeState,
+	InventoryItem
+} from './types';
 import { PLAYER_CONFIGS } from './playerConfig';
-import { generateBoard, getNeighbors, coordsEqual, getStartingPosition } from './hexUtils';
+import { generateBoard, getNeighbors, coordsEqual, getStartingPosition, hexDistance } from './hexUtils';
 import { JOBS, getStartingInventory, getJobCount } from './jobConfig';
+import { canMine, addResource } from './mineRules';
 
 // Initial game state
 const initialState: GameState = {
@@ -12,7 +24,9 @@ const initialState: GameState = {
 	gameStarted: false,
 	playerCount: 3,
 	phase: 'player_count_select',
-	jobSelectPlayerIndex: 0
+	jobSelectPlayerIndex: 0,
+	trade: null,
+	makerModalOpen: false
 };
 
 // Create the main game state store
@@ -310,7 +324,9 @@ export function resetGame(): void {
 		...initialState,
 		playerCount: get(gameState).playerCount,
 		phase: 'player_count_select',
-		jobSelectPlayerIndex: 0
+		jobSelectPlayerIndex: 0,
+		trade: null,
+		makerModalOpen: false
 	});
 }
 
@@ -335,4 +351,230 @@ export function canMoveTo(targetCoord: HexCoordinate): boolean {
 export function getPlayersOnTile(coord: HexCoordinate): Player[] {
 	const state = get(gameState);
 	return state.players.filter((p) => coordsEqual(p.position, coord));
+}
+
+// ========== Phase 3: Mine, Make, Trade ==========
+
+// Derived store: what resource (if any) the active player can mine on their current tile.
+export const activeMineYield = derived(gameState, ($state) => {
+	if ($state.phase !== 'playing' || $state.players.length === 0) return null;
+	const player = $state.players[$state.currentPlayerIndex];
+	const tile = $state.tiles.find((t) => coordsEqual(t.coord, player.position));
+	if (!tile) return null;
+	return canMine(player, tile);
+});
+
+// Derived store: players within trade range (distance <= 1) of the active player.
+export const tradePartners = derived(gameState, ($state) => {
+	if ($state.phase !== 'playing' || $state.players.length === 0) return [] as Player[];
+	const active = $state.players[$state.currentPlayerIndex];
+	return $state.players.filter(
+		(p) => p.id !== active.id && hexDistance(p.position, active.position) <= 1
+	);
+});
+
+// Mine action: adds 1 resource to active player's inventory, costs 1 action.
+export function mineAction(): boolean {
+	const state = get(gameState);
+	if (state.phase !== 'playing') return false;
+	const player = state.players[state.currentPlayerIndex];
+	if (!player || player.actionsRemaining <= 0) return false;
+
+	const tile = state.tiles.find((t) => coordsEqual(t.coord, player.position));
+	if (!tile) return false;
+
+	const yieldResource = canMine(player, tile);
+	if (!yieldResource) return false;
+
+	gameState.update((s) => ({
+		...s,
+		players: s.players.map((p, idx) =>
+			idx === s.currentPlayerIndex
+				? {
+						...p,
+						inventory: addResource(p.inventory, yieldResource),
+						actionsRemaining: p.actionsRemaining - 1
+				  }
+				: p
+		)
+	}));
+	return true;
+}
+
+// Make: open the maker workshop modal. Costs 0 actions to open;
+// committing a recipe (Phase 4+) is what would consume the action.
+export function openMakerModal(): boolean {
+	const state = get(gameState);
+	if (state.phase !== 'playing') return false;
+	const player = state.players[state.currentPlayerIndex];
+	if (!player || player.job?.id !== 'maker') return false;
+	gameState.update((s) => ({ ...s, makerModalOpen: true }));
+	return true;
+}
+
+export function closeMakerModal(): void {
+	gameState.update((s) => ({ ...s, makerModalOpen: false }));
+}
+
+// ========== Trade lifecycle ==========
+
+export function startTrade(): boolean {
+	const state = get(gameState);
+	if (state.phase !== 'playing') return false;
+	const active = state.players[state.currentPlayerIndex];
+	if (!active || active.actionsRemaining <= 0) return false;
+
+	const partners = state.players.filter(
+		(p) => p.id !== active.id && hexDistance(p.position, active.position) <= 1
+	);
+	if (partners.length === 0) return false;
+	if (active.inventory.length === 0) return false;
+
+	const trade: TradeState = {
+		step: 'choosing_offer',
+		activePlayerId: active.id,
+		partnerIds: partners.map((p) => p.id),
+		offerItemId: null,
+		requestedResource: null,
+		responses: {},
+		currentPartnerIndex: 0,
+		acceptedPartnerId: null
+	};
+	gameState.update((s) => ({ ...s, trade }));
+	return true;
+}
+
+// Active player commits their offer + optional request, advances to partner responses.
+export function submitTradeOffer(offerItemId: string, requestedResource: ResourceId | null): boolean {
+	const state = get(gameState);
+	if (!state.trade || state.trade.step !== 'choosing_offer') return false;
+
+	gameState.update((s) => {
+		if (!s.trade) return s;
+		return {
+			...s,
+			trade: {
+				...s.trade,
+				offerItemId,
+				requestedResource,
+				step: 'collecting_offers_player',
+				currentPartnerIndex: 0
+			}
+		};
+	});
+	return true;
+}
+
+// A partner submits their counter-offer (an inventory item id) or null to pass.
+export function submitPartnerResponse(partnerId: number, itemId: string | null): boolean {
+	const state = get(gameState);
+	if (!state.trade) return false;
+	if (state.trade.step !== 'collecting_offers_player') return false;
+	if (!state.trade.partnerIds.includes(partnerId)) return false;
+
+	gameState.update((s) => {
+		if (!s.trade) return s;
+		const responses = { ...s.trade.responses, [partnerId]: itemId };
+		const nextIndex = s.trade.currentPartnerIndex + 1;
+		const allResponded = nextIndex >= s.trade.partnerIds.length;
+
+		// If everyone passed, end the trade with no action consumed.
+		if (allResponded) {
+			const anyOffered = Object.values(responses).some((v) => v !== null);
+			if (!anyOffered) {
+				return { ...s, trade: null };
+			}
+			return {
+				...s,
+				trade: {
+					...s.trade,
+					responses,
+					step: 'choosing_response',
+					currentPartnerIndex: nextIndex
+				}
+			};
+		}
+
+		return {
+			...s,
+			trade: {
+				...s.trade,
+				responses,
+				currentPartnerIndex: nextIndex
+			}
+		};
+	});
+	return true;
+}
+
+// Active player accepts one partner's offer. Items swap; 1 action consumed.
+export function acceptTrade(partnerId: number): boolean {
+	const state = get(gameState);
+	if (!state.trade || state.trade.step !== 'choosing_response') return false;
+	const partnerItemId = state.trade.responses[partnerId];
+	if (!partnerItemId) return false;
+	const offerItemId = state.trade.offerItemId;
+	if (!offerItemId) return false;
+
+	gameState.update((s) => {
+		if (!s.trade) return s;
+		const activeId = s.trade.activePlayerId;
+		const players = s.players.map((p) => {
+			if (p.id === activeId) {
+				const giving = p.inventory.find((i) => i.id === offerItemId);
+				if (!giving) return p;
+				const newInv = removeOne(p.inventory, offerItemId);
+				const partnerItem = s.players
+					.find((pp) => pp.id === partnerId)
+					?.inventory.find((i) => i.id === partnerItemId);
+				const finalInv = partnerItem ? addItem(newInv, partnerItem) : newInv;
+				return {
+					...p,
+					inventory: finalInv,
+					actionsRemaining: p.actionsRemaining - 1
+				};
+			}
+			if (p.id === partnerId) {
+				const receivingFromActive = s.players
+					.find((pp) => pp.id === activeId)
+					?.inventory.find((i) => i.id === offerItemId);
+				const newInv = removeOne(p.inventory, partnerItemId);
+				const finalInv = receivingFromActive ? addItem(newInv, receivingFromActive) : newInv;
+				return { ...p, inventory: finalInv };
+			}
+			return p;
+		});
+		return { ...s, players, trade: null };
+	});
+	return true;
+}
+
+// Active player rejects all offers. No action consumed.
+export function rejectAllTrades(): void {
+	gameState.update((s) => ({ ...s, trade: null }));
+}
+
+// Active player cancels the trade before sending the offer. No action consumed.
+export function cancelTrade(): void {
+	gameState.update((s) => ({ ...s, trade: null }));
+}
+
+// ========== Inventory helpers ==========
+
+function removeOne(inventory: InventoryItem[], itemId: string): InventoryItem[] {
+	const idx = inventory.findIndex((i) => i.id === itemId);
+	if (idx < 0) return inventory;
+	const item = inventory[idx];
+	if (item.quantity > 1) {
+		return inventory.map((i, n) => (n === idx ? { ...i, quantity: i.quantity - 1 } : i));
+	}
+	return inventory.filter((_, n) => n !== idx);
+}
+
+function addItem(inventory: InventoryItem[], item: InventoryItem): InventoryItem[] {
+	const existing = inventory.find((i) => i.id === item.id && i.type === item.type);
+	if (existing) {
+		return inventory.map((i) => (i === existing ? { ...i, quantity: i.quantity + 1 } : i));
+	}
+	return [...inventory, { ...item, quantity: 1 }];
 }

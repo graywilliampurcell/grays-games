@@ -63,6 +63,35 @@ export interface Player {
 
 export type GamePhase = 'player_count_select' | 'job_select' | 'groomate_rps' | 'playing';
 
+// Phase 3: Resource and recipe types
+export type ResourceId = 'metal' | 'wood' | 'plant' | 'food';
+
+export interface Recipe {
+	id: string;
+	displayName: string;
+	inputs: { resource: ResourceId; quantity: number }[];
+	output: { itemId: string; itemName: string; quantity: number };
+}
+
+// Phase 3: Trade lifecycle
+export type TradePhaseStep =
+	| 'choosing_offer'
+	| 'collecting_offers'
+	| 'collecting_offers_player'
+	| 'choosing_response'
+	| 'complete';
+
+export interface TradeState {
+	step: TradePhaseStep;
+	activePlayerId: number;
+	partnerIds: number[];
+	offerItemId: string | null;
+	requestedResource: ResourceId | null;
+	responses: Record<number, string | null>; // partnerId -> inventoryItemId or null (pass)
+	currentPartnerIndex: number; // which partner is currently entering their counter-offer
+	acceptedPartnerId: number | null;
+}
+
 export interface GameState {
 	tiles: Tile[];
 	players: Player[];
@@ -72,4 +101,7 @@ export interface GameState {
 	// Phase 2 additions
 	phase: GamePhase;
 	jobSelectPlayerIndex: number;
+	// Phase 3 additions
+	trade: TradeState | null;
+	makerModalOpen: boolean;
 }

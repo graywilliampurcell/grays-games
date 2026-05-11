@@ -1,10 +1,12 @@
 <script lang="ts">
-	import type { JobType } from '$lib/types';
+	import type { JobType, ResourceId } from '$lib/types';
 	import {
 		gameState,
 		currentPlayer,
 		validMoves,
 		jobSelectingPlayer,
+		activeMineYield,
+		tradePartners,
 		setPlayerCount,
 		startGame,
 		movePlayer,
@@ -12,6 +14,15 @@
 		selectJob,
 		resolveGroomateRPS,
 		getGroomates,
+		mineAction,
+		openMakerModal,
+		closeMakerModal,
+		startTrade,
+		submitTradeOffer,
+		submitPartnerResponse,
+		acceptTrade,
+		rejectAllTrades,
+		cancelTrade,
 		type RPSChoice
 	} from '$lib/gameState';
 	import { generateBoard } from '$lib/hexUtils';
@@ -21,6 +32,9 @@
 	import JobSelect from '../components/JobSelect.svelte';
 	import GroomateRPS from '../components/GroomateRPS.svelte';
 	import PlayerPanel from '../components/PlayerPanel.svelte';
+	import ActionPanel from '../components/ActionPanel.svelte';
+	import MakerModal from '../components/MakerModal.svelte';
+	import TradeModal from '../components/TradeModal.svelte';
 
 	// Initialize board tiles for display before game starts
 	let preGameTiles = $state(generateBoard());
@@ -116,10 +130,37 @@
 				/>
 			</div>
 
-			<!-- Right panel: empty for now, can be used for other info -->
+			<!-- Right panel: action buttons during play -->
 			<div class="side-panel right-panel">
+				{#if $gameState.phase === 'playing' && $currentPlayer}
+					<ActionPanel
+						activePlayer={$currentPlayer}
+						mineYield={$activeMineYield}
+						canTrade={$tradePartners.length > 0}
+						onMine={mineAction}
+						onMake={openMakerModal}
+						onTrade={startTrade}
+					/>
+				{/if}
 			</div>
 		</div>
+
+		{#if $gameState.makerModalOpen}
+			<MakerModal onClose={closeMakerModal} />
+		{/if}
+
+		{#if $gameState.trade}
+			<TradeModal
+				trade={$gameState.trade}
+				players={$gameState.players}
+				onSubmitOffer={(offerItemId, requestedResource) =>
+					submitTradeOffer(offerItemId, requestedResource)}
+				onSubmitResponse={(partnerId, itemId) => submitPartnerResponse(partnerId, itemId)}
+				onAccept={(partnerId) => acceptTrade(partnerId)}
+				onRejectAll={rejectAllTrades}
+				onCancel={cancelTrade}
+			/>
+		{/if}
 	{/if}
 </main>
 

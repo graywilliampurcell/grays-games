@@ -69,6 +69,16 @@ export function coordsEqual(a: HexCoordinate, b: HexCoordinate): boolean {
 	return a.q === b.q && a.r === b.r;
 }
 
+// Axial-coordinate hex distance.
+export function hexDistance(a: HexCoordinate, b: HexCoordinate): number {
+	return (
+		(Math.abs(a.q - b.q) +
+			Math.abs(a.q + a.r - b.q - b.r) +
+			Math.abs(a.r - b.r)) /
+		2
+	);
+}
+
 // Generate all hex coordinates in ring order (for board generation)
 export function generateHexCoordinates(): HexCoordinate[] {
 	const coords: HexCoordinate[] = [];
