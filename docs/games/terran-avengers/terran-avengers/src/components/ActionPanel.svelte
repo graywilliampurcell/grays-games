@@ -17,7 +17,11 @@
 	const hasActions = $derived(activePlayer.actionsRemaining > 0);
 	const mineDisabled = $derived(!mineYield || !hasActions);
 	const makeDisabled = $derived(!isMaker || !hasActions);
-	const tradeDisabled = $derived(!canTrade || !hasActions || activePlayer.inventory.length === 0);
+	// Books are not tradeable, so they don't count toward "has something to offer".
+	const tradeableInventoryCount = $derived(
+		activePlayer.inventory.filter((i) => i.type !== 'book').length
+	);
+	const tradeDisabled = $derived(!canTrade || !hasActions || tradeableInventoryCount === 0);
 </script>
 
 <div class="action-panel">

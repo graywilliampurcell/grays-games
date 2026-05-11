@@ -140,6 +140,8 @@ function tradePartners(active: Player, all: Player[]): Player[] {
 
 **Important:** Even if the active player named a specific requested item, in-range players can still counter with whatever they want. The "requested item" is just a hint, not a constraint. The active player remains free to accept anything they like.
 
+**Books are not tradeable.** A player's book never appears as a selectable item in the offer or counter-offer lists. If a player's only inventory item is a book, the Trade button is disabled (treat them as having nothing to offer).
+
 ```typescript
 type TradePhase =
   | 'idle'
@@ -296,6 +298,8 @@ When Phase 3 is complete, the game should have:
 - [ ] Rejecting all offers consumes 0 actions
 - [ ] No in-range player making an offer consumes 0 actions
 - [ ] Cancelling the trade before sending the offer consumes 0 actions
+- [ ] Books are excluded from the offer and counter-offer lists in the trade modal
+- [ ] Trade button is disabled when the active player's only items are books
 - [ ] Each player's side panel shows their inventory contents
 - [ ] All Phase 1 and Phase 2 functionality still works
 
@@ -306,6 +310,7 @@ When Phase 3 is complete, the game should have:
 Save these for later phases:
 - Tool requirements for mining (rake, axe, hoe, pickaxe, sheers) → Phase 4
 - Resource subtypes (titanium vs iron, fern vs ivy, types of wood) → Phase 4
+  - **When metal subtypes land:** trading metal must specify the specific metal (titanium / iron / aluminum / tin / brass / steel). The trade UI must surface metal as its concrete subtype on both sides — no generic "metal" offers or requests once subtypes exist.
 - Actual Maker recipes → Phase 4
 - Crystals + penny flip in Cave → Phase 4
 - Spells (D6 on stop) and upgraded spells → Phase 4

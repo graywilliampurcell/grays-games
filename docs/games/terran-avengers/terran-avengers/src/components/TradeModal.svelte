@@ -26,6 +26,12 @@
 			: null
 	);
 
+	// Books are not tradeable.
+	const tradeableActiveItems = $derived(activePlayer.inventory.filter((i) => i.type !== 'book'));
+	const tradeableResponderItems = $derived(
+		currentResponder ? currentResponder.inventory.filter((i) => i.type !== 'book') : []
+	);
+
 	let selectedOfferId = $state<string | null>(null);
 	let requestedResource = $state<ResourceId | null>(null);
 
@@ -95,11 +101,11 @@
 
 			<div class="section">
 				<div class="section-label">You will give:</div>
-				{#if activePlayer.inventory.length === 0}
+				{#if tradeableActiveItems.length === 0}
 					<p class="empty">You have nothing to offer.</p>
 				{:else}
 					<div class="option-grid">
-						{#each activePlayer.inventory as item}
+						{#each tradeableActiveItems as item}
 							<label class="option" class:selected={selectedOfferId === item.id}>
 								<input
 									type="radio"
@@ -171,11 +177,11 @@
 
 			<div class="section">
 				<div class="section-label">Your counter-offer:</div>
-				{#if currentResponder.inventory.length === 0}
+				{#if tradeableResponderItems.length === 0}
 					<p class="empty">You have nothing to offer.</p>
 				{:else}
 					<div class="option-grid">
-						{#each currentResponder.inventory as item}
+						{#each tradeableResponderItems as item}
 							<label class="option" class:selected={selectedResponseId === item.id}>
 								<input
 									type="radio"
