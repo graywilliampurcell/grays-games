@@ -10,10 +10,11 @@ Mazle is a cooperative multiplayer mobile game that allows up to **10 players** 
 1. **Lives and Gifting**:
    - **Individual Lives**:
      - Each player has their own pool of lives, starting with **three lives** at the beginning of a level.
+     - The maximum number of lives a player can have is **three**; lives cannot exceed this limit.
    - **Gifting Lives**:
      - Players can **gift lives** to teammates if they have **more than one life remaining**.
      - Players with only one life left cannot gift lives.
-     - Gifted lives are instantly added to the recipient's pool.
+     - Gifted lives are instantly added to the recipient's pool, provided their total does not exceed three.
 
 2. **Livers (Live-ers)**:
    - **Functionality**:
@@ -36,11 +37,9 @@ Mazle is a cooperative multiplayer mobile game that allows up to **10 players** 
        - Respawn at the most recent **checkpoint** (if one exists) or the **beginning of the level**.
 
 4. **Checkpoints**:
-   - **Design**:
-     - Checkpoints have a distinct **green floor** and notify players with a popup saying "Checkpoint Activated."
-   - **Functionality**:
-     - Checkpoints allow players to respawn after losing a life, provided they have lives remaining.
-     - If all lives are lost, the respawn point defaults to the beginning of the level.
+   - Checkpoints have a distinct **green floor** and notify players with a popup saying "Checkpoint Activated."
+   - Checkpoints allow players to respawn after losing a life, provided they have lives remaining.
+   - If all lives are lost, the respawn point defaults to the beginning of the level.
 
 5. **Level Completion and Reset Rules**:
    - For a level to be completed:
