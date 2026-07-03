@@ -75,11 +75,85 @@ Mazle is a cooperative multiplayer mobile game that allows up to **10 players** 
 
 ## Technical Specification
 
+### Overview
+Mazle uses a **peer-to-peer (P2P) architecture** powered by **WebRTC** for real-time communication between players. A **Node.js WebSocket signaling server** facilitates the initial connection setup, but does not store game state. All game state is tracked and synchronized by the game clients themselves.
+
+### Architecture
+
+1. **Signaling Server**:
+   - **Technology**: Node.js WebSocket server (hosted separately, outside this repository).
+   - **Purpose**: Facilitates the initial peer-to-peer connection setup by exchanging WebRTC session descriptions and ICE candidates between clients.
+   - **Configuration**: Users provide the signaling server URL when launching the game.
+   - **State**: The signaling server is **stateless** and does not persist any game data.
+
+2. **Game Clients**:
+   - **Technology**: Web-based (browser) application using WebRTC Data Channels for P2P communication.
+   - **Responsibilities**:
+     - Establish WebRTC connections with other players in the session.
+     - Manage and synchronize **all game state** (player positions, lives, booby trap locations, lever states, etc.).
+     - Handle game logic (checkpoint activation, life loss, level completion).
+     - Render the maze and player interactions in real-time.
+
+3. **Game State Management**:
+   - **Decentralized**: Each client maintains a copy of the game state.
+   - **Synchronization**: Players exchange state updates via WebRTC Data Channels.
+   - **Authority**: Game state is **collaborative**—all players contribute to maintaining consistency (no central server arbitration).
+
+### Session and Room Management
+
+1. **Session Flow**:
+   - **Step 1**: User enters the **signaling server URL**.
+   - **Step 2**: User either:
+     - **Creates a new room** (generates a unique room code).
+     - **Joins an existing room** by entering a room URL or code.
+   - **Step 3** (For room creator): After creating a room, the user can share via:
+     - **QR Code**: Encodes the signaling server URL and room code.
+     - **URL**: Direct link containing both the signaling server URL and room code.
+   - **Step 4** (For joining players): Players scan the QR code or visit the shared URL, which automatically populates the signaling server URL and room code. They join the game directly.
+
+2. **Room Identification**:
+   - Rooms are identified by a **unique room code**.
+   - The room code is embedded in shared URLs and QR codes for easy distribution.
+
+3. **Player Discovery**:
+   - When a player joins a room, the signaling server facilitates peer-to-peer connection negotiation with other players already in that room.
+   - Direct WebRTC connections are established between all players in the session.
+
+### Communication Protocol
+
+1. **Signaling Phase** (via WebSocket):
+   - Exchange of WebRTC **Session Descriptions (SDP)**.
+   - Exchange of **ICE Candidates** (network route information).
+   - Once WebRTC connections are established, the signaling server is no longer needed.
+
+2. **Game State Synchronization** (via WebRTC Data Channels):
+   - **Player position updates**: Real-time movement data.
+   - **Life changes**: When a player loses or gains a life.
+   - **Checkpoint activation**: When a checkpoint is reached.
+   - **Lever/switch state**: Activation status of interactive elements.
+   - **Booby trap triggers**: When a trap is hit.
+   - **Liver collection**: When items are picked up.
+   - **Level completion**: When all players reach the exit.
+
+### Data Persistence
+
+- **No Backend Storage**: The signaling server does not store any game data.
+- **Client-Side State**: All game progress and state is maintained by the game clients.
+- **Session Persistence**: Players remain connected via WebRTC as long as the game session is active. If a player disconnects, the session may be paused or terminated depending on game rules.
+
+### Configuration
+
+- **User-Provided Signaling Server URL**: Players specify the WebSocket signaling server URL when launching the game.
+- **Dynamic Room Management**: Room codes are generated client-side and shared via QR codes or URLs.
+
+---
+
 ### To be outlined
-This section will cover the technical details of the game, including:
-- Backend architecture
-- Multiplayer implementation
-- Rendering and game engine selection
-- Data handling for levels, character skins, and interactive elements
+This section will cover additional technical details, including:
+- Specific WebRTC data channel message formats
+- Conflict resolution strategies for state synchronization
+- Game engine and rendering technology selection
+- Mobile responsiveness and performance optimization
+- Security considerations (data encryption, player validation)
 
 (Technical details will be added as the development progresses.)
