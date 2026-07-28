@@ -55,7 +55,7 @@ Mazle is a cooperative multiplayer mobile game that allows up to **10 players** 
      - **Levels 21 and Beyond**: Levers and switches become **collaborative**, requiring participation from **half the players (rounded down)** to activate.
    - **Reset Behavior**:
      - Levers and switches reset when the level is restarted or completed.
-   
+    
 7. **Customization**:
    - **Default Skin**:
      - All players begin as an old man in a **white tank top and blue jeans.**
@@ -64,12 +64,53 @@ Mazle is a cooperative multiplayer mobile game that allows up to **10 players** 
      - Unlocked skins can be equipped at will, allowing players to switch between the default and earned skins.
 
 8. **Player Stats**:
-   - Tracks individual progress but avoids competitive rankings. Stats include:
-     - Lives gifted.
-     - Livers collected.
-     - Mazes completed.
-     - Booby traps triggered.
-     - Number of times revived or respawned.
+   - Tracks individual progress without competitive rankings.
+   - **Stat Tracked**:
+     - **Levels Completed**: The total number of levels successfully completed by the player.
+
+---
+
+## Visual Design and Aesthetics
+
+### 3D Pixelated Graphics (Minecraft-Style)
+
+Mazle features a **3D pixelated art style** similar to Minecraft, creating an immersive yet charming environment for cooperative gameplay.
+
+#### Key Design Elements
+
+1. **Voxel-Based World**:
+   - All maze structures, obstacles, and environmental elements are built from cubic voxels (3D pixels).
+   - This creates a consistent, blocky aesthetic throughout the game world.
+   - Voxels enable efficient rendering and provide a nostalgic, retro-gaming feel.
+
+2. **Player Models**:
+   - Players are rendered as **pixelated humanoid characters** in a Minecraft-like style.
+   - The default character is an old man wearing a **white tank top and blue jeans**.
+   - Unlockable skins maintain the pixelated aesthetic while allowing visual customization.
+   - Each player is distinguished by a **unique colored outline or nametag** for easy identification in multiplayer sessions.
+
+3. **Environmental Palette**:
+   - **Maze walls**: Stone-textured blocks in shades of gray and brown.
+   - **Floors**: Varied textures (stone, dirt, wood) to distinguish different areas.
+   - **Checkpoints**: Bright green-colored blocks for high visibility and clear identification.
+   - **Levers and switches**: Detailed pixelated mechanisms that are visually distinct.
+   - **Booby traps**: Distinctive colored blocks (e.g., red or dark purple) to create tension and warning.
+   - **Exit**: A prominent gold or bright color-coded structure to guide players.
+
+4. **Lighting and Atmosphere**:
+   - Ambient lighting creates clear sightlines within the 3D maze.
+   - Each level may have distinct lighting conditions (torchlight, daylight, etc.) to create variety and atmosphere.
+   - Shadows are simplified to maintain performance across devices.
+
+5. **Animation Style**:
+   - Player movement is smooth and responsive while maintaining the pixelated visual style.
+   - Interactions (lever pulls, trap triggers, checkpoint activation) have clear, snappy animations.
+   - Particle effects (dust, sparks) are pixelated to match the overall aesthetic.
+
+6. **Performance Considerations**:
+   - The pixelated style reduces the need for high-resolution textures and detailed models.
+   - Efficient rendering of voxel-based environments allows smooth gameplay on mobile devices and across WebRTC P2P connections.
+   - Level complexity can be scaled through voxel density without significant performance impact.
 
 ---
 
@@ -92,7 +133,7 @@ Mazle uses a **peer-to-peer (P2P) architecture** powered by **WebRTC** for real-
      - Establish WebRTC connections with other players in the session.
      - Manage and synchronize **all game state** (player positions, lives, booby trap locations, lever states, etc.).
      - Handle game logic (checkpoint activation, life loss, level completion).
-     - Render the maze and player interactions in real-time.
+     - Render the maze and player interactions in real-time using 3D pixelated graphics.
 
 3. **Game State Management**:
    - **Decentralized**: Each client maintains a copy of the game state.
@@ -152,7 +193,7 @@ Mazle uses a **peer-to-peer (P2P) architecture** powered by **WebRTC** for real-
 This section will cover additional technical details, including:
 - Specific WebRTC data channel message formats
 - Conflict resolution strategies for state synchronization
-- Game engine and rendering technology selection
+- 3D rendering engine selection (Three.js, Babylon.js, or custom voxel renderer)
 - Mobile responsiveness and performance optimization
 - Security considerations (data encryption, player validation)
 
