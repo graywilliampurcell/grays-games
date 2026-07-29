@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mazle Map Playtest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            overflow: hidden;
+        }
+        
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #aaa;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            max-width: 300px;
+        }
+        
+        .stat {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <div class="stat">FPS: <span id="fps">0</span></div>
+        <div class="stat">Position: <span id="position">0, 0, 0</span></div>
+    </div>
+    <div id="controls">
+        <strong>Controls:</strong><br>
+        W/↑ Forward | S/↓ Back<br>
+        A/← Strafe Left | D/→ Strafe Right<br>
+        Mouse to Look Around
+    </div>
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>
