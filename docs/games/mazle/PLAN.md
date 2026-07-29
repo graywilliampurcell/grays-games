@@ -3,6 +3,7 @@
 ## Functional Specification
 
 ### Overview
+
 Mazle is a cooperative multiplayer mobile game that allows up to **10 players** to navigate a maze together. The goal is to reach the exit by solving puzzles, avoiding challenges, and utilizing teamwork.
 
 ### Gameplay Features
@@ -55,10 +56,10 @@ Mazle is a cooperative multiplayer mobile game that allows up to **10 players** 
      - **Levels 21 and Beyond**: Levers and switches become **collaborative**, requiring participation from **half the players (rounded down)** to activate.
    - **Reset Behavior**:
      - Levers and switches reset when the level is restarted or completed.
-    
+
 7. **Customization**:
    - **Default Skin**:
-     - All players begin as an old man in a **white tank top and blue jeans.**
+     - All players begin as an old man in a **white tank top and blue jeans**.
    - **Unlockable Skins**:
      - Players can earn skins through gameplay progression.
      - Unlocked skins can be equipped at will, allowing players to switch between the default and earned skins.
@@ -117,6 +118,7 @@ Mazle features a **3D pixelated art style** similar to Minecraft, creating an im
 ## Technical Specification
 
 ### Overview
+
 Mazle uses a **peer-to-peer (P2P) architecture** powered by **WebRTC** for real-time communication between players. A **Node.js WebSocket signaling server** facilitates the initial connection setup, but does not store game state. All game state is tracked and synchronized by the game clients themselves.
 
 ### Architecture
@@ -189,8 +191,10 @@ Mazle uses a **peer-to-peer (P2P) architecture** powered by **WebRTC** for real-
 
 ---
 
-### To be outlined
+### To Be Outlined
+
 This section will cover additional technical details, including:
+
 - Specific WebRTC data channel message formats
 - Conflict resolution strategies for state synchronization
 - 3D rendering engine selection (Three.js, Babylon.js, or custom voxel renderer)
