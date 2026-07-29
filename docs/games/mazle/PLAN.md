@@ -189,16 +189,12 @@ Mazle uses a **peer-to-peer (P2P) architecture** powered by **WebRTC** for real-
 - **User-Provided Signaling Server URL**: Players specify the WebSocket signaling server URL when launching the game.
 - **Dynamic Room Management**: Room codes are generated client-side and shared via QR codes or URLs.
 
----
+## Future Implementation Details
 
-### To Be Outlined
-
-This section will cover additional technical details, including:
+This section will cover additional technical details to be outlined as development progresses:
 
 - Specific WebRTC data channel message formats
 - Conflict resolution strategies for state synchronization
 - 3D rendering engine selection (Three.js, Babylon.js, or custom voxel renderer)
 - Mobile responsiveness and performance optimization
 - Security considerations (data encryption, player validation)
-
-(Technical details will be added as the development progresses.)
