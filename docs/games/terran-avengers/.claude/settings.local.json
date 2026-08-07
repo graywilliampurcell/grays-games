@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun run check:*)",
+      "Bash(bun run dev --port 5173)",
+      "Bash(bun add:*)",
+      "Bash(bun vitest run:*)",
+      "Bash(bun run test:*)",
+      "Bash(bun run build:*)"
+    ]
+  }
+}
