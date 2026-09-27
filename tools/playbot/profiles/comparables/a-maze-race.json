@@ -1,0 +1,29 @@
+{
+  "title": "A Maze Race",
+  "slug": "a-maze-race",
+  "source": "general-knowledge-not-played",
+  "profile": {
+    "game": "A Maze Race",
+    "source": "general-knowledge-not-played",
+    "genre": "Top-down maze, racing a timer/opponent",
+    "web_playable": "Yes — classic Flash-era web game with HTML5 ports on kids' game sites.",
+    "onboarding": "Drops the player straight into a small first maze, with a short text note showing the arrow-key controls.",
+    "controls": "Arrow keys held to move; some versions support mouse.",
+    "core_loop": "Find the path from start to finish before an opponent or timer runs out.",
+    "goals_and_rewards": "Reach the exit to unlock the next, larger maze, with a small celebration on completion.",
+    "difficulty_curve": "Mazes grow steadily larger across levels, with time pressure as the main added difficulty.",
+    "game_feel": "Simple, crisp grid-based movement with immediate directional response.",
+    "art_and_audio": "Bright cartoon art style with basic sound effects.",
+    "session_length": "About 1-3 minutes per maze, with many mazes to work through.",
+    "usability": "Goal is very clear throughout, conveyed via short text instructions.",
+    "accessibility": "Paths are colour-coded for clarity, but the game requires reading and sustained held-key input, and the timer adds pressure not suited to a 5-7 bracket.",
+    "ads_and_purchases": "Hosting sites typically show ads around the game; no in-game purchases known.",
+    "notes": "Ads and time pressure are flagged only, not recommended for adoption; the useful comparison point for mazle is purely the multi-level size ramp, which mazle currently lacks entirely."
+  },
+  "sessionFile": null,
+  "madeAt": "2026-09-27T18:32:26.675Z",
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5"
+  }
+}
