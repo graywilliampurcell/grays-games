@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Rolly Bally</title>
+    <meta name="theme-color" content="#6ec6ff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Rolly Bally" />
+    <meta name="format-detection" content="telephone=no" />
+    <!-- Manifest drives Home-Screen behaviour (start_url './' so a ?mode=/?seed=
+         URL never becomes the permanent start page); apple-* tags are a fallback. -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <style>
+      /* Critical CSS for the loader + rotate hint (shown before JS/CSS load). */
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #6ec6ff;
+        touch-action: none; overscroll-behavior: none; -webkit-user-select: none; user-select: none;
+        -webkit-touch-callout: none; }
+      #loader { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
+        background: linear-gradient(180deg, #6ec6ff 0%, #b8e6ff 68%, #5cc93b 68%); transition: opacity 0.5s; }
+      #loader.hidden { opacity: 0; pointer-events: none; }
+      #loader .lane { position: relative; width: min(60vw, 420px); height: 90px; border-bottom: 10px solid #2fb84a; }
+      #loader .ball { position: absolute; bottom: 0; left: 0; width: 80px; height: 80px; border-radius: 50%;
+        background: conic-gradient(#e8302e 0 25%, #ffd21f 0 50%, #e8302e 0 75%, #ffd21f 0);
+        border: 6px solid #fff; box-sizing: border-box; animation: roll 1.6s ease-in-out infinite alternate; }
+      @keyframes roll { from { transform: translateX(0) rotate(0); } to { transform: translateX(calc(min(60vw, 420px) - 80px)) rotate(540deg); } }
+      #loader.error .ball { animation: none; filter: grayscale(1); }
+      #rotate-hint { display: none; position: fixed; inset: 0; z-index: 2000; background: #2e6be8; color: #fff;
+        align-items: center; justify-content: center; }
+      #rotate-hint svg { width: min(50vw, 260px); height: auto; animation: tilt 2s ease-in-out infinite; }
+      @keyframes tilt { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
+      /* Only phones/tablets held upright (coarse pointer) get the hint. */
+      @media (orientation: portrait) and (pointer: coarse) { #rotate-hint { display: flex; } }
+    </style>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+    <div id="ui">
+      <div id="mode-ui"></div>
+      <div id="screen"></div>
+    </div>
+
+    <div id="loader" aria-label="Loading">
+      <div class="lane"><div class="ball"></div></div>
+    </div>
+
+    <div id="rotate-hint" aria-label="Please turn the iPad sideways">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <rect x="30" y="10" width="60" height="100" rx="10" fill="none" stroke="#fff" stroke-width="7" />
+        <circle cx="60" cy="98" r="4" fill="#fff" />
+        <circle cx="60" cy="58" r="16" fill="#ffd21f" stroke="#fff" stroke-width="4" />
+      </svg>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

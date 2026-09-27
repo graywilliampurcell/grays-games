@@ -1,0 +1,91 @@
+name: Build & deploy site
+
+# Builds Rolly Bally (tests must pass), best-effort builds the Mazle playtest,
+# assembles docs/ + built games into _site and deploys to GitHub Pages.
+# REQUIRED one-time repo setting (before/with the first master push):
+#   Settings -> Pages -> Source: GitHub Actions.
+# Otherwise deploy-pages fails and the old branch-served docs/ site (which has
+# no games/rolly-bally build) keeps serving.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# PR runs get their own group so they never cancel a pending master deploy.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.ref) || 'pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Vitest 5 needs Node >= 22.12.
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: src/rolly-bally/package-lock.json
+
+      - name: Rolly Bally - install
+        working-directory: src/rolly-bally
+        run: npm ci
+
+      - name: Rolly Bally - test
+        working-directory: src/rolly-bally
+        run: npm test
+
+      - name: Rolly Bally - build
+        working-directory: src/rolly-bally
+        run: npm run build
+
+      - name: Mazle playtest - build (best effort)
+        continue-on-error: true
+        working-directory: src/playtest
+        run: |
+          npm install --no-audit --no-fund
+          npx vite build --base ./ --minify esbuild --outDir dist
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          cp -r docs/. _site/
+          mkdir -p _site/games/rolly-bally
+          cp -r src/rolly-bally/dist/. _site/games/rolly-bally/
+          if [ -f src/playtest/dist/index.html ]; then
+            mkdir -p _site/games/mazle/playtest
+            cp -r src/playtest/dist/. _site/games/mazle/playtest/
+          else
+            echo "Mazle playtest not built; skipping."
+          fi
+          touch _site/.nojekyll
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
