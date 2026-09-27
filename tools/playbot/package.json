@@ -1,0 +1,16 @@
+{
+  "name": "playbot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local game tester bot for Gray's games (Playwright + Claude judge).",
+  "bin": { "playbot": "bin/playbot.js" },
+  "scripts": {
+    "smoke": "node bin/playbot.js smoke",
+    "judge-test": "node bin/playbot.js judge-test"
+  },
+  "engines": { "node": ">=24" },
+  "dependencies": {
+    "playwright": "1.63.0"
+  }
+}
