@@ -55,6 +55,55 @@ jobs:
           npm install --no-audit --no-fund
           npx vite build --base ./ --minify esbuild --outDir dist
 
+      # playbot deploy gate: no AI, no network beyond the local static server
+      # (Chromium resolves only 127.0.0.1). Smoke + solver + short monkey +
+      # red-flag checks (network, links out, input fields, permissions, word scan)
+      # on the dist dirs built above. Any failure fails the job, so nothing deploys.
+      - name: playbot - setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: tools/playbot/package-lock.json
+
+      - name: playbot - install
+        working-directory: tools/playbot
+        run: |
+          npm ci --no-audit --no-fund
+          # Resolves to the pinned playwright (1.63.0 -> chromium headless shell 1243).
+          npx playwright install --with-deps chromium-headless-shell
+
+      - name: playbot - Rolly Bally gate
+        working-directory: tools/playbot
+        env:
+          PLAYBOT_HOST: 127.0.0.1
+          PLAYBOT_PORT: '9180'
+        run: node bin/playbot.js ci rolly-bally --dist ../../src/rolly-bally/dist --out out/ci/rolly-bally
+
+      - name: playbot - Mazle gate
+        working-directory: tools/playbot
+        env:
+          PLAYBOT_HOST: 127.0.0.1
+          PLAYBOT_PORT: '9180'
+        # Only when the best-effort Mazle build produced something to deploy. A build
+        # without the ?test=1 hook gets smoke + red-flag checks only (solver/monkey
+        # skipped with a notice); errors or red flags still block the deploy.
+        run: |
+          if [ -f ../../src/playtest/dist/index.html ]; then
+            node bin/playbot.js ci mazle --dist ../../src/playtest/dist --hook-optional --out out/ci/mazle
+          else
+            echo "::notice title=playbot::Mazle playtest not built; Mazle gate skipped (nothing to deploy)."
+          fi
+
+      - name: playbot - upload results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playbot-ci-out
+          path: tools/playbot/out/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Assemble site
         run: |
           mkdir -p _site

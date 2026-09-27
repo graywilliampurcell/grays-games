@@ -4,13 +4,23 @@
   "private": true,
   "type": "module",
   "description": "Local game tester bot for Gray's games (Playwright + Claude judge).",
-  "bin": { "playbot": "bin/playbot.js" },
+  "bin": {
+    "playbot": "bin/playbot.js"
+  },
   "scripts": {
     "smoke": "node bin/playbot.js smoke",
-    "judge-test": "node bin/playbot.js judge-test"
+    "judge-test": "node bin/playbot.js judge-test",
+    "checks": "node bin/playbot.js checks",
+    "checks:ci": "node bin/playbot.js checks --ci",
+    "test": "node --test test/*.test.mjs",
+    "update-trackers": "node scripts/update-trackers.mjs"
   },
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
-    "playwright": "1.63.0"
+    "@axe-core/playwright": "4.13.0",
+    "playwright": "1.63.0",
+    "yaml": "2.9.1"
   }
 }
