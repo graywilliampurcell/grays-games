@@ -1,0 +1,30 @@
+{
+  "server": { "host": "192.168.1.9", "port": 9073 },
+  "browser": {
+    "viewport": { "width": 1280, "height": 720 },
+    "args": ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"]
+  },
+  "smoke": { "readyTimeoutMs": 30000, "hookGraceMs": 10000, "fallbackWaitMs": 3000, "stepFrames": 60 },
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5",
+    "reviewModel": "claude-opus-5-5"
+  },
+  "games": {
+    "mazle": {
+      "dir": "src/playtest",
+      "smokeUrls": ["?test=1"],
+      "planPage": "https://app.notion.com/p/3e762b14e6ba81e48999c2df1942a56f"
+    },
+    "rolly-bally": {
+      "dir": "src/rolly-bally",
+      "smokeUrls": ["?mode=test-track&test=1", "?gallery=1&test=1"],
+      "planPage": null,
+      "reportsParent": {
+        "title": "Game tester reports",
+        "under": "Research",
+        "url": "https://app.notion.com/p/3a862b14e6ba812f8f7bff0d365e0f23"
+      }
+    }
+  }
+}
