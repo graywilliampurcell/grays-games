@@ -1,0 +1,27 @@
+/* Shared effects (src/fx). Non-interactive. */
+
+.fx-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fx-confetti i {
+  position: absolute;
+  top: -20px;
+  width: 14px;
+  height: 22px;
+  border-radius: 3px;
+  animation: fx-fall linear both;
+}
+
+@keyframes fx-fall {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(var(--dx), 110vh, 0) rotate(var(--rot)); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-confetti { display: none; }
+}
