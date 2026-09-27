@@ -1,0 +1,7473 @@
+{
+  "game": "mazle",
+  "wallSeconds": 174.2,
+  "brackets": [
+    "2-4",
+    "5-7",
+    "8-10",
+    "11-13"
+  ],
+  "kidRunsPerCondition": 20,
+  "layoutFacts": [
+    {
+      "condition": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "cells": "12x12",
+      "solutionCells": 22,
+      "deadEnds": 26,
+      "maxBranchDepth": 38,
+      "junctions": 24,
+      "spikeFromStart": 4,
+      "optimalPath": 72.78,
+      "solverTime": 14.37
+    },
+    {
+      "condition": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "cells": "12x12",
+      "solutionCells": 57,
+      "deadEnds": 26,
+      "maxBranchDepth": 25,
+      "junctions": 23,
+      "spikeFromStart": 3,
+      "optimalPath": 191.16,
+      "solverTime": 38.48
+    },
+    {
+      "condition": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "cells": "12x12",
+      "solutionCells": 41,
+      "deadEnds": 25,
+      "maxBranchDepth": 21,
+      "junctions": 23,
+      "spikeFromStart": 3,
+      "optimalPath": 138.26,
+      "solverTime": 27.25
+    },
+    {
+      "condition": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "cells": "12x12",
+      "solutionCells": 36,
+      "deadEnds": 29,
+      "maxBranchDepth": 24,
+      "junctions": 25,
+      "spikeFromStart": 3,
+      "optimalPath": 122.47,
+      "solverTime": 23.05
+    },
+    {
+      "condition": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "cells": "12x12",
+      "solutionCells": 30,
+      "deadEnds": 29,
+      "maxBranchDepth": 18,
+      "junctions": 26,
+      "spikeFromStart": 3,
+      "optimalPath": 99.56,
+      "solverTime": 19.12
+    },
+    {
+      "condition": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "cells": "7x7",
+      "solutionCells": 34,
+      "deadEnds": 8,
+      "maxBranchDepth": 3,
+      "junctions": 6,
+      "spikeFromStart": 3,
+      "optimalPath": 112.89,
+      "solverTime": 22.7
+    }
+  ],
+  "rows": [
+    {
+      "bracket": "2-4",
+      "condition": "Iteration 1 (12x12)",
+      "summary": {
+        "runs": 20,
+        "errors": 0,
+        "capS": 300,
+        "winRate": 0.05,
+        "medianTimeToWin": "Infinity",
+        "meanTimeToWinOfWinners": 40.13,
+        "timeToWinRange": [
+          40.13,
+          40.13
+        ],
+        "quits": 19,
+        "failsMean": 1.2,
+        "failsPerMinute": 0.79,
+        "retryRate": 0.96,
+        "bumpsPerMinute": 10.29,
+        "pathVsOptimal": 1.82,
+        "stuckEpisodesPerRun": 2.35,
+        "stuckSpots": [
+          {
+            "cell": "0,8",
+            "runs": 5,
+            "episodes": 8,
+            "seconds": 194.35
+          },
+          {
+            "cell": "0,7",
+            "runs": 4,
+            "episodes": 4,
+            "seconds": 78.5
+          },
+          {
+            "cell": "0,11",
+            "runs": 3,
+            "episodes": 3,
+            "seconds": 77.2
+          },
+          {
+            "cell": "2,6",
+            "runs": 3,
+            "episodes": 4,
+            "seconds": 68.8
+          },
+          {
+            "cell": "0,9",
+            "runs": 3,
+            "episodes": 3,
+            "seconds": 61.05
+          },
+          {
+            "cell": "5,9",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 60.1
+          },
+          {
+            "cell": "2,10",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 58.25
+          },
+          {
+            "cell": "6,11",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 42.9
+          },
+          {
+            "cell": "0,5",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 41.6
+          }
+        ],
+        "cellsVisitedMean": 21.25
+      },
+      "verdict": {
+        "verdict": "too hard",
+        "reasons": [
+          "win rate 5% < 60% within 5m00s",
+          "median time to win never > session max 5 min"
+        ]
+      }
+    },
+    {
+      "bracket": "2-4",
+      "condition": "Iteration 2 (Level 1, 7x7)",
+      "summary": {
+        "runs": 20,
+        "errors": 0,
+        "capS": 300,
+        "winRate": 0.2,
+        "medianTimeToWin": "Infinity",
+        "meanTimeToWinOfWinners": 75.78,
+        "timeToWinRange": [
+          57.92,
+          106.22
+        ],
+        "quits": 16,
+        "failsMean": 0.8,
+        "failsPerMinute": 0.58,
+        "retryRate": 0.8,
+        "bumpsPerMinute": 11.45,
+        "pathVsOptimal": 2.26,
+        "stuckEpisodesPerRun": 1.65,
+        "stuckSpots": [
+          {
+            "cell": "0,0",
+            "runs": 7,
+            "episodes": 11,
+            "seconds": 242.15
+          },
+          {
+            "cell": "3,0",
+            "runs": 5,
+            "episodes": 5,
+            "seconds": 85.4
+          },
+          {
+            "cell": "4,0",
+            "runs": 3,
+            "episodes": 3,
+            "seconds": 75.5
+          },
+          {
+            "cell": "5,5",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 60.1
+          },
+          {
+            "cell": "0,2",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 60.05
+          },
+          {
+            "cell": "2,3",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 42.65
+          },
+          {
+            "cell": "5,2",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 42.05
+          }
+        ],
+        "cellsVisitedMean": 25.25
+      },
+      "verdict": {
+        "verdict": "too hard",
+        "reasons": [
+          "win rate 20% < 60% within 5m00s",
+          "median time to win never > session max 5 min"
+        ]
+      }
+    },
+    {
+      "bracket": "5-7",
+      "condition": "Iteration 1 (12x12)",
+      "summary": {
+        "runs": 20,
+        "errors": 0,
+        "capS": 600,
+        "winRate": 0.25,
+        "medianTimeToWin": "Infinity",
+        "meanTimeToWinOfWinners": 208.18,
+        "timeToWinRange": [
+          51.17,
+          384.07
+        ],
+        "quits": 15,
+        "failsMean": 1.35,
+        "failsPerMinute": 0.48,
+        "retryRate": 0.844,
+        "bumpsPerMinute": 9.95,
+        "pathVsOptimal": 7.38,
+        "stuckEpisodesPerRun": 2.05,
+        "stuckSpots": [
+          {
+            "cell": "2,6",
+            "runs": 4,
+            "episodes": 5,
+            "seconds": 216.8
+          },
+          {
+            "cell": "0,8",
+            "runs": 3,
+            "episodes": 3,
+            "seconds": 156.15
+          },
+          {
+            "cell": "0,2",
+            "runs": 2,
+            "episodes": 3,
+            "seconds": 124.5
+          },
+          {
+            "cell": "0,0",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 91.15
+          },
+          {
+            "cell": "1,11",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 90.5
+          },
+          {
+            "cell": "6,3",
+            "runs": 2,
+            "episodes": 3,
+            "seconds": 87.15
+          },
+          {
+            "cell": "2,9",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 67.35
+          }
+        ],
+        "cellsVisitedMean": 45.2
+      },
+      "verdict": {
+        "verdict": "too hard",
+        "reasons": [
+          "win rate 25% < 60% within 10m00s",
+          "median time to win never > session max 10 min"
+        ]
+      }
+    },
+    {
+      "bracket": "5-7",
+      "condition": "Iteration 2 (Level 1, 7x7)",
+      "summary": {
+        "runs": 20,
+        "errors": 0,
+        "capS": 600,
+        "winRate": 1,
+        "medianTimeToWin": 77.32,
+        "meanTimeToWinOfWinners": 89.17,
+        "timeToWinRange": [
+          45.12,
+          167.87
+        ],
+        "quits": 0,
+        "failsMean": 0.65,
+        "failsPerMinute": 0.44,
+        "retryRate": 0.394,
+        "bumpsPerMinute": 9.62,
+        "pathVsOptimal": 3.04,
+        "stuckEpisodesPerRun": 0.65,
+        "stuckSpots": [
+          {
+            "cell": "0,0",
+            "runs": 5,
+            "episodes": 5,
+            "seconds": 199.75
+          },
+          {
+            "cell": "2,2",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 71.85
+          }
+        ],
+        "cellsVisitedMean": 40.85
+      },
+      "verdict": {
+        "verdict": "ok",
+        "reasons": [
+          "median time to win 1m17s within 5–10 min session, win rate 100%"
+        ]
+      }
+    },
+    {
+      "bracket": "8-10",
+      "condition": "Iteration 1 (12x12)",
+      "summary": {
+        "runs": 20,
+        "errors": 0,
+        "capS": 900,
+        "winRate": 0.5,
+        "medianTimeToWin": "Infinity",
+        "meanTimeToWinOfWinners": 202.86,
+        "timeToWinRange": [
+          58.25,
+          515.15
+        ],
+        "quits": 10,
+        "failsMean": 0.55,
+        "failsPerMinute": 0.14,
+        "retryRate": 0.524,
+        "bumpsPerMinute": 7.73,
+        "pathVsOptimal": 6.93,
+        "stuckEpisodesPerRun": 1.25,
+        "stuckSpots": [
+          {
+            "cell": "10,10",
+            "runs": 3,
+            "episodes": 3,
+            "seconds": 266.85
+          },
+          {
+            "cell": "1,11",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 172.65
+          }
+        ],
+        "cellsVisitedMean": 53.1
+      },
+      "verdict": {
+        "verdict": "too hard",
+        "reasons": [
+          "win rate 50% < 60% within 15m00s",
+          "median time to win never > session max 15 min"
+        ]
+      }
+    },
+    {
+      "bracket": "8-10",
+      "condition": "Iteration 2 (Level 1, 7x7)",
+      "summary": {
+        "runs": 20,
+        "errors": 0,
+        "capS": 900,
+        "winRate": 1,
+        "medianTimeToWin": 51.51,
+        "meanTimeToWinOfWinners": 55.71,
+        "timeToWinRange": [
+          40.32,
+          105.63
+        ],
+        "quits": 0,
+        "failsMean": 0.15,
+        "failsPerMinute": 0.16,
+        "retryRate": 0.13,
+        "bumpsPerMinute": 7.59,
+        "pathVsOptimal": 1.99,
+        "stuckEpisodesPerRun": 0,
+        "stuckSpots": [],
+        "cellsVisitedMean": 38.65
+      },
+      "verdict": {
+        "verdict": "too easy",
+        "reasons": [
+          "median time to win 52s < 10% of session min 10 min"
+        ]
+      }
+    },
+    {
+      "bracket": "11-13",
+      "condition": "Iteration 1 (12x12)",
+      "summary": {
+        "runs": 20,
+        "errors": 0,
+        "capS": 1200,
+        "winRate": 0.45,
+        "medianTimeToWin": "Infinity",
+        "meanTimeToWinOfWinners": 167.36,
+        "timeToWinRange": [
+          79.98,
+          322.27
+        ],
+        "quits": 11,
+        "failsMean": 0.5,
+        "failsPerMinute": 0.13,
+        "retryRate": 0.526,
+        "bumpsPerMinute": 5.91,
+        "pathVsOptimal": 5.8,
+        "stuckEpisodesPerRun": 0.9,
+        "stuckSpots": [
+          {
+            "cell": "2,6",
+            "runs": 3,
+            "episodes": 3,
+            "seconds": 540.15
+          },
+          {
+            "cell": "8,10",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 274.95
+          }
+        ],
+        "cellsVisitedMean": 44.15
+      },
+      "verdict": {
+        "verdict": "too hard",
+        "reasons": [
+          "win rate 45% < 60% within 20m00s",
+          "median time to win never > session max 20 min"
+        ]
+      }
+    },
+    {
+      "bracket": "11-13",
+      "condition": "Iteration 2 (Level 1, 7x7)",
+      "summary": {
+        "runs": 20,
+        "errors": 0,
+        "capS": 1200,
+        "winRate": 0.95,
+        "medianTimeToWin": 54.24,
+        "meanTimeToWinOfWinners": 69.3,
+        "timeToWinRange": [
+          37.82,
+          194.05
+        ],
+        "quits": 1,
+        "failsMean": 0.25,
+        "failsPerMinute": 0.17,
+        "retryRate": 0.208,
+        "bumpsPerMinute": 6.33,
+        "pathVsOptimal": 2.37,
+        "stuckEpisodesPerRun": 0.25,
+        "stuckSpots": [
+          {
+            "cell": "2,2",
+            "runs": 2,
+            "episodes": 2,
+            "seconds": 245.1
+          }
+        ],
+        "cellsVisitedMean": 38.6
+      },
+      "verdict": {
+        "verdict": "too easy",
+        "reasons": [
+          "median time to win 54s < 10% of session min 15 min"
+        ]
+      }
+    }
+  ],
+  "checks": {
+    "2-4": {
+      "iteration1Harder": false,
+      "harder": {
+        "medianTimeToWin": "tie",
+        "escapeRate": "yes",
+        "stuckEpisodesPerRun": "yes",
+        "meanTimeToWinOfWinners": "no"
+      },
+      "verdicts": {
+        "Iteration 1": "too hard",
+        "Iteration 2": "too hard"
+      },
+      "matchesGray": false
+    },
+    "5-7": {
+      "iteration1Harder": true,
+      "harder": {
+        "medianTimeToWin": "yes",
+        "escapeRate": "yes",
+        "stuckEpisodesPerRun": "yes",
+        "meanTimeToWinOfWinners": "yes"
+      },
+      "verdicts": {
+        "Iteration 1": "too hard",
+        "Iteration 2": "ok"
+      },
+      "matchesGray": true
+    },
+    "8-10": {
+      "iteration1Harder": true,
+      "harder": {
+        "medianTimeToWin": "yes",
+        "escapeRate": "yes",
+        "stuckEpisodesPerRun": "yes",
+        "meanTimeToWinOfWinners": "yes"
+      },
+      "verdicts": {
+        "Iteration 1": "too hard",
+        "Iteration 2": "too easy"
+      },
+      "matchesGray": true
+    },
+    "11-13": {
+      "iteration1Harder": true,
+      "harder": {
+        "medianTimeToWin": "yes",
+        "escapeRate": "yes",
+        "stuckEpisodesPerRun": "yes",
+        "meanTimeToWinOfWinners": "yes"
+      },
+      "verdicts": {
+        "Iteration 1": "too hard",
+        "Iteration 2": "too easy"
+      },
+      "matchesGray": true
+    }
+  },
+  "runs": [
+    {
+      "bot": "solver",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "ok": true,
+      "simSeconds": 14.38,
+      "won": true,
+      "timeToWin": 14.37,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 71.5,
+      "bumps": 0,
+      "cellsVisited": 83,
+      "stuck": [],
+      "optimalLength": 72.78,
+      "pathVsOptimal": 0.98,
+      "waypoints": [
+        {
+          "x": 2.5,
+          "z": 30.5
+        },
+        {
+          "x": 3.5,
+          "z": 38.5
+        },
+        {
+          "x": 18.5,
+          "z": 39.5
+        },
+        {
+          "x": 19.5,
+          "z": 42.5
+        },
+        {
+          "x": 26.5,
+          "z": 43.5
+        },
+        {
+          "x": 27.5,
+          "z": 46.5
+        },
+        {
+          "x": 30.5,
+          "z": 45.5
+        },
+        {
+          "x": 31.5,
+          "z": 42.5
+        },
+        {
+          "x": 34.5,
+          "z": 43.5
+        },
+        {
+          "x": 35.5,
+          "z": 46.5
+        },
+        {
+          "x": 38.5,
+          "z": 45.5
+        },
+        {
+          "x": 39.5,
+          "z": 34.5
+        },
+        {
+          "x": 46.5,
+          "z": 33.5
+        },
+        {
+          "x": 47.5,
+          "z": 30.5
+        },
+        {
+          "x": 48,
+          "z": 30.5
+        }
+      ],
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "2-4",
+      "seed": 1,
+      "capS": 300,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 40.15,
+      "won": true,
+      "timeToWin": 40.13,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 132.8,
+      "bumps": 6,
+      "cellsVisited": 26,
+      "stuck": [],
+      "decisions": {
+        "junctions": 6,
+        "wrongTurns": 2,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "2-4",
+      "seed": 2,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 66.4,
+      "quitCell": "0,6",
+      "simSeconds": 66.4,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 226.3,
+      "bumps": 7,
+      "cellsVisited": 13,
+      "stuck": [
+        {
+          "cell": "0,7",
+          "from": 2.45,
+          "to": 15.9,
+          "seconds": 13.45,
+          "cellSeconds": 4.85
+        },
+        {
+          "cell": "0,6",
+          "from": 36.35,
+          "to": 66.4,
+          "seconds": 30.05,
+          "cellSeconds": 10.45
+        }
+      ],
+      "decisions": {
+        "junctions": 18,
+        "wrongTurns": 8,
+        "deadEnds": 8,
+        "backtracks": 1,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "2-4",
+      "seed": 3,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 41.7,
+      "quitCell": "0,7",
+      "simSeconds": 41.7,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 147.9,
+      "bumps": 6,
+      "cellsVisited": 7,
+      "stuck": [
+        {
+          "cell": "0,7",
+          "from": 11.65,
+          "to": 41.7,
+          "seconds": 30.05,
+          "cellSeconds": 9.65
+        }
+      ],
+      "decisions": {
+        "junctions": 13,
+        "wrongTurns": 8,
+        "deadEnds": 5,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "2-4",
+      "seed": 4,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 121.2,
+      "quitCell": "4,11",
+      "simSeconds": 121.2,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 440,
+      "bumps": 16,
+      "cellsVisited": 27,
+      "stuck": [
+        {
+          "cell": "0,7",
+          "from": 10.2,
+          "to": 29.55,
+          "seconds": 19.35,
+          "cellSeconds": 9.35
+        },
+        {
+          "cell": "4,6",
+          "from": 31.35,
+          "to": 51.05,
+          "seconds": 19.7,
+          "cellSeconds": 4.7
+        },
+        {
+          "cell": "6,11",
+          "from": 62.2,
+          "to": 77.75,
+          "seconds": 15.55,
+          "cellSeconds": 4.75
+        },
+        {
+          "cell": "5,11",
+          "from": 91.15,
+          "to": 121.2,
+          "seconds": 30.05,
+          "cellSeconds": 7.55
+        }
+      ],
+      "decisions": {
+        "junctions": 24,
+        "wrongTurns": 11,
+        "deadEnds": 12,
+        "backtracks": 1,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "5-7",
+      "seed": 1,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 159.05,
+      "quitCell": "5,8",
+      "simSeconds": 159.05,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 585.6,
+      "bumps": 18,
+      "cellsVisited": 58,
+      "stuck": [
+        {
+          "cell": "8,6",
+          "from": 99.05,
+          "to": 159.05,
+          "seconds": 60,
+          "cellSeconds": 5.7
+        }
+      ],
+      "decisions": {
+        "junctions": 37,
+        "wrongTurns": 8,
+        "deadEnds": 9,
+        "backtracks": 3,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "5-7",
+      "seed": 2,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 51.2,
+      "won": true,
+      "timeToWin": 51.17,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 209,
+      "bumps": 9,
+      "cellsVisited": 26,
+      "stuck": [],
+      "decisions": {
+        "junctions": 15,
+        "wrongTurns": 5,
+        "deadEnds": 6,
+        "backtracks": 0,
+        "spikeAvoided": 2,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "5-7",
+      "seed": 3,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 97.65,
+      "won": true,
+      "timeToWin": 97.6,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 408.2,
+      "bumps": 17,
+      "cellsVisited": 38,
+      "stuck": [
+        {
+          "cell": "0,7",
+          "from": 18.4,
+          "to": 38.5,
+          "seconds": 20.1,
+          "cellSeconds": 8.15
+        },
+        {
+          "cell": "1,11",
+          "from": 48.65,
+          "to": 79.1,
+          "seconds": 30.45,
+          "cellSeconds": 10.35
+        }
+      ],
+      "decisions": {
+        "junctions": 23,
+        "wrongTurns": 6,
+        "deadEnds": 11,
+        "backtracks": 3,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "5-7",
+      "seed": 4,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 94,
+      "quitCell": "3,11",
+      "simSeconds": 94,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 396.3,
+      "bumps": 17,
+      "cellsVisited": 17,
+      "stuck": [
+        {
+          "cell": "1,11",
+          "from": 33.95,
+          "to": 94,
+          "seconds": 60.05,
+          "cellSeconds": 18.15
+        }
+      ],
+      "decisions": {
+        "junctions": 28,
+        "wrongTurns": 6,
+        "deadEnds": 17,
+        "backtracks": 5,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "8-10",
+      "seed": 1,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 78.95,
+      "won": true,
+      "timeToWin": 78.92,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 310.9,
+      "bumps": 6,
+      "cellsVisited": 32,
+      "stuck": [],
+      "decisions": {
+        "junctions": 21,
+        "wrongTurns": 1,
+        "deadEnds": 11,
+        "backtracks": 2,
+        "spikeAvoided": 2,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "8-10",
+      "seed": 2,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 173.45,
+      "won": true,
+      "timeToWin": 173.43,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 713.5,
+      "bumps": 19,
+      "cellsVisited": 39,
+      "stuck": [
+        {
+          "cell": "3,11",
+          "from": 69.15,
+          "to": 156.5,
+          "seconds": 87.35,
+          "cellSeconds": 25.45
+        }
+      ],
+      "decisions": {
+        "junctions": 44,
+        "wrongTurns": 5,
+        "deadEnds": 29,
+        "backtracks": 19,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "8-10",
+      "seed": 3,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 117.1,
+      "won": true,
+      "timeToWin": 117.05,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 465.5,
+      "bumps": 13,
+      "cellsVisited": 37,
+      "stuck": [
+        {
+          "cell": "1,11",
+          "from": 30.35,
+          "to": 97.4,
+          "seconds": 67.05,
+          "cellSeconds": 23.35
+        }
+      ],
+      "decisions": {
+        "junctions": 26,
+        "wrongTurns": 2,
+        "deadEnds": 16,
+        "backtracks": 13,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "8-10",
+      "seed": 4,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 153.45,
+      "won": true,
+      "timeToWin": 153.42,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 627,
+      "bumps": 17,
+      "cellsVisited": 37,
+      "stuck": [
+        {
+          "cell": "1,11",
+          "from": 28.35,
+          "to": 133.95,
+          "seconds": 105.6,
+          "cellSeconds": 33.8
+        }
+      ],
+      "decisions": {
+        "junctions": 38,
+        "wrongTurns": 7,
+        "deadEnds": 24,
+        "backtracks": 13,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "11-13",
+      "seed": 1,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 81.35,
+      "won": true,
+      "timeToWin": 81.33,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 349.2,
+      "bumps": 9,
+      "cellsVisited": 35,
+      "stuck": [],
+      "decisions": {
+        "junctions": 17,
+        "wrongTurns": 1,
+        "deadEnds": 9,
+        "backtracks": 4,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "11-13",
+      "seed": 2,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 80,
+      "won": true,
+      "timeToWin": 79.98,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 371.4,
+      "bumps": 6,
+      "cellsVisited": 30,
+      "stuck": [],
+      "decisions": {
+        "junctions": 19,
+        "wrongTurns": 1,
+        "deadEnds": 9,
+        "backtracks": 6,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "11-13",
+      "seed": 3,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 322.3,
+      "won": true,
+      "timeToWin": 322.27,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 1184,
+      "bumps": 20,
+      "cellsVisited": 38,
+      "stuck": [
+        {
+          "cell": "3,11",
+          "from": 45.75,
+          "to": 136.85,
+          "seconds": 91.1,
+          "cellSeconds": 31.65
+        },
+        {
+          "cell": "1,8",
+          "from": 136.85,
+          "to": 303.85,
+          "seconds": 167,
+          "cellSeconds": 47.6
+        }
+      ],
+      "decisions": {
+        "junctions": 75,
+        "wrongTurns": 5,
+        "deadEnds": 51,
+        "backtracks": 50,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 1)",
+      "bracket": "11-13",
+      "seed": 4,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 219.7,
+      "quitCell": "10,7",
+      "simSeconds": 219.7,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 356.7,
+      "bumps": 7,
+      "cellsVisited": 28,
+      "stuck": [
+        {
+          "cell": "10,7",
+          "from": 39.65,
+          "to": 219.7,
+          "seconds": 180.05,
+          "cellSeconds": 180.05
+        }
+      ],
+      "decisions": {
+        "junctions": 9,
+        "wrongTurns": 2,
+        "deadEnds": 4,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "solver",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "ok": true,
+      "simSeconds": 38.5,
+      "won": true,
+      "timeToWin": 38.48,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 188,
+      "bumps": 0,
+      "cellsVisited": 222,
+      "stuck": [],
+      "optimalLength": 191.16,
+      "pathVsOptimal": 0.98,
+      "waypoints": [
+        {
+          "x": 2.5,
+          "z": 34.5
+        },
+        {
+          "x": 6.5,
+          "z": 35.5
+        },
+        {
+          "x": 5.5,
+          "z": 38.5
+        },
+        {
+          "x": 2.5,
+          "z": 39.5
+        },
+        {
+          "x": 3.5,
+          "z": 42.5
+        },
+        {
+          "x": 10.5,
+          "z": 43.5
+        },
+        {
+          "x": 11.5,
+          "z": 46.5
+        },
+        {
+          "x": 18.5,
+          "z": 45.5
+        },
+        {
+          "x": 17.5,
+          "z": 42.5
+        },
+        {
+          "x": 14.5,
+          "z": 41.5
+        },
+        {
+          "x": 13.5,
+          "z": 38.5
+        },
+        {
+          "x": 10.5,
+          "z": 37.5
+        },
+        {
+          "x": 9.5,
+          "z": 30.5
+        },
+        {
+          "x": 6.5,
+          "z": 29.5
+        },
+        {
+          "x": 5.5,
+          "z": 14.5
+        },
+        {
+          "x": 2.5,
+          "z": 13.5
+        },
+        {
+          "x": 3.5,
+          "z": 6.5
+        },
+        {
+          "x": 6.5,
+          "z": 7.5
+        },
+        {
+          "x": 7.5,
+          "z": 10.5
+        },
+        {
+          "x": 10.5,
+          "z": 9.5
+        },
+        {
+          "x": 11.5,
+          "z": 2.5
+        },
+        {
+          "x": 14.5,
+          "z": 3.5
+        },
+        {
+          "x": 15.5,
+          "z": 6.5
+        },
+        {
+          "x": 22.5,
+          "z": 7.5
+        },
+        {
+          "x": 23.5,
+          "z": 10.5
+        },
+        {
+          "x": 30.5,
+          "z": 9.5
+        },
+        {
+          "x": 29.5,
+          "z": 6.5
+        },
+        {
+          "x": 26.5,
+          "z": 5.5
+        },
+        {
+          "x": 27.5,
+          "z": 2.5
+        },
+        {
+          "x": 42.5,
+          "z": 3.5
+        },
+        {
+          "x": 43.5,
+          "z": 6.5
+        },
+        {
+          "x": 46.5,
+          "z": 7.5
+        },
+        {
+          "x": 45.5,
+          "z": 14.5
+        },
+        {
+          "x": 42.5,
+          "z": 15.5
+        },
+        {
+          "x": 43.5,
+          "z": 18.5
+        },
+        {
+          "x": 46.5,
+          "z": 19.5
+        },
+        {
+          "x": 45.5,
+          "z": 26.5
+        },
+        {
+          "x": 38.5,
+          "z": 27.5
+        },
+        {
+          "x": 39.5,
+          "z": 30.5
+        },
+        {
+          "x": 47.5,
+          "z": 30.5
+        },
+        {
+          "x": 48,
+          "z": 30.5
+        }
+      ],
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "2-4",
+      "seed": 1,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 102.5,
+      "quitCell": "4,10",
+      "simSeconds": 102.5,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 352.5,
+      "bumps": 18,
+      "cellsVisited": 28,
+      "stuck": [
+        {
+          "cell": "1,8",
+          "from": 5.8,
+          "to": 25.65,
+          "seconds": 19.85,
+          "cellSeconds": 6.35
+        },
+        {
+          "cell": "4,10",
+          "from": 72.45,
+          "to": 102.5,
+          "seconds": 30.05,
+          "cellSeconds": 3.4
+        }
+      ],
+      "decisions": {
+        "junctions": 15,
+        "wrongTurns": 6,
+        "deadEnds": 9,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "2-4",
+      "seed": 2,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 155.5,
+      "quitCell": "2,7",
+      "simSeconds": 155.5,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 518.4,
+      "bumps": 27,
+      "cellsVisited": 49,
+      "stuck": [
+        {
+          "cell": "2,5",
+          "from": 66.6,
+          "to": 81.4,
+          "seconds": 14.8,
+          "cellSeconds": 5.6
+        },
+        {
+          "cell": "2,6",
+          "from": 81.4,
+          "to": 95,
+          "seconds": 13.6,
+          "cellSeconds": 3.4
+        },
+        {
+          "cell": "1,0",
+          "from": 105.65,
+          "to": 117.6,
+          "seconds": 11.95,
+          "cellSeconds": 4.3
+        },
+        {
+          "cell": "1,7",
+          "from": 125.45,
+          "to": 155.5,
+          "seconds": 30.05,
+          "cellSeconds": 4.85
+        }
+      ],
+      "decisions": {
+        "junctions": 32,
+        "wrongTurns": 14,
+        "deadEnds": 13,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "2-4",
+      "seed": 3,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 70.05,
+      "quitCell": "5,8",
+      "simSeconds": 70.05,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 230.3,
+      "bumps": 15,
+      "cellsVisited": 23,
+      "stuck": [
+        {
+          "cell": "5,9",
+          "from": 40,
+          "to": 70.05,
+          "seconds": 30.05,
+          "cellSeconds": 8
+        }
+      ],
+      "decisions": {
+        "junctions": 10,
+        "wrongTurns": 7,
+        "deadEnds": 7,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "2-4",
+      "seed": 4,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 50.8,
+      "quitCell": "1,8",
+      "simSeconds": 50.8,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 179.4,
+      "bumps": 12,
+      "cellsVisited": 10,
+      "stuck": [
+        {
+          "cell": "0,8",
+          "from": 20.75,
+          "to": 50.8,
+          "seconds": 30.05,
+          "cellSeconds": 7.95
+        }
+      ],
+      "decisions": {
+        "junctions": 4,
+        "wrongTurns": 0,
+        "deadEnds": 5,
+        "backtracks": 0,
+        "spikeAvoided": 2,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "5-7",
+      "seed": 1,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 245.9,
+      "quitCell": "0,3",
+      "simSeconds": 245.9,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 906,
+      "bumps": 37,
+      "cellsVisited": 67,
+      "stuck": [
+        {
+          "cell": "2,6",
+          "from": 72.55,
+          "to": 99.65,
+          "seconds": 27.1,
+          "cellSeconds": 3.4
+        },
+        {
+          "cell": "4,0",
+          "from": 141.65,
+          "to": 163.55,
+          "seconds": 21.9,
+          "cellSeconds": 3.9
+        },
+        {
+          "cell": "4,1",
+          "from": 185.85,
+          "to": 245.9,
+          "seconds": 60.05,
+          "cellSeconds": 7.95
+        }
+      ],
+      "decisions": {
+        "junctions": 69,
+        "wrongTurns": 21,
+        "deadEnds": 26,
+        "backtracks": 7,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "5-7",
+      "seed": 2,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 95.4,
+      "quitCell": "5,8",
+      "simSeconds": 95.4,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 369,
+      "bumps": 14,
+      "cellsVisited": 24,
+      "stuck": [
+        {
+          "cell": "5,7",
+          "from": 35.35,
+          "to": 95.4,
+          "seconds": 60.05,
+          "cellSeconds": 22.7
+        }
+      ],
+      "decisions": {
+        "junctions": 22,
+        "wrongTurns": 5,
+        "deadEnds": 19,
+        "backtracks": 7,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "5-7",
+      "seed": 3,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 272,
+      "quitCell": "4,10",
+      "simSeconds": 272,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 1042.6,
+      "bumps": 52,
+      "cellsVisited": 56,
+      "stuck": [
+        {
+          "cell": "2,9",
+          "from": 48.65,
+          "to": 84,
+          "seconds": 35.35,
+          "cellSeconds": 8.35
+        },
+        {
+          "cell": "3,6",
+          "from": 84.95,
+          "to": 111.5,
+          "seconds": 26.55,
+          "cellSeconds": 5.8
+        },
+        {
+          "cell": "0,0",
+          "from": 125.15,
+          "to": 156.25,
+          "seconds": 31.1,
+          "cellSeconds": 8.35
+        },
+        {
+          "cell": "0,8",
+          "from": 211.95,
+          "to": 272,
+          "seconds": 60.05,
+          "cellSeconds": 8.65
+        }
+      ],
+      "decisions": {
+        "junctions": 59,
+        "wrongTurns": 17,
+        "deadEnds": 25,
+        "backtracks": 4,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "5-7",
+      "seed": 4,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 142.5,
+      "quitCell": "3,9",
+      "simSeconds": 142.5,
+      "won": false,
+      "timeToWin": null,
+      "fails": 5,
+      "failReasons": {
+        "spike": 5
+      },
+      "pathLength": 562.7,
+      "bumps": 27,
+      "cellsVisited": 31,
+      "stuck": [
+        {
+          "cell": "0,8",
+          "from": 82.45,
+          "to": 142.5,
+          "seconds": 60.05,
+          "cellSeconds": 7.2
+        }
+      ],
+      "decisions": {
+        "junctions": 22,
+        "wrongTurns": 7,
+        "deadEnds": 12,
+        "backtracks": 2,
+        "spikeAvoided": 2,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "8-10",
+      "seed": 1,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 515.2,
+      "won": true,
+      "timeToWin": 515.15,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 1953.9,
+      "bumps": 76,
+      "cellsVisited": 118,
+      "stuck": [
+        {
+          "cell": "4,3",
+          "from": 105.5,
+          "to": 224.15,
+          "seconds": 118.65,
+          "cellSeconds": 22.75
+        },
+        {
+          "cell": "3,5",
+          "from": 299.35,
+          "to": 403.7,
+          "seconds": 104.35,
+          "cellSeconds": 11.3
+        }
+      ],
+      "decisions": {
+        "junctions": 120,
+        "wrongTurns": 20,
+        "deadEnds": 44,
+        "backtracks": 33,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "8-10",
+      "seed": 2,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 222.95,
+      "won": true,
+      "timeToWin": 222.92,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 902.5,
+      "bumps": 31,
+      "cellsVisited": 88,
+      "stuck": [
+        {
+          "cell": "5,5",
+          "from": 113.9,
+          "to": 197.05,
+          "seconds": 83.15,
+          "cellSeconds": 17.9
+        }
+      ],
+      "decisions": {
+        "junctions": 46,
+        "wrongTurns": 10,
+        "deadEnds": 17,
+        "backtracks": 7,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "8-10",
+      "seed": 3,
+      "capS": 900,
+      "quit": true,
+      "quitAt": 305.6,
+      "quitCell": "5,8",
+      "simSeconds": 305.6,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 1180.6,
+      "bumps": 42,
+      "cellsVisited": 56,
+      "stuck": [
+        {
+          "cell": "5,7",
+          "from": 43.6,
+          "to": 99.5,
+          "seconds": 55.9,
+          "cellSeconds": 18.5
+        },
+        {
+          "cell": "2,3",
+          "from": 185.6,
+          "to": 305.6,
+          "seconds": 120,
+          "cellSeconds": 10.15
+        }
+      ],
+      "decisions": {
+        "junctions": 72,
+        "wrongTurns": 11,
+        "deadEnds": 37,
+        "backtracks": 23,
+        "spikeAvoided": 2,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "8-10",
+      "seed": 4,
+      "capS": 900,
+      "quit": true,
+      "quitAt": 183.2,
+      "quitCell": "4,10",
+      "simSeconds": 183.2,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 728.9,
+      "bumps": 18,
+      "cellsVisited": 25,
+      "stuck": [
+        {
+          "cell": "5,8",
+          "from": 63.15,
+          "to": 183.2,
+          "seconds": 120.05,
+          "cellSeconds": 35.75
+        }
+      ],
+      "decisions": {
+        "junctions": 41,
+        "wrongTurns": 6,
+        "deadEnds": 31,
+        "backtracks": 20,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "11-13",
+      "seed": 1,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 446.9,
+      "quitCell": "7,4",
+      "simSeconds": 446.9,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 1670.6,
+      "bumps": 44,
+      "cellsVisited": 88,
+      "stuck": [
+        {
+          "cell": "6,6",
+          "from": 266.85,
+          "to": 446.9,
+          "seconds": 180.05,
+          "cellSeconds": 19.7
+        }
+      ],
+      "decisions": {
+        "junctions": 92,
+        "wrongTurns": 18,
+        "deadEnds": 38,
+        "backtracks": 35,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "11-13",
+      "seed": 2,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 198.85,
+      "won": true,
+      "timeToWin": 198.8,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 784,
+      "bumps": 25,
+      "cellsVisited": 100,
+      "stuck": [],
+      "decisions": {
+        "junctions": 38,
+        "wrongTurns": 5,
+        "deadEnds": 13,
+        "backtracks": 4,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "11-13",
+      "seed": 3,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 280.8,
+      "won": true,
+      "timeToWin": 280.77,
+      "fails": 3,
+      "failReasons": {
+        "spike": 3
+      },
+      "pathLength": 1007.5,
+      "bumps": 25,
+      "cellsVisited": 78,
+      "stuck": [
+        {
+          "cell": "5,7",
+          "from": 42.7,
+          "to": 185.5,
+          "seconds": 142.8,
+          "cellSeconds": 49.7
+        }
+      ],
+      "decisions": {
+        "junctions": 66,
+        "wrongTurns": 3,
+        "deadEnds": 40,
+        "backtracks": 31,
+        "spikeAvoided": 3,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 5)",
+      "bracket": "11-13",
+      "seed": 4,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 371.1,
+      "quitCell": "5,7",
+      "simSeconds": 371.1,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 1281.6,
+      "bumps": 36,
+      "cellsVisited": 32,
+      "stuck": [
+        {
+          "cell": "3,5",
+          "from": 37.75,
+          "to": 183.25,
+          "seconds": 145.5,
+          "cellSeconds": 49.2
+        },
+        {
+          "cell": "5,8",
+          "from": 191.1,
+          "to": 371.1,
+          "seconds": 180,
+          "cellSeconds": 68.9
+        }
+      ],
+      "decisions": {
+        "junctions": 75,
+        "wrongTurns": 7,
+        "deadEnds": 62,
+        "backtracks": 56,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "solver",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "ok": true,
+      "simSeconds": 27.27,
+      "won": true,
+      "timeToWin": 27.25,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 136.4,
+      "bumps": 0,
+      "cellsVisited": 160,
+      "stuck": [],
+      "optimalLength": 138.26,
+      "pathVsOptimal": 0.99,
+      "waypoints": [
+        {
+          "x": 2.5,
+          "z": 34.5
+        },
+        {
+          "x": 3.5,
+          "z": 38.5
+        },
+        {
+          "x": 14.5,
+          "z": 37.5
+        },
+        {
+          "x": 13.5,
+          "z": 34.5
+        },
+        {
+          "x": 6.5,
+          "z": 33.5
+        },
+        {
+          "x": 5.5,
+          "z": 30.5
+        },
+        {
+          "x": 2.5,
+          "z": 29.5
+        },
+        {
+          "x": 3.5,
+          "z": 26.5
+        },
+        {
+          "x": 18.5,
+          "z": 27.5
+        },
+        {
+          "x": 19.5,
+          "z": 34.5
+        },
+        {
+          "x": 22.5,
+          "z": 33.5
+        },
+        {
+          "x": 23.5,
+          "z": 30.5
+        },
+        {
+          "x": 26.5,
+          "z": 29.5
+        },
+        {
+          "x": 27.5,
+          "z": 18.5
+        },
+        {
+          "x": 34.5,
+          "z": 19.5
+        },
+        {
+          "x": 33.5,
+          "z": 22.5
+        },
+        {
+          "x": 30.5,
+          "z": 23.5
+        },
+        {
+          "x": 31.5,
+          "z": 34.5
+        },
+        {
+          "x": 34.5,
+          "z": 35.5
+        },
+        {
+          "x": 35.5,
+          "z": 38.5
+        },
+        {
+          "x": 46.5,
+          "z": 37.5
+        },
+        {
+          "x": 45.5,
+          "z": 34.5
+        },
+        {
+          "x": 42.5,
+          "z": 33.5
+        },
+        {
+          "x": 43.5,
+          "z": 30.5
+        },
+        {
+          "x": 46.5,
+          "z": 29.5
+        },
+        {
+          "x": 47.5,
+          "z": 22.5
+        },
+        {
+          "x": 48,
+          "z": 22.5
+        }
+      ],
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "2-4",
+      "seed": 1,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 69.25,
+      "quitCell": "1,11",
+      "simSeconds": 69.25,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 227.6,
+      "bumps": 11,
+      "cellsVisited": 20,
+      "stuck": [
+        {
+          "cell": "7,9",
+          "from": 39.2,
+          "to": 69.25,
+          "seconds": 30.05,
+          "cellSeconds": 3.5
+        }
+      ],
+      "decisions": {
+        "junctions": 10,
+        "wrongTurns": 3,
+        "deadEnds": 4,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "2-4",
+      "seed": 2,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 84.9,
+      "quitCell": "0,10",
+      "simSeconds": 84.9,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 273.9,
+      "bumps": 15,
+      "cellsVisited": 15,
+      "stuck": [
+        {
+          "cell": "0,9",
+          "from": 5.05,
+          "to": 23.35,
+          "seconds": 18.3,
+          "cellSeconds": 6.7
+        },
+        {
+          "cell": "0,8",
+          "from": 54.9,
+          "to": 84.9,
+          "seconds": 30,
+          "cellSeconds": 7.7
+        }
+      ],
+      "decisions": {
+        "junctions": 21,
+        "wrongTurns": 4,
+        "deadEnds": 8,
+        "backtracks": 1,
+        "spikeAvoided": 2,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "2-4",
+      "seed": 3,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 154.95,
+      "quitCell": "7,11",
+      "simSeconds": 154.95,
+      "won": false,
+      "timeToWin": null,
+      "fails": 3,
+      "failReasons": {
+        "spike": 3
+      },
+      "pathLength": 547.2,
+      "bumps": 24,
+      "cellsVisited": 38,
+      "stuck": [
+        {
+          "cell": "0,8",
+          "from": 6.7,
+          "to": 24.65,
+          "seconds": 17.95,
+          "cellSeconds": 8.55
+        },
+        {
+          "cell": "0,8",
+          "from": 37.55,
+          "to": 61.85,
+          "seconds": 24.3,
+          "cellSeconds": 4.05
+        },
+        {
+          "cell": "6,11",
+          "from": 71.6,
+          "to": 98.95,
+          "seconds": 27.35,
+          "cellSeconds": 4.6
+        },
+        {
+          "cell": "9,10",
+          "from": 124.9,
+          "to": 154.95,
+          "seconds": 30.05,
+          "cellSeconds": 7.3
+        }
+      ],
+      "decisions": {
+        "junctions": 29,
+        "wrongTurns": 18,
+        "deadEnds": 13,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "2-4",
+      "seed": 4,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 74.15,
+      "quitCell": "0,8",
+      "simSeconds": 74.15,
+      "won": false,
+      "timeToWin": null,
+      "fails": 3,
+      "failReasons": {
+        "spike": 3
+      },
+      "pathLength": 262.9,
+      "bumps": 17,
+      "cellsVisited": 16,
+      "stuck": [
+        {
+          "cell": "0,8",
+          "from": 14,
+          "to": 28.65,
+          "seconds": 14.65,
+          "cellSeconds": 4.2
+        },
+        {
+          "cell": "0,8",
+          "from": 44.15,
+          "to": 74.15,
+          "seconds": 30,
+          "cellSeconds": 7.8
+        }
+      ],
+      "decisions": {
+        "junctions": 15,
+        "wrongTurns": 4,
+        "deadEnds": 6,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "5-7",
+      "seed": 1,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 184.8,
+      "quitCell": "3,3",
+      "simSeconds": 184.8,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 752.2,
+      "bumps": 28,
+      "cellsVisited": 64,
+      "stuck": [
+        {
+          "cell": "4,3",
+          "from": 66.85,
+          "to": 91.3,
+          "seconds": 24.45,
+          "cellSeconds": 3.4
+        },
+        {
+          "cell": "0,0",
+          "from": 124.75,
+          "to": 184.8,
+          "seconds": 60.05,
+          "cellSeconds": 8.35
+        }
+      ],
+      "decisions": {
+        "junctions": 45,
+        "wrongTurns": 5,
+        "deadEnds": 18,
+        "backtracks": 3,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "5-7",
+      "seed": 2,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 384.1,
+      "won": true,
+      "timeToWin": 384.07,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 1484,
+      "bumps": 74,
+      "cellsVisited": 98,
+      "stuck": [
+        {
+          "cell": "4,6",
+          "from": 40.6,
+          "to": 70.35,
+          "seconds": 29.75,
+          "cellSeconds": 3.3
+        },
+        {
+          "cell": "0,8",
+          "from": 85.7,
+          "to": 121.75,
+          "seconds": 36.05,
+          "cellSeconds": 5.4
+        },
+        {
+          "cell": "0,2",
+          "from": 192.8,
+          "to": 221.55,
+          "seconds": 28.75,
+          "cellSeconds": 8.25
+        },
+        {
+          "cell": "0,2",
+          "from": 222.1,
+          "to": 257.8,
+          "seconds": 35.7,
+          "cellSeconds": 6.1
+        },
+        {
+          "cell": "5,5",
+          "from": 271.95,
+          "to": 305.9,
+          "seconds": 33.95,
+          "cellSeconds": 3.7
+        },
+        {
+          "cell": "6,3",
+          "from": 309.85,
+          "to": 337.75,
+          "seconds": 27.9,
+          "cellSeconds": 8.15
+        },
+        {
+          "cell": "10,6",
+          "from": 356.8,
+          "to": 383,
+          "seconds": 26.2,
+          "cellSeconds": 23.2
+        }
+      ],
+      "decisions": {
+        "junctions": 85,
+        "wrongTurns": 18,
+        "deadEnds": 31,
+        "backtracks": 5,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "5-7",
+      "seed": 3,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 105.4,
+      "quitCell": "6,7",
+      "simSeconds": 105.4,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 409.1,
+      "bumps": 22,
+      "cellsVisited": 29,
+      "stuck": [
+        {
+          "cell": "0,6",
+          "from": 45.35,
+          "to": 105.4,
+          "seconds": 60.05,
+          "cellSeconds": 7.05
+        }
+      ],
+      "decisions": {
+        "junctions": 23,
+        "wrongTurns": 5,
+        "deadEnds": 8,
+        "backtracks": 2,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "5-7",
+      "seed": 4,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 190.1,
+      "quitCell": "4,11",
+      "simSeconds": 190.1,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 768.6,
+      "bumps": 30,
+      "cellsVisited": 52,
+      "stuck": [
+        {
+          "cell": "8,2",
+          "from": 103.5,
+          "to": 130.05,
+          "seconds": 26.55,
+          "cellSeconds": 4.1
+        },
+        {
+          "cell": "8,8",
+          "from": 130.05,
+          "to": 190.1,
+          "seconds": 60.05,
+          "cellSeconds": 4.65
+        }
+      ],
+      "decisions": {
+        "junctions": 44,
+        "wrongTurns": 10,
+        "deadEnds": 14,
+        "backtracks": 1,
+        "spikeAvoided": 3,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "8-10",
+      "seed": 1,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 58.3,
+      "won": true,
+      "timeToWin": 58.25,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 237.2,
+      "bumps": 7,
+      "cellsVisited": 47,
+      "stuck": [],
+      "decisions": {
+        "junctions": 10,
+        "wrongTurns": 2,
+        "deadEnds": 2,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "8-10",
+      "seed": 2,
+      "capS": 900,
+      "quit": true,
+      "quitAt": 450.65,
+      "quitCell": "10,10",
+      "simSeconds": 450.65,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 1766.9,
+      "bumps": 53,
+      "cellsVisited": 51,
+      "stuck": [
+        {
+          "cell": "10,10",
+          "from": 97.55,
+          "to": 158.7,
+          "seconds": 61.15,
+          "cellSeconds": 10.85
+        },
+        {
+          "cell": "9,10",
+          "from": 158.7,
+          "to": 249,
+          "seconds": 90.3,
+          "cellSeconds": 12.7
+        },
+        {
+          "cell": "2,11",
+          "from": 249,
+          "to": 327.15,
+          "seconds": 78.15,
+          "cellSeconds": 7.55
+        },
+        {
+          "cell": "0,8",
+          "from": 330.6,
+          "to": 450.65,
+          "seconds": 120.05,
+          "cellSeconds": 12
+        }
+      ],
+      "decisions": {
+        "junctions": 89,
+        "wrongTurns": 12,
+        "deadEnds": 48,
+        "backtracks": 31,
+        "spikeAvoided": 8,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "8-10",
+      "seed": 3,
+      "capS": 900,
+      "quit": true,
+      "quitAt": 308.6,
+      "quitCell": "10,10",
+      "simSeconds": 308.6,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 1151.1,
+      "bumps": 46,
+      "cellsVisited": 49,
+      "stuck": [
+        {
+          "cell": "3,6",
+          "from": 55.25,
+          "to": 165,
+          "seconds": 109.75,
+          "cellSeconds": 10.65
+        },
+        {
+          "cell": "10,10",
+          "from": 188.6,
+          "to": 308.6,
+          "seconds": 120,
+          "cellSeconds": 29.1
+        }
+      ],
+      "decisions": {
+        "junctions": 48,
+        "wrongTurns": 8,
+        "deadEnds": 27,
+        "backtracks": 19,
+        "spikeAvoided": 5,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "8-10",
+      "seed": 4,
+      "capS": 900,
+      "quit": true,
+      "quitAt": 384.25,
+      "quitCell": "10,8",
+      "simSeconds": 384.25,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 1145.7,
+      "bumps": 59,
+      "cellsVisited": 66,
+      "stuck": [
+        {
+          "cell": "10,10",
+          "from": 79.6,
+          "to": 165.3,
+          "seconds": 85.7,
+          "cellSeconds": 18.5
+        },
+        {
+          "cell": "5,9",
+          "from": 165.3,
+          "to": 213,
+          "seconds": 47.7,
+          "cellSeconds": 6.5
+        },
+        {
+          "cell": "11,8",
+          "from": 264.2,
+          "to": 384.25,
+          "seconds": 120.05,
+          "cellSeconds": 113.45
+        }
+      ],
+      "decisions": {
+        "junctions": 44,
+        "wrongTurns": 8,
+        "deadEnds": 20,
+        "backtracks": 8,
+        "spikeAvoided": 2,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "11-13",
+      "seed": 1,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 278.85,
+      "quitCell": "11,11",
+      "simSeconds": 278.85,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 932.8,
+      "bumps": 29,
+      "cellsVisited": 39,
+      "stuck": [
+        {
+          "cell": "8,10",
+          "from": 98.85,
+          "to": 278.85,
+          "seconds": 180,
+          "cellSeconds": 54.1
+        }
+      ],
+      "decisions": {
+        "junctions": 56,
+        "wrongTurns": 6,
+        "deadEnds": 43,
+        "backtracks": 36,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "11-13",
+      "seed": 2,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 83.55,
+      "won": true,
+      "timeToWin": 83.52,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 325.6,
+      "bumps": 12,
+      "cellsVisited": 51,
+      "stuck": [],
+      "decisions": {
+        "junctions": 15,
+        "wrongTurns": 1,
+        "deadEnds": 4,
+        "backtracks": 1,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "11-13",
+      "seed": 3,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 313.7,
+      "quitCell": "3,10",
+      "simSeconds": 313.7,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 1107.9,
+      "bumps": 34,
+      "cellsVisited": 29,
+      "stuck": [
+        {
+          "cell": "8,10",
+          "from": 33.95,
+          "to": 128.9,
+          "seconds": 94.95,
+          "cellSeconds": 29.6
+        },
+        {
+          "cell": "9,10",
+          "from": 133.65,
+          "to": 313.7,
+          "seconds": 180.05,
+          "cellSeconds": 21.45
+        }
+      ],
+      "decisions": {
+        "junctions": 53,
+        "wrongTurns": 4,
+        "deadEnds": 33,
+        "backtracks": 36,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 8)",
+      "bracket": "11-13",
+      "seed": 4,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 97.8,
+      "won": true,
+      "timeToWin": 97.78,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 408,
+      "bumps": 10,
+      "cellsVisited": 61,
+      "stuck": [],
+      "decisions": {
+        "junctions": 22,
+        "wrongTurns": 0,
+        "deadEnds": 7,
+        "backtracks": 1,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "solver",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "ok": true,
+      "simSeconds": 23.07,
+      "won": true,
+      "timeToWin": 23.05,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 120.8,
+      "bumps": 0,
+      "cellsVisited": 139,
+      "stuck": [],
+      "optimalLength": 122.47,
+      "pathVsOptimal": 0.99,
+      "waypoints": [
+        {
+          "x": 2.5,
+          "z": 22.5
+        },
+        {
+          "x": 6.5,
+          "z": 21.5
+        },
+        {
+          "x": 7.5,
+          "z": 14.5
+        },
+        {
+          "x": 14.5,
+          "z": 15.5
+        },
+        {
+          "x": 15.5,
+          "z": 18.5
+        },
+        {
+          "x": 18.5,
+          "z": 19.5
+        },
+        {
+          "x": 17.5,
+          "z": 34.5
+        },
+        {
+          "x": 14.5,
+          "z": 35.5
+        },
+        {
+          "x": 13.5,
+          "z": 38.5
+        },
+        {
+          "x": 10.5,
+          "z": 39.5
+        },
+        {
+          "x": 9.5,
+          "z": 42.5
+        },
+        {
+          "x": 2.5,
+          "z": 43.5
+        },
+        {
+          "x": 3.5,
+          "z": 46.5
+        },
+        {
+          "x": 14.5,
+          "z": 45.5
+        },
+        {
+          "x": 15.5,
+          "z": 42.5
+        },
+        {
+          "x": 26.5,
+          "z": 43.5
+        },
+        {
+          "x": 27.5,
+          "z": 46.5
+        },
+        {
+          "x": 34.5,
+          "z": 45.5
+        },
+        {
+          "x": 35.5,
+          "z": 42.5
+        },
+        {
+          "x": 42.5,
+          "z": 41.5
+        },
+        {
+          "x": 43.5,
+          "z": 30.5
+        },
+        {
+          "x": 47.5,
+          "z": 30.5
+        },
+        {
+          "x": 48,
+          "z": 30.5
+        }
+      ],
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "2-4",
+      "seed": 1,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 96.05,
+      "quitCell": "0,3",
+      "simSeconds": 96.05,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 345.2,
+      "bumps": 10,
+      "cellsVisited": 15,
+      "stuck": [
+        {
+          "cell": "0,8",
+          "from": 18.15,
+          "to": 35.5,
+          "seconds": 17.35,
+          "cellSeconds": 7.6
+        },
+        {
+          "cell": "0,5",
+          "from": 36.8,
+          "to": 48.4,
+          "seconds": 11.6,
+          "cellSeconds": 4.7
+        },
+        {
+          "cell": "0,7",
+          "from": 49,
+          "to": 64.65,
+          "seconds": 15.65,
+          "cellSeconds": 3
+        },
+        {
+          "cell": "0,8",
+          "from": 66,
+          "to": 96.05,
+          "seconds": 30.05,
+          "cellSeconds": 5.6
+        }
+      ],
+      "decisions": {
+        "junctions": 23,
+        "wrongTurns": 10,
+        "deadEnds": 6,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "2-4",
+      "seed": 2,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 44.7,
+      "quitCell": "0,3",
+      "simSeconds": 44.7,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 157.6,
+      "bumps": 3,
+      "cellsVisited": 7,
+      "stuck": [
+        {
+          "cell": "0,3",
+          "from": 14.65,
+          "to": 44.7,
+          "seconds": 30.05,
+          "cellSeconds": 7.7
+        }
+      ],
+      "decisions": {
+        "junctions": 14,
+        "wrongTurns": 5,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "2-4",
+      "seed": 3,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 52.7,
+      "quitCell": "0,2",
+      "simSeconds": 52.7,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 171.1,
+      "bumps": 7,
+      "cellsVisited": 11,
+      "stuck": [
+        {
+          "cell": "0,5",
+          "from": 22.7,
+          "to": 52.7,
+          "seconds": 30,
+          "cellSeconds": 6
+        }
+      ],
+      "decisions": {
+        "junctions": 10,
+        "wrongTurns": 4,
+        "deadEnds": 4,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "2-4",
+      "seed": 4,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 99.5,
+      "quitCell": "11,0",
+      "simSeconds": 99.5,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 322.1,
+      "bumps": 19,
+      "cellsVisited": 28,
+      "stuck": [
+        {
+          "cell": "1,1",
+          "from": 10.15,
+          "to": 24.65,
+          "seconds": 14.5,
+          "cellSeconds": 5.85
+        },
+        {
+          "cell": "3,0",
+          "from": 29.75,
+          "to": 41.65,
+          "seconds": 11.9,
+          "cellSeconds": 4.9
+        },
+        {
+          "cell": "9,0",
+          "from": 69.45,
+          "to": 99.5,
+          "seconds": 30.05,
+          "cellSeconds": 5.3
+        }
+      ],
+      "decisions": {
+        "junctions": 14,
+        "wrongTurns": 2,
+        "deadEnds": 6,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "5-7",
+      "seed": 1,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 143,
+      "quitCell": "6,3",
+      "simSeconds": 143,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 505.2,
+      "bumps": 21,
+      "cellsVisited": 32,
+      "stuck": [
+        {
+          "cell": "6,4",
+          "from": 82.95,
+          "to": 143,
+          "seconds": 60.05,
+          "cellSeconds": 7.6
+        }
+      ],
+      "decisions": {
+        "junctions": 38,
+        "wrongTurns": 11,
+        "deadEnds": 14,
+        "backtracks": 3,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "5-7",
+      "seed": 2,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 231.55,
+      "won": true,
+      "timeToWin": 231.5,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 902.6,
+      "bumps": 32,
+      "cellsVisited": 91,
+      "stuck": [
+        {
+          "cell": "11,0",
+          "from": 33.9,
+          "to": 56.65,
+          "seconds": 22.75,
+          "cellSeconds": 2.35
+        },
+        {
+          "cell": "0,11",
+          "from": 149.15,
+          "to": 176.9,
+          "seconds": 27.75,
+          "cellSeconds": 5.6
+        },
+        {
+          "cell": "11,8",
+          "from": 205.65,
+          "to": 228.3,
+          "seconds": 22.65,
+          "cellSeconds": 8.85
+        }
+      ],
+      "decisions": {
+        "junctions": 48,
+        "wrongTurns": 11,
+        "deadEnds": 20,
+        "backtracks": 4,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "5-7",
+      "seed": 3,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 139.25,
+      "quitCell": "0,2",
+      "simSeconds": 139.25,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 547.1,
+      "bumps": 18,
+      "cellsVisited": 35,
+      "stuck": [
+        {
+          "cell": "0,2",
+          "from": 79.2,
+          "to": 139.25,
+          "seconds": 60.05,
+          "cellSeconds": 4.15
+        }
+      ],
+      "decisions": {
+        "junctions": 33,
+        "wrongTurns": 12,
+        "deadEnds": 12,
+        "backtracks": 1,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "5-7",
+      "seed": 4,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 102.05,
+      "quitCell": "10,1",
+      "simSeconds": 102.05,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 379.7,
+      "bumps": 9,
+      "cellsVisited": 29,
+      "stuck": [
+        {
+          "cell": "1,1",
+          "from": 42,
+          "to": 102.05,
+          "seconds": 60.05,
+          "cellSeconds": 11
+        }
+      ],
+      "decisions": {
+        "junctions": 17,
+        "wrongTurns": 4,
+        "deadEnds": 7,
+        "backtracks": 3,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "8-10",
+      "seed": 1,
+      "capS": 900,
+      "quit": true,
+      "quitAt": 233.05,
+      "quitCell": "3,5",
+      "simSeconds": 233.05,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 901.6,
+      "bumps": 21,
+      "cellsVisited": 43,
+      "stuck": [
+        {
+          "cell": "1,0",
+          "from": 113,
+          "to": 233.05,
+          "seconds": 120.05,
+          "cellSeconds": 22.5
+        }
+      ],
+      "decisions": {
+        "junctions": 54,
+        "wrongTurns": 9,
+        "deadEnds": 24,
+        "backtracks": 19,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "8-10",
+      "seed": 2,
+      "capS": 900,
+      "quit": true,
+      "quitAt": 158.15,
+      "quitCell": "2,1",
+      "simSeconds": 158.15,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 641.9,
+      "bumps": 20,
+      "cellsVisited": 28,
+      "stuck": [
+        {
+          "cell": "9,0",
+          "from": 38.1,
+          "to": 158.15,
+          "seconds": 120.05,
+          "cellSeconds": 10.8
+        }
+      ],
+      "decisions": {
+        "junctions": 19,
+        "wrongTurns": 1,
+        "deadEnds": 8,
+        "backtracks": 6,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "8-10",
+      "seed": 3,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 440.05,
+      "won": true,
+      "timeToWin": 440.03,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 1717.5,
+      "bumps": 47,
+      "cellsVisited": 104,
+      "stuck": [
+        {
+          "cell": "6,1",
+          "from": 63.65,
+          "to": 182.65,
+          "seconds": 119,
+          "cellSeconds": 8.55
+        },
+        {
+          "cell": "2,9",
+          "from": 312.7,
+          "to": 406.4,
+          "seconds": 93.7,
+          "cellSeconds": 16.95
+        }
+      ],
+      "decisions": {
+        "junctions": 98,
+        "wrongTurns": 16,
+        "deadEnds": 40,
+        "backtracks": 25,
+        "spikeAvoided": 3,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "8-10",
+      "seed": 4,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 137.1,
+      "won": true,
+      "timeToWin": 137.08,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 522.5,
+      "bumps": 21,
+      "cellsVisited": 70,
+      "stuck": [],
+      "decisions": {
+        "junctions": 33,
+        "wrongTurns": 3,
+        "deadEnds": 14,
+        "backtracks": 2,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "11-13",
+      "seed": 1,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 217.55,
+      "won": true,
+      "timeToWin": 217.5,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 794.3,
+      "bumps": 31,
+      "cellsVisited": 66,
+      "stuck": [
+        {
+          "cell": "6,4",
+          "from": 45.65,
+          "to": 150.5,
+          "seconds": 104.85,
+          "cellSeconds": 24.7
+        }
+      ],
+      "decisions": {
+        "junctions": 33,
+        "wrongTurns": 1,
+        "deadEnds": 16,
+        "backtracks": 8,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "11-13",
+      "seed": 2,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 226.95,
+      "quitCell": "1,2",
+      "simSeconds": 226.95,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 839.7,
+      "bumps": 24,
+      "cellsVisited": 29,
+      "stuck": [
+        {
+          "cell": "9,0",
+          "from": 46.9,
+          "to": 226.95,
+          "seconds": 180.05,
+          "cellSeconds": 19.4
+        }
+      ],
+      "decisions": {
+        "junctions": 37,
+        "wrongTurns": 2,
+        "deadEnds": 18,
+        "backtracks": 21,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "11-13",
+      "seed": 3,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 144.3,
+      "won": true,
+      "timeToWin": 144.25,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 595.8,
+      "bumps": 18,
+      "cellsVisited": 73,
+      "stuck": [],
+      "decisions": {
+        "junctions": 32,
+        "wrongTurns": 1,
+        "deadEnds": 12,
+        "backtracks": 4,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 9)",
+      "bracket": "11-13",
+      "seed": 4,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 277.1,
+      "quitCell": "7,0",
+      "simSeconds": 277.1,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 1058.2,
+      "bumps": 35,
+      "cellsVisited": 38,
+      "stuck": [
+        {
+          "cell": "10,0",
+          "from": 97.05,
+          "to": 277.1,
+          "seconds": 180.05,
+          "cellSeconds": 23.3
+        }
+      ],
+      "decisions": {
+        "junctions": 29,
+        "wrongTurns": 2,
+        "deadEnds": 14,
+        "backtracks": 14,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "solver",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "ok": true,
+      "simSeconds": 19.13,
+      "won": true,
+      "timeToWin": 19.12,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 97.1,
+      "bumps": 0,
+      "cellsVisited": 114,
+      "stuck": [],
+      "optimalLength": 99.56,
+      "pathVsOptimal": 0.98,
+      "waypoints": [
+        {
+          "x": 2.5,
+          "z": 38.5
+        },
+        {
+          "x": 3.5,
+          "z": 42.5
+        },
+        {
+          "x": 10.5,
+          "z": 41.5
+        },
+        {
+          "x": 11.5,
+          "z": 38.5
+        },
+        {
+          "x": 18.5,
+          "z": 37.5
+        },
+        {
+          "x": 17.5,
+          "z": 34.5
+        },
+        {
+          "x": 14.5,
+          "z": 33.5
+        },
+        {
+          "x": 15.5,
+          "z": 30.5
+        },
+        {
+          "x": 18.5,
+          "z": 29.5
+        },
+        {
+          "x": 19.5,
+          "z": 26.5
+        },
+        {
+          "x": 22.5,
+          "z": 25.5
+        },
+        {
+          "x": 23.5,
+          "z": 6.5
+        },
+        {
+          "x": 26.5,
+          "z": 5.5
+        },
+        {
+          "x": 27.5,
+          "z": 2.5
+        },
+        {
+          "x": 34.5,
+          "z": 3.5
+        },
+        {
+          "x": 35.5,
+          "z": 10.5
+        },
+        {
+          "x": 42.5,
+          "z": 11.5
+        },
+        {
+          "x": 43.5,
+          "z": 14.5
+        },
+        {
+          "x": 46.5,
+          "z": 15.5
+        },
+        {
+          "x": 47.5,
+          "z": 22.5
+        },
+        {
+          "x": 48,
+          "z": 22.5
+        }
+      ],
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "2-4",
+      "seed": 1,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 185.8,
+      "quitCell": "5,8",
+      "simSeconds": 185.8,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 601.6,
+      "bumps": 41,
+      "cellsVisited": 40,
+      "stuck": [
+        {
+          "cell": "2,1",
+          "from": 46.95,
+          "to": 61.95,
+          "seconds": 15,
+          "cellSeconds": 4.4
+        },
+        {
+          "cell": "1,2",
+          "from": 61.95,
+          "to": 90.6,
+          "seconds": 28.65,
+          "cellSeconds": 5.7
+        },
+        {
+          "cell": "2,10",
+          "from": 91.15,
+          "to": 119.35,
+          "seconds": 28.2,
+          "cellSeconds": 6.3
+        },
+        {
+          "cell": "0,11",
+          "from": 122.2,
+          "to": 144.55,
+          "seconds": 22.35,
+          "cellSeconds": 3.3
+        },
+        {
+          "cell": "5,9",
+          "from": 155.75,
+          "to": 185.8,
+          "seconds": 30.05,
+          "cellSeconds": 7.4
+        }
+      ],
+      "decisions": {
+        "junctions": 33,
+        "wrongTurns": 15,
+        "deadEnds": 10,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "2-4",
+      "seed": 2,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 126.75,
+      "quitCell": "3,8",
+      "simSeconds": 126.75,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 418.2,
+      "bumps": 27,
+      "cellsVisited": 21,
+      "stuck": [
+        {
+          "cell": "0,11",
+          "from": 21.05,
+          "to": 45.85,
+          "seconds": 24.8,
+          "cellSeconds": 5.95
+        },
+        {
+          "cell": "3,7",
+          "from": 56.75,
+          "to": 85.85,
+          "seconds": 29.1,
+          "cellSeconds": 4.85
+        },
+        {
+          "cell": "2,10",
+          "from": 96.7,
+          "to": 126.75,
+          "seconds": 30.05,
+          "cellSeconds": 4.5
+        }
+      ],
+      "decisions": {
+        "junctions": 24,
+        "wrongTurns": 6,
+        "deadEnds": 6,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "2-4",
+      "seed": 3,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 75.55,
+      "quitCell": "0,6",
+      "simSeconds": 75.55,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 233.3,
+      "bumps": 11,
+      "cellsVisited": 12,
+      "stuck": [
+        {
+          "cell": "2,6",
+          "from": 13.45,
+          "to": 24.25,
+          "seconds": 10.8,
+          "cellSeconds": 2.85
+        },
+        {
+          "cell": "0,9",
+          "from": 24.25,
+          "to": 39.8,
+          "seconds": 15.55,
+          "cellSeconds": 3.65
+        },
+        {
+          "cell": "2,6",
+          "from": 45.5,
+          "to": 75.55,
+          "seconds": 30.05,
+          "cellSeconds": 4.95
+        }
+      ],
+      "decisions": {
+        "junctions": 23,
+        "wrongTurns": 10,
+        "deadEnds": 10,
+        "backtracks": 1,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "2-4",
+      "seed": 4,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 106.2,
+      "quitCell": "1,11",
+      "simSeconds": 106.2,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 349.4,
+      "bumps": 20,
+      "cellsVisited": 19,
+      "stuck": [
+        {
+          "cell": "2,6",
+          "from": 22.3,
+          "to": 36.65,
+          "seconds": 14.35,
+          "cellSeconds": 2.7
+        },
+        {
+          "cell": "0,9",
+          "from": 48.95,
+          "to": 76.15,
+          "seconds": 27.2,
+          "cellSeconds": 5.8
+        },
+        {
+          "cell": "0,11",
+          "from": 76.15,
+          "to": 106.2,
+          "seconds": 30.05,
+          "cellSeconds": 6.4
+        }
+      ],
+      "decisions": {
+        "junctions": 30,
+        "wrongTurns": 12,
+        "deadEnds": 8,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "5-7",
+      "seed": 1,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 170.5,
+      "quitCell": "1,10",
+      "simSeconds": 170.5,
+      "won": false,
+      "timeToWin": null,
+      "fails": 4,
+      "failReasons": {
+        "spike": 4
+      },
+      "pathLength": 592.6,
+      "bumps": 36,
+      "cellsVisited": 32,
+      "stuck": [
+        {
+          "cell": "2,9",
+          "from": 72.55,
+          "to": 104.55,
+          "seconds": 32,
+          "cellSeconds": 3.85
+        },
+        {
+          "cell": "3,9",
+          "from": 110.45,
+          "to": 170.5,
+          "seconds": 60.05,
+          "cellSeconds": 4.6
+        }
+      ],
+      "decisions": {
+        "junctions": 36,
+        "wrongTurns": 10,
+        "deadEnds": 12,
+        "backtracks": 1,
+        "spikeAvoided": 2,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "5-7",
+      "seed": 2,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 166.55,
+      "quitCell": "2,5",
+      "simSeconds": 166.55,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 584.7,
+      "bumps": 28,
+      "cellsVisited": 32,
+      "stuck": [
+        {
+          "cell": "2,6",
+          "from": 44.6,
+          "to": 88.25,
+          "seconds": 43.65,
+          "cellSeconds": 11.2
+        },
+        {
+          "cell": "2,6",
+          "from": 106.55,
+          "to": 166.55,
+          "seconds": 60,
+          "cellSeconds": 6.6
+        }
+      ],
+      "decisions": {
+        "junctions": 39,
+        "wrongTurns": 9,
+        "deadEnds": 19,
+        "backtracks": 3,
+        "spikeAvoided": 2,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "5-7",
+      "seed": 3,
+      "capS": 600,
+      "quit": true,
+      "quitAt": 112.35,
+      "quitCell": "2,7",
+      "simSeconds": 112.35,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 402.2,
+      "bumps": 21,
+      "cellsVisited": 18,
+      "stuck": [
+        {
+          "cell": "2,6",
+          "from": 52.3,
+          "to": 112.35,
+          "seconds": 60.05,
+          "cellSeconds": 14.3
+        }
+      ],
+      "decisions": {
+        "junctions": 37,
+        "wrongTurns": 11,
+        "deadEnds": 20,
+        "backtracks": 6,
+        "spikeAvoided": 2,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "5-7",
+      "seed": 4,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 276.6,
+      "won": true,
+      "timeToWin": 276.55,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 1025,
+      "bumps": 48,
+      "cellsVisited": 75,
+      "stuck": [
+        {
+          "cell": "2,6",
+          "from": 26.75,
+          "to": 52.75,
+          "seconds": 26,
+          "cellSeconds": 4.9
+        },
+        {
+          "cell": "0,10",
+          "from": 55.5,
+          "to": 78.55,
+          "seconds": 23.05,
+          "cellSeconds": 5.05
+        },
+        {
+          "cell": "4,7",
+          "from": 115.5,
+          "to": 148.05,
+          "seconds": 32.55,
+          "cellSeconds": 3.5
+        },
+        {
+          "cell": "6,3",
+          "from": 208.3,
+          "to": 242.4,
+          "seconds": 34.1,
+          "cellSeconds": 6.6
+        },
+        {
+          "cell": "6,3",
+          "from": 246.25,
+          "to": 271.4,
+          "seconds": 25.15,
+          "cellSeconds": 2.95
+        }
+      ],
+      "decisions": {
+        "junctions": 59,
+        "wrongTurns": 13,
+        "deadEnds": 21,
+        "backtracks": 2,
+        "spikeAvoided": 2,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "8-10",
+      "seed": 1,
+      "capS": 900,
+      "quit": true,
+      "quitAt": 177.3,
+      "quitCell": "2,8",
+      "simSeconds": 177.3,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 605.8,
+      "bumps": 23,
+      "cellsVisited": 32,
+      "stuck": [
+        {
+          "cell": "2,8",
+          "from": 57.3,
+          "to": 177.3,
+          "seconds": 120,
+          "cellSeconds": 31.95
+        }
+      ],
+      "decisions": {
+        "junctions": 51,
+        "wrongTurns": 4,
+        "deadEnds": 31,
+        "backtracks": 22,
+        "spikeAvoided": 2,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "8-10",
+      "seed": 2,
+      "capS": 900,
+      "quit": true,
+      "quitAt": 142.7,
+      "quitCell": "1,6",
+      "simSeconds": 142.7,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 453,
+      "bumps": 13,
+      "cellsVisited": 11,
+      "stuck": [
+        {
+          "cell": "2,6",
+          "from": 22.65,
+          "to": 142.7,
+          "seconds": 120.05,
+          "cellSeconds": 32.9
+        }
+      ],
+      "decisions": {
+        "junctions": 40,
+        "wrongTurns": 5,
+        "deadEnds": 29,
+        "backtracks": 25,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "8-10",
+      "seed": 3,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 132.35,
+      "won": true,
+      "timeToWin": 132.32,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 520,
+      "bumps": 22,
+      "cellsVisited": 53,
+      "stuck": [],
+      "decisions": {
+        "junctions": 35,
+        "wrongTurns": 8,
+        "deadEnds": 15,
+        "backtracks": 6,
+        "spikeAvoided": 2,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "8-10",
+      "seed": 4,
+      "capS": 900,
+      "quit": true,
+      "quitAt": 322.6,
+      "quitCell": "8,7",
+      "simSeconds": 322.6,
+      "won": false,
+      "timeToWin": null,
+      "fails": 3,
+      "failReasons": {
+        "spike": 3
+      },
+      "pathLength": 1189.2,
+      "bumps": 51,
+      "cellsVisited": 76,
+      "stuck": [
+        {
+          "cell": "11,1",
+          "from": 202.6,
+          "to": 322.6,
+          "seconds": 120,
+          "cellSeconds": 21.1
+        }
+      ],
+      "decisions": {
+        "junctions": 80,
+        "wrongTurns": 11,
+        "deadEnds": 41,
+        "backtracks": 25,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "11-13",
+      "seed": 1,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 198.2,
+      "quitCell": "0,8",
+      "simSeconds": 198.2,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 641.1,
+      "bumps": 12,
+      "cellsVisited": 11,
+      "stuck": [
+        {
+          "cell": "2,6",
+          "from": 18.15,
+          "to": 198.2,
+          "seconds": 180.05,
+          "cellSeconds": 59.25
+        }
+      ],
+      "decisions": {
+        "junctions": 55,
+        "wrongTurns": 8,
+        "deadEnds": 27,
+        "backtracks": 42,
+        "spikeAvoided": 2,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "11-13",
+      "seed": 2,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 203.95,
+      "quitCell": "2,7",
+      "simSeconds": 203.95,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 673.5,
+      "bumps": 13,
+      "cellsVisited": 12,
+      "stuck": [
+        {
+          "cell": "2,6",
+          "from": 23.9,
+          "to": 203.95,
+          "seconds": 180.05,
+          "cellSeconds": 59.75
+        }
+      ],
+      "decisions": {
+        "junctions": 68,
+        "wrongTurns": 8,
+        "deadEnds": 35,
+        "backtracks": 47,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "11-13",
+      "seed": 3,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 357.6,
+      "quitCell": "2,6",
+      "simSeconds": 357.6,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 1239.1,
+      "bumps": 43,
+      "cellsVisited": 34,
+      "stuck": [
+        {
+          "cell": "0,6",
+          "from": 16.1,
+          "to": 87.9,
+          "seconds": 71.8,
+          "cellSeconds": 26.2
+        },
+        {
+          "cell": "2,5",
+          "from": 177.55,
+          "to": 357.6,
+          "seconds": 180.05,
+          "cellSeconds": 48.85
+        }
+      ],
+      "decisions": {
+        "junctions": 80,
+        "wrongTurns": 6,
+        "deadEnds": 43,
+        "backtracks": 53,
+        "spikeAvoided": 12,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 1 (12x12)",
+      "layout": "Iteration 1 (seed 10)",
+      "bracket": "11-13",
+      "seed": 4,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 196.6,
+      "quitCell": "2,5",
+      "simSeconds": 196.6,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 649.8,
+      "bumps": 20,
+      "cellsVisited": 11,
+      "stuck": [
+        {
+          "cell": "2,6",
+          "from": 16.55,
+          "to": 196.6,
+          "seconds": 180.05,
+          "cellSeconds": 47.55
+        }
+      ],
+      "decisions": {
+        "junctions": 60,
+        "wrongTurns": 9,
+        "deadEnds": 34,
+        "backtracks": 41,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "solver",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "ok": true,
+      "simSeconds": 22.72,
+      "won": true,
+      "timeToWin": 22.7,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 111.4,
+      "bumps": 0,
+      "cellsVisited": 129,
+      "stuck": [],
+      "optimalLength": 112.89,
+      "pathVsOptimal": 0.99,
+      "waypoints": [
+        {
+          "x": 2.5,
+          "z": 2.5
+        },
+        {
+          "x": 14.5,
+          "z": 3.5
+        },
+        {
+          "x": 15.5,
+          "z": 6.5
+        },
+        {
+          "x": 18.5,
+          "z": 5.5
+        },
+        {
+          "x": 19.5,
+          "z": 2.5
+        },
+        {
+          "x": 26.5,
+          "z": 3.5
+        },
+        {
+          "x": 25.5,
+          "z": 10.5
+        },
+        {
+          "x": 22.5,
+          "z": 11.5
+        },
+        {
+          "x": 21.5,
+          "z": 14.5
+        },
+        {
+          "x": 10.5,
+          "z": 15.5
+        },
+        {
+          "x": 9.5,
+          "z": 18.5
+        },
+        {
+          "x": 6.5,
+          "z": 17.5
+        },
+        {
+          "x": 5.5,
+          "z": 14.5
+        },
+        {
+          "x": 2.5,
+          "z": 15.5
+        },
+        {
+          "x": 3.5,
+          "z": 22.5
+        },
+        {
+          "x": 10.5,
+          "z": 23.5
+        },
+        {
+          "x": 11.5,
+          "z": 26.5
+        },
+        {
+          "x": 18.5,
+          "z": 25.5
+        },
+        {
+          "x": 19.5,
+          "z": 18.5
+        },
+        {
+          "x": 22.5,
+          "z": 19.5
+        },
+        {
+          "x": 23.5,
+          "z": 26.5
+        },
+        {
+          "x": 26.5,
+          "z": 25.5
+        },
+        {
+          "x": 27.5,
+          "z": 22.5
+        },
+        {
+          "x": 28,
+          "z": 22.5
+        }
+      ],
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 1,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 123.8,
+      "quitCell": "5,4",
+      "simSeconds": 123.8,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 401.8,
+      "bumps": 23,
+      "cellsVisited": 41,
+      "stuck": [
+        {
+          "cell": "4,6",
+          "from": 75.65,
+          "to": 92.3,
+          "seconds": 16.65,
+          "cellSeconds": 5
+        },
+        {
+          "cell": "3,4",
+          "from": 93.75,
+          "to": 123.8,
+          "seconds": 30.05,
+          "cellSeconds": 5.15
+        }
+      ],
+      "decisions": {
+        "junctions": 19,
+        "wrongTurns": 6,
+        "deadEnds": 7,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 2,
+      "capS": 300,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 67.65,
+      "won": true,
+      "timeToWin": 67.63,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 234.7,
+      "bumps": 15,
+      "cellsVisited": 39,
+      "stuck": [],
+      "decisions": {
+        "junctions": 11,
+        "wrongTurns": 5,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 3,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 104.35,
+      "quitCell": "5,5",
+      "simSeconds": 104.35,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 308.2,
+      "bumps": 21,
+      "cellsVisited": 35,
+      "stuck": [
+        {
+          "cell": "3,0",
+          "from": 24.1,
+          "to": 37.55,
+          "seconds": 13.45,
+          "cellSeconds": 2.1
+        },
+        {
+          "cell": "5,5",
+          "from": 74.3,
+          "to": 104.35,
+          "seconds": 30.05,
+          "cellSeconds": 25.6
+        }
+      ],
+      "decisions": {
+        "junctions": 10,
+        "wrongTurns": 3,
+        "deadEnds": 4,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 4,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 97.1,
+      "quitCell": "5,5",
+      "simSeconds": 97.1,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 280.7,
+      "bumps": 12,
+      "cellsVisited": 39,
+      "stuck": [
+        {
+          "cell": "5,5",
+          "from": 67.05,
+          "to": 97.1,
+          "seconds": 30.05,
+          "cellSeconds": 26.4
+        }
+      ],
+      "decisions": {
+        "junctions": 12,
+        "wrongTurns": 8,
+        "deadEnds": 4,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 5,
+      "capS": 300,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 106.25,
+      "won": true,
+      "timeToWin": 106.22,
+      "fails": 3,
+      "failReasons": {
+        "spike": 3
+      },
+      "pathLength": 353.7,
+      "bumps": 19,
+      "cellsVisited": 41,
+      "stuck": [
+        {
+          "cell": "0,0",
+          "from": 11.1,
+          "to": 36.15,
+          "seconds": 25.05,
+          "cellSeconds": 10.45
+        }
+      ],
+      "decisions": {
+        "junctions": 21,
+        "wrongTurns": 12,
+        "deadEnds": 7,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 6,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 80.65,
+      "quitCell": "0,3",
+      "simSeconds": 80.65,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 252.2,
+      "bumps": 14,
+      "cellsVisited": 29,
+      "stuck": [
+        {
+          "cell": "0,5",
+          "from": 50.6,
+          "to": 80.65,
+          "seconds": 30.05,
+          "cellSeconds": 7.85
+        }
+      ],
+      "decisions": {
+        "junctions": 9,
+        "wrongTurns": 3,
+        "deadEnds": 2,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 7,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 103.5,
+      "quitCell": "2,6",
+      "simSeconds": 103.5,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 327.1,
+      "bumps": 20,
+      "cellsVisited": 33,
+      "stuck": [
+        {
+          "cell": "0,6",
+          "from": 73.45,
+          "to": 103.5,
+          "seconds": 30.05,
+          "cellSeconds": 6.3
+        }
+      ],
+      "decisions": {
+        "junctions": 15,
+        "wrongTurns": 5,
+        "deadEnds": 6,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 8,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 50.95,
+      "quitCell": "0,0",
+      "simSeconds": 50.95,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 154.9,
+      "bumps": 6,
+      "cellsVisited": 8,
+      "stuck": [
+        {
+          "cell": "3,0",
+          "from": 9,
+          "to": 19.15,
+          "seconds": 10.15,
+          "cellSeconds": 5.5
+        },
+        {
+          "cell": "0,0",
+          "from": 20.95,
+          "to": 50.95,
+          "seconds": 30,
+          "cellSeconds": 10.8
+        }
+      ],
+      "decisions": {
+        "junctions": 8,
+        "wrongTurns": 5,
+        "deadEnds": 5,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 9,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 77.15,
+      "quitCell": "5,2",
+      "simSeconds": 77.15,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 244,
+      "bumps": 12,
+      "cellsVisited": 15,
+      "stuck": [
+        {
+          "cell": "3,1",
+          "from": 8.05,
+          "to": 19.65,
+          "seconds": 11.6,
+          "cellSeconds": 5.4
+        },
+        {
+          "cell": "5,2",
+          "from": 26.25,
+          "to": 44.5,
+          "seconds": 18.25,
+          "cellSeconds": 3.35
+        },
+        {
+          "cell": "3,0",
+          "from": 47.15,
+          "to": 77.15,
+          "seconds": 30,
+          "cellSeconds": 6.6
+        }
+      ],
+      "decisions": {
+        "junctions": 8,
+        "wrongTurns": 3,
+        "deadEnds": 5,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 10,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 51.7,
+      "quitCell": "1,0",
+      "simSeconds": 51.7,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 159.6,
+      "bumps": 9,
+      "cellsVisited": 13,
+      "stuck": [
+        {
+          "cell": "0,0",
+          "from": 21.7,
+          "to": 51.7,
+          "seconds": 30,
+          "cellSeconds": 9.1
+        }
+      ],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 2,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 11,
+      "capS": 300,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 71.35,
+      "won": true,
+      "timeToWin": 71.33,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 230.7,
+      "bumps": 13,
+      "cellsVisited": 39,
+      "stuck": [],
+      "decisions": {
+        "junctions": 10,
+        "wrongTurns": 1,
+        "deadEnds": 2,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 12,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 53.45,
+      "quitCell": "0,0",
+      "simSeconds": 53.45,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 170.4,
+      "bumps": 9,
+      "cellsVisited": 14,
+      "stuck": [
+        {
+          "cell": "0,2",
+          "from": 23.45,
+          "to": 53.45,
+          "seconds": 30,
+          "cellSeconds": 7.5
+        }
+      ],
+      "decisions": {
+        "junctions": 6,
+        "wrongTurns": 2,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 13,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 86.4,
+      "quitCell": "6,0",
+      "simSeconds": 86.4,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 265.2,
+      "bumps": 22,
+      "cellsVisited": 16,
+      "stuck": [
+        {
+          "cell": "4,0",
+          "from": 30.8,
+          "to": 56.35,
+          "seconds": 25.55,
+          "cellSeconds": 4.2
+        },
+        {
+          "cell": "0,0",
+          "from": 56.35,
+          "to": 86.4,
+          "seconds": 30.05,
+          "cellSeconds": 5.5
+        }
+      ],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 3,
+        "deadEnds": 7,
+        "backtracks": 0,
+        "spikeAvoided": 2,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 14,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 84.05,
+      "quitCell": "6,1",
+      "simSeconds": 84.05,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 271.9,
+      "bumps": 21,
+      "cellsVisited": 15,
+      "stuck": [
+        {
+          "cell": "4,0",
+          "from": 16.85,
+          "to": 36.75,
+          "seconds": 19.9,
+          "cellSeconds": 3.7
+        },
+        {
+          "cell": "0,0",
+          "from": 39.65,
+          "to": 54,
+          "seconds": 14.35,
+          "cellSeconds": 6.3
+        },
+        {
+          "cell": "0,2",
+          "from": 54,
+          "to": 84.05,
+          "seconds": 30.05,
+          "cellSeconds": 5.7
+        }
+      ],
+      "decisions": {
+        "junctions": 9,
+        "wrongTurns": 5,
+        "deadEnds": 5,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 15,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 65.15,
+      "quitCell": "1,2",
+      "simSeconds": 65.15,
+      "won": false,
+      "timeToWin": null,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 206.7,
+      "bumps": 10,
+      "cellsVisited": 12,
+      "stuck": [
+        {
+          "cell": "0,0",
+          "from": 7.7,
+          "to": 17.75,
+          "seconds": 10.05,
+          "cellSeconds": 4.1
+        },
+        {
+          "cell": "0,0",
+          "from": 19.65,
+          "to": 31.2,
+          "seconds": 11.55,
+          "cellSeconds": 4.45
+        },
+        {
+          "cell": "0,0",
+          "from": 35.15,
+          "to": 65.15,
+          "seconds": 30,
+          "cellSeconds": 7.15
+        }
+      ],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 3,
+        "deadEnds": 5,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 16,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 71.35,
+      "quitCell": "0,0",
+      "simSeconds": 71.35,
+      "won": false,
+      "timeToWin": null,
+      "fails": 4,
+      "failReasons": {
+        "spike": 4
+      },
+      "pathLength": 216.4,
+      "bumps": 18,
+      "cellsVisited": 8,
+      "stuck": [
+        {
+          "cell": "0,0",
+          "from": 5.45,
+          "to": 16.4,
+          "seconds": 10.95,
+          "cellSeconds": 6.7
+        },
+        {
+          "cell": "0,0",
+          "from": 20.05,
+          "to": 40.15,
+          "seconds": 20.1,
+          "cellSeconds": 7.3
+        },
+        {
+          "cell": "0,0",
+          "from": 41.3,
+          "to": 71.35,
+          "seconds": 30.05,
+          "cellSeconds": 12.15
+        }
+      ],
+      "decisions": {
+        "junctions": 12,
+        "wrongTurns": 4,
+        "deadEnds": 6,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 17,
+      "capS": 300,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 57.95,
+      "won": true,
+      "timeToWin": 57.92,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 201,
+      "bumps": 14,
+      "cellsVisited": 37,
+      "stuck": [],
+      "decisions": {
+        "junctions": 10,
+        "wrongTurns": 3,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 18,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 118.9,
+      "quitCell": "2,1",
+      "simSeconds": 118.9,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 391.8,
+      "bumps": 24,
+      "cellsVisited": 33,
+      "stuck": [
+        {
+          "cell": "2,3",
+          "from": 56.35,
+          "to": 68.95,
+          "seconds": 12.6,
+          "cellSeconds": 3.55
+        },
+        {
+          "cell": "2,2",
+          "from": 88.85,
+          "to": 118.9,
+          "seconds": 30.05,
+          "cellSeconds": 7.1
+        }
+      ],
+      "decisions": {
+        "junctions": 24,
+        "wrongTurns": 10,
+        "deadEnds": 8,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 19,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 107.55,
+      "quitCell": "4,3",
+      "simSeconds": 107.55,
+      "won": false,
+      "timeToWin": null,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 363.4,
+      "bumps": 23,
+      "cellsVisited": 24,
+      "stuck": [
+        {
+          "cell": "5,2",
+          "from": 19.8,
+          "to": 43.6,
+          "seconds": 23.8,
+          "cellSeconds": 5
+        },
+        {
+          "cell": "3,0",
+          "from": 45.7,
+          "to": 66.2,
+          "seconds": 20.5,
+          "cellSeconds": 3.75
+        },
+        {
+          "cell": "2,3",
+          "from": 77.5,
+          "to": 107.55,
+          "seconds": 30.05,
+          "cellSeconds": 6.85
+        }
+      ],
+      "decisions": {
+        "junctions": 20,
+        "wrongTurns": 9,
+        "deadEnds": 8,
+        "backtracks": 1,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "2-4",
+      "seed": 20,
+      "capS": 300,
+      "quit": true,
+      "quitAt": 71.4,
+      "quitCell": "5,1",
+      "simSeconds": 71.4,
+      "won": false,
+      "timeToWin": null,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 208.9,
+      "bumps": 10,
+      "cellsVisited": 14,
+      "stuck": [
+        {
+          "cell": "3,0",
+          "from": 16.8,
+          "to": 28.1,
+          "seconds": 11.3,
+          "cellSeconds": 5.1
+        },
+        {
+          "cell": "4,0",
+          "from": 41.35,
+          "to": 71.4,
+          "seconds": 30.05,
+          "cellSeconds": 6.5
+        }
+      ],
+      "decisions": {
+        "junctions": 8,
+        "wrongTurns": 5,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 1,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 54,
+      "won": true,
+      "timeToWin": 53.95,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 207.7,
+      "bumps": 7,
+      "cellsVisited": 38,
+      "stuck": [],
+      "decisions": {
+        "junctions": 11,
+        "wrongTurns": 5,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 2,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 45.15,
+      "won": true,
+      "timeToWin": 45.12,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 182.8,
+      "bumps": 9,
+      "cellsVisited": 36,
+      "stuck": [],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 3,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 3,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 167.9,
+      "won": true,
+      "timeToWin": 167.87,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 668.7,
+      "bumps": 35,
+      "cellsVisited": 45,
+      "stuck": [
+        {
+          "cell": "5,2",
+          "from": 67.45,
+          "to": 91.6,
+          "seconds": 24.15,
+          "cellSeconds": 3.25
+        },
+        {
+          "cell": "0,0",
+          "from": 108.15,
+          "to": 158.9,
+          "seconds": 50.75,
+          "cellSeconds": 8.25
+        }
+      ],
+      "decisions": {
+        "junctions": 28,
+        "wrongTurns": 8,
+        "deadEnds": 11,
+        "backtracks": 1,
+        "spikeAvoided": 3,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 4,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 50.45,
+      "won": true,
+      "timeToWin": 50.43,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 187.3,
+      "bumps": 8,
+      "cellsVisited": 37,
+      "stuck": [],
+      "decisions": {
+        "junctions": 8,
+        "wrongTurns": 1,
+        "deadEnds": 2,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 5,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 97.15,
+      "won": true,
+      "timeToWin": 97.1,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 390,
+      "bumps": 19,
+      "cellsVisited": 43,
+      "stuck": [
+        {
+          "cell": "0,0",
+          "from": 26.8,
+          "to": 60.7,
+          "seconds": 33.9,
+          "cellSeconds": 5.2
+        }
+      ],
+      "decisions": {
+        "junctions": 17,
+        "wrongTurns": 4,
+        "deadEnds": 8,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 6,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 140.05,
+      "won": true,
+      "timeToWin": 140,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 493,
+      "bumps": 11,
+      "cellsVisited": 44,
+      "stuck": [
+        {
+          "cell": "0,0",
+          "from": 37.15,
+          "to": 63.9,
+          "seconds": 26.75,
+          "cellSeconds": 5.8
+        },
+        {
+          "cell": "2,2",
+          "from": 75.85,
+          "to": 115.65,
+          "seconds": 39.8,
+          "cellSeconds": 18.6
+        }
+      ],
+      "decisions": {
+        "junctions": 30,
+        "wrongTurns": 6,
+        "deadEnds": 19,
+        "backtracks": 9,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 7,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 53.85,
+      "won": true,
+      "timeToWin": 53.8,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 213.2,
+      "bumps": 7,
+      "cellsVisited": 40,
+      "stuck": [],
+      "decisions": {
+        "junctions": 12,
+        "wrongTurns": 2,
+        "deadEnds": 4,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 8,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 130.75,
+      "won": true,
+      "timeToWin": 130.7,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 535.9,
+      "bumps": 17,
+      "cellsVisited": 45,
+      "stuck": [
+        {
+          "cell": "6,2",
+          "from": 62.65,
+          "to": 82.95,
+          "seconds": 20.3,
+          "cellSeconds": 2
+        },
+        {
+          "cell": "2,3",
+          "from": 83.55,
+          "to": 118.6,
+          "seconds": 35.05,
+          "cellSeconds": 4.3
+        }
+      ],
+      "decisions": {
+        "junctions": 25,
+        "wrongTurns": 6,
+        "deadEnds": 9,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 9,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 92.25,
+      "won": true,
+      "timeToWin": 92.22,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 369.5,
+      "bumps": 16,
+      "cellsVisited": 41,
+      "stuck": [
+        {
+          "cell": "2,6",
+          "from": 47.2,
+          "to": 87.75,
+          "seconds": 40.55,
+          "cellSeconds": 6.05
+        }
+      ],
+      "decisions": {
+        "junctions": 17,
+        "wrongTurns": 3,
+        "deadEnds": 5,
+        "backtracks": 2,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 10,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 60.9,
+      "won": true,
+      "timeToWin": 60.88,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 219.9,
+      "bumps": 5,
+      "cellsVisited": 40,
+      "stuck": [],
+      "decisions": {
+        "junctions": 11,
+        "wrongTurns": 1,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 11,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 163.05,
+      "won": true,
+      "timeToWin": 163.03,
+      "fails": 3,
+      "failReasons": {
+        "spike": 3
+      },
+      "pathLength": 631.1,
+      "bumps": 26,
+      "cellsVisited": 45,
+      "stuck": [
+        {
+          "cell": "0,0",
+          "from": 52.65,
+          "to": 89.4,
+          "seconds": 36.75,
+          "cellSeconds": 10.45
+        },
+        {
+          "cell": "4,2",
+          "from": 104.1,
+          "to": 136.7,
+          "seconds": 32.6,
+          "cellSeconds": 10.75
+        }
+      ],
+      "decisions": {
+        "junctions": 32,
+        "wrongTurns": 11,
+        "deadEnds": 21,
+        "backtracks": 2,
+        "spikeAvoided": 2,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 12,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 53.2,
+      "won": true,
+      "timeToWin": 53.17,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 205.7,
+      "bumps": 13,
+      "cellsVisited": 38,
+      "stuck": [],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 2,
+        "deadEnds": 2,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 13,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 89.2,
+      "won": true,
+      "timeToWin": 89.15,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 318.2,
+      "bumps": 13,
+      "cellsVisited": 41,
+      "stuck": [
+        {
+          "cell": "2,2",
+          "from": 34.7,
+          "to": 66.75,
+          "seconds": 32.05,
+          "cellSeconds": 12.8
+        }
+      ],
+      "decisions": {
+        "junctions": 18,
+        "wrongTurns": 3,
+        "deadEnds": 12,
+        "backtracks": 4,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 14,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 125.75,
+      "won": true,
+      "timeToWin": 125.72,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 484.4,
+      "bumps": 22,
+      "cellsVisited": 39,
+      "stuck": [
+        {
+          "cell": "1,0",
+          "from": 60.4,
+          "to": 104.3,
+          "seconds": 43.9,
+          "cellSeconds": 5.75
+        }
+      ],
+      "decisions": {
+        "junctions": 22,
+        "wrongTurns": 6,
+        "deadEnds": 11,
+        "backtracks": 1,
+        "spikeAvoided": 2,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 15,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 51.95,
+      "won": true,
+      "timeToWin": 51.9,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 201.2,
+      "bumps": 9,
+      "cellsVisited": 39,
+      "stuck": [],
+      "decisions": {
+        "junctions": 9,
+        "wrongTurns": 4,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 16,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 86.8,
+      "won": true,
+      "timeToWin": 86.75,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 320.3,
+      "bumps": 13,
+      "cellsVisited": 42,
+      "stuck": [],
+      "decisions": {
+        "junctions": 16,
+        "wrongTurns": 5,
+        "deadEnds": 8,
+        "backtracks": 0,
+        "spikeAvoided": 2,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 17,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 141.35,
+      "won": true,
+      "timeToWin": 141.32,
+      "fails": 4,
+      "failReasons": {
+        "spike": 4
+      },
+      "pathLength": 569.6,
+      "bumps": 23,
+      "cellsVisited": 45,
+      "stuck": [
+        {
+          "cell": "0,0",
+          "from": 37.55,
+          "to": 89.15,
+          "seconds": 51.6,
+          "cellSeconds": 12.95
+        }
+      ],
+      "decisions": {
+        "junctions": 28,
+        "wrongTurns": 6,
+        "deadEnds": 13,
+        "backtracks": 3,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 18,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 67.9,
+      "won": true,
+      "timeToWin": 67.88,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 249.8,
+      "bumps": 11,
+      "cellsVisited": 41,
+      "stuck": [],
+      "decisions": {
+        "junctions": 13,
+        "wrongTurns": 3,
+        "deadEnds": 5,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 19,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 52.35,
+      "won": true,
+      "timeToWin": 52.3,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 196.6,
+      "bumps": 8,
+      "cellsVisited": 37,
+      "stuck": [],
+      "decisions": {
+        "junctions": 8,
+        "wrongTurns": 2,
+        "deadEnds": 2,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "5-7",
+      "seed": 20,
+      "capS": 600,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 60.1,
+      "won": true,
+      "timeToWin": 60.07,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 226,
+      "bumps": 14,
+      "cellsVisited": 41,
+      "stuck": [],
+      "decisions": {
+        "junctions": 11,
+        "wrongTurns": 5,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 1,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 49.6,
+      "won": true,
+      "timeToWin": 49.55,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 204.4,
+      "bumps": 6,
+      "cellsVisited": 40,
+      "stuck": [],
+      "decisions": {
+        "junctions": 11,
+        "wrongTurns": 1,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 2,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 46.05,
+      "won": true,
+      "timeToWin": 46.03,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 187.6,
+      "bumps": 5,
+      "cellsVisited": 38,
+      "stuck": [],
+      "decisions": {
+        "junctions": 8,
+        "wrongTurns": 1,
+        "deadEnds": 2,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 3,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 58.85,
+      "won": true,
+      "timeToWin": 58.8,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 237,
+      "bumps": 10,
+      "cellsVisited": 43,
+      "stuck": [],
+      "decisions": {
+        "junctions": 13,
+        "wrongTurns": 1,
+        "deadEnds": 5,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 4,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 50.4,
+      "won": true,
+      "timeToWin": 50.35,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 203.8,
+      "bumps": 8,
+      "cellsVisited": 39,
+      "stuck": [],
+      "decisions": {
+        "junctions": 10,
+        "wrongTurns": 0,
+        "deadEnds": 2,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 5,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 82.5,
+      "won": true,
+      "timeToWin": 82.47,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 322.7,
+      "bumps": 12,
+      "cellsVisited": 41,
+      "stuck": [],
+      "decisions": {
+        "junctions": 19,
+        "wrongTurns": 1,
+        "deadEnds": 11,
+        "backtracks": 6,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 6,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 41.3,
+      "won": true,
+      "timeToWin": 41.25,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 165.1,
+      "bumps": 4,
+      "cellsVisited": 35,
+      "stuck": [],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 0,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 7,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 47,
+      "won": true,
+      "timeToWin": 46.95,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 184.8,
+      "bumps": 9,
+      "cellsVisited": 36,
+      "stuck": [],
+      "decisions": {
+        "junctions": 8,
+        "wrongTurns": 1,
+        "deadEnds": 2,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 8,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 53.65,
+      "won": true,
+      "timeToWin": 53.63,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 216.1,
+      "bumps": 5,
+      "cellsVisited": 40,
+      "stuck": [],
+      "decisions": {
+        "junctions": 12,
+        "wrongTurns": 3,
+        "deadEnds": 4,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 9,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 71.55,
+      "won": true,
+      "timeToWin": 71.52,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 291.2,
+      "bumps": 12,
+      "cellsVisited": 39,
+      "stuck": [],
+      "decisions": {
+        "junctions": 16,
+        "wrongTurns": 3,
+        "deadEnds": 8,
+        "backtracks": 3,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 10,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 53.75,
+      "won": true,
+      "timeToWin": 53.7,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 217.7,
+      "bumps": 5,
+      "cellsVisited": 40,
+      "stuck": [],
+      "decisions": {
+        "junctions": 12,
+        "wrongTurns": 0,
+        "deadEnds": 4,
+        "backtracks": 2,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 11,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 40.5,
+      "won": true,
+      "timeToWin": 40.48,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 170.1,
+      "bumps": 4,
+      "cellsVisited": 36,
+      "stuck": [],
+      "decisions": {
+        "junctions": 6,
+        "wrongTurns": 0,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 12,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 66.85,
+      "won": true,
+      "timeToWin": 66.82,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 267.3,
+      "bumps": 7,
+      "cellsVisited": 40,
+      "stuck": [],
+      "decisions": {
+        "junctions": 12,
+        "wrongTurns": 5,
+        "deadEnds": 4,
+        "backtracks": 2,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 13,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 48.5,
+      "won": true,
+      "timeToWin": 48.45,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 204.5,
+      "bumps": 5,
+      "cellsVisited": 39,
+      "stuck": [],
+      "decisions": {
+        "junctions": 10,
+        "wrongTurns": 1,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 14,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 54.45,
+      "won": true,
+      "timeToWin": 54.42,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 227.9,
+      "bumps": 7,
+      "cellsVisited": 41,
+      "stuck": [],
+      "decisions": {
+        "junctions": 13,
+        "wrongTurns": 2,
+        "deadEnds": 5,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 15,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 40.35,
+      "won": true,
+      "timeToWin": 40.32,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 159.3,
+      "bumps": 2,
+      "cellsVisited": 35,
+      "stuck": [],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 2,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 16,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 42.6,
+      "won": true,
+      "timeToWin": 42.55,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 173.6,
+      "bumps": 5,
+      "cellsVisited": 36,
+      "stuck": [],
+      "decisions": {
+        "junctions": 9,
+        "wrongTurns": 2,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 17,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 52.7,
+      "won": true,
+      "timeToWin": 52.67,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 207.9,
+      "bumps": 8,
+      "cellsVisited": 38,
+      "stuck": [],
+      "decisions": {
+        "junctions": 11,
+        "wrongTurns": 2,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 18,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 105.65,
+      "won": true,
+      "timeToWin": 105.63,
+      "fails": 2,
+      "failReasons": {
+        "spike": 2
+      },
+      "pathLength": 413,
+      "bumps": 14,
+      "cellsVisited": 39,
+      "stuck": [],
+      "decisions": {
+        "junctions": 18,
+        "wrongTurns": 5,
+        "deadEnds": 11,
+        "backtracks": 1,
+        "spikeAvoided": 2,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 19,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 61.05,
+      "won": true,
+      "timeToWin": 61.03,
+      "fails": 1,
+      "failReasons": {
+        "spike": 1
+      },
+      "pathLength": 240.8,
+      "bumps": 7,
+      "cellsVisited": 41,
+      "stuck": [],
+      "decisions": {
+        "junctions": 11,
+        "wrongTurns": 2,
+        "deadEnds": 6,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "8-10",
+      "seed": 20,
+      "capS": 900,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 47.55,
+      "won": true,
+      "timeToWin": 47.5,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 189.1,
+      "bumps": 6,
+      "cellsVisited": 37,
+      "stuck": [],
+      "decisions": {
+        "junctions": 8,
+        "wrongTurns": 2,
+        "deadEnds": 2,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 1,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 41.85,
+      "won": true,
+      "timeToWin": 41.8,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 173.7,
+      "bumps": 4,
+      "cellsVisited": 36,
+      "stuck": [],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 1,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 2,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 45.75,
+      "won": true,
+      "timeToWin": 45.7,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 186.9,
+      "bumps": 5,
+      "cellsVisited": 37,
+      "stuck": [],
+      "decisions": {
+        "junctions": 8,
+        "wrongTurns": 0,
+        "deadEnds": 2,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 3,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 194.1,
+      "won": true,
+      "timeToWin": 194.05,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 668.2,
+      "bumps": 20,
+      "cellsVisited": 40,
+      "stuck": [
+        {
+          "cell": "2,2",
+          "from": 56.5,
+          "to": 175.05,
+          "seconds": 118.55,
+          "cellSeconds": 52.75
+        }
+      ],
+      "decisions": {
+        "junctions": 45,
+        "wrongTurns": 5,
+        "deadEnds": 31,
+        "backtracks": 26,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 4,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 42.35,
+      "won": true,
+      "timeToWin": 42.32,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 174.6,
+      "bumps": 4,
+      "cellsVisited": 36,
+      "stuck": [],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 2,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 5,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 49.5,
+      "won": true,
+      "timeToWin": 49.48,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 204,
+      "bumps": 8,
+      "cellsVisited": 39,
+      "stuck": [],
+      "decisions": {
+        "junctions": 9,
+        "wrongTurns": 1,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 6,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 57.15,
+      "won": true,
+      "timeToWin": 57.12,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 223.3,
+      "bumps": 6,
+      "cellsVisited": 41,
+      "stuck": [],
+      "decisions": {
+        "junctions": 13,
+        "wrongTurns": 1,
+        "deadEnds": 4,
+        "backtracks": 1,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 7,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 89.9,
+      "won": true,
+      "timeToWin": 89.88,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 312,
+      "bumps": 9,
+      "cellsVisited": 37,
+      "stuck": [],
+      "decisions": {
+        "junctions": 18,
+        "wrongTurns": 1,
+        "deadEnds": 11,
+        "backtracks": 9,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 8,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 41.05,
+      "won": true,
+      "timeToWin": 41,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 165,
+      "bumps": 2,
+      "cellsVisited": 35,
+      "stuck": [],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 2,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 9,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 37.85,
+      "won": true,
+      "timeToWin": 37.82,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 167.2,
+      "bumps": 2,
+      "cellsVisited": 36,
+      "stuck": [],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 0,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 10,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 66.65,
+      "won": true,
+      "timeToWin": 66.63,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 270.7,
+      "bumps": 11,
+      "cellsVisited": 43,
+      "stuck": [],
+      "decisions": {
+        "junctions": 15,
+        "wrongTurns": 2,
+        "deadEnds": 7,
+        "backtracks": 1,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 11,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 53.2,
+      "won": true,
+      "timeToWin": 53.17,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 213.9,
+      "bumps": 9,
+      "cellsVisited": 40,
+      "stuck": [],
+      "decisions": {
+        "junctions": 8,
+        "wrongTurns": 0,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 12,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 49.3,
+      "won": true,
+      "timeToWin": 49.27,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 199.9,
+      "bumps": 5,
+      "cellsVisited": 39,
+      "stuck": [],
+      "decisions": {
+        "junctions": 8,
+        "wrongTurns": 3,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 13,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 55.35,
+      "won": true,
+      "timeToWin": 55.3,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 217.5,
+      "bumps": 6,
+      "cellsVisited": 40,
+      "stuck": [],
+      "decisions": {
+        "junctions": 9,
+        "wrongTurns": 1,
+        "deadEnds": 4,
+        "backtracks": 0,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 14,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 79.1,
+      "won": true,
+      "timeToWin": 79.07,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 311.8,
+      "bumps": 6,
+      "cellsVisited": 41,
+      "stuck": [],
+      "decisions": {
+        "junctions": 17,
+        "wrongTurns": 2,
+        "deadEnds": 9,
+        "backtracks": 5,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 15,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 183.25,
+      "won": true,
+      "timeToWin": 183.22,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 677.5,
+      "bumps": 15,
+      "cellsVisited": 44,
+      "stuck": [
+        {
+          "cell": "5,1",
+          "from": 87.15,
+          "to": 158.7,
+          "seconds": 71.55,
+          "cellSeconds": 23.75
+        }
+      ],
+      "decisions": {
+        "junctions": 39,
+        "wrongTurns": 4,
+        "deadEnds": 23,
+        "backtracks": 22,
+        "spikeAvoided": 1,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 16,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 58.15,
+      "won": true,
+      "timeToWin": 58.1,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 231.9,
+      "bumps": 2,
+      "cellsVisited": 39,
+      "stuck": [],
+      "decisions": {
+        "junctions": 13,
+        "wrongTurns": 2,
+        "deadEnds": 5,
+        "backtracks": 2,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 17,
+      "capS": 1200,
+      "quit": true,
+      "quitAt": 484.3,
+      "quitCell": "5,3",
+      "simSeconds": 484.3,
+      "won": false,
+      "timeToWin": null,
+      "fails": 5,
+      "failReasons": {
+        "spike": 5
+      },
+      "pathLength": 1812,
+      "bumps": 55,
+      "cellsVisited": 36,
+      "stuck": [
+        {
+          "cell": "2,2",
+          "from": 53.2,
+          "to": 179.75,
+          "seconds": 126.55,
+          "cellSeconds": 50.4
+        },
+        {
+          "cell": "1,0",
+          "from": 198.75,
+          "to": 262.5,
+          "seconds": 63.75,
+          "cellSeconds": 8.15
+        },
+        {
+          "cell": "0,0",
+          "from": 304.25,
+          "to": 484.3,
+          "seconds": 180.05,
+          "cellSeconds": 46.95
+        }
+      ],
+      "decisions": {
+        "junctions": 80,
+        "wrongTurns": 5,
+        "deadEnds": 56,
+        "backtracks": 51,
+        "spikeAvoided": 14,
+        "doorSeen": 0
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 18,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 43.05,
+      "won": true,
+      "timeToWin": 43.02,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 168.2,
+      "bumps": 5,
+      "cellsVisited": 36,
+      "stuck": [],
+      "decisions": {
+        "junctions": 7,
+        "wrongTurns": 1,
+        "deadEnds": 1,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 19,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 48.35,
+      "won": true,
+      "timeToWin": 48.3,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 193,
+      "bumps": 8,
+      "cellsVisited": 38,
+      "stuck": [],
+      "decisions": {
+        "junctions": 9,
+        "wrongTurns": 1,
+        "deadEnds": 3,
+        "backtracks": 0,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    },
+    {
+      "bot": "kid",
+      "cond": "Iteration 2 (Level 1, 7x7)",
+      "layout": "Level 1",
+      "bracket": "11-13",
+      "seed": 20,
+      "capS": 1200,
+      "quit": false,
+      "quitAt": null,
+      "quitCell": null,
+      "simSeconds": 81.45,
+      "won": true,
+      "timeToWin": 81.43,
+      "fails": 0,
+      "failReasons": {},
+      "pathLength": 324.4,
+      "bumps": 8,
+      "cellsVisited": 39,
+      "stuck": [],
+      "decisions": {
+        "junctions": 17,
+        "wrongTurns": 1,
+        "deadEnds": 9,
+        "backtracks": 6,
+        "spikeAvoided": 0,
+        "doorSeen": 1
+      },
+      "errors": []
+    }
+  ],
+  "errors": [],
+  "heatmaps": [
+    "heatmap-2-4-iteration-1-seed-1.png",
+    "heatmap-2-4-iteration-1-seed-5.png",
+    "heatmap-2-4-iteration-1-seed-8.png",
+    "heatmap-2-4-iteration-1-seed-9.png",
+    "heatmap-2-4-iteration-1-seed-10.png",
+    "heatmap-2-4-level-1.png",
+    "heatmap-5-7-iteration-1-seed-1.png",
+    "heatmap-5-7-iteration-1-seed-5.png",
+    "heatmap-5-7-iteration-1-seed-8.png",
+    "heatmap-5-7-iteration-1-seed-9.png",
+    "heatmap-5-7-iteration-1-seed-10.png",
+    "heatmap-5-7-level-1.png",
+    "heatmap-8-10-iteration-1-seed-1.png",
+    "heatmap-8-10-iteration-1-seed-5.png",
+    "heatmap-8-10-iteration-1-seed-8.png",
+    "heatmap-8-10-iteration-1-seed-9.png",
+    "heatmap-8-10-iteration-1-seed-10.png",
+    "heatmap-8-10-level-1.png",
+    "heatmap-11-13-iteration-1-seed-1.png",
+    "heatmap-11-13-iteration-1-seed-5.png",
+    "heatmap-11-13-iteration-1-seed-8.png",
+    "heatmap-11-13-iteration-1-seed-9.png",
+    "heatmap-11-13-iteration-1-seed-10.png",
+    "heatmap-11-13-level-1.png"
+  ]
+}

@@ -1,0 +1,264 @@
+{
+  "game": "rolly-bally",
+  "runDir": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z",
+  "createdAt": "2026-09-27T17:47:09.247Z",
+  "brackets": [
+    "5-7",
+    "8-10"
+  ],
+  "bracketsFrom": "user (--brackets)",
+  "testerProfile": null,
+  "comparablesMode": "claude-picks",
+  "comparablesNote": "No Tester profile: Claude picked these comparable games for this run: Super Monkey Ball, Marble It Up, Mario Kart (Mario Kart 8 Deluxe / Tour), PBS KIDS mazes.",
+  "comparables": [
+    {
+      "title": "Super Monkey Ball",
+      "compare": "camera/steering feel on a tilting ball course, fall-out-and-retry pacing, and goal-gate celebration vs. Rolly Bally's finish banner/confetti",
+      "why": "Same core genre (roll a ball through obstacle stages to a goal gate) and the closest console/PC analogue for judging whether Rolly Bally's camera, physics feel, and instant-retry-after-falling loop land well for young players.",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/super-monkey-ball.json"
+    },
+    {
+      "title": "Marble It Up",
+      "compare": "skins/marble unlocks as rewards, checkpoint/restart speed, and medal-tier difficulty vs. Rolly Bally's 'New ball!' unlocks and checkpoint respawns",
+      "why": "Nearly identical core mechanic (steer a rolling marble through a 3D course to a finish) with an explicit skins-as-reward system and medal times, making it a direct model for how Rolly Bally's unlockable balls and checkpoint respawns could be structured or improved.",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/marble-it-up.json"
+    },
+    {
+      "title": "Mario Kart (Mario Kart 8 Deluxe / Tour)",
+      "compare": "assist modes for young kids, AI opponents that keep races close, and podium/placement celebrations vs. Rolly Bally's Race mode countdown and '1st'-place podium",
+      "why": "Rolly Bally's Race mode (countdown, live placement, podium with medal) directly mirrors kart-racing conventions, and Mario Kart is the best-known example of making competitive racing work for very young players via steering/acceleration assists and rubber-banded AI.",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/mario-kart-mario-kart-8-deluxe-tour.json"
+    },
+    {
+      "title": "PBS KIDS mazes",
+      "compare": "wordless/voice-led onboarding and no-reading-required goal explanation vs. Rolly Bally's text-only setup screens and lack of spoken instructions",
+      "why": "Rolly Bally's profile explicitly flags no speechSynthesis or voice-over and text labels like 'Level 2: Bumpy Road' as a gap for early readers in the 5-7 bracket; PBS KIDS mazes are a strong, well-known model for how a young-child game can explain its goal entirely through character speech and visuals instead of text.",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/pbs-kids-mazes.json"
+    }
+  ],
+  "summary": "Rolly Bally's checkpoint respawns, skin unlocks, and finish-line celebrations already track proven kid-game conventions, but it leans on text (level names, a dense setup screen) with zero spoken audio, which is the single biggest gap for the 5-7 bracket versus PBS KIDS and Mario Kart's assist-driven onboarding. The setup screens (18-19 buttons in Playground, 5 cards + 4 chips in Race) and the grown-up-gated mute control are the next most fixable usability risks before polishing difficulty pacing or audio variety.",
+  "items": [
+    {
+      "rank": 1,
+      "area": "onboarding",
+      "compared_with": [
+        "PBS KIDS mazes",
+        "Mario Kart (Mario Kart 8 Deluxe / Tour)"
+      ],
+      "they_do": "PBS KIDS has a character speak the goal aloud with a replay-voice button so nothing depends on reading; Mario Kart uses icon-driven menus plus assist modes so a 4-6-year-old can just point and go.",
+      "we_do": "Confirmed 0 bundled audio files and no speechSynthesis use anywhere in the game; the only onboarding is 3 picture-labeled home buttons and text level names like 'Level 2: Bumpy Road' with no spoken instructions.",
+      "suggestion": "Use the Web Speech API to speak one short line when a level loads (e.g. 'Roll to the finish gate!') and repeat it on a small speaker-icon tap, so pre-readers in the 5-7 bracket get the goal without reading.",
+      "matters_for_brackets": [
+        "5-7",
+        "8-10"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 2,
+      "area": "usability",
+      "compared_with": [
+        "Mario Kart (Mario Kart 8 Deluxe / Tour)",
+        "PBS KIDS mazes"
+      ],
+      "they_do": "Both comparables keep pre-play choices to a handful of taps: Mario Kart's assist toggles are one or two switches, and PBS KIDS mazes have essentially no setup screen at all before play starts.",
+      "we_do": "Playground setup shows roughly 18-19 simultaneous buttons/panels (size, surface, terrain, 5 features, star density, world code, Go, Back) and Race setup shows 5 level cards plus 4 race-length chips at once, exceeding comfortable button counts for both brackets.",
+      "suggestion": "Split Playground setup into 2-3 sequential steps (e.g. 'Pick a world' then 'Pick features') with a big Go button per step instead of one all-at-once panel, cutting simultaneous choices to under 6.",
+      "matters_for_brackets": [
+        "5-7",
+        "8-10"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 3,
+      "area": "accessibility",
+      "compared_with": [
+        "PBS KIDS mazes"
+      ],
+      "they_do": "PBS KIDS mazes expose audio-first controls (including mute) directly to the child, with no adult gate required for basic comfort settings like sound.",
+      "we_do": "The Sound toggle lives in Settings behind the 'Grown-ups (hold)' gate on Home, so a child playing solo has no visible way to mute audio if it becomes overwhelming or startling.",
+      "suggestion": "Add a small always-visible mute icon next to the existing 'Home (hold)' button during play, separate from the grown-up-gated Settings panel, so kids can self-mute without adult help.",
+      "matters_for_brackets": [
+        "5-7",
+        "8-10"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 4,
+      "area": "difficulty curve",
+      "compared_with": [
+        "Mario Kart (Mario Kart 8 Deluxe / Tour)",
+        "Super Monkey Ball"
+      ],
+      "they_do": "Mario Kart's smart-steering/auto-accelerate assists and AI rubber-banding keep races winnable and close for very young players even with live opponents; Super Monkey Ball has no live-opponent pressure at all in its core stages.",
+      "we_do": "Race mode adds a 3-2-1-GO countdown, simultaneous opponents, and a live '1st' placement badge - flagged in our own profile as mild time-pressure for the 5-7 bracket, with no assist mode mentioned.",
+      "suggestion": "Add a 'Just for fun' Race toggle for young players that hides live placement and removes the countdown timer pressure, showing only 'You finished!' instead of rank, similar to how Mario Kart's assists soften competition.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 5,
+      "area": "controls",
+      "compared_with": [
+        "Super Monkey Ball",
+        "Marble It Up"
+      ],
+      "they_do": "Super Monkey Ball teaches its single-tilt control on a wide, flat, hazard-free first stage before adding complexity; Marble It Up introduces move-jump-camera one mechanic at a time in tutorial levels.",
+      "we_do": "No on-screen control hints or overlay appear during play in any captured screenshot, only a persistent 'Home (hold)' button - the specific input method isn't reinforced visually once play starts.",
+      "suggestion": "Show a fading animated hand/arrow overlay for the first 3 seconds of Level 1 demonstrating the steer gesture, then never show it again, so first-time players don't need to read control instructions.",
+      "matters_for_brackets": [
+        "5-7",
+        "8-10"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 6,
+      "area": "goals and rewards",
+      "compared_with": [
+        "Marble It Up"
+      ],
+      "they_do": "Marble It Up ties marble-skin unlocks directly to gems and progress earned by finishing levels, giving a clear, visible link between playing and cosmetic rewards.",
+      "we_do": "Source strings reference a 'New ball!' unlock, but no screenshot in this run shows the actual unlock moment or what triggers it, leaving the reward connection unverified for players.",
+      "suggestion": "Add a brief on-finish popup ('New ball unlocked!' with the ball shown) whenever a skin unlocks, right on the results/podium screen, so the play-to-unlock link is visible rather than buried in My Balls.",
+      "matters_for_brackets": [
+        "5-7",
+        "8-10"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 7,
+      "area": "art and audio",
+      "compared_with": [
+        "Mario Kart (Mario Kart 8 Deluxe / Tour)",
+        "PBS KIDS mazes"
+      ],
+      "they_do": "Mario Kart pairs races with lively, upbeat music throughout; PBS KIDS mazes run full voice-over and music for the whole session.",
+      "we_do": "Confirmed 0 bundled audio files and no speechSynthesis use - only WebAudio sound effects exist, with no background music or voice-over anywhere in the game.",
+      "suggestion": "Add one short looping WebAudio music track during Race/Playground play (muted by default is unnecessary since there's already a mute path once added) to match the energetic feel competitors use during core play.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 8,
+      "area": "ads and purchases",
+      "compared_with": [
+        "Mario Kart (Mario Kart 8 Deluxe / Tour)"
+      ],
+      "they_do": "Mario Kart Tour's mobile version includes gacha-style 'pipe' loot mechanics as a monetization pattern.",
+      "we_do": "No ads, purchases, or loot-style mechanics appear in any screenshot or extracted game text - unlocks so far read as play-earned only.",
+      "suggestion": "Keep all future ball/skin unlocks tied to in-play milestones (levels finished, stars collected) and avoid any randomized 'mystery ball' reveal mechanic, even as a cosmetic-only feature.",
+      "matters_for_brackets": [
+        "5-7",
+        "8-10"
+      ],
+      "priority": "low"
+    }
+  ],
+  "patterns": {
+    "present": [
+      {
+        "pattern": "Celebration on every success",
+        "evidence": "FINISH banner with checkmark and confetti burst (winning-test-track-finish.png); Race mode adds a live '1st' badge and a podium/gold-medal results screen (winning-race-results.png)."
+      },
+      {
+        "pattern": "Checkpoints",
+        "evidence": "Falling through a track gap simply respawns the ball at the last checkpoint with no penalty message (failing-gap-fall.png, failing-respawn.png)."
+      },
+      {
+        "pattern": "Customisation earned by play",
+        "evidence": "Source strings reference unlockable skins/new balls (e.g. 'New ball!') tied to a 'My Balls' collection screen, not a store."
+      },
+      {
+        "pattern": "Grown-up gate for settings",
+        "evidence": "Settings, including the Sound toggle, sit behind a 'Grown-ups (hold)' gate accessed from Home."
+      },
+      {
+        "pattern": "Accessible contrast without color-only cues",
+        "evidence": "Bold-outlined or white-on-saturated text throughout, and selected setup options use a thicker border rather than color alone."
+      }
+    ],
+    "missing": [
+      {
+        "pattern": "Guide character / show-don't-tell onboarding",
+        "suggestion": "Add a short spoken line and/or an animated arrow at the start of Level 1 instead of relying on text level names like 'Level 2: Bumpy Road'.",
+        "matters_for_brackets": [
+          "5-7",
+          "8-10"
+        ]
+      },
+      {
+        "pattern": "Collectibles and stars",
+        "suggestion": "Add a simple 1-3 star rating on the finish/results screen (e.g. based on falls or time) so finishing always grants at least 1 star, giving replay incentive beyond placement.",
+        "matters_for_brackets": [
+          "5-7",
+          "8-10"
+        ]
+      },
+      {
+        "pattern": "Hints when stuck",
+        "suggestion": "No idle-hint behavior is evident from screenshots; add a gentle glow or arrow on the next obstacle if the ball sits idle for ~8-10 seconds.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Visible progress",
+        "suggestion": "Race's level-select shows 5 cards but no completion/star state was visible in screenshots; mark cleared levels with a checkmark or stars so kids can see how far they've come.",
+        "matters_for_brackets": [
+          "5-7",
+          "8-10"
+        ]
+      }
+    ],
+    "avoid_seen": []
+  },
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5",
+    "seconds": 69,
+    "costUsd": 0.16471940000000002
+  },
+  "ourProfile": {
+    "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/rolly-bally.json",
+    "source": "bot-run (key screenshots only; no play.json yet)",
+    "cached": false,
+    "profile": {
+      "game": "rolly-bally",
+      "source": "bot-run",
+      "brackets": [
+        "5-7",
+        "8-10"
+      ],
+      "genre": "3D rolling-ball obstacle course / racer",
+      "web_playable": "yes",
+      "onboarding": "Home screen shows 3 large picture-labeled buttons (Playground, Race, My Balls) with no tutorial text or spoken instructions. Reaching play requires a setup screen first: Race has 5 level cards plus race-length chips and a Go button; Playground has roughly 18 option buttons plus Go. Exact taps-to-play not measured.",
+      "controls": "Not shown directly in any screenshot — no on-screen control hints/overlay appear during play, only a persistent 'Home (hold)' button. Specific input method (touch-drag, tilt, etc.) not measured.",
+      "core_loop": "Roll the ball forward along a track, steering through curves, ramps, gaps, and hazards to reach the finish gate, repeating across 5 race levels or Playground/Race heats.",
+      "goals_and_rewards": "Crossing the finish triggers a 'FINISH' banner, checkmark, and confetti burst (winning-test-track-finish.png); in Race mode a live '1st' placement badge appears at finish and a podium results screen with a gold medal follows (winning-race-results.png). Source strings also reference unlockable skins/new balls (e.g. 'New ball!') though not directly observed in these shots.",
+      "difficulty_curve": "Five race levels escalate from 'Rolling Hills' to 'Going Big'/'Hammer Time', adding hazards like swinging hammers and wrecking balls per source, and Playground lets a grown-up dial up terrain and feature density. Fail cost is low: falling through a track gap simply respawns the ball at the last checkpoint with no penalty message (failing-gap-fall.png, failing-respawn.png).",
+      "game_feel": "Not measured — no fps or responsiveness data from a bot run. Screenshots show a smooth-looking low-poly 3D ball and a celebratory confetti burst on finish, suggesting positive feedback on success.",
+      "art_and_audio": "Bright, flat-shaded low-poly 3D style with bold black-outlined text and high-contrast buttons. Per source analysis there are 0 bundled audio files and no speechSynthesis use — only WebAudio sound effects, no music or voice-over.",
+      "session_length": "Not measured — no bot play data (play.json) available for time-to-first-win, retries, or session duration.",
+      "usability": "Home screen is clean (3 buttons + gear icon), but Playground setup crams about 18-19 simultaneous buttons/panels (size, surface, terrain, 5 features, star density, world code, Go, Back) and Race setup shows 5 track cards plus 4 race-length chips at once — both exceed comfortable button counts for either age bracket. During play, fail, and win screens, only a 'Home (hold)' control is visible, with no visible pause or mute icon.",
+      "accessibility": "Text uses bold outlines or white-on-saturated-color styling throughout for contrast, and selected setup options are marked with a thicker border rather than color alone (contrast checks pass for both brackets). However, the Sound toggle lives in Settings behind the 'Grown-ups (hold)' gate on Home, so it's unclear a child can mute audio mid-game without an adult — flagged as unsure/needs human review.",
+      "ads_and_purchases": "None seen in any screenshot or extracted game text.",
+      "notes": "Race mode adds a 3-2-1-GO countdown and simultaneous opponents with live placement — flagged as mild time-pressure for the 5-7 bracket (softened by being an optional mode) but acceptable for 8-10. No spoken/narrated instructions exist anywhere (confirmed by source: no speechSynthesis, no voice audio), a gap for early readers in the 5-7 bracket facing labels like 'Level 2: Bumpy Road'. Overall content-check result was NEEDS_HUMAN, pending confirmation of in-play mute access."
+    }
+  },
+  "cost": {
+    "seconds": 157,
+    "costUsd": 0.487
+  }
+}

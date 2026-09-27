@@ -1,0 +1,710 @@
+{
+  "game": "rolly-bally",
+  "baseUrl": "http://192.168.1.9:9080/rolly-bally/",
+  "capturedAt": "2026-09-27T17:42:59.183Z",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "shots": [
+    {
+      "file": "menu-home.png",
+      "screen": "menu",
+      "label": "home",
+      "description": "Home screen (menu): big picture buttons and the grown-ups gear.",
+      "url": "http://192.168.1.9:9080/rolly-bally/?test=1",
+      "text": [
+        "Rolly Bally",
+        "Playground",
+        "Race",
+        "My Balls",
+        "Grown-ups (hold)"
+      ],
+      "state": {
+        "t": 0,
+        "ready": true,
+        "realtime": false,
+        "screen": "home",
+        "mode": null,
+        "seed": null,
+        "paused": false,
+        "input": {
+          "x": 0,
+          "y": 0,
+          "source": "none"
+        },
+        "canJump": false,
+        "pos": null,
+        "vel": null,
+        "speed": 0,
+        "onGround": false,
+        "frozen": false,
+        "fell": false,
+        "won": false
+      }
+    },
+    {
+      "file": "menu-race-setup.png",
+      "screen": "menu",
+      "label": "race-setup",
+      "description": "Race setup screen, reached by tapping Race on Home.",
+      "url": "http://192.168.1.9:9080/rolly-bally/?test=1",
+      "text": [
+        "Back",
+        "Level 1: Rolling Hills",
+        "Level 2: Bumpy Road",
+        "Level 3: Sky Road",
+        "Level 4: Hammer Time",
+        "Level 5: Going Big",
+        "1 race",
+        "1",
+        "3 races",
+        "3",
+        "5 races",
+        "5",
+        "10 races",
+        "10",
+        "Go",
+        "Go!"
+      ],
+      "state": {
+        "t": 0,
+        "ready": true,
+        "realtime": false,
+        "screen": "race-setup",
+        "mode": null,
+        "seed": null,
+        "paused": false,
+        "input": {
+          "x": 0,
+          "y": 0,
+          "source": "none"
+        },
+        "canJump": false,
+        "pos": null,
+        "vel": null,
+        "speed": 0,
+        "onGround": false,
+        "frozen": false,
+        "fell": false,
+        "won": false
+      }
+    },
+    {
+      "file": "menu-playground-setup.png",
+      "screen": "menu",
+      "label": "playground-setup",
+      "description": "Playground setup screen, reached by tapping Playground on Home.",
+      "url": "http://192.168.1.9:9080/rolly-bally/?test=1",
+      "text": [
+        "Back",
+        "Small",
+        "Medium",
+        "Big",
+        "Grass",
+        "Snow",
+        "Flat",
+        "Hills",
+        "Mountains",
+        "Ramps",
+        "Jumps",
+        "Bouncy",
+        "Tunnels",
+        "Spinners",
+        "No stars",
+        "Some",
+        "Lots",
+        "World code",
+        "🍇🦀⚽🐮",
+        "New world",
+        "Go",
+        "Go!"
+      ],
+      "state": {
+        "t": 0,
+        "ready": true,
+        "realtime": false,
+        "screen": "playground-setup",
+        "mode": null,
+        "seed": null,
+        "paused": false,
+        "input": {
+          "x": 0,
+          "y": 0,
+          "source": "none"
+        },
+        "canJump": false,
+        "pos": null,
+        "vel": null,
+        "speed": 0,
+        "onGround": false,
+        "frozen": false,
+        "fell": false,
+        "won": false
+      }
+    },
+    {
+      "file": "playing-test-track.png",
+      "screen": "playing",
+      "label": "test-track",
+      "description": "Playing: rolling along the test track a few seconds in.",
+      "url": "http://192.168.1.9:9080/rolly-bally/?mode=test-track&test=1",
+      "text": [
+        "Home (hold)"
+      ],
+      "state": {
+        "t": 1.5,
+        "ready": true,
+        "realtime": false,
+        "screen": "play",
+        "mode": "test-track",
+        "seed": "🎈🍉🦊🧁",
+        "paused": false,
+        "input": {
+          "x": 0,
+          "y": 1,
+          "source": "test"
+        },
+        "canJump": false,
+        "pos": {
+          "x": 0,
+          "y": 0.492,
+          "z": -9.118
+        },
+        "vel": {
+          "x": 0,
+          "y": -0.215,
+          "z": -10.132
+        },
+        "speed": 10.135,
+        "onGround": true,
+        "frozen": false,
+        "fell": false,
+        "won": false,
+        "testTrack": {
+          "s": 9.118,
+          "length": 209.765,
+          "finishS": 206.765,
+          "progress": 0.044,
+          "strip": 9,
+          "piece": "straight",
+          "segment": 1,
+          "halfWidth": 4,
+          "lateral": 0,
+          "height": 0.492,
+          "forward": {
+            "x": 0,
+            "y": 0,
+            "z": -1
+          },
+          "checkpoint": 8,
+          "finished": false,
+          "feel": {
+            "speedCap": 10,
+            "autoRoll": false
+          }
+        }
+      }
+    },
+    {
+      "file": "failing-gap-fall.png",
+      "screen": "failing",
+      "label": "gap-fall",
+      "description": "Failing: the ball dropped through a gap in the track (respawns at the last checkpoint).",
+      "url": "http://192.168.1.9:9080/rolly-bally/?mode=test-track&test=1",
+      "text": [
+        "Home (hold)"
+      ],
+      "state": {
+        "t": 2.7,
+        "ready": true,
+        "realtime": false,
+        "screen": "play",
+        "mode": "test-track",
+        "seed": "🎈🍉🦊🧁",
+        "paused": false,
+        "input": {
+          "x": 0,
+          "y": 1,
+          "source": "test"
+        },
+        "canJump": false,
+        "pos": {
+          "x": -55.471,
+          "y": -12.666,
+          "z": -82.229
+        },
+        "vel": {
+          "x": 0,
+          "y": -23.285,
+          "z": -5.705
+        },
+        "speed": 23.973,
+        "onGround": false,
+        "frozen": false,
+        "fell": true,
+        "won": false,
+        "testTrack": {
+          "s": 128.023,
+          "length": 209.765,
+          "finishS": 206.765,
+          "progress": 0.619,
+          "strip": 127,
+          "piece": "landing",
+          "segment": 11,
+          "halfWidth": 4,
+          "lateral": 0,
+          "height": -12.666,
+          "forward": {
+            "x": 0,
+            "y": 0,
+            "z": -1
+          },
+          "checkpoint": 125,
+          "finished": false,
+          "feel": {
+            "speedCap": 10,
+            "autoRoll": false
+          }
+        }
+      }
+    },
+    {
+      "file": "failing-respawn.png",
+      "screen": "failing",
+      "label": "respawn",
+      "description": "Failing: after the fall, back on the track at the last checkpoint.",
+      "url": "http://192.168.1.9:9080/rolly-bally/?mode=test-track&test=1",
+      "text": [
+        "Home (hold)"
+      ],
+      "state": {
+        "t": 3.2833,
+        "ready": true,
+        "realtime": false,
+        "screen": "play",
+        "mode": "test-track",
+        "seed": "🎈🍉🦊🧁",
+        "paused": false,
+        "input": {
+          "x": 0,
+          "y": 1,
+          "source": "test"
+        },
+        "canJump": false,
+        "pos": {
+          "x": -55.471,
+          "y": 0.504,
+          "z": -80.626
+        },
+        "vel": {
+          "x": 0,
+          "y": -0.169,
+          "z": -1.595
+        },
+        "speed": 1.604,
+        "onGround": true,
+        "frozen": false,
+        "fell": false,
+        "won": false,
+        "testTrack": {
+          "s": 126.42,
+          "length": 209.765,
+          "finishS": 206.765,
+          "progress": 0.611,
+          "strip": 125,
+          "piece": "landing",
+          "segment": 11,
+          "halfWidth": 4,
+          "lateral": 0,
+          "height": 0.504,
+          "forward": {
+            "x": 0,
+            "y": 0,
+            "z": -1
+          },
+          "checkpoint": 125,
+          "finished": false,
+          "feel": {
+            "speedCap": 10,
+            "autoRoll": false
+          }
+        }
+      }
+    },
+    {
+      "file": "winning-test-track-finish.png",
+      "screen": "winning",
+      "label": "test-track-finish",
+      "description": "Winning: just after crossing the test-track finish (fanfare plays, then back to the start).",
+      "url": "http://192.168.1.9:9080/rolly-bally/?mode=test-track&test=1",
+      "text": [
+        "Home (hold)"
+      ],
+      "state": {
+        "t": 4.6667,
+        "ready": true,
+        "realtime": false,
+        "screen": "play",
+        "mode": "test-track",
+        "seed": "🎈🍉🦊🧁",
+        "paused": false,
+        "input": {
+          "x": 0,
+          "y": 1,
+          "source": "test"
+        },
+        "canJump": false,
+        "pos": {
+          "x": -78.397,
+          "y": 0.481,
+          "z": -51.516
+        },
+        "vel": {
+          "x": 0,
+          "y": -0.641,
+          "z": 10.031
+        },
+        "speed": 10.052,
+        "onGround": false,
+        "frozen": false,
+        "fell": false,
+        "won": true,
+        "testTrack": {
+          "s": 209.765,
+          "length": 209.765,
+          "finishS": 206.765,
+          "progress": 1,
+          "strip": 208,
+          "piece": "finish",
+          "segment": 14,
+          "halfWidth": 4,
+          "lateral": 0,
+          "height": 0.481,
+          "forward": {
+            "x": 0,
+            "y": 0,
+            "z": 1
+          },
+          "checkpoint": 201,
+          "finished": true,
+          "feel": {
+            "speedCap": 10,
+            "autoRoll": false
+          }
+        }
+      }
+    },
+    {
+      "file": "playing-race-countdown.png",
+      "screen": "playing",
+      "label": "race-countdown",
+      "description": "Race mode: the countdown before the start.",
+      "url": "http://192.168.1.9:9080/rolly-bally/?mode=race&seed=1&test=1",
+      "text": [
+        "Home (hold)",
+        "Place 1",
+        "1",
+        "st"
+      ],
+      "state": {
+        "t": 0.5,
+        "ready": true,
+        "realtime": false,
+        "screen": "play",
+        "mode": "race",
+        "seed": "1",
+        "paused": false,
+        "input": {
+          "x": 0,
+          "y": 0,
+          "source": "none"
+        },
+        "canJump": false,
+        "pos": {
+          "x": 0,
+          "y": 0.8,
+          "z": -6
+        },
+        "vel": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "speed": 0,
+        "onGround": false,
+        "frozen": true,
+        "fell": false,
+        "won": false,
+        "race": {
+          "s": 6,
+          "length": 124.998,
+          "halfWidth": 5,
+          "state": "countdown",
+          "raceIndex": 0,
+          "races": 3,
+          "difficulty": 1,
+          "raceSeed": "1/race1",
+          "progress": 0.048,
+          "maxS": 6,
+          "place": 1,
+          "finished": false,
+          "falls": 0,
+          "checkpoint": 0,
+          "forward": {
+            "x": 0,
+            "y": 0,
+            "z": -1
+          },
+          "ais": [
+            {
+              "s": 3,
+              "finished": false
+            },
+            {
+              "s": 3,
+              "finished": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "file": "playing-race.png",
+      "screen": "playing",
+      "label": "race",
+      "description": "Race mode: racing against the other balls a few seconds after GO.",
+      "url": "http://192.168.1.9:9080/rolly-bally/?mode=race&seed=1&test=1",
+      "text": [
+        "Home (hold)",
+        "Place 1",
+        "1",
+        "st",
+        "3",
+        "2",
+        "1",
+        "GO!"
+      ],
+      "state": {
+        "t": 6.5,
+        "ready": true,
+        "realtime": false,
+        "screen": "play",
+        "mode": "race",
+        "seed": "1",
+        "paused": false,
+        "input": {
+          "x": 0,
+          "y": 1,
+          "source": "test"
+        },
+        "canJump": false,
+        "pos": {
+          "x": 0,
+          "y": 0.495,
+          "z": -19.748
+        },
+        "vel": {
+          "x": 0,
+          "y": 0.025,
+          "z": -5.466
+        },
+        "speed": 5.466,
+        "onGround": true,
+        "frozen": false,
+        "fell": false,
+        "won": false,
+        "race": {
+          "s": 19.657,
+          "length": 124.998,
+          "halfWidth": 4,
+          "state": "racing",
+          "raceIndex": 0,
+          "races": 3,
+          "difficulty": 1,
+          "raceSeed": "1/race1",
+          "progress": 0.157,
+          "maxS": 19.657,
+          "place": 1,
+          "finished": false,
+          "falls": 0,
+          "checkpoint": 0,
+          "lateral": 0,
+          "height": 0.495,
+          "forward": {
+            "x": 0,
+            "y": 0,
+            "z": -1
+          },
+          "ais": [
+            {
+              "s": 13.172,
+              "finished": false
+            },
+            {
+              "s": 12.938,
+              "finished": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "file": "winning-race-finish.png",
+      "screen": "winning",
+      "label": "race-finish",
+      "description": "Winning: just after crossing the race finish line (place 1).",
+      "url": "http://192.168.1.9:9080/rolly-bally/?mode=race&seed=1&test=1",
+      "text": [
+        "Home (hold)",
+        "Place 1",
+        "1",
+        "st",
+        "FINISH"
+      ],
+      "state": {
+        "t": 8.9167,
+        "ready": true,
+        "realtime": false,
+        "screen": "play",
+        "mode": "race",
+        "seed": "1",
+        "paused": false,
+        "input": {
+          "x": 0,
+          "y": 1,
+          "source": "test"
+        },
+        "canJump": false,
+        "pos": {
+          "x": 52.944,
+          "y": -1.503,
+          "z": -107.492
+        },
+        "vel": {
+          "x": 3.002,
+          "y": -0.166,
+          "z": -3.002
+        },
+        "speed": 4.249,
+        "onGround": true,
+        "frozen": false,
+        "fell": false,
+        "won": true,
+        "race": {
+          "s": 128.844,
+          "length": 124.998,
+          "halfWidth": 4,
+          "state": "finished",
+          "raceIndex": 0,
+          "races": 3,
+          "difficulty": 1,
+          "raceSeed": "1/race1",
+          "progress": 1,
+          "maxS": 128.844,
+          "place": 1,
+          "finished": true,
+          "falls": 0,
+          "checkpoint": 5,
+          "lateral": 0,
+          "height": 0.497,
+          "forward": {
+            "x": 0.707,
+            "y": 0,
+            "z": -0.707
+          },
+          "ais": [
+            {
+              "s": 23.2,
+              "finished": false
+            },
+            {
+              "s": 22.696,
+              "finished": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "file": "winning-race-results.png",
+      "screen": "winning",
+      "label": "race-results",
+      "description": "Race results screen (race state: results).",
+      "url": "http://192.168.1.9:9080/rolly-bally/?mode=race&seed=1&test=1",
+      "text": [
+        "Home (hold)",
+        "FINISH",
+        "Place 1",
+        "1",
+        "2",
+        "3"
+      ],
+      "state": {
+        "t": 10.4167,
+        "ready": true,
+        "realtime": false,
+        "screen": "play",
+        "mode": "race",
+        "seed": "1",
+        "paused": false,
+        "input": {
+          "x": 0,
+          "y": 1,
+          "source": "test"
+        },
+        "canJump": false,
+        "pos": {
+          "x": 56.815,
+          "y": -1.502,
+          "z": -111.363
+        },
+        "vel": {
+          "x": 2.204,
+          "y": -0.133,
+          "z": -2.204
+        },
+        "speed": 3.12,
+        "onGround": true,
+        "frozen": false,
+        "fell": false,
+        "won": true,
+        "race": {
+          "s": 134.337,
+          "length": 124.998,
+          "halfWidth": 4,
+          "state": "results",
+          "raceIndex": 0,
+          "races": 3,
+          "difficulty": 1,
+          "raceSeed": "1/race1",
+          "progress": 1,
+          "maxS": 134.337,
+          "place": 1,
+          "finished": true,
+          "falls": 0,
+          "checkpoint": 5,
+          "lateral": 0,
+          "height": 0.498,
+          "forward": {
+            "x": 0.707,
+            "y": 0,
+            "z": -0.707
+          },
+          "ais": [
+            {
+              "s": 29.024,
+              "finished": false
+            },
+            {
+              "s": 28.363,
+              "finished": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "warnings": [],
+  "pageErrors": []
+}

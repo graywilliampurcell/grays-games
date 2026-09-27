@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mazle Map Playtest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            overflow: hidden;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        
+        #joystick-base {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            margin: -60px 0 0 -60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+        }
+        
+        #joystick-knob {
+            position: absolute;
+            left: 35px;
+            top: 35px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        #message {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 20px;
+            background: rgba(150, 20, 20, 0.85);
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 90vw;
+        }
+        
+        #escaped {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        #escaped h1 {
+            font-size: 36px;
+        }
+        
+        #play-again {
+            font-size: 22px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            background: #7a4a22;
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        [hidden] {
+            display: none !important;
+        }
+        
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        #level {
+            position: absolute;
+            top: calc(10px + env(safe-area-inset-top, 0px));
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 20px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #aaa;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            max-width: 300px;
+        }
+        
+        .stat {
+            margin: 5px 0;
+        }
+    </style>
+  <script type="module" crossorigin src="./assets/index-a5f38fa1.js"></script>
+</head>
+<body>
+    <div id="ui">
+        <div class="stat">FPS: <span id="fps">0</span></div>
+        <div class="stat">Position: <span id="position">0, 0, 0</span></div>
+    </div>
+    <div id="controls">
+        <strong>Controls:</strong><br>
+        W/↑ Forward | S/↓ Back<br>
+        A/← Strafe Left | D/→ Strafe Right<br>
+        Mouse to Look Around<br>
+        Touch: drag left side to move, right side to look
+    </div>
+    <div id="level"></div>
+    <div id="message" hidden></div>
+    <div id="escaped" hidden>
+        <h1>You found the way out!</h1>
+        <button id="play-again">Play again</button>
+    </div>
+    <div id="joystick-base" hidden><div id="joystick-knob"></div></div>
+    
+</body>
+</html>

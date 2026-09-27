@@ -1,0 +1,67 @@
+{
+  "hookText": [
+    "FPS: Infinity\nPosition: 2.5, 0.0, 2.5",
+    "Controls:\nW/↑ Forward | S/↓ Back\nA/← Strafe Left | D/→ Strafe Right\nMouse to Look Around\nTouch: drag left side to move, right side to look",
+    "Level 1",
+    "Ouch! A spike sent you back to the start.",
+    "You found the way out!",
+    "Play again"
+  ],
+  "domText": [
+    "FPS: Infinity",
+    "Position: 2.5, 0.0, 2.5",
+    "Controls:",
+    "W/↑ Forward | S/↓ Back",
+    "A/← Strafe Left | D/→ Strafe Right",
+    "Mouse to Look Around",
+    "Touch: drag left side to move, right side to look",
+    "Level 1",
+    "Ouch! A spike sent you back to the start.",
+    "You found the way out!",
+    "Play again"
+  ],
+  "messages": [
+    "Ouch! A spike sent you back to the start."
+  ],
+  "sourceStrings": [
+    {
+      "file": "index.html",
+      "text": "Mazle Map Playtest"
+    },
+    {
+      "file": "index.html",
+      "text": "W/↑ Forward | S/↓ Back"
+    },
+    {
+      "file": "index.html",
+      "text": "A/← Strafe Left | D/→ Strafe Right"
+    },
+    {
+      "file": "index.html",
+      "text": "Mouse to Look Around"
+    },
+    {
+      "file": "index.html",
+      "text": "Touch: drag left side to move, right side to look"
+    },
+    {
+      "file": "index.html",
+      "text": "You found the way out!"
+    },
+    {
+      "file": "index.html",
+      "text": "Play again"
+    },
+    {
+      "file": "js/main.js",
+      "text": "Ouch! A spike sent you back to the start."
+    }
+  ],
+  "audio": {
+    "audioFiles": [],
+    "speechSynthesis": false,
+    "webAudio": false,
+    "htmlAudio": false,
+    "voiceFiles": []
+  }
+}

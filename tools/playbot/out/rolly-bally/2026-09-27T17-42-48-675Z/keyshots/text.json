@@ -1,0 +1,544 @@
+{
+  "hookText": [
+    "Rolly Bally",
+    "Playground",
+    "Race",
+    "My Balls",
+    "Grown-ups (hold)",
+    "Back",
+    "Level 1: Rolling Hills",
+    "Level 2: Bumpy Road",
+    "Level 3: Sky Road",
+    "Level 4: Hammer Time",
+    "Level 5: Going Big",
+    "1 race",
+    "1",
+    "3 races",
+    "Go",
+    "Go!",
+    "Small",
+    "Medium",
+    "Big",
+    "Grass",
+    "Snow",
+    "Flat",
+    "Hills",
+    "Mountains",
+    "Ramps",
+    "Jumps",
+    "Bouncy",
+    "Tunnels",
+    "Spinners",
+    "No stars",
+    "Some",
+    "Lots",
+    "World code",
+    "🍇🦀⚽🐮",
+    "New world",
+    "Home (hold)",
+    "Place 1",
+    "st",
+    "GO!",
+    "FINISH"
+  ],
+  "domText": [
+    "Rolly Bally",
+    "Playground",
+    "Race",
+    "My Balls",
+    "1",
+    "Go!",
+    "Small",
+    "Medium",
+    "Big",
+    "Grass",
+    "Snow",
+    "Flat",
+    "Hills",
+    "Mountains",
+    "Ramps",
+    "Jumps",
+    "Bouncy",
+    "Tunnels",
+    "Spinners",
+    "No stars",
+    "Some",
+    "Lots",
+    "🍇🦀⚽🐮",
+    "st",
+    "GO!",
+    "FINISH"
+  ],
+  "messages": [
+    "GO!"
+  ],
+  "sourceStrings": [
+    {
+      "file": "index.html",
+      "text": "Rolly Bally"
+    },
+    {
+      "file": "src/app/HomeButton.js",
+      "text": "Home (hold)"
+    },
+    {
+      "file": "src/app/Router.js",
+      "text": "Unknown screen \"…\""
+    },
+    {
+      "file": "src/app/modes.js",
+      "text": "Unknown mode \"…\""
+    },
+    {
+      "file": "src/app/reloadButton.js",
+      "text": "Start again"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Red"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Blue"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Yellow"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Green"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Soccer"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Stripes"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Checkers"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Polka"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Rainbow"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Beach Ball"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Smiley"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Lava"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Night Sky"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Watermelon"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Candy"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Ladybug"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Ice"
+    },
+    {
+      "file": "src/ball/skinData.js",
+      "text": "Gold"
+    },
+    {
+      "file": "src/debug/DebugOverlay.js",
+      "text": "R respawn N next G regen"
+    },
+    {
+      "file": "src/playground/PlaygroundMode.js",
+      "text": "…² h …..… … stuff … pads"
+    },
+    {
+      "file": "src/race/Results.js",
+      "text": "See my trophy"
+    },
+    {
+      "file": "src/race/Results.js",
+      "text": "Next race"
+    },
+    {
+      "file": "src/race/Results.js",
+      "text": "… cup"
+    },
+    {
+      "file": "src/race/Results.js",
+      "text": "Race code"
+    },
+    {
+      "file": "src/race/Results.js",
+      "text": "Home"
+    },
+    {
+      "file": "src/race/difficulty.js",
+      "text": "Rolling Hills"
+    },
+    {
+      "file": "src/race/difficulty.js",
+      "text": "Bumpy Road"
+    },
+    {
+      "file": "src/race/difficulty.js",
+      "text": "Sky Road"
+    },
+    {
+      "file": "src/race/difficulty.js",
+      "text": "Hammer Time"
+    },
+    {
+      "file": "src/race/difficulty.js",
+      "text": "Going Big"
+    },
+    {
+      "file": "src/test-track/TestTrackMode.js",
+      "text": "… cap … …"
+    },
+    {
+      "file": "src/track/Catalog.js",
+      "text": "Unknown track piece \"…\""
+    },
+    {
+      "file": "src/track/TrackGenerator.js",
+      "text": "first piece is not the start pad"
+    },
+    {
+      "file": "src/track/TrackGenerator.js",
+      "text": "last piece is not the finish"
+    },
+    {
+      "file": "src/track/TrackGenerator.js",
+      "text": "start/finish appear more than once"
+    },
+    {
+      "file": "src/track/TrackGenerator.js",
+      "text": "… not allowed at level …"
+    },
+    {
+      "file": "src/track/TrackGenerator.js",
+      "text": "… at #… is not preceded by …"
+    },
+    {
+      "file": "src/track/TrackGenerator.js",
+      "text": "open gap at level …"
+    },
+    {
+      "file": "src/track/TrackGenerator.js",
+      "text": "… challenges in a row at #…"
+    },
+    {
+      "file": "src/track/TrackGenerator.js",
+      "text": "no finish line"
+    },
+    {
+      "file": "src/track/TrackGenerator.js",
+      "text": "finish at … m, want …"
+    },
+    {
+      "file": "src/track/TrackLayout.js",
+      "text": "TrackLayout needs at least one piece"
+    },
+    {
+      "file": "src/track/TrackSpline.js",
+      "text": "TrackSpline needs at least 2 points"
+    },
+    {
+      "file": "src/track/pieces/beam.js",
+      "text": "Narrow beam"
+    },
+    {
+      "file": "src/track/pieces/boost.js",
+      "text": "Boost pad"
+    },
+    {
+      "file": "src/track/pieces/bumpers.js",
+      "text": "Static bumpers"
+    },
+    {
+      "file": "src/track/pieces/checkpoint.js",
+      "text": "Checkpoint gate"
+    },
+    {
+      "file": "src/track/pieces/curve.js",
+      "text": "Gentle curve left"
+    },
+    {
+      "file": "src/track/pieces/curve.js",
+      "text": "Gentle curve right"
+    },
+    {
+      "file": "src/track/pieces/curve.js",
+      "text": "Sharp curve left"
+    },
+    {
+      "file": "src/track/pieces/curve.js",
+      "text": "Sharp curve right"
+    },
+    {
+      "file": "src/track/pieces/finish.js",
+      "text": "Finish gate"
+    },
+    {
+      "file": "src/track/pieces/gapBridged.js",
+      "text": "Gap (bridged)"
+    },
+    {
+      "file": "src/track/pieces/gapOpen.js",
+      "text": "Gap (open)"
+    },
+    {
+      "file": "src/track/pieces/hammer.js",
+      "text": "Swinging hammer"
+    },
+    {
+      "file": "src/track/pieces/launch.js",
+      "text": "Launch ramp + landing"
+    },
+    {
+      "file": "src/track/pieces/movingPlatform.js",
+      "text": "Moving platform"
+    },
+    {
+      "file": "src/track/pieces/ramp.js",
+      "text": "Uphill ramp"
+    },
+    {
+      "file": "src/track/pieces/ramp.js",
+      "text": "Downhill ramp"
+    },
+    {
+      "file": "src/track/pieces/spinner.js",
+      "text": "Spinner"
+    },
+    {
+      "file": "src/track/pieces/start.js",
+      "text": "Wide pad (start)"
+    },
+    {
+      "file": "src/track/pieces/straight.js",
+      "text": "Straight"
+    },
+    {
+      "file": "src/track/pieces/wreckingBall.js",
+      "text": "Wrecking ball"
+    },
+    {
+      "file": "src/track-gallery/GalleryMode.js",
+      "text": "Show colliders"
+    },
+    {
+      "file": "src/track-gallery/GalleryMode.js",
+      "text": "Rails"
+    },
+    {
+      "file": "src/track-gallery/GalleryMode.js",
+      "text": "Width"
+    },
+    {
+      "file": "src/track-gallery/GalleryMode.js",
+      "text": "Previous piece"
+    },
+    {
+      "file": "src/track-gallery/GalleryMode.js",
+      "text": "Next piece"
+    },
+    {
+      "file": "src/ui/Celebrate.js",
+      "text": "New ball!"
+    },
+    {
+      "file": "src/ui/components.js",
+      "text": "Back"
+    },
+    {
+      "file": "src/ui/components.js",
+      "text": "Go!"
+    },
+    {
+      "file": "src/ui/components.js",
+      "text": "Go"
+    },
+    {
+      "file": "src/ui/screens/Home.js",
+      "text": "Playground"
+    },
+    {
+      "file": "src/ui/screens/Home.js",
+      "text": "Race"
+    },
+    {
+      "file": "src/ui/screens/Home.js",
+      "text": "My Balls"
+    },
+    {
+      "file": "src/ui/screens/Home.js",
+      "text": "Grown-ups (hold)"
+    },
+    {
+      "file": "src/ui/screens/Pause.js",
+      "text": "World code"
+    },
+    {
+      "file": "src/ui/screens/Pause.js",
+      "text": "Play"
+    },
+    {
+      "file": "src/ui/screens/Pause.js",
+      "text": "Keep playing"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Small"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Medium"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Big"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Grass"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Snow"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Flat"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Hills"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Mountains"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "No stars"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Some"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Lots"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Ramps"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Jumps"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Bouncy"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Tunnels"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Spinners"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "New world"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Earlier world"
+    },
+    {
+      "file": "src/ui/screens/PlaygroundSetup.js",
+      "text": "Earlier worlds"
+    },
+    {
+      "file": "src/ui/screens/Settings.js",
+      "text": "Sound"
+    },
+    {
+      "file": "src/ui/screens/Settings.js",
+      "text": "Reset progress"
+    },
+    {
+      "file": "src/ui/screens/Settings.js",
+      "text": "Hold to reset"
+    },
+    {
+      "file": "src/ui/screens/Settings.js",
+      "text": "Yes, reset (press and hold)"
+    },
+    {
+      "file": "src/ui/screens/Settings.js",
+      "text": "Reset all progress? Unlocked balls, best cups and stars will be cleared."
+    },
+    {
+      "file": "src/ui/screens/Settings.js",
+      "text": "Keep"
+    },
+    {
+      "file": "src/ui/screens/Settings.js",
+      "text": "Keep progress"
+    },
+    {
+      "file": "src/ui/screens/Settings.js",
+      "text": "Balls unlocked: … · Race series finished: … ·"
+    },
+    {
+      "file": "src/ui/screens/Settings.js",
+      "text": "Stars collected: … · Levels with a cup: …"
+    },
+    {
+      "file": "src/ui/screens/Settings.js",
+      "text": "Rolly Bally v…"
+    },
+    {
+      "file": "src/ui/screens/Settings.js",
+      "text": "Tip: add this page to the Home Screen (Share → Add to Home Screen) for full-screen play."
+    },
+    {
+      "file": "src/ui/screens/Skins.js",
+      "text": "… (locked)"
+    }
+  ],
+  "audio": {
+    "audioFiles": [],
+    "speechSynthesis": false,
+    "webAudio": true,
+    "htmlAudio": true,
+    "voiceFiles": []
+  }
+}

@@ -1,0 +1,83 @@
+/* Playground HUD: star counter (no goal) + respawn fade. Non-interactive so
+   dragging over them still steers. */
+
+.pg-stars {
+  position: absolute;
+  top: calc(14px + var(--rb-safe-top));
+  right: calc(16px + var(--rb-safe-right));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: var(--rb-shadow);
+  font-family: var(--rb-font);
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--rb-ink);
+  pointer-events: none;
+}
+
+.pg-stars svg {
+  width: 52px;
+  height: 52px;
+  fill: var(--rb-yellow);
+  stroke: #c98a00;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+.pg-stars--bump {
+  animation: pg-bump 0.4s ease-out;
+}
+
+.pg-stars--all svg {
+  animation: pg-spin 1.2s ease-in-out infinite;
+}
+
+@keyframes pg-bump {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pg-spin {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+}
+
+.pg-fade {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+}
+/* Shared effects (src/fx). Non-interactive. */
+
+.fx-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fx-confetti i {
+  position: absolute;
+  top: -20px;
+  width: 14px;
+  height: 22px;
+  border-radius: 3px;
+  animation: fx-fall linear both;
+}
+
+@keyframes fx-fall {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(var(--dx), 110vh, 0) rotate(var(--rot)); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-confetti { display: none; }
+}

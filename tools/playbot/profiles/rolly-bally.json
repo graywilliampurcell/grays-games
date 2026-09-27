@@ -1,0 +1,45 @@
+{
+  "game": "rolly-bally",
+  "source": "bot-run (key screenshots only; no play.json yet)",
+  "brackets": [
+    "5-7",
+    "8-10"
+  ],
+  "profile": {
+    "game": "rolly-bally",
+    "source": "bot-run",
+    "brackets": [
+      "5-7",
+      "8-10"
+    ],
+    "genre": "3D rolling-ball obstacle course / racer",
+    "web_playable": "yes",
+    "onboarding": "Home screen shows 3 large picture-labeled buttons (Playground, Race, My Balls) with no tutorial text or spoken instructions. Reaching play requires a setup screen first: Race has 5 level cards plus race-length chips and a Go button; Playground has roughly 18 option buttons plus Go. Exact taps-to-play not measured.",
+    "controls": "Not shown directly in any screenshot — no on-screen control hints/overlay appear during play, only a persistent 'Home (hold)' button. Specific input method (touch-drag, tilt, etc.) not measured.",
+    "core_loop": "Roll the ball forward along a track, steering through curves, ramps, gaps, and hazards to reach the finish gate, repeating across 5 race levels or Playground/Race heats.",
+    "goals_and_rewards": "Crossing the finish triggers a 'FINISH' banner, checkmark, and confetti burst (winning-test-track-finish.png); in Race mode a live '1st' placement badge appears at finish and a podium results screen with a gold medal follows (winning-race-results.png). Source strings also reference unlockable skins/new balls (e.g. 'New ball!') though not directly observed in these shots.",
+    "difficulty_curve": "Five race levels escalate from 'Rolling Hills' to 'Going Big'/'Hammer Time', adding hazards like swinging hammers and wrecking balls per source, and Playground lets a grown-up dial up terrain and feature density. Fail cost is low: falling through a track gap simply respawns the ball at the last checkpoint with no penalty message (failing-gap-fall.png, failing-respawn.png).",
+    "game_feel": "Not measured — no fps or responsiveness data from a bot run. Screenshots show a smooth-looking low-poly 3D ball and a celebratory confetti burst on finish, suggesting positive feedback on success.",
+    "art_and_audio": "Bright, flat-shaded low-poly 3D style with bold black-outlined text and high-contrast buttons. Per source analysis there are 0 bundled audio files and no speechSynthesis use — only WebAudio sound effects, no music or voice-over.",
+    "session_length": "Not measured — no bot play data (play.json) available for time-to-first-win, retries, or session duration.",
+    "usability": "Home screen is clean (3 buttons + gear icon), but Playground setup crams about 18-19 simultaneous buttons/panels (size, surface, terrain, 5 features, star density, world code, Go, Back) and Race setup shows 5 track cards plus 4 race-length chips at once — both exceed comfortable button counts for either age bracket. During play, fail, and win screens, only a 'Home (hold)' control is visible, with no visible pause or mute icon.",
+    "accessibility": "Text uses bold outlines or white-on-saturated-color styling throughout for contrast, and selected setup options are marked with a thicker border rather than color alone (contrast checks pass for both brackets). However, the Sound toggle lives in Settings behind the 'Grown-ups (hold)' gate on Home, so it's unclear a child can mute audio mid-game without an adult — flagged as unsure/needs human review.",
+    "ads_and_purchases": "None seen in any screenshot or extracted game text.",
+    "notes": "Race mode adds a 3-2-1-GO countdown and simultaneous opponents with live placement — flagged as mild time-pressure for the 5-7 bracket (softened by being an optional mode) but acceptable for 8-10. No spoken/narrated instructions exist anywhere (confirmed by source: no speechSynthesis, no voice audio), a gap for early readers in the 5-7 bracket facing labels like 'Level 2: Bumpy Road'. Overall content-check result was NEEDS_HUMAN, pending confirmation of in-play mute access."
+  },
+  "numbers": {},
+  "runDir": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z",
+  "inputKey": {
+    "claude.json": 1790531067714.266
+  },
+  "inputs": [
+    "claude.json"
+  ],
+  "builtAt": "2026-09-27T17:45:18.040Z",
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5",
+    "seconds": 45,
+    "costUsd": 0.2004786
+  }
+}

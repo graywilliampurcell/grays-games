@@ -1,0 +1,1352 @@
+{
+  "game": "mazle",
+  "baseUrl": "http://192.168.1.9:9075/mazle/",
+  "brackets": [
+    "2-4",
+    "5-7",
+    "8-10",
+    "11-13"
+  ],
+  "only": [
+    "network",
+    "permissions",
+    "links-out",
+    "input-fields",
+    "touch-targets",
+    "reading-level",
+    "flashing",
+    "loudness",
+    "axe",
+    "taps-to-play",
+    "hint-timing",
+    "pause-mute-quit",
+    "countdown-timers",
+    "word-scan"
+  ],
+  "startedAt": "2026-09-27T17:46:01.295Z",
+  "finishedAt": "2026-09-27T17:46:49.236Z",
+  "summary": {
+    "overall": "FAIL",
+    "brackets": {
+      "2-4": {
+        "status": "FAIL",
+        "counts": {
+          "pass": 9,
+          "info": 2,
+          "warn": 3,
+          "fail": 2
+        },
+        "fails": [
+          {
+            "check": "reading-level",
+            "rubricCheck": "reading",
+            "bracket": "2-4",
+            "summary": "16 instruction(s) need reading (pre-readers: none); e.g. \"Controls: W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look\" (25 words)",
+            "fingerprint": "27a97ab4b23f"
+          },
+          {
+            "check": "loudness",
+            "rubricCheck": "spoken-instructions",
+            "bracket": "2-4",
+            "summary": "No audio at all, so no spoken instructions (required for 2-4)",
+            "fingerprint": "e72cccaffff3"
+          }
+        ],
+        "warns": [
+          {
+            "check": "axe",
+            "summary": "axe meta-viewport (moderate): Zooming and scaling must not be disabled; 1 element(s) on 1 screen(s)",
+            "fingerprint": "9a1411539ec3"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "2-4",
+            "target": "level-1",
+            "summary": "No text/event hint within 60 s idle (want ≤ 10 s)",
+            "fingerprint": "2130d4696751"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "level-1",
+            "summary": "Playing screen has no visible pause, mute, quit controls",
+            "fingerprint": "be071360a88d"
+          }
+        ]
+      },
+      "5-7": {
+        "status": "FAIL",
+        "counts": {
+          "pass": 9,
+          "info": 2,
+          "warn": 4,
+          "fail": 1
+        },
+        "fails": [
+          {
+            "check": "loudness",
+            "rubricCheck": "spoken-instructions",
+            "bracket": "5-7",
+            "summary": "No audio at all, so no spoken instructions (required for 5-7)",
+            "fingerprint": "5aac94a04602"
+          }
+        ],
+        "warns": [
+          {
+            "check": "reading-level",
+            "rubricCheck": "reading",
+            "bracket": "5-7",
+            "summary": "3 instruction(s) over 5 words; longest \"Controls: W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look\" (25 words); no audio at all, so no spoken support",
+            "fingerprint": "7a6e19bf3f00"
+          },
+          {
+            "check": "axe",
+            "summary": "axe meta-viewport (moderate): Zooming and scaling must not be disabled; 1 element(s) on 1 screen(s)",
+            "fingerprint": "9a1411539ec3"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "5-7",
+            "target": "level-1",
+            "summary": "No text/event hint within 60 s idle (want ≤ 20 s)",
+            "fingerprint": "7bda24b00321"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "level-1",
+            "summary": "Playing screen has no visible pause, mute, quit controls",
+            "fingerprint": "be071360a88d"
+          }
+        ]
+      },
+      "8-10": {
+        "status": "WARN",
+        "counts": {
+          "pass": 9,
+          "info": 2,
+          "warn": 5,
+          "fail": 0
+        },
+        "fails": [],
+        "warns": [
+          {
+            "check": "reading-level",
+            "rubricCheck": "reading",
+            "bracket": "8-10",
+            "summary": "Reading grade 6.8 > 3 (Flesch-Kincaid over 16 instructions); hardest \"FPS: Infinity Position: 2.5, 0.0, 2.5\" (grade 17)",
+            "fingerprint": "ed9d25da6bd4"
+          },
+          {
+            "check": "loudness",
+            "rubricCheck": "spoken-instructions",
+            "bracket": "8-10",
+            "summary": "No audio at all, so no spoken instructions (recommended for 8-10)",
+            "fingerprint": "e22294d11051"
+          },
+          {
+            "check": "axe",
+            "summary": "axe meta-viewport (moderate): Zooming and scaling must not be disabled; 1 element(s) on 1 screen(s)",
+            "fingerprint": "9a1411539ec3"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "8-10",
+            "target": "level-1",
+            "summary": "No text/event hint within 60 s idle (want ≤ 45 s)",
+            "fingerprint": "42f6e46239cf"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "level-1",
+            "summary": "Playing screen has no visible pause, mute, quit controls",
+            "fingerprint": "be071360a88d"
+          }
+        ]
+      },
+      "11-13": {
+        "status": "WARN",
+        "counts": {
+          "pass": 9,
+          "info": 4,
+          "warn": 3,
+          "fail": 0
+        },
+        "fails": [],
+        "warns": [
+          {
+            "check": "reading-level",
+            "rubricCheck": "reading",
+            "bracket": "11-13",
+            "summary": "Reading grade 6.8 > 6 (Flesch-Kincaid over 16 instructions); hardest \"FPS: Infinity Position: 2.5, 0.0, 2.5\" (grade 17)",
+            "fingerprint": "b246f24741c4"
+          },
+          {
+            "check": "axe",
+            "summary": "axe meta-viewport (moderate): Zooming and scaling must not be disabled; 1 element(s) on 1 screen(s)",
+            "fingerprint": "9a1411539ec3"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "level-1",
+            "summary": "Playing screen has no visible pause, mute, quit controls",
+            "fingerprint": "be071360a88d"
+          }
+        ]
+      }
+    },
+    "rules": {
+      "R13": "pass",
+      "R15": "info",
+      "R16": "warn",
+      "R14": "pass"
+    },
+    "checks": {
+      "network": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "permissions": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "links-out": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "input-fields": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "touch-targets": {
+        "status": "info",
+        "perBracket": {
+          "2-4": "info",
+          "5-7": "info",
+          "8-10": "info",
+          "11-13": "info"
+        },
+        "count": 4
+      },
+      "reading-level": {
+        "status": "fail",
+        "perBracket": {
+          "2-4": "fail",
+          "5-7": "warn",
+          "8-10": "warn",
+          "11-13": "warn"
+        },
+        "count": 4
+      },
+      "flashing": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 2
+      },
+      "loudness": {
+        "status": "fail",
+        "perBracket": {
+          "all": "info",
+          "2-4": "fail",
+          "5-7": "fail",
+          "8-10": "warn",
+          "11-13": "info"
+        },
+        "count": 5
+      },
+      "axe": {
+        "status": "warn",
+        "perBracket": {
+          "all": "warn"
+        },
+        "count": 1
+      },
+      "taps-to-play": {
+        "status": "pass",
+        "perBracket": {
+          "2-4": "pass",
+          "5-7": "pass",
+          "8-10": "pass",
+          "11-13": "pass"
+        },
+        "count": 4
+      },
+      "hint-timing": {
+        "status": "warn",
+        "perBracket": {
+          "2-4": "warn",
+          "5-7": "warn",
+          "8-10": "warn",
+          "11-13": "info"
+        },
+        "count": 4
+      },
+      "pause-mute-quit": {
+        "status": "warn",
+        "perBracket": {
+          "all": "warn"
+        },
+        "count": 1
+      },
+      "countdown-timers": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "word-scan": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      }
+    },
+    "alwaysTrueFails": [],
+    "counts": {
+      "pass": 12,
+      "info": 7,
+      "warn": 9,
+      "fail": 3
+    }
+  },
+  "targets": [
+    {
+      "target": "level-1",
+      "url": "http://192.168.1.9:9075/mazle/?test=1",
+      "hook": "ready",
+      "screenshot": "level-1-load.png",
+      "playFrames": 300,
+      "seconds": 47.274
+    }
+  ],
+  "judgmentsApplied": 0,
+  "findings": [
+    {
+      "check": "network",
+      "status": "pass",
+      "summary": "All 2 requests stayed on http://192.168.1.9:9075 (0 data:/blob:); no analytics globals",
+      "rule": "R13",
+      "evidence": {
+        "details": {
+          "sameOrigin": 2,
+          "local": 0,
+          "trackerListSize": 99345
+        }
+      },
+      "fingerprint": "af8adb1e2748"
+    },
+    {
+      "check": "permissions",
+      "status": "pass",
+      "summary": "No permission prompts requested",
+      "rule": "R13",
+      "evidence": {
+        "details": {
+          "checkedTargets": [
+            "level-1"
+          ]
+        }
+      },
+      "fingerprint": "d2a5d9ccc70d"
+    },
+    {
+      "check": "links-out",
+      "status": "pass",
+      "summary": "No links out, window.open, popups or navigations away (1 screens)",
+      "rule": "R13",
+      "evidence": {
+        "details": {
+          "screens": [
+            "level-1:load"
+          ]
+        }
+      },
+      "fingerprint": "cc0f5c3a3de0"
+    },
+    {
+      "check": "input-fields",
+      "status": "pass",
+      "summary": "No text/email/password inputs on any screen",
+      "rule": "R13",
+      "evidence": {
+        "details": {}
+      },
+      "fingerprint": "80215d1b1a2a"
+    },
+    {
+      "check": "touch-targets",
+      "status": "info",
+      "summary": "No tappable DOM elements found (game is canvas-only on these screens)",
+      "rubricCheck": "touch-target",
+      "bracket": "2-4",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "screens": [
+            "level-1:load"
+          ]
+        }
+      },
+      "fingerprint": "8ad8e05896a5"
+    },
+    {
+      "check": "touch-targets",
+      "status": "info",
+      "summary": "No tappable DOM elements found (game is canvas-only on these screens)",
+      "rubricCheck": "touch-target",
+      "bracket": "5-7",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "screens": [
+            "level-1:load"
+          ]
+        }
+      },
+      "fingerprint": "db976d404657"
+    },
+    {
+      "check": "touch-targets",
+      "status": "info",
+      "summary": "No tappable DOM elements found (game is canvas-only on these screens)",
+      "rubricCheck": "touch-target",
+      "bracket": "8-10",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "screens": [
+            "level-1:load"
+          ]
+        }
+      },
+      "fingerprint": "dd0502105c88"
+    },
+    {
+      "check": "touch-targets",
+      "status": "info",
+      "summary": "No tappable DOM elements found (game is canvas-only on these screens)",
+      "rubricCheck": "touch-target",
+      "bracket": "11-13",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "screens": [
+            "level-1:load"
+          ]
+        }
+      },
+      "fingerprint": "1e13f26c99fa"
+    },
+    {
+      "check": "reading-level",
+      "status": "fail",
+      "summary": "16 instruction(s) need reading (pre-readers: none); e.g. \"Controls: W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look\" (25 words)",
+      "rubricCheck": "reading",
+      "bracket": "2-4",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "instructions": 16,
+          "labels": [
+            "Level 1",
+            "FPS:",
+            "Infinity",
+            "Position:",
+            "Controls:"
+          ],
+          "fkGrade": 6.8,
+          "longest": [
+            {
+              "text": "Controls: W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look",
+              "words": 25,
+              "grade": 7.4
+            },
+            {
+              "text": "Touch: drag left side to move, right side to look",
+              "words": 10,
+              "grade": 0.1
+            },
+            {
+              "text": "A/← Strafe Left | D/→ Strafe Right",
+              "words": 6,
+              "grade": -1.4
+            },
+            {
+              "text": "W/↑ Forward | S/↓ Back",
+              "words": 4,
+              "grade": 0.7
+            },
+            {
+              "text": "Mouse to Look Around",
+              "words": 4,
+              "grade": 0.7
+            },
+            {
+              "text": "FPS: Infinity Position: 2.5, 0.0, 2.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 4.7, 0.0, 3.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.1, 0.0, 4.7",
+              "words": 3,
+              "grade": 17
+            }
+          ],
+          "hardest": [
+            {
+              "text": "FPS: Infinity Position: 2.5, 0.0, 2.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 4.7, 0.0, 3.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.1, 0.0, 4.7",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.5, 0.0, 5.6",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 7.3",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 7.6",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 6.3",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.9, 0.0, 3.0",
+              "words": 3,
+              "grade": 17
+            }
+          ],
+          "audioPresent": false,
+          "threshold": {
+            "reading_required": false,
+            "max_words_per_instruction": 0
+          },
+          "example": {
+            "text": "Controls: W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look",
+            "words": 25,
+            "grade": 7.4,
+            "screen": "level-1:load"
+          }
+        }
+      },
+      "fingerprint": "27a97ab4b23f"
+    },
+    {
+      "check": "reading-level",
+      "status": "warn",
+      "summary": "3 instruction(s) over 5 words; longest \"Controls: W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look\" (25 words); no audio at all, so no spoken support",
+      "rubricCheck": "reading",
+      "bracket": "5-7",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "instructions": 16,
+          "labels": [
+            "Level 1",
+            "FPS:",
+            "Infinity",
+            "Position:",
+            "Controls:"
+          ],
+          "fkGrade": 6.8,
+          "longest": [
+            {
+              "text": "Controls: W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look",
+              "words": 25,
+              "grade": 7.4
+            },
+            {
+              "text": "Touch: drag left side to move, right side to look",
+              "words": 10,
+              "grade": 0.1
+            },
+            {
+              "text": "A/← Strafe Left | D/→ Strafe Right",
+              "words": 6,
+              "grade": -1.4
+            },
+            {
+              "text": "W/↑ Forward | S/↓ Back",
+              "words": 4,
+              "grade": 0.7
+            },
+            {
+              "text": "Mouse to Look Around",
+              "words": 4,
+              "grade": 0.7
+            },
+            {
+              "text": "FPS: Infinity Position: 2.5, 0.0, 2.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 4.7, 0.0, 3.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.1, 0.0, 4.7",
+              "words": 3,
+              "grade": 17
+            }
+          ],
+          "hardest": [
+            {
+              "text": "FPS: Infinity Position: 2.5, 0.0, 2.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 4.7, 0.0, 3.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.1, 0.0, 4.7",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.5, 0.0, 5.6",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 7.3",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 7.6",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 6.3",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.9, 0.0, 3.0",
+              "words": 3,
+              "grade": 17
+            }
+          ],
+          "audioPresent": false,
+          "threshold": {
+            "max_words_per_instruction": 5,
+            "audio_with_text": true
+          },
+          "example": {
+            "text": "Controls: W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look",
+            "words": 25,
+            "grade": 7.4,
+            "screen": "level-1:load"
+          }
+        }
+      },
+      "fingerprint": "7a6e19bf3f00"
+    },
+    {
+      "check": "reading-level",
+      "status": "warn",
+      "summary": "Reading grade 6.8 > 3 (Flesch-Kincaid over 16 instructions); hardest \"FPS: Infinity Position: 2.5, 0.0, 2.5\" (grade 17)",
+      "rubricCheck": "reading",
+      "bracket": "8-10",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "instructions": 16,
+          "labels": [
+            "Level 1",
+            "FPS:",
+            "Infinity",
+            "Position:",
+            "Controls:"
+          ],
+          "fkGrade": 6.8,
+          "longest": [
+            {
+              "text": "Controls: W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look",
+              "words": 25,
+              "grade": 7.4
+            },
+            {
+              "text": "Touch: drag left side to move, right side to look",
+              "words": 10,
+              "grade": 0.1
+            },
+            {
+              "text": "A/← Strafe Left | D/→ Strafe Right",
+              "words": 6,
+              "grade": -1.4
+            },
+            {
+              "text": "W/↑ Forward | S/↓ Back",
+              "words": 4,
+              "grade": 0.7
+            },
+            {
+              "text": "Mouse to Look Around",
+              "words": 4,
+              "grade": 0.7
+            },
+            {
+              "text": "FPS: Infinity Position: 2.5, 0.0, 2.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 4.7, 0.0, 3.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.1, 0.0, 4.7",
+              "words": 3,
+              "grade": 17
+            }
+          ],
+          "hardest": [
+            {
+              "text": "FPS: Infinity Position: 2.5, 0.0, 2.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 4.7, 0.0, 3.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.1, 0.0, 4.7",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.5, 0.0, 5.6",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 7.3",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 7.6",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 6.3",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.9, 0.0, 3.0",
+              "words": 3,
+              "grade": 17
+            }
+          ],
+          "audioPresent": false,
+          "threshold": {
+            "max_reading_grade": 3
+          },
+          "example": {
+            "text": "FPS: Infinity Position: 2.5, 0.0, 2.5",
+            "words": 3,
+            "grade": 17,
+            "screen": "level-1:load"
+          }
+        }
+      },
+      "fingerprint": "ed9d25da6bd4"
+    },
+    {
+      "check": "reading-level",
+      "status": "warn",
+      "summary": "Reading grade 6.8 > 6 (Flesch-Kincaid over 16 instructions); hardest \"FPS: Infinity Position: 2.5, 0.0, 2.5\" (grade 17)",
+      "rubricCheck": "reading",
+      "bracket": "11-13",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "instructions": 16,
+          "labels": [
+            "Level 1",
+            "FPS:",
+            "Infinity",
+            "Position:",
+            "Controls:"
+          ],
+          "fkGrade": 6.8,
+          "longest": [
+            {
+              "text": "Controls: W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look",
+              "words": 25,
+              "grade": 7.4
+            },
+            {
+              "text": "Touch: drag left side to move, right side to look",
+              "words": 10,
+              "grade": 0.1
+            },
+            {
+              "text": "A/← Strafe Left | D/→ Strafe Right",
+              "words": 6,
+              "grade": -1.4
+            },
+            {
+              "text": "W/↑ Forward | S/↓ Back",
+              "words": 4,
+              "grade": 0.7
+            },
+            {
+              "text": "Mouse to Look Around",
+              "words": 4,
+              "grade": 0.7
+            },
+            {
+              "text": "FPS: Infinity Position: 2.5, 0.0, 2.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 4.7, 0.0, 3.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.1, 0.0, 4.7",
+              "words": 3,
+              "grade": 17
+            }
+          ],
+          "hardest": [
+            {
+              "text": "FPS: Infinity Position: 2.5, 0.0, 2.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 4.7, 0.0, 3.5",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.1, 0.0, 4.7",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.5, 0.0, 5.6",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 7.3",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 7.6",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 7.6, 0.0, 6.3",
+              "words": 3,
+              "grade": 17
+            },
+            {
+              "text": "FPS: Infinity Position: 6.9, 0.0, 3.0",
+              "words": 3,
+              "grade": 17
+            }
+          ],
+          "audioPresent": false,
+          "threshold": {
+            "max_reading_grade": 6
+          },
+          "example": {
+            "text": "FPS: Infinity Position: 2.5, 0.0, 2.5",
+            "words": 3,
+            "grade": 17,
+            "screen": "level-1:load"
+          }
+        }
+      },
+      "fingerprint": "b246f24741c4"
+    },
+    {
+      "check": "flashing",
+      "status": "pass",
+      "summary": "play (5.0 s @60fps): max 3 flashes/s per block (area over limit 0%), red 0/s (0%), whole-frame 0/s",
+      "rule": "R15",
+      "target": "level-1",
+      "evidence": {
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "pass",
+          "general": {
+            "maxTransitionsPerSecond": 6,
+            "maxFlashesPerSecond": 3,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "red": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 1,
+            "maxFlashesPerSecond": 0,
+            "startFrame": 15,
+            "min": 0.09199999999999908,
+            "max": 0.38326822916666775
+          },
+          "changeShots": [
+            {
+              "frame": 1,
+              "area": 0.078125,
+              "screenshot": "level-1-play-f1.png"
+            },
+            {
+              "frame": 2,
+              "area": 0.06770833333333333,
+              "screenshot": "level-1-play-f2.png"
+            },
+            {
+              "frame": 3,
+              "area": 0.0625,
+              "screenshot": "level-1-play-f3.png"
+            },
+            {
+              "frame": 4,
+              "area": 0.07161458333333333,
+              "screenshot": "level-1-play-f4.png"
+            },
+            {
+              "frame": 5,
+              "area": 0.07421875,
+              "screenshot": "level-1-play-f5.png"
+            },
+            {
+              "frame": 6,
+              "area": 0.08984375,
+              "screenshot": "level-1-play-f6.png"
+            }
+          ],
+          "note": "Canvas only; DOM overlays are not sampled."
+        }
+      },
+      "fingerprint": "4896efc45ff6"
+    },
+    {
+      "check": "flashing",
+      "status": "pass",
+      "summary": "idle (5.0 s @60fps): max 0 flashes/s per block (area over limit 0%), red 0/s (0%), whole-frame 0/s",
+      "rule": "R15",
+      "target": "level-1",
+      "evidence": {
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "pass",
+          "general": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "red": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "startFrame": 0,
+            "min": 0.32780468750000086,
+            "max": 0.32780468750000086
+          },
+          "changeShots": [],
+          "note": "Canvas only; DOM overlays are not sampled."
+        }
+      },
+      "fingerprint": "e66d7226b8dd"
+    },
+    {
+      "check": "loudness",
+      "status": "info",
+      "summary": "No audio (no AudioContext output, no media playback)",
+      "rule": "R15",
+      "target": "level-1",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "samples": 0,
+          "activeSamples": 0,
+          "maxPeakDb": null,
+          "maxRmsDb": null,
+          "medianActiveRmsDb": null,
+          "jumps": [],
+          "spikes": [],
+          "clipping": 0,
+          "status": "pass",
+          "reasons": [],
+          "audioContexts": 0,
+          "media": []
+        }
+      },
+      "fingerprint": "95f370afa8a6"
+    },
+    {
+      "check": "loudness",
+      "status": "fail",
+      "summary": "No audio at all, so no spoken instructions (required for 2-4)",
+      "rubricCheck": "spoken-instructions",
+      "bracket": "2-4",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "need": "required"
+        }
+      },
+      "fingerprint": "e72cccaffff3"
+    },
+    {
+      "check": "loudness",
+      "status": "fail",
+      "summary": "No audio at all, so no spoken instructions (required for 5-7)",
+      "rubricCheck": "spoken-instructions",
+      "bracket": "5-7",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "need": "required"
+        }
+      },
+      "fingerprint": "5aac94a04602"
+    },
+    {
+      "check": "loudness",
+      "status": "warn",
+      "summary": "No audio at all, so no spoken instructions (recommended for 8-10)",
+      "rubricCheck": "spoken-instructions",
+      "bracket": "8-10",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "need": "recommended"
+        }
+      },
+      "fingerprint": "e22294d11051"
+    },
+    {
+      "check": "loudness",
+      "status": "info",
+      "summary": "No audio at all, so no spoken instructions (optional for 11-13)",
+      "rubricCheck": "spoken-instructions",
+      "bracket": "11-13",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "need": "optional"
+        }
+      },
+      "fingerprint": "1bfbf64bad07"
+    },
+    {
+      "check": "axe",
+      "status": "warn",
+      "summary": "axe meta-viewport (moderate): Zooming and scaling must not be disabled; 1 element(s) on 1 screen(s)",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "id": "meta-viewport",
+          "impact": "moderate",
+          "help": "Zooming and scaling must not be disabled",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/meta-viewport?application=playwright",
+          "nodes": [
+            {
+              "target": "meta[name=\"viewport\"]",
+              "html": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\">",
+              "summary": "Fix any of the following:\n  user-scalable=no on <meta> tag disables zooming on mobile devices"
+            }
+          ],
+          "count": 1,
+          "screens": [
+            "level-1:load"
+          ],
+          "screenshot": "level-1-load.png",
+          "total": 1
+        }
+      },
+      "fingerprint": "9a1411539ec3"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "pass",
+      "summary": "\"level-1\": 0 tap(s) to play (max 1); test mode skips the pointer-lock click; on a desktop the first click locks the mouse",
+      "rubricCheck": "taps-to-play",
+      "bracket": "2-4",
+      "target": "level-1",
+      "evidence": {
+        "details": {
+          "taps": [],
+          "tapShots": [],
+          "max": 1
+        }
+      },
+      "fingerprint": "f351c8ac100e"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "pass",
+      "summary": "\"level-1\": 0 tap(s) to play (max 2); test mode skips the pointer-lock click; on a desktop the first click locks the mouse",
+      "rubricCheck": "taps-to-play",
+      "bracket": "5-7",
+      "target": "level-1",
+      "evidence": {
+        "details": {
+          "taps": [],
+          "tapShots": [],
+          "max": 2
+        }
+      },
+      "fingerprint": "3640f169f9ae"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "pass",
+      "summary": "\"level-1\": 0 tap(s) to play (max 3); test mode skips the pointer-lock click; on a desktop the first click locks the mouse",
+      "rubricCheck": "taps-to-play",
+      "bracket": "8-10",
+      "target": "level-1",
+      "evidence": {
+        "details": {
+          "taps": [],
+          "tapShots": [],
+          "max": 3
+        }
+      },
+      "fingerprint": "c4e00832903a"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "pass",
+      "summary": "\"level-1\": 0 tap(s) to play (max 4); test mode skips the pointer-lock click; on a desktop the first click locks the mouse",
+      "rubricCheck": "taps-to-play",
+      "bracket": "11-13",
+      "target": "level-1",
+      "evidence": {
+        "details": {
+          "taps": [],
+          "tapShots": [],
+          "max": 4
+        }
+      },
+      "fingerprint": "a8a3118be78f"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 10 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "2-4",
+      "target": "level-1",
+      "evidence": {
+        "screenshot": "level-1-idle-10s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 10,
+          "newText": [],
+          "screenshots": {
+            "10": "level-1-idle-10s.png",
+            "20": "level-1-idle-20s.png",
+            "45": "level-1-idle-45s.png",
+            "60": "level-1-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "2130d4696751"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 20 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "5-7",
+      "target": "level-1",
+      "evidence": {
+        "screenshot": "level-1-idle-20s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 20,
+          "newText": [],
+          "screenshots": {
+            "10": "level-1-idle-10s.png",
+            "20": "level-1-idle-20s.png",
+            "45": "level-1-idle-45s.png",
+            "60": "level-1-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "7bda24b00321"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 45 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "8-10",
+      "target": "level-1",
+      "evidence": {
+        "screenshot": "level-1-idle-45s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 45,
+          "newText": [],
+          "screenshots": {
+            "10": "level-1-idle-10s.png",
+            "20": "level-1-idle-20s.png",
+            "45": "level-1-idle-45s.png",
+            "60": "level-1-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "42f6e46239cf"
+    },
+    {
+      "check": "hint-timing",
+      "status": "info",
+      "summary": "No hint in 60 s idle; hints optional for 11-13",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "11-13",
+      "target": "level-1",
+      "evidence": {
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": null,
+          "newText": [],
+          "screenshots": {
+            "10": "level-1-idle-10s.png",
+            "20": "level-1-idle-20s.png",
+            "45": "level-1-idle-45s.png",
+            "60": "level-1-idle-60s.png"
+          }
+        },
+        "screenshot": "level-1-load.png"
+      },
+      "fingerprint": "1448188a446a"
+    },
+    {
+      "check": "pause-mute-quit",
+      "status": "warn",
+      "summary": "Playing screen has no visible pause, mute, quit controls",
+      "rule": "R16",
+      "target": "level-1",
+      "evidence": {
+        "screenshot": "level-1-load.png",
+        "details": {
+          "found": {
+            "pause": [],
+            "mute": [],
+            "quit": []
+          },
+          "missing": [
+            "pause",
+            "mute",
+            "quit"
+          ],
+          "controlsSeen": 0,
+          "note": "Found by label/text/class only; not pressed. Keyboard shortcuts are not detected."
+        }
+      },
+      "fingerprint": "be071360a88d"
+    },
+    {
+      "check": "countdown-timers",
+      "status": "pass",
+      "summary": "No countdown or timer text/state seen in 130 samples",
+      "rule": "R14",
+      "rubricCheck": "time-pressure",
+      "target": "level-1",
+      "evidence": {
+        "details": {}
+      },
+      "fingerprint": "26c60adc41b5"
+    },
+    {
+      "check": "word-scan",
+      "status": "pass",
+      "summary": "No flagged words in 32 game strings or in visible/source strings (0 code-only hits are info)",
+      "evidence": {
+        "details": {
+          "strings": 32,
+          "paths": [
+            "src/playtest/index.html",
+            "src/playtest/js"
+          ]
+        }
+      },
+      "fingerprint": "247614259a94"
+    }
+  ]
+}

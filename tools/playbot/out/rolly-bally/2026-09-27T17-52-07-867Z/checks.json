@@ -1,0 +1,3358 @@
+{
+  "game": "rolly-bally",
+  "baseUrl": "http://192.168.1.9:9076/rolly-bally/",
+  "brackets": [
+    "2-4",
+    "5-7",
+    "8-10",
+    "11-13"
+  ],
+  "only": [
+    "network",
+    "permissions",
+    "links-out",
+    "input-fields",
+    "touch-targets",
+    "reading-level",
+    "flashing",
+    "loudness",
+    "axe",
+    "taps-to-play",
+    "hint-timing",
+    "pause-mute-quit",
+    "countdown-timers",
+    "word-scan"
+  ],
+  "startedAt": "2026-09-27T17:52:07.874Z",
+  "finishedAt": "2026-09-27T17:53:51.873Z",
+  "summary": {
+    "overall": "FAIL",
+    "brackets": {
+      "2-4": {
+        "status": "FAIL",
+        "counts": {
+          "pass": 18,
+          "info": 5,
+          "warn": 14,
+          "fail": 3
+        },
+        "fails": [
+          {
+            "check": "touch-targets",
+            "rubricCheck": "touch-target",
+            "bracket": "2-4",
+            "summary": "5/39 tappable elements under 76px; smallest 72px (Home (hold) on gallery-1-test-1:load)",
+            "fingerprint": "9a32ddea8a16"
+          },
+          {
+            "check": "reading-level",
+            "rubricCheck": "reading",
+            "bracket": "2-4",
+            "summary": "18 instruction(s) need reading (pre-readers: none); e.g. \"1/20 · start · width 8 · rails full\" (4 words)",
+            "fingerprint": "11aaab3eef57"
+          },
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-playground",
+            "summary": "play (5.0 s @60fps): max 13 flashes/s per block (area over limit 30%), red 1/s (0%), whole-frame 0/s",
+            "fingerprint": "f2a421ba54b8"
+          }
+        ],
+        "warns": [
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-race",
+            "summary": "idle (5.0 s @60fps): max 6 flashes/s per block (area over limit 3%), red 1/s (0%), whole-frame 0/s",
+            "fingerprint": "ca6fab1f1187"
+          },
+          {
+            "check": "axe",
+            "rubricCheck": "contrast",
+            "summary": "axe color-contrast (serious): Elements must meet minimum color contrast ratio thresholds; 13 element(s) on 4 screen(s)",
+            "fingerprint": "c79bb27fefff"
+          },
+          {
+            "check": "axe",
+            "summary": "axe meta-viewport (moderate): Zooming and scaling must not be disabled; 10 element(s) on 10 screen(s)",
+            "fingerprint": "9a1411539ec3"
+          },
+          {
+            "check": "taps-to-play",
+            "rubricCheck": "taps-to-play",
+            "bracket": "2-4",
+            "target": "home-playground",
+            "summary": "\"home-playground\": 2 tap(s) to play (max 1) via Playground → Go",
+            "fingerprint": "deeb95576dcd"
+          },
+          {
+            "check": "taps-to-play",
+            "rubricCheck": "taps-to-play",
+            "bracket": "2-4",
+            "target": "home-race",
+            "summary": "\"home-race\": 2 tap(s) to play (max 1) via Race → Go",
+            "fingerprint": "cae225331d23"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "2-4",
+            "target": "home-playground",
+            "summary": "No text/event hint within 60 s idle (want ≤ 10 s)",
+            "fingerprint": "fcb79481afc4"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "2-4",
+            "target": "home-race",
+            "summary": "No text/event hint within 60 s idle (want ≤ 10 s)",
+            "fingerprint": "697e5461acb9"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "2-4",
+            "target": "mode-test-track-test-1",
+            "summary": "No text/event hint within 60 s idle (want ≤ 10 s)",
+            "fingerprint": "edc7487db0e6"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "2-4",
+            "target": "gallery-1-test-1",
+            "summary": "No text/event hint within 60 s idle (want ≤ 10 s)",
+            "fingerprint": "7742deb74087"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "home-playground",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "a6035b04cf57"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "home-race",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "ec93c3c4a8ac"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "mode-test-track-test-1",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "82d0ab2f2f9f"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "gallery-1-test-1",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "57206ae979c7"
+          },
+          {
+            "check": "countdown-timers",
+            "rule": "R14",
+            "rubricCheck": "time-pressure",
+            "target": "home-race",
+            "summary": "Timer-like UI: state race.state=countdown",
+            "fingerprint": "83f6eda2049c"
+          }
+        ]
+      },
+      "5-7": {
+        "status": "FAIL",
+        "counts": {
+          "pass": 22,
+          "info": 5,
+          "warn": 12,
+          "fail": 1
+        },
+        "fails": [
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-playground",
+            "summary": "play (5.0 s @60fps): max 13 flashes/s per block (area over limit 30%), red 1/s (0%), whole-frame 0/s",
+            "fingerprint": "f2a421ba54b8"
+          }
+        ],
+        "warns": [
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-race",
+            "summary": "idle (5.0 s @60fps): max 6 flashes/s per block (area over limit 3%), red 1/s (0%), whole-frame 0/s",
+            "fingerprint": "ca6fab1f1187"
+          },
+          {
+            "check": "axe",
+            "rubricCheck": "contrast",
+            "summary": "axe color-contrast (serious): Elements must meet minimum color contrast ratio thresholds; 13 element(s) on 4 screen(s)",
+            "fingerprint": "c79bb27fefff"
+          },
+          {
+            "check": "axe",
+            "summary": "axe meta-viewport (moderate): Zooming and scaling must not be disabled; 10 element(s) on 10 screen(s)",
+            "fingerprint": "9a1411539ec3"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "5-7",
+            "target": "home-playground",
+            "summary": "No text/event hint within 60 s idle (want ≤ 20 s)",
+            "fingerprint": "bb24a68ade9e"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "5-7",
+            "target": "home-race",
+            "summary": "No text/event hint within 60 s idle (want ≤ 20 s)",
+            "fingerprint": "9f2dbe0cbaa1"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "5-7",
+            "target": "mode-test-track-test-1",
+            "summary": "No text/event hint within 60 s idle (want ≤ 20 s)",
+            "fingerprint": "0f4ab967445a"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "5-7",
+            "target": "gallery-1-test-1",
+            "summary": "No text/event hint within 60 s idle (want ≤ 20 s)",
+            "fingerprint": "811830b6f17d"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "home-playground",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "a6035b04cf57"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "home-race",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "ec93c3c4a8ac"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "mode-test-track-test-1",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "82d0ab2f2f9f"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "gallery-1-test-1",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "57206ae979c7"
+          },
+          {
+            "check": "countdown-timers",
+            "rule": "R14",
+            "rubricCheck": "time-pressure",
+            "target": "home-race",
+            "summary": "Timer-like UI: state race.state=countdown",
+            "fingerprint": "83f6eda2049c"
+          }
+        ]
+      },
+      "8-10": {
+        "status": "FAIL",
+        "counts": {
+          "pass": 22,
+          "info": 5,
+          "warn": 12,
+          "fail": 1
+        },
+        "fails": [
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-playground",
+            "summary": "play (5.0 s @60fps): max 13 flashes/s per block (area over limit 30%), red 1/s (0%), whole-frame 0/s",
+            "fingerprint": "f2a421ba54b8"
+          }
+        ],
+        "warns": [
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-race",
+            "summary": "idle (5.0 s @60fps): max 6 flashes/s per block (area over limit 3%), red 1/s (0%), whole-frame 0/s",
+            "fingerprint": "ca6fab1f1187"
+          },
+          {
+            "check": "axe",
+            "rubricCheck": "contrast",
+            "summary": "axe color-contrast (serious): Elements must meet minimum color contrast ratio thresholds; 13 element(s) on 4 screen(s)",
+            "fingerprint": "c79bb27fefff"
+          },
+          {
+            "check": "axe",
+            "summary": "axe meta-viewport (moderate): Zooming and scaling must not be disabled; 10 element(s) on 10 screen(s)",
+            "fingerprint": "9a1411539ec3"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "8-10",
+            "target": "home-playground",
+            "summary": "No text/event hint within 60 s idle (want ≤ 45 s)",
+            "fingerprint": "332eb4455b12"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "8-10",
+            "target": "home-race",
+            "summary": "No text/event hint within 60 s idle (want ≤ 45 s)",
+            "fingerprint": "a5694e6bbf17"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "8-10",
+            "target": "mode-test-track-test-1",
+            "summary": "No text/event hint within 60 s idle (want ≤ 45 s)",
+            "fingerprint": "ebe7563a02ad"
+          },
+          {
+            "check": "hint-timing",
+            "rubricCheck": "hint-when-stuck",
+            "bracket": "8-10",
+            "target": "gallery-1-test-1",
+            "summary": "No text/event hint within 60 s idle (want ≤ 45 s)",
+            "fingerprint": "bf10cdac51aa"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "home-playground",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "a6035b04cf57"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "home-race",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "ec93c3c4a8ac"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "mode-test-track-test-1",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "82d0ab2f2f9f"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "gallery-1-test-1",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "57206ae979c7"
+          },
+          {
+            "check": "countdown-timers",
+            "rule": "R14",
+            "rubricCheck": "time-pressure",
+            "target": "home-race",
+            "summary": "Timer-like UI: state race.state=countdown",
+            "fingerprint": "83f6eda2049c"
+          }
+        ]
+      },
+      "11-13": {
+        "status": "FAIL",
+        "counts": {
+          "pass": 22,
+          "info": 9,
+          "warn": 8,
+          "fail": 1
+        },
+        "fails": [
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-playground",
+            "summary": "play (5.0 s @60fps): max 13 flashes/s per block (area over limit 30%), red 1/s (0%), whole-frame 0/s",
+            "fingerprint": "f2a421ba54b8"
+          }
+        ],
+        "warns": [
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-race",
+            "summary": "idle (5.0 s @60fps): max 6 flashes/s per block (area over limit 3%), red 1/s (0%), whole-frame 0/s",
+            "fingerprint": "ca6fab1f1187"
+          },
+          {
+            "check": "axe",
+            "rubricCheck": "contrast",
+            "summary": "axe color-contrast (serious): Elements must meet minimum color contrast ratio thresholds; 13 element(s) on 4 screen(s)",
+            "fingerprint": "c79bb27fefff"
+          },
+          {
+            "check": "axe",
+            "summary": "axe meta-viewport (moderate): Zooming and scaling must not be disabled; 10 element(s) on 10 screen(s)",
+            "fingerprint": "9a1411539ec3"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "home-playground",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "a6035b04cf57"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "home-race",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "ec93c3c4a8ac"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "mode-test-track-test-1",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "82d0ab2f2f9f"
+          },
+          {
+            "check": "pause-mute-quit",
+            "rule": "R16",
+            "target": "gallery-1-test-1",
+            "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+            "fingerprint": "57206ae979c7"
+          },
+          {
+            "check": "countdown-timers",
+            "rule": "R14",
+            "rubricCheck": "time-pressure",
+            "target": "home-race",
+            "summary": "Timer-like UI: state race.state=countdown",
+            "fingerprint": "83f6eda2049c"
+          }
+        ]
+      }
+    },
+    "rules": {
+      "R13": "info",
+      "R15": "fail",
+      "R16": "warn",
+      "R14": "warn",
+      "R04": "info",
+      "R01": "info",
+      "R12": "info"
+    },
+    "checks": {
+      "network": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "permissions": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "links-out": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "input-fields": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "touch-targets": {
+        "status": "fail",
+        "perBracket": {
+          "2-4": "fail",
+          "5-7": "pass",
+          "8-10": "pass",
+          "11-13": "pass"
+        },
+        "count": 4
+      },
+      "reading-level": {
+        "status": "fail",
+        "perBracket": {
+          "2-4": "fail",
+          "5-7": "pass",
+          "8-10": "pass",
+          "11-13": "pass"
+        },
+        "count": 4
+      },
+      "flashing": {
+        "status": "fail",
+        "perBracket": {
+          "all": "fail"
+        },
+        "count": 8
+      },
+      "loudness": {
+        "status": "info",
+        "perBracket": {
+          "all": "pass",
+          "2-4": "info",
+          "5-7": "info",
+          "8-10": "info",
+          "11-13": "info"
+        },
+        "count": 8
+      },
+      "axe": {
+        "status": "warn",
+        "perBracket": {
+          "all": "warn"
+        },
+        "count": 2
+      },
+      "taps-to-play": {
+        "status": "warn",
+        "perBracket": {
+          "2-4": "warn",
+          "5-7": "pass",
+          "8-10": "pass",
+          "11-13": "pass"
+        },
+        "count": 8
+      },
+      "hint-timing": {
+        "status": "warn",
+        "perBracket": {
+          "2-4": "warn",
+          "5-7": "warn",
+          "8-10": "warn",
+          "11-13": "info"
+        },
+        "count": 16
+      },
+      "pause-mute-quit": {
+        "status": "warn",
+        "perBracket": {
+          "all": "warn"
+        },
+        "count": 4
+      },
+      "countdown-timers": {
+        "status": "warn",
+        "perBracket": {
+          "all": "warn"
+        },
+        "count": 4
+      },
+      "word-scan": {
+        "status": "info",
+        "perBracket": {
+          "all": "info"
+        },
+        "count": 5
+      }
+    },
+    "alwaysTrueFails": [
+      {
+        "check": "flashing",
+        "rule": "R15",
+        "target": "home-playground",
+        "summary": "play (5.0 s @60fps): max 13 flashes/s per block (area over limit 30%), red 1/s (0%), whole-frame 0/s",
+        "fingerprint": "f2a421ba54b8"
+      }
+    ],
+    "counts": {
+      "pass": 30,
+      "info": 12,
+      "warn": 22,
+      "fail": 3
+    }
+  },
+  "targets": [
+    {
+      "target": "home-playground",
+      "url": "http://192.168.1.9:9076/rolly-bally/?test=1",
+      "hook": "ready",
+      "screenshot": "home-playground-load.png",
+      "playFrames": 300,
+      "seconds": 32.23
+    },
+    {
+      "target": "home-race",
+      "url": "http://192.168.1.9:9076/rolly-bally/?test=1",
+      "hook": "ready",
+      "screenshot": "home-race-load.png",
+      "playFrames": 300,
+      "seconds": 28.959
+    },
+    {
+      "target": "mode-test-track-test-1",
+      "url": "http://192.168.1.9:9076/rolly-bally/?mode=test-track&test=1",
+      "hook": "ready",
+      "screenshot": "mode-test-track-test-1-load.png",
+      "playFrames": 300,
+      "seconds": 21.542
+    },
+    {
+      "target": "gallery-1-test-1",
+      "url": "http://192.168.1.9:9076/rolly-bally/?gallery=1&test=1",
+      "hook": "ready",
+      "screenshot": "gallery-1-test-1-load.png",
+      "playFrames": 300,
+      "seconds": 21.078
+    }
+  ],
+  "judgmentsApplied": 0,
+  "findings": [
+    {
+      "check": "network",
+      "status": "pass",
+      "summary": "All 37 requests stayed on http://192.168.1.9:9076 (0 data:/blob:); no analytics globals",
+      "rule": "R13",
+      "evidence": {
+        "details": {
+          "sameOrigin": 37,
+          "local": 0,
+          "trackerListSize": 99345
+        }
+      },
+      "fingerprint": "af8adb1e2748"
+    },
+    {
+      "check": "permissions",
+      "status": "pass",
+      "summary": "No permission prompts requested",
+      "rule": "R13",
+      "evidence": {
+        "details": {
+          "checkedTargets": [
+            "home-playground",
+            "home-race",
+            "mode-test-track-test-1",
+            "gallery-1-test-1"
+          ]
+        }
+      },
+      "fingerprint": "d2a5d9ccc70d"
+    },
+    {
+      "check": "links-out",
+      "status": "pass",
+      "summary": "No links out, window.open, popups or navigations away (10 screens)",
+      "rule": "R13",
+      "evidence": {
+        "details": {
+          "screens": [
+            "home-playground:load",
+            "home-playground:tap1-Playground",
+            "home-playground:tap2-Go",
+            "home-playground:playing",
+            "home-race:load",
+            "home-race:tap1-Race",
+            "home-race:tap2-Go",
+            "home-race:playing",
+            "mode-test-track-test-1:load",
+            "gallery-1-test-1:load"
+          ]
+        }
+      },
+      "fingerprint": "cc0f5c3a3de0"
+    },
+    {
+      "check": "input-fields",
+      "status": "pass",
+      "summary": "No text/email/password inputs on any screen",
+      "rule": "R13",
+      "evidence": {
+        "details": {}
+      },
+      "fingerprint": "80215d1b1a2a"
+    },
+    {
+      "check": "touch-targets",
+      "status": "fail",
+      "summary": "5/39 tappable elements under 76px; smallest 72px (Home (hold) on gallery-1-test-1:load)",
+      "rubricCheck": "touch-target",
+      "bracket": "2-4",
+      "evidence": {
+        "screenshot": "gallery-1-test-1-load-touch-targets.png",
+        "details": {
+          "min": 76,
+          "viewport": {
+            "width": 1024,
+            "height": 768
+          },
+          "offenders": [
+            {
+              "el": "button.rb-btn.rb-btn--round.hud-home",
+              "label": "Home (hold)",
+              "x": 12,
+              "y": 12,
+              "width": 72,
+              "height": 72,
+              "size": 72,
+              "screen": "gallery-1-test-1:load",
+              "screenshot": "gallery-1-test-1-load-touch-targets.png"
+            },
+            {
+              "el": "button.rb-btn.rb-btn--round.rb-btn--red",
+              "label": "Rails",
+              "x": 102,
+              "y": 680,
+              "width": 72,
+              "height": 72,
+              "size": 72,
+              "screen": "gallery-1-test-1:load",
+              "screenshot": "gallery-1-test-1-load-touch-targets.png"
+            },
+            {
+              "el": "button.rb-btn.rb-btn--round.rb-btn--yellow",
+              "label": "Width",
+              "x": 188,
+              "y": 680,
+              "width": 72,
+              "height": 72,
+              "size": 72,
+              "screen": "gallery-1-test-1:load",
+              "screenshot": "gallery-1-test-1-load-touch-targets.png"
+            },
+            {
+              "el": "button.rb-btn.rb-btn--round.rb-btn--blue",
+              "label": "Previous piece",
+              "x": 274,
+              "y": 680,
+              "width": 72,
+              "height": 72,
+              "size": 72,
+              "screen": "gallery-1-test-1:load",
+              "screenshot": "gallery-1-test-1-load-touch-targets.png"
+            },
+            {
+              "el": "button.rb-btn.rb-btn--round.rb-btn--green",
+              "label": "Next piece",
+              "x": 360,
+              "y": 680,
+              "width": 72,
+              "height": 72,
+              "size": 72,
+              "screen": "gallery-1-test-1:load",
+              "screenshot": "gallery-1-test-1-load-touch-targets.png"
+            }
+          ]
+        }
+      },
+      "fingerprint": "9a32ddea8a16"
+    },
+    {
+      "check": "touch-targets",
+      "status": "pass",
+      "summary": "All 39 tappable elements ≥ 57px (smallest 72px: Home (hold))",
+      "rubricCheck": "touch-target",
+      "bracket": "5-7",
+      "evidence": {
+        "details": {
+          "min": 57,
+          "count": 39,
+          "smallest": {
+            "el": "button.rb-btn.rb-btn--round.hud-home",
+            "label": "Home (hold)",
+            "x": 12,
+            "y": 12,
+            "width": 72,
+            "height": 72,
+            "size": 72,
+            "screen": "gallery-1-test-1:load",
+            "boxShot": "gallery-1-test-1-load-touch-targets.png",
+            "screenshot": "gallery-1-test-1-load.png"
+          }
+        }
+      },
+      "fingerprint": "2a7933548dbc"
+    },
+    {
+      "check": "touch-targets",
+      "status": "pass",
+      "summary": "All 39 tappable elements ≥ 44px (smallest 72px: Home (hold))",
+      "rubricCheck": "touch-target",
+      "bracket": "8-10",
+      "evidence": {
+        "details": {
+          "min": 44,
+          "count": 39,
+          "smallest": {
+            "el": "button.rb-btn.rb-btn--round.hud-home",
+            "label": "Home (hold)",
+            "x": 12,
+            "y": 12,
+            "width": 72,
+            "height": 72,
+            "size": 72,
+            "screen": "gallery-1-test-1:load",
+            "boxShot": "gallery-1-test-1-load-touch-targets.png",
+            "screenshot": "gallery-1-test-1-load.png"
+          }
+        }
+      },
+      "fingerprint": "3fd0a203d986"
+    },
+    {
+      "check": "touch-targets",
+      "status": "pass",
+      "summary": "All 39 tappable elements ≥ 44px (smallest 72px: Home (hold))",
+      "rubricCheck": "touch-target",
+      "bracket": "11-13",
+      "evidence": {
+        "details": {
+          "min": 44,
+          "count": 39,
+          "smallest": {
+            "el": "button.rb-btn.rb-btn--round.hud-home",
+            "label": "Home (hold)",
+            "x": 12,
+            "y": 12,
+            "width": 72,
+            "height": 72,
+            "size": 72,
+            "screen": "gallery-1-test-1:load",
+            "boxShot": "gallery-1-test-1-load-touch-targets.png",
+            "screenshot": "gallery-1-test-1-load.png"
+          }
+        }
+      },
+      "fingerprint": "c70549264ff5"
+    },
+    {
+      "check": "reading-level",
+      "status": "fail",
+      "summary": "18 instruction(s) need reading (pre-readers: none); e.g. \"1/20 · start · width 8 · rails full\" (4 words)",
+      "rubricCheck": "reading",
+      "bracket": "2-4",
+      "evidence": {
+        "screenshot": "gallery-1-test-1-load.png",
+        "details": {
+          "instructions": 18,
+          "labels": [
+            "Playground",
+            "Race",
+            "Back",
+            "Small",
+            "Medium",
+            "Big",
+            "Grass",
+            "Snow",
+            "Flat",
+            "Hills",
+            "Mountains",
+            "Ramps",
+            "Jumps",
+            "Bouncy",
+            "Tunnels",
+            "Spinners",
+            "Some",
+            "Lots",
+            "Go",
+            "Go!",
+            "1 race",
+            "3 races",
+            "Place 1",
+            "st",
+            "GO!",
+            "FINISH",
+            "Rails",
+            "F",
+            "Width"
+          ],
+          "fkGrade": 1.2,
+          "longest": [
+            {
+              "text": "1/20 · start · width 8 · rails full",
+              "words": 4,
+              "grade": -2.2
+            },
+            {
+              "text": "Level 1: Rolling Hills",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 2: Bumpy Road",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 3: Sky Road",
+              "words": 3,
+              "grade": 1.3
+            },
+            {
+              "text": "Level 4: Hammer Time",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 5: Going Big",
+              "words": 3,
+              "grade": 1.3
+            },
+            {
+              "text": "Wide pad (start)",
+              "words": 3,
+              "grade": -2.6
+            },
+            {
+              "text": "Rolly Bally",
+              "words": 2,
+              "grade": 8.8
+            }
+          ],
+          "hardest": [
+            {
+              "text": "Rolly Bally",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Show colliders",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Previous piece",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Level 1: Rolling Hills",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 2: Bumpy Road",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 4: Hammer Time",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Grown-ups (hold)",
+              "words": 2,
+              "grade": 2.9
+            },
+            {
+              "text": "Level 3: Sky Road",
+              "words": 3,
+              "grade": 1.3
+            }
+          ],
+          "audioPresent": true,
+          "threshold": {
+            "reading_required": false,
+            "max_words_per_instruction": 0
+          },
+          "example": {
+            "text": "1/20 · start · width 8 · rails full",
+            "words": 4,
+            "grade": -2.2,
+            "screen": "gallery-1-test-1:load"
+          }
+        }
+      },
+      "fingerprint": "11aaab3eef57"
+    },
+    {
+      "check": "reading-level",
+      "status": "pass",
+      "summary": "All instructions ≤ 5 words (longest 4); game has audio (whether it speaks is for Claude/a person)",
+      "rubricCheck": "reading",
+      "bracket": "5-7",
+      "evidence": {
+        "details": {
+          "instructions": 18,
+          "labels": [
+            "Playground",
+            "Race",
+            "Back",
+            "Small",
+            "Medium",
+            "Big",
+            "Grass",
+            "Snow",
+            "Flat",
+            "Hills",
+            "Mountains",
+            "Ramps",
+            "Jumps",
+            "Bouncy",
+            "Tunnels",
+            "Spinners",
+            "Some",
+            "Lots",
+            "Go",
+            "Go!",
+            "1 race",
+            "3 races",
+            "Place 1",
+            "st",
+            "GO!",
+            "FINISH",
+            "Rails",
+            "F",
+            "Width"
+          ],
+          "fkGrade": 1.2,
+          "longest": [
+            {
+              "text": "1/20 · start · width 8 · rails full",
+              "words": 4,
+              "grade": -2.2
+            },
+            {
+              "text": "Level 1: Rolling Hills",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 2: Bumpy Road",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 3: Sky Road",
+              "words": 3,
+              "grade": 1.3
+            },
+            {
+              "text": "Level 4: Hammer Time",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 5: Going Big",
+              "words": 3,
+              "grade": 1.3
+            },
+            {
+              "text": "Wide pad (start)",
+              "words": 3,
+              "grade": -2.6
+            },
+            {
+              "text": "Rolly Bally",
+              "words": 2,
+              "grade": 8.8
+            }
+          ],
+          "hardest": [
+            {
+              "text": "Rolly Bally",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Show colliders",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Previous piece",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Level 1: Rolling Hills",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 2: Bumpy Road",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 4: Hammer Time",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Grown-ups (hold)",
+              "words": 2,
+              "grade": 2.9
+            },
+            {
+              "text": "Level 3: Sky Road",
+              "words": 3,
+              "grade": 1.3
+            }
+          ],
+          "audioPresent": true,
+          "threshold": {
+            "max_words_per_instruction": 5,
+            "audio_with_text": true
+          },
+          "example": null
+        }
+      },
+      "fingerprint": "9df0b9217a25"
+    },
+    {
+      "check": "reading-level",
+      "status": "pass",
+      "summary": "Reading grade 1.2 ≤ 3 (Flesch-Kincaid over 18 instructions)",
+      "rubricCheck": "reading",
+      "bracket": "8-10",
+      "evidence": {
+        "details": {
+          "instructions": 18,
+          "labels": [
+            "Playground",
+            "Race",
+            "Back",
+            "Small",
+            "Medium",
+            "Big",
+            "Grass",
+            "Snow",
+            "Flat",
+            "Hills",
+            "Mountains",
+            "Ramps",
+            "Jumps",
+            "Bouncy",
+            "Tunnels",
+            "Spinners",
+            "Some",
+            "Lots",
+            "Go",
+            "Go!",
+            "1 race",
+            "3 races",
+            "Place 1",
+            "st",
+            "GO!",
+            "FINISH",
+            "Rails",
+            "F",
+            "Width"
+          ],
+          "fkGrade": 1.2,
+          "longest": [
+            {
+              "text": "1/20 · start · width 8 · rails full",
+              "words": 4,
+              "grade": -2.2
+            },
+            {
+              "text": "Level 1: Rolling Hills",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 2: Bumpy Road",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 3: Sky Road",
+              "words": 3,
+              "grade": 1.3
+            },
+            {
+              "text": "Level 4: Hammer Time",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 5: Going Big",
+              "words": 3,
+              "grade": 1.3
+            },
+            {
+              "text": "Wide pad (start)",
+              "words": 3,
+              "grade": -2.6
+            },
+            {
+              "text": "Rolly Bally",
+              "words": 2,
+              "grade": 8.8
+            }
+          ],
+          "hardest": [
+            {
+              "text": "Rolly Bally",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Show colliders",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Previous piece",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Level 1: Rolling Hills",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 2: Bumpy Road",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 4: Hammer Time",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Grown-ups (hold)",
+              "words": 2,
+              "grade": 2.9
+            },
+            {
+              "text": "Level 3: Sky Road",
+              "words": 3,
+              "grade": 1.3
+            }
+          ],
+          "audioPresent": true,
+          "threshold": {
+            "max_reading_grade": 3
+          },
+          "example": null
+        }
+      },
+      "fingerprint": "571d7e54e6ca"
+    },
+    {
+      "check": "reading-level",
+      "status": "pass",
+      "summary": "Reading grade 1.2 ≤ 6 (Flesch-Kincaid over 18 instructions)",
+      "rubricCheck": "reading",
+      "bracket": "11-13",
+      "evidence": {
+        "details": {
+          "instructions": 18,
+          "labels": [
+            "Playground",
+            "Race",
+            "Back",
+            "Small",
+            "Medium",
+            "Big",
+            "Grass",
+            "Snow",
+            "Flat",
+            "Hills",
+            "Mountains",
+            "Ramps",
+            "Jumps",
+            "Bouncy",
+            "Tunnels",
+            "Spinners",
+            "Some",
+            "Lots",
+            "Go",
+            "Go!",
+            "1 race",
+            "3 races",
+            "Place 1",
+            "st",
+            "GO!",
+            "FINISH",
+            "Rails",
+            "F",
+            "Width"
+          ],
+          "fkGrade": 1.2,
+          "longest": [
+            {
+              "text": "1/20 · start · width 8 · rails full",
+              "words": 4,
+              "grade": -2.2
+            },
+            {
+              "text": "Level 1: Rolling Hills",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 2: Bumpy Road",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 3: Sky Road",
+              "words": 3,
+              "grade": 1.3
+            },
+            {
+              "text": "Level 4: Hammer Time",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 5: Going Big",
+              "words": 3,
+              "grade": 1.3
+            },
+            {
+              "text": "Wide pad (start)",
+              "words": 3,
+              "grade": -2.6
+            },
+            {
+              "text": "Rolly Bally",
+              "words": 2,
+              "grade": 8.8
+            }
+          ],
+          "hardest": [
+            {
+              "text": "Rolly Bally",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Show colliders",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Previous piece",
+              "words": 2,
+              "grade": 8.8
+            },
+            {
+              "text": "Level 1: Rolling Hills",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 2: Bumpy Road",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Level 4: Hammer Time",
+              "words": 3,
+              "grade": 5.2
+            },
+            {
+              "text": "Grown-ups (hold)",
+              "words": 2,
+              "grade": 2.9
+            },
+            {
+              "text": "Level 3: Sky Road",
+              "words": 3,
+              "grade": 1.3
+            }
+          ],
+          "audioPresent": true,
+          "threshold": {
+            "max_reading_grade": 6
+          },
+          "example": null
+        }
+      },
+      "fingerprint": "8e15be8228fb"
+    },
+    {
+      "check": "flashing",
+      "status": "fail",
+      "summary": "play (5.0 s @60fps): max 13 flashes/s per block (area over limit 30%), red 1/s (0%), whole-frame 0/s",
+      "rule": "R15",
+      "target": "home-playground",
+      "evidence": {
+        "screenshot": "home-playground-play-flash-frames.png",
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "fail",
+          "general": {
+            "maxTransitionsPerSecond": 27,
+            "maxFlashesPerSecond": 13,
+            "worstArea": 0.299,
+            "worstStartFrame": 111
+          },
+          "red": {
+            "maxTransitionsPerSecond": 3,
+            "maxFlashesPerSecond": 1,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "startFrame": 0,
+            "min": 0.40760026041666536,
+            "max": 0.49602604166666664
+          },
+          "changeShots": [],
+          "contactSheet": "home-playground-play-flash-frames.png",
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "f2a421ba54b8"
+    },
+    {
+      "check": "flashing",
+      "status": "pass",
+      "summary": "idle (5.0 s @60fps): max 1 flashes/s per block (area over limit 0%), red 1/s (0%), whole-frame 0/s",
+      "rule": "R15",
+      "target": "home-playground",
+      "evidence": {
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "pass",
+          "general": {
+            "maxTransitionsPerSecond": 3,
+            "maxFlashesPerSecond": 1,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "red": {
+            "maxTransitionsPerSecond": 2,
+            "maxFlashesPerSecond": 1,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "startFrame": 0,
+            "min": 0.4598710937499993,
+            "max": 0.4709335937499992
+          },
+          "changeShots": [],
+          "contactSheet": null,
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "c5f5b3502016"
+    },
+    {
+      "check": "flashing",
+      "status": "pass",
+      "summary": "play (5.0 s @60fps): max 6 flashes/s per block (area over limit 1%), red 1/s (0%), whole-frame 0/s",
+      "rule": "R15",
+      "target": "home-race",
+      "evidence": {
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "pass",
+          "general": {
+            "maxTransitionsPerSecond": 12,
+            "maxFlashesPerSecond": 6,
+            "worstArea": 0.014,
+            "worstStartFrame": 219
+          },
+          "red": {
+            "maxTransitionsPerSecond": 2,
+            "maxFlashesPerSecond": 1,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "startFrame": 0,
+            "min": 0.42221354166666897,
+            "max": 0.4315338541666673
+          },
+          "changeShots": [],
+          "contactSheet": null,
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "4157ba98e542"
+    },
+    {
+      "check": "flashing",
+      "status": "warn",
+      "summary": "idle (5.0 s @60fps): max 6 flashes/s per block (area over limit 3%), red 1/s (0%), whole-frame 0/s",
+      "rule": "R15",
+      "target": "home-race",
+      "evidence": {
+        "screenshot": "home-race-idle-flash-frames.png",
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "warn",
+          "general": {
+            "maxTransitionsPerSecond": 13,
+            "maxFlashesPerSecond": 6,
+            "worstArea": 0.03,
+            "worstStartFrame": 237
+          },
+          "red": {
+            "maxTransitionsPerSecond": 2,
+            "maxFlashesPerSecond": 1,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "startFrame": 0,
+            "min": 0.42274609375000144,
+            "max": 0.44969661458333055
+          },
+          "changeShots": [],
+          "contactSheet": "home-race-idle-flash-frames.png",
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "ca6fab1f1187"
+    },
+    {
+      "check": "flashing",
+      "status": "pass",
+      "summary": "play (5.0 s @60fps): max 3 flashes/s per block (area over limit 0%), red 2/s (0%), whole-frame 0/s",
+      "rule": "R15",
+      "target": "mode-test-track-test-1",
+      "evidence": {
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "pass",
+          "general": {
+            "maxTransitionsPerSecond": 6,
+            "maxFlashesPerSecond": 3,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "red": {
+            "maxTransitionsPerSecond": 4,
+            "maxFlashesPerSecond": 2,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "startFrame": 0,
+            "min": 0.4415091145833338,
+            "max": 0.4939453125000004
+          },
+          "changeShots": [
+            {
+              "frame": 122,
+              "area": 0.3046875,
+              "screenshot": "mode-test-track-test-1-play-f122.png"
+            },
+            {
+              "frame": 238,
+              "area": 0.30859375,
+              "screenshot": "mode-test-track-test-1-play-f238.png"
+            }
+          ],
+          "contactSheet": null,
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "efca8b9f9188"
+    },
+    {
+      "check": "flashing",
+      "status": "pass",
+      "summary": "idle (5.0 s @60fps): max 1 flashes/s per block (area over limit 0%), red 1/s (0%), whole-frame 0/s",
+      "rule": "R15",
+      "target": "mode-test-track-test-1",
+      "evidence": {
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "pass",
+          "general": {
+            "maxTransitionsPerSecond": 2,
+            "maxFlashesPerSecond": 1,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "red": {
+            "maxTransitionsPerSecond": 2,
+            "maxFlashesPerSecond": 1,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "startFrame": 0,
+            "min": 0.4429388020833344,
+            "max": 0.44363671875000016
+          },
+          "changeShots": [],
+          "contactSheet": null,
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "2ddd39ce0b43"
+    },
+    {
+      "check": "flashing",
+      "status": "pass",
+      "summary": "play (5.0 s @60fps): max 3 flashes/s per block (area over limit 0%), red 2/s (0%), whole-frame 0/s",
+      "rule": "R15",
+      "target": "gallery-1-test-1",
+      "evidence": {
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "pass",
+          "general": {
+            "maxTransitionsPerSecond": 6,
+            "maxFlashesPerSecond": 3,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "red": {
+            "maxTransitionsPerSecond": 5,
+            "maxFlashesPerSecond": 2,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "startFrame": 0,
+            "min": 0.4086484374999995,
+            "max": 0.500958333333334
+          },
+          "changeShots": [
+            {
+              "frame": 194,
+              "area": 0.4401041666666667,
+              "screenshot": "gallery-1-test-1-play-f194.png"
+            }
+          ],
+          "contactSheet": null,
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "4c6350034fd5"
+    },
+    {
+      "check": "flashing",
+      "status": "pass",
+      "summary": "idle (5.0 s @60fps): max 1 flashes/s per block (area over limit 0%), red 1/s (0%), whole-frame 0/s",
+      "rule": "R15",
+      "target": "gallery-1-test-1",
+      "evidence": {
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "pass",
+          "general": {
+            "maxTransitionsPerSecond": 3,
+            "maxFlashesPerSecond": 1,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "red": {
+            "maxTransitionsPerSecond": 2,
+            "maxFlashesPerSecond": 1,
+            "worstArea": 0,
+            "worstStartFrame": 0
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "startFrame": 0,
+            "min": 0.42281901041666736,
+            "max": 0.42921354166666775
+          },
+          "changeShots": [],
+          "contactSheet": null,
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "61c0ab1c54f5"
+    },
+    {
+      "check": "loudness",
+      "status": "pass",
+      "summary": "Peak -17.1 dBFS, max RMS -31 dBFS, typical -38.4 dBFS; no sudden jumps",
+      "rule": "R15",
+      "target": "home-playground",
+      "evidence": {
+        "details": {
+          "samples": 1004,
+          "activeSamples": 7,
+          "maxPeakDb": -17.1,
+          "maxRmsDb": -31,
+          "medianActiveRmsDb": -38.4,
+          "jumps": [],
+          "spikes": [],
+          "clipping": 0,
+          "status": "pass",
+          "reasons": [],
+          "audioContexts": 1,
+          "media": [],
+          "note": "Levels are measured at the Web Audio destination before the device volume; test mode steps the game, so sounds play at roughly real-time pace."
+        }
+      },
+      "fingerprint": "629b4744afb3"
+    },
+    {
+      "check": "loudness",
+      "status": "pass",
+      "summary": "Peak -15.7 dBFS, max RMS -23.6 dBFS, typical -31.8 dBFS; no sudden jumps",
+      "rule": "R15",
+      "target": "home-race",
+      "evidence": {
+        "details": {
+          "samples": 934,
+          "activeSamples": 76,
+          "maxPeakDb": -15.7,
+          "maxRmsDb": -23.6,
+          "medianActiveRmsDb": -31.8,
+          "jumps": [],
+          "spikes": [],
+          "clipping": 0,
+          "status": "pass",
+          "reasons": [],
+          "audioContexts": 1,
+          "media": [],
+          "note": "Levels are measured at the Web Audio destination before the device volume; test mode steps the game, so sounds play at roughly real-time pace."
+        }
+      },
+      "fingerprint": "1c5501f2bdf8"
+    },
+    {
+      "check": "loudness",
+      "status": "pass",
+      "summary": "Peak -13.2 dBFS, max RMS -23.8 dBFS, typical -32.2 dBFS; no sudden jumps",
+      "rule": "R15",
+      "target": "mode-test-track-test-1",
+      "evidence": {
+        "details": {
+          "samples": 797,
+          "activeSamples": 17,
+          "maxPeakDb": -13.2,
+          "maxRmsDb": -23.8,
+          "medianActiveRmsDb": -32.2,
+          "jumps": [],
+          "spikes": [],
+          "clipping": 0,
+          "status": "pass",
+          "reasons": [],
+          "audioContexts": 1,
+          "media": [],
+          "note": "Levels are measured at the Web Audio destination before the device volume; test mode steps the game, so sounds play at roughly real-time pace."
+        }
+      },
+      "fingerprint": "9ebaaa72c7d2"
+    },
+    {
+      "check": "loudness",
+      "status": "pass",
+      "summary": "Peak -13.2 dBFS, max RMS -24.1 dBFS, typical -30.4 dBFS; no sudden jumps",
+      "rule": "R15",
+      "target": "gallery-1-test-1",
+      "evidence": {
+        "details": {
+          "samples": 734,
+          "activeSamples": 10,
+          "maxPeakDb": -13.2,
+          "maxRmsDb": -24.1,
+          "medianActiveRmsDb": -30.4,
+          "jumps": [],
+          "spikes": [],
+          "clipping": 0,
+          "status": "pass",
+          "reasons": [],
+          "audioContexts": 1,
+          "media": [],
+          "note": "Levels are measured at the Web Audio destination before the device volume; test mode steps the game, so sounds play at roughly real-time pace."
+        }
+      },
+      "fingerprint": "f37f48fb3842"
+    },
+    {
+      "check": "loudness",
+      "status": "info",
+      "summary": "Game plays audio; whether instructions are spoken and replayable is for Claude/a person (required for 2-4)",
+      "rubricCheck": "spoken-instructions",
+      "bracket": "2-4",
+      "evidence": {
+        "details": {
+          "need": "required"
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "fa646c007482"
+    },
+    {
+      "check": "loudness",
+      "status": "info",
+      "summary": "Game plays audio; whether instructions are spoken and replayable is for Claude/a person (required for 5-7)",
+      "rubricCheck": "spoken-instructions",
+      "bracket": "5-7",
+      "evidence": {
+        "details": {
+          "need": "required"
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "1bd2132516c2"
+    },
+    {
+      "check": "loudness",
+      "status": "info",
+      "summary": "Game plays audio; whether instructions are spoken and replayable is for Claude/a person (recommended for 8-10)",
+      "rubricCheck": "spoken-instructions",
+      "bracket": "8-10",
+      "evidence": {
+        "details": {
+          "need": "recommended"
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "4e6ff7d6f9a4"
+    },
+    {
+      "check": "loudness",
+      "status": "info",
+      "summary": "Game plays audio; whether instructions are spoken and replayable is for Claude/a person (optional for 11-13)",
+      "rubricCheck": "spoken-instructions",
+      "bracket": "11-13",
+      "evidence": {
+        "details": {
+          "need": "optional"
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "d8b8915a9932"
+    },
+    {
+      "check": "axe",
+      "status": "warn",
+      "summary": "axe color-contrast (serious): Elements must meet minimum color contrast ratio thresholds; 13 element(s) on 4 screen(s)",
+      "rubricCheck": "contrast",
+      "evidence": {
+        "screenshot": "home-playground-load.png",
+        "details": {
+          "id": "color-contrast",
+          "impact": "serious",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "target": ".rb-btn--green > span",
+              "html": "<span class=\"rb-caption\">Playground</span>",
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.37 (foreground color: #eaf8ed, background color: #2fb84a, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": ".rb-btn--red > span",
+              "html": "<span class=\"rb-caption\">Race</span>",
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.7 (foreground color: #fdeaea, background color: #e8302e, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": ".rb-btn--blue > span",
+              "html": "<span class=\"rb-caption\">My Balls</span>",
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.19 (foreground color: #eaf0fd, background color: #2e6be8, font size: 13.5pt (18px), font weight: bold). Expected contrast ratio of 4.5:1"
+            }
+          ],
+          "count": 3,
+          "screens": [
+            "home-playground:load",
+            "home-playground:tap1-Playground",
+            "home-race:load",
+            "home-race:tap1-Race"
+          ],
+          "screenshot": "home-playground-load.png",
+          "total": 13
+        }
+      },
+      "fingerprint": "c79bb27fefff"
+    },
+    {
+      "check": "axe",
+      "status": "warn",
+      "summary": "axe meta-viewport (moderate): Zooming and scaling must not be disabled; 10 element(s) on 10 screen(s)",
+      "evidence": {
+        "screenshot": "home-playground-load.png",
+        "details": {
+          "id": "meta-viewport",
+          "impact": "moderate",
+          "help": "Zooming and scaling must not be disabled",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/meta-viewport?application=playwright",
+          "nodes": [
+            {
+              "target": "meta[name=\"viewport\"]",
+              "html": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover\">",
+              "summary": "Fix any of the following:\n  user-scalable=no on <meta> tag disables zooming on mobile devices"
+            }
+          ],
+          "count": 1,
+          "screens": [
+            "home-playground:load",
+            "home-playground:tap1-Playground",
+            "home-playground:tap2-Go",
+            "home-playground:playing",
+            "home-race:load",
+            "home-race:tap1-Race",
+            "home-race:tap2-Go",
+            "home-race:playing",
+            "mode-test-track-test-1:load",
+            "gallery-1-test-1:load"
+          ],
+          "screenshot": "home-playground-load.png",
+          "total": 10
+        }
+      },
+      "fingerprint": "9a1411539ec3"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "warn",
+      "summary": "\"home-playground\": 2 tap(s) to play (max 1) via Playground → Go",
+      "rubricCheck": "taps-to-play",
+      "bracket": "2-4",
+      "target": "home-playground",
+      "evidence": {
+        "screenshot": "home-playground-tap1-Playground.png",
+        "details": {
+          "taps": [
+            {
+              "tap": ".home-btn >> nth=0",
+              "label": "Playground"
+            },
+            {
+              "tap": ".ui-go",
+              "label": "Go"
+            }
+          ],
+          "tapShots": [
+            "home-playground-tap1-Playground.png",
+            "home-playground-tap2-Go.png"
+          ],
+          "playingShot": "home-playground-playing.png",
+          "max": 1
+        }
+      },
+      "fingerprint": "deeb95576dcd"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "pass",
+      "summary": "\"home-playground\": 2 tap(s) to play (max 2) via Playground → Go",
+      "rubricCheck": "taps-to-play",
+      "bracket": "5-7",
+      "target": "home-playground",
+      "evidence": {
+        "details": {
+          "taps": [
+            {
+              "tap": ".home-btn >> nth=0",
+              "label": "Playground"
+            },
+            {
+              "tap": ".ui-go",
+              "label": "Go"
+            }
+          ],
+          "tapShots": [
+            "home-playground-tap1-Playground.png",
+            "home-playground-tap2-Go.png"
+          ],
+          "playingShot": "home-playground-playing.png",
+          "max": 2
+        }
+      },
+      "fingerprint": "68489614bd8d"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "pass",
+      "summary": "\"home-playground\": 2 tap(s) to play (max 3) via Playground → Go",
+      "rubricCheck": "taps-to-play",
+      "bracket": "8-10",
+      "target": "home-playground",
+      "evidence": {
+        "details": {
+          "taps": [
+            {
+              "tap": ".home-btn >> nth=0",
+              "label": "Playground"
+            },
+            {
+              "tap": ".ui-go",
+              "label": "Go"
+            }
+          ],
+          "tapShots": [
+            "home-playground-tap1-Playground.png",
+            "home-playground-tap2-Go.png"
+          ],
+          "playingShot": "home-playground-playing.png",
+          "max": 3
+        }
+      },
+      "fingerprint": "cbc5af7e5bb8"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "pass",
+      "summary": "\"home-playground\": 2 tap(s) to play (max 4) via Playground → Go",
+      "rubricCheck": "taps-to-play",
+      "bracket": "11-13",
+      "target": "home-playground",
+      "evidence": {
+        "details": {
+          "taps": [
+            {
+              "tap": ".home-btn >> nth=0",
+              "label": "Playground"
+            },
+            {
+              "tap": ".ui-go",
+              "label": "Go"
+            }
+          ],
+          "tapShots": [
+            "home-playground-tap1-Playground.png",
+            "home-playground-tap2-Go.png"
+          ],
+          "playingShot": "home-playground-playing.png",
+          "max": 4
+        }
+      },
+      "fingerprint": "c277b37ed4d2"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "warn",
+      "summary": "\"home-race\": 2 tap(s) to play (max 1) via Race → Go",
+      "rubricCheck": "taps-to-play",
+      "bracket": "2-4",
+      "target": "home-race",
+      "evidence": {
+        "screenshot": "home-race-tap1-Race.png",
+        "details": {
+          "taps": [
+            {
+              "tap": ".home-btn >> nth=1",
+              "label": "Race"
+            },
+            {
+              "tap": ".ui-go",
+              "label": "Go"
+            }
+          ],
+          "tapShots": [
+            "home-race-tap1-Race.png",
+            "home-race-tap2-Go.png"
+          ],
+          "playingShot": "home-race-playing.png",
+          "max": 1
+        }
+      },
+      "fingerprint": "cae225331d23"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "pass",
+      "summary": "\"home-race\": 2 tap(s) to play (max 2) via Race → Go",
+      "rubricCheck": "taps-to-play",
+      "bracket": "5-7",
+      "target": "home-race",
+      "evidence": {
+        "details": {
+          "taps": [
+            {
+              "tap": ".home-btn >> nth=1",
+              "label": "Race"
+            },
+            {
+              "tap": ".ui-go",
+              "label": "Go"
+            }
+          ],
+          "tapShots": [
+            "home-race-tap1-Race.png",
+            "home-race-tap2-Go.png"
+          ],
+          "playingShot": "home-race-playing.png",
+          "max": 2
+        }
+      },
+      "fingerprint": "e6675d2cfca9"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "pass",
+      "summary": "\"home-race\": 2 tap(s) to play (max 3) via Race → Go",
+      "rubricCheck": "taps-to-play",
+      "bracket": "8-10",
+      "target": "home-race",
+      "evidence": {
+        "details": {
+          "taps": [
+            {
+              "tap": ".home-btn >> nth=1",
+              "label": "Race"
+            },
+            {
+              "tap": ".ui-go",
+              "label": "Go"
+            }
+          ],
+          "tapShots": [
+            "home-race-tap1-Race.png",
+            "home-race-tap2-Go.png"
+          ],
+          "playingShot": "home-race-playing.png",
+          "max": 3
+        }
+      },
+      "fingerprint": "4072f8f484cd"
+    },
+    {
+      "check": "taps-to-play",
+      "status": "pass",
+      "summary": "\"home-race\": 2 tap(s) to play (max 4) via Race → Go",
+      "rubricCheck": "taps-to-play",
+      "bracket": "11-13",
+      "target": "home-race",
+      "evidence": {
+        "details": {
+          "taps": [
+            {
+              "tap": ".home-btn >> nth=1",
+              "label": "Race"
+            },
+            {
+              "tap": ".ui-go",
+              "label": "Go"
+            }
+          ],
+          "tapShots": [
+            "home-race-tap1-Race.png",
+            "home-race-tap2-Go.png"
+          ],
+          "playingShot": "home-race-playing.png",
+          "max": 4
+        }
+      },
+      "fingerprint": "f66744ac8023"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 10 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "2-4",
+      "target": "home-playground",
+      "evidence": {
+        "screenshot": "home-playground-idle-10s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 10,
+          "newText": [],
+          "screenshots": {
+            "10": "home-playground-idle-10s.png",
+            "20": "home-playground-idle-20s.png",
+            "45": "home-playground-idle-45s.png",
+            "60": "home-playground-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "fcb79481afc4"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 20 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "5-7",
+      "target": "home-playground",
+      "evidence": {
+        "screenshot": "home-playground-idle-20s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 20,
+          "newText": [],
+          "screenshots": {
+            "10": "home-playground-idle-10s.png",
+            "20": "home-playground-idle-20s.png",
+            "45": "home-playground-idle-45s.png",
+            "60": "home-playground-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "bb24a68ade9e"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 45 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "8-10",
+      "target": "home-playground",
+      "evidence": {
+        "screenshot": "home-playground-idle-45s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 45,
+          "newText": [],
+          "screenshots": {
+            "10": "home-playground-idle-10s.png",
+            "20": "home-playground-idle-20s.png",
+            "45": "home-playground-idle-45s.png",
+            "60": "home-playground-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "332eb4455b12"
+    },
+    {
+      "check": "hint-timing",
+      "status": "info",
+      "summary": "No hint in 60 s idle; hints optional for 11-13",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "11-13",
+      "target": "home-playground",
+      "evidence": {
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": null,
+          "newText": [],
+          "screenshots": {
+            "10": "home-playground-idle-10s.png",
+            "20": "home-playground-idle-20s.png",
+            "45": "home-playground-idle-45s.png",
+            "60": "home-playground-idle-60s.png"
+          }
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "cfb35c28aeca"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 10 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "2-4",
+      "target": "home-race",
+      "evidence": {
+        "screenshot": "home-race-idle-10s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 10,
+          "newText": [
+            {
+              "t": 0.5,
+              "source": "event",
+              "type": "raceStart",
+              "text": null
+            },
+            {
+              "t": 0.5,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 4,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 4,
+              "source": "event",
+              "type": "message",
+              "text": "GO!"
+            },
+            {
+              "t": 4,
+              "source": "text",
+              "text": "GO!"
+            },
+            {
+              "t": 8,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 13.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 19,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 21.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 27.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "finish",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "win",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "raceFinished",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 33,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            }
+          ],
+          "screenshots": {
+            "10": "home-race-idle-10s.png",
+            "20": "home-race-idle-20s.png",
+            "45": "home-race-idle-45s.png",
+            "60": "home-race-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "697e5461acb9"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 20 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "5-7",
+      "target": "home-race",
+      "evidence": {
+        "screenshot": "home-race-idle-20s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 20,
+          "newText": [
+            {
+              "t": 0.5,
+              "source": "event",
+              "type": "raceStart",
+              "text": null
+            },
+            {
+              "t": 0.5,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 4,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 4,
+              "source": "event",
+              "type": "message",
+              "text": "GO!"
+            },
+            {
+              "t": 4,
+              "source": "text",
+              "text": "GO!"
+            },
+            {
+              "t": 8,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 13.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 19,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 21.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 27.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "finish",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "win",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "raceFinished",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 33,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            }
+          ],
+          "screenshots": {
+            "10": "home-race-idle-10s.png",
+            "20": "home-race-idle-20s.png",
+            "45": "home-race-idle-45s.png",
+            "60": "home-race-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "9f2dbe0cbaa1"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 45 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "8-10",
+      "target": "home-race",
+      "evidence": {
+        "screenshot": "home-race-idle-45s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 45,
+          "newText": [
+            {
+              "t": 0.5,
+              "source": "event",
+              "type": "raceStart",
+              "text": null
+            },
+            {
+              "t": 0.5,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 4,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 4,
+              "source": "event",
+              "type": "message",
+              "text": "GO!"
+            },
+            {
+              "t": 4,
+              "source": "text",
+              "text": "GO!"
+            },
+            {
+              "t": 8,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 13.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 19,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 21.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 27.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "finish",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "win",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "raceFinished",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 33,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            }
+          ],
+          "screenshots": {
+            "10": "home-race-idle-10s.png",
+            "20": "home-race-idle-20s.png",
+            "45": "home-race-idle-45s.png",
+            "60": "home-race-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "a5694e6bbf17"
+    },
+    {
+      "check": "hint-timing",
+      "status": "info",
+      "summary": "No hint in 60 s idle; hints optional for 11-13",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "11-13",
+      "target": "home-race",
+      "evidence": {
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": null,
+          "newText": [
+            {
+              "t": 0.5,
+              "source": "event",
+              "type": "raceStart",
+              "text": null
+            },
+            {
+              "t": 0.5,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 4,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 4,
+              "source": "event",
+              "type": "message",
+              "text": "GO!"
+            },
+            {
+              "t": 4,
+              "source": "text",
+              "text": "GO!"
+            },
+            {
+              "t": 8,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 13.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 19,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 21.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 27.5,
+              "source": "event",
+              "type": "checkpoint",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "finish",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "win",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "raceFinished",
+              "text": null
+            },
+            {
+              "t": 30.5,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            },
+            {
+              "t": 33,
+              "source": "event",
+              "type": "raceState",
+              "text": null
+            }
+          ],
+          "screenshots": {
+            "10": "home-race-idle-10s.png",
+            "20": "home-race-idle-20s.png",
+            "45": "home-race-idle-45s.png",
+            "60": "home-race-idle-60s.png"
+          }
+        },
+        "screenshot": "home-race-load.png"
+      },
+      "fingerprint": "c2e6ef1d6fbe"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 10 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "2-4",
+      "target": "mode-test-track-test-1",
+      "evidence": {
+        "screenshot": "mode-test-track-test-1-idle-10s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 10,
+          "newText": [],
+          "screenshots": {
+            "10": "mode-test-track-test-1-idle-10s.png",
+            "20": "mode-test-track-test-1-idle-20s.png",
+            "45": "mode-test-track-test-1-idle-45s.png",
+            "60": "mode-test-track-test-1-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "edc7487db0e6"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 20 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "5-7",
+      "target": "mode-test-track-test-1",
+      "evidence": {
+        "screenshot": "mode-test-track-test-1-idle-20s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 20,
+          "newText": [],
+          "screenshots": {
+            "10": "mode-test-track-test-1-idle-10s.png",
+            "20": "mode-test-track-test-1-idle-20s.png",
+            "45": "mode-test-track-test-1-idle-45s.png",
+            "60": "mode-test-track-test-1-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "0f4ab967445a"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 45 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "8-10",
+      "target": "mode-test-track-test-1",
+      "evidence": {
+        "screenshot": "mode-test-track-test-1-idle-45s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 45,
+          "newText": [],
+          "screenshots": {
+            "10": "mode-test-track-test-1-idle-10s.png",
+            "20": "mode-test-track-test-1-idle-20s.png",
+            "45": "mode-test-track-test-1-idle-45s.png",
+            "60": "mode-test-track-test-1-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "ebe7563a02ad"
+    },
+    {
+      "check": "hint-timing",
+      "status": "info",
+      "summary": "No hint in 60 s idle; hints optional for 11-13",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "11-13",
+      "target": "mode-test-track-test-1",
+      "evidence": {
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": null,
+          "newText": [],
+          "screenshots": {
+            "10": "mode-test-track-test-1-idle-10s.png",
+            "20": "mode-test-track-test-1-idle-20s.png",
+            "45": "mode-test-track-test-1-idle-45s.png",
+            "60": "mode-test-track-test-1-idle-60s.png"
+          }
+        },
+        "screenshot": "mode-test-track-test-1-load.png"
+      },
+      "fingerprint": "00a6ffda617f"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 10 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "2-4",
+      "target": "gallery-1-test-1",
+      "evidence": {
+        "screenshot": "gallery-1-test-1-idle-10s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 10,
+          "newText": [],
+          "screenshots": {
+            "10": "gallery-1-test-1-idle-10s.png",
+            "20": "gallery-1-test-1-idle-20s.png",
+            "45": "gallery-1-test-1-idle-45s.png",
+            "60": "gallery-1-test-1-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "7742deb74087"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 20 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "5-7",
+      "target": "gallery-1-test-1",
+      "evidence": {
+        "screenshot": "gallery-1-test-1-idle-20s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 20,
+          "newText": [],
+          "screenshots": {
+            "10": "gallery-1-test-1-idle-10s.png",
+            "20": "gallery-1-test-1-idle-20s.png",
+            "45": "gallery-1-test-1-idle-45s.png",
+            "60": "gallery-1-test-1-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "811830b6f17d"
+    },
+    {
+      "check": "hint-timing",
+      "status": "warn",
+      "summary": "No text/event hint within 60 s idle (want ≤ 45 s)",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "8-10",
+      "target": "gallery-1-test-1",
+      "evidence": {
+        "screenshot": "gallery-1-test-1-idle-45s.png",
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": 45,
+          "newText": [],
+          "screenshots": {
+            "10": "gallery-1-test-1-idle-10s.png",
+            "20": "gallery-1-test-1-idle-20s.png",
+            "45": "gallery-1-test-1-idle-45s.png",
+            "60": "gallery-1-test-1-idle-60s.png"
+          }
+        }
+      },
+      "fingerprint": "bf10cdac51aa"
+    },
+    {
+      "check": "hint-timing",
+      "status": "info",
+      "summary": "No hint in 60 s idle; hints optional for 11-13",
+      "rubricCheck": "hint-when-stuck",
+      "bracket": "11-13",
+      "target": "gallery-1-test-1",
+      "evidence": {
+        "details": {
+          "idleSeconds": 60,
+          "firstHint": null,
+          "within": null,
+          "newText": [],
+          "screenshots": {
+            "10": "gallery-1-test-1-idle-10s.png",
+            "20": "gallery-1-test-1-idle-20s.png",
+            "45": "gallery-1-test-1-idle-45s.png",
+            "60": "gallery-1-test-1-idle-60s.png"
+          }
+        },
+        "screenshot": "gallery-1-test-1-load.png"
+      },
+      "fingerprint": "9fe1cccdbd13"
+    },
+    {
+      "check": "pause-mute-quit",
+      "status": "warn",
+      "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+      "rule": "R16",
+      "target": "home-playground",
+      "evidence": {
+        "screenshot": "home-playground-playing.png",
+        "details": {
+          "found": {
+            "pause": [],
+            "mute": [],
+            "quit": [
+              {
+                "tag": "button",
+                "id": "",
+                "cls": "rb-btn rb-btn--round hud-home",
+                "label": "Home (hold)",
+                "title": "",
+                "text": "",
+                "rect": {
+                  "x": 12,
+                  "y": 12,
+                  "width": 72,
+                  "height": 72
+                }
+              }
+            ]
+          },
+          "missing": [
+            "pause",
+            "mute"
+          ],
+          "controlsSeen": 1,
+          "note": "Found by label/text/class only; not pressed. Keyboard shortcuts are not detected."
+        }
+      },
+      "fingerprint": "a6035b04cf57"
+    },
+    {
+      "check": "pause-mute-quit",
+      "status": "warn",
+      "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+      "rule": "R16",
+      "target": "home-race",
+      "evidence": {
+        "screenshot": "home-race-playing.png",
+        "details": {
+          "found": {
+            "pause": [],
+            "mute": [],
+            "quit": [
+              {
+                "tag": "button",
+                "id": "",
+                "cls": "rb-btn rb-btn--round hud-home",
+                "label": "Home (hold)",
+                "title": "",
+                "text": "",
+                "rect": {
+                  "x": 12,
+                  "y": 12,
+                  "width": 72,
+                  "height": 72
+                }
+              }
+            ]
+          },
+          "missing": [
+            "pause",
+            "mute"
+          ],
+          "controlsSeen": 1,
+          "note": "Found by label/text/class only; not pressed. Keyboard shortcuts are not detected."
+        }
+      },
+      "fingerprint": "ec93c3c4a8ac"
+    },
+    {
+      "check": "pause-mute-quit",
+      "status": "warn",
+      "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+      "rule": "R16",
+      "target": "mode-test-track-test-1",
+      "evidence": {
+        "screenshot": "mode-test-track-test-1-load.png",
+        "details": {
+          "found": {
+            "pause": [],
+            "mute": [],
+            "quit": [
+              {
+                "tag": "button",
+                "id": "",
+                "cls": "rb-btn rb-btn--round hud-home",
+                "label": "Home (hold)",
+                "title": "",
+                "text": "",
+                "rect": {
+                  "x": 12,
+                  "y": 12,
+                  "width": 72,
+                  "height": 72
+                }
+              }
+            ]
+          },
+          "missing": [
+            "pause",
+            "mute"
+          ],
+          "controlsSeen": 1,
+          "note": "Found by label/text/class only; not pressed. Keyboard shortcuts are not detected."
+        }
+      },
+      "fingerprint": "82d0ab2f2f9f"
+    },
+    {
+      "check": "pause-mute-quit",
+      "status": "warn",
+      "summary": "Playing screen has no visible pause, mute controls; quit: Home (hold)",
+      "rule": "R16",
+      "target": "gallery-1-test-1",
+      "evidence": {
+        "screenshot": "gallery-1-test-1-load.png",
+        "details": {
+          "found": {
+            "pause": [],
+            "mute": [],
+            "quit": [
+              {
+                "tag": "button",
+                "id": "",
+                "cls": "rb-btn rb-btn--round hud-home",
+                "label": "Home (hold)",
+                "title": "",
+                "text": "",
+                "rect": {
+                  "x": 12,
+                  "y": 12,
+                  "width": 72,
+                  "height": 72
+                }
+              }
+            ]
+          },
+          "missing": [
+            "pause",
+            "mute"
+          ],
+          "controlsSeen": 6,
+          "note": "Found by label/text/class only; not pressed. Keyboard shortcuts are not detected."
+        }
+      },
+      "fingerprint": "57206ae979c7"
+    },
+    {
+      "check": "countdown-timers",
+      "status": "pass",
+      "summary": "No countdown or timer text/state seen in 130 samples",
+      "rule": "R14",
+      "rubricCheck": "time-pressure",
+      "target": "home-playground",
+      "evidence": {
+        "details": {}
+      },
+      "fingerprint": "eefe06111381"
+    },
+    {
+      "check": "countdown-timers",
+      "status": "warn",
+      "summary": "Timer-like UI: state race.state=countdown",
+      "rule": "R14",
+      "rubricCheck": "time-pressure",
+      "target": "home-race",
+      "evidence": {
+        "screenshot": "home-race-load.png",
+        "details": {
+          "hits": [],
+          "stateKeys": [
+            {
+              "key": "race.state",
+              "value": "countdown"
+            }
+          ]
+        }
+      },
+      "fingerprint": "83f6eda2049c"
+    },
+    {
+      "check": "countdown-timers",
+      "status": "pass",
+      "summary": "No countdown or timer text/state seen in 130 samples",
+      "rule": "R14",
+      "rubricCheck": "time-pressure",
+      "target": "mode-test-track-test-1",
+      "evidence": {
+        "details": {}
+      },
+      "fingerprint": "7aba3b598670"
+    },
+    {
+      "check": "countdown-timers",
+      "status": "pass",
+      "summary": "No countdown or timer text/state seen in 130 samples",
+      "rule": "R14",
+      "rubricCheck": "time-pressure",
+      "target": "gallery-1-test-1",
+      "evidence": {
+        "details": {}
+      },
+      "fingerprint": "602296636c6d"
+    },
+    {
+      "check": "word-scan",
+      "status": "info",
+      "summary": "Source code hits: \"dead\", \"wound\" (2), e.g. src/rolly-bally/src/app/PlayScreen.js:17: … // Never strand a kid on a dead screen: fall back to home. …",
+      "rule": "R04",
+      "evidence": {
+        "details": {
+          "kind": "code",
+          "hits": [
+            {
+              "rule": "R04",
+              "word": "dead",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/app/PlayScreen.js:17",
+              "context": "… // Never strand a kid on a dead screen: fall back to home. …"
+            },
+            {
+              "rule": "R04",
+              "word": "wound",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackBuilder.js:93",
+              "context": "…// Quad p1-p2-p3-p4 (a loop), wound so its normal points along `o…"
+            }
+          ],
+          "total": 2
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "1f3c1ba758f7"
+    },
+    {
+      "check": "word-scan",
+      "status": "info",
+      "summary": "Source code hits: \"bleed\" (1), e.g. src/rolly-bally/src/ball/Ball.js:206: …rue); // Soft speed cap: bleed off horizontal speed above th…",
+      "rule": "R01",
+      "evidence": {
+        "details": {
+          "kind": "code",
+          "hits": [
+            {
+              "rule": "R01",
+              "word": "bleed",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/ball/Ball.js:206",
+              "context": "…rue); // Soft speed cap: bleed off horizontal speed above th…"
+            }
+          ],
+          "total": 1
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "97160c2bdbf3"
+    },
+    {
+      "check": "word-scan",
+      "status": "info",
+      "summary": "Source code hits: \"subscribe\" (3), e.g. src/rolly-bally/src/core/Events.js:8: …dlers = new Map(); } /** Subscribe; returns an unsubscribe funct…",
+      "rule": "R13",
+      "evidence": {
+        "details": {
+          "kind": "code",
+          "hits": [
+            {
+              "rule": "R13",
+              "word": "subscribe",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/core/Events.js:8",
+              "context": "…dlers = new Map(); } /** Subscribe; returns an unsubscribe funct…"
+            },
+            {
+              "rule": "R13",
+              "word": "subscribe",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/core/Save.js:98",
+              "context": "… return this.data; } /** Subscribe to changes. Returns an unsubs…"
+            },
+            {
+              "rule": "R13",
+              "word": "subscribe",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/core/Save.js:99",
+              "context": "…an unsubscribe function. */ subscribe(fn) { this.listeners.add(…"
+            }
+          ],
+          "total": 3
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "ad963fa21c0b"
+    },
+    {
+      "check": "word-scan",
+      "status": "info",
+      "summary": "Source code hits: \"slots\" (12), e.g. src/rolly-bally/src/race/RaceSim.js:72: … const slot = this.track.startSlots[0]; this.ownsBall = !ball…",
+      "rule": "R12",
+      "evidence": {
+        "details": {
+          "kind": "code",
+          "hits": [
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/race/RaceSim.js:72",
+              "context": "… const slot = this.track.startSlots[0]; this.ownsBall = !ball…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/race/RaceSim.js:93",
+              "context": "…rd); // Opponents in the slots behind, with seeded skins tha…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/race/RaceSim.js:105",
+              "context": "… slot: this.track.startSlots[1 + i], level: this…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/race/Results.js:29",
+              "context": "…es: earned medals, then empty slots. */ function medalRow(medals,…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackBuilder.js:16",
+              "context": "…nearest, // checkpoints, startSlots, laneAt, aiOffsetAt, hazardZo…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackLayout.js:12",
+              "context": "…r), forward} // layout.startSlots [{position, for…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackLayout.js:169",
+              "context": "…eckpoints = []; this.startSlots = []; this.boostZones = […"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackLayout.js:193",
+              "context": "… for (const slot of f.slots) { const fr = thi…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackLayout.js:195",
+              "context": "…lot.s); this.startSlots.push({ s: fr.s,…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/pieces/start.js:2",
+              "context": "…t (0) is in front, center; AI slots behind. export const START_P…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/pieces/start.js:25",
+              "context": "… ', s: 6, slots: [ { s: 6, latera…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track-gallery/GalleryMode.js:103",
+              "context": "…) { const slot = t.startSlots[0]; return { position: …"
+            }
+          ],
+          "total": 12
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "c87facbbf799"
+    },
+    {
+      "check": "word-scan",
+      "status": "pass",
+      "summary": "No flagged words in 49 game strings or in visible/source strings (18 code-only hits are info)",
+      "evidence": {
+        "details": {
+          "strings": 49,
+          "paths": [
+            "src/rolly-bally/index.html",
+            "src/rolly-bally/src",
+            "src/rolly-bally/public"
+          ]
+        }
+      },
+      "fingerprint": "247614259a94"
+    }
+  ]
+}

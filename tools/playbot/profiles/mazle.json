@@ -1,0 +1,51 @@
+{
+  "game": "mazle",
+  "source": "bot-run",
+  "brackets": [
+    "5-7"
+  ],
+  "profile": {
+    "game": "mazle",
+    "source": "bot-run",
+    "brackets": [
+      "5-7"
+    ],
+    "genre": "First-person 3D maze escape",
+    "web_playable": "yes",
+    "onboarding": "No menu or tutorial; Level 1 opens straight into play with a controls panel (25 words: WASD/arrows, strafe, mouse look, touch drag zones) shown as an overlay the whole time. No taps required before play starts (taps-to-play check passed) but reading the controls text needs a 5-7 year old to be read to.",
+    "controls": "Keyboard W/↑ forward, S/↓ back, A/← strafe left, D/→ strafe right, mouse to look; touch play drags the left side of the screen to move and the right side to look, with no on-screen buttons.",
+    "core_loop": "Walk the 3D maze corridors, avoid the spike trap, and reach the exit door; touching the spike resets you to the start and you re-walk the path.",
+    "goals_and_rewards": "One goal per level: find the door. Winning shows \"You found the way out!\" with a \"Play again\" button; no stars, points, collectibles, or unlocks (bot run: kid persona 5-7 win rate 100% over 3 runs).",
+    "difficulty_curve": "Single 29x29-cell maze (perfect maze, 34-cell solution, 8 dead ends) with one spike hazard placed in a dead end only 3 cells from start, on-solution avoidable; fail cost is low (instant reset to start, 0-1 fails per kid run in the bot data) but there is no ramp beyond this one level.",
+    "game_feel": "Software-rendered fps averaged 37.6 (p95 frame 66.6ms, one spike to 466.6ms), no haptic/audio feedback on movement or the spike hit; solver bot finished near-optimally (99% of optimal path) while kid-persona runs bumped into walls often (11.5 bumps/min).",
+    "art_and_audio": "Low-poly pastel 3D (sky-blue walls, green floor, grey spike cone cluster, brown door with light-blue windows); 0 audio files, no speechSynthesis, no WebAudio — completely silent.",
+    "session_length": "Kid-persona (5-7) bot runs: median time to first win 53.95s, range 45-168s across 3 seeded runs, well within a 5-10 minute session; only one level exists so there's no continued session beyond that.",
+    "usability": "Automatic checks flag no in-play hint when stuck (idle 60s+ with no hint, target is ≤20s) and no visible pause/mute/quit controls on the playing screen (R16 fail); the persistent debug FPS/Position box is developer instrumentation with no value to a young player and adds visual clutter alongside the controls and level-name panels.",
+    "accessibility": "Text has good contrast (light text on dark boxes, brown/white \"Play again\" button) and hazards are shown by shape not color alone; but the controls text is a 25-word block above the 5-word max for this bracket, there is no spoken/audio version of any instruction (loudness check fails this bracket), and the page's meta-viewport disables pinch-zoom (axe moderate warning).",
+    "ads_and_purchases": "None seen; network check found only 2 same-origin requests and no analytics/tracker globals.",
+    "notes": "Biggest gaps for 5-7: missing pause/mute/quit control (fails rule R16), no audio/spoken instructions at all, and a text-heavy controls panel that a pre-reader can't parse alone — flagged by both the automatic checks and Claude's content review, despite play itself being fast, low-fail, and non-scary (spike is a simple grey cone, reset is instant)."
+  },
+  "numbers": {
+    "play": null
+  },
+  "runDir": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review",
+  "inputKey": {
+    "play.json": 1790533797659.8645,
+    "checks.json": 1790533748167.3013,
+    "claude.json": 1790533892727.9465,
+    "smoke.json": 1790533700580.7595
+  },
+  "inputs": [
+    "play.json",
+    "checks.json",
+    "claude.json",
+    "smoke.json"
+  ],
+  "builtAt": "2026-09-27T18:32:03.655Z",
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5",
+    "seconds": 31,
+    "costUsd": 0.1780774
+  }
+}

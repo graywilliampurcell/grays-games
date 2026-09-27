@@ -1,0 +1,1588 @@
+{
+  "game": "mazle",
+  "layouts": [
+    {
+      "name": "Iteration 1 (seed 1)",
+      "group": "Iteration 1",
+      "seed": 1,
+      "analysis": {
+        "size": {
+          "w": 49,
+          "h": 49
+        },
+        "floorBlocks": 1725,
+        "hasStart": true,
+        "hasSpike": true,
+        "hasDoor": true,
+        "solvable": true,
+        "optimalPathLength": 72.78,
+        "optimalBlocks": 86,
+        "cells": {
+          "cols": 12,
+          "rows": 12,
+          "perfectMaze": true,
+          "solutionLength": 22,
+          "deadEnds": 26,
+          "deadEndDepths": [
+            2,
+            2,
+            1,
+            5,
+            6,
+            6,
+            4,
+            5,
+            10,
+            14,
+            16,
+            20,
+            22,
+            22,
+            23,
+            23,
+            23,
+            24,
+            26,
+            26,
+            28,
+            28,
+            35,
+            36,
+            37,
+            38
+          ],
+          "maxBranchDepth": 38,
+          "junctions": 24,
+          "spike": {
+            "cell": {
+              "i": 0,
+              "j": 11
+            },
+            "inDeadEnd": true,
+            "onSolution": false,
+            "fromStart": 4
+          },
+          "startCell": {
+            "i": 0,
+            "j": 7
+          },
+          "exitCell": {
+            "i": 11,
+            "j": 7
+          }
+        }
+      }
+    },
+    {
+      "name": "Iteration 1 (seed 5)",
+      "group": "Iteration 1",
+      "seed": 5,
+      "analysis": {
+        "size": {
+          "w": 49,
+          "h": 49
+        },
+        "floorBlocks": 1725,
+        "hasStart": true,
+        "hasSpike": true,
+        "hasDoor": true,
+        "solvable": true,
+        "optimalPathLength": 191.16,
+        "optimalBlocks": 226,
+        "cells": {
+          "cols": 12,
+          "rows": 12,
+          "perfectMaze": true,
+          "solutionLength": 57,
+          "deadEnds": 26,
+          "deadEndDepths": [
+            3,
+            2,
+            1,
+            4,
+            6,
+            4,
+            4,
+            1,
+            3,
+            2,
+            1,
+            1,
+            4,
+            5,
+            1,
+            7,
+            1,
+            1,
+            17,
+            18,
+            19,
+            22,
+            25,
+            8,
+            9,
+            10
+          ],
+          "maxBranchDepth": 25,
+          "junctions": 23,
+          "spike": {
+            "cell": {
+              "i": 0,
+              "j": 5
+            },
+            "inDeadEnd": true,
+            "onSolution": false,
+            "fromStart": 3
+          },
+          "startCell": {
+            "i": 0,
+            "j": 8
+          },
+          "exitCell": {
+            "i": 11,
+            "j": 7
+          }
+        }
+      }
+    },
+    {
+      "name": "Iteration 1 (seed 8)",
+      "group": "Iteration 1",
+      "seed": 8,
+      "analysis": {
+        "size": {
+          "w": 49,
+          "h": 49
+        },
+        "floorBlocks": 1725,
+        "hasStart": true,
+        "hasSpike": true,
+        "hasDoor": true,
+        "solvable": true,
+        "optimalPathLength": 138.26,
+        "optimalBlocks": 162,
+        "cells": {
+          "cols": 12,
+          "rows": 12,
+          "perfectMaze": true,
+          "solutionLength": 41,
+          "deadEnds": 25,
+          "deadEndDepths": [
+            2,
+            8,
+            8,
+            9,
+            1,
+            2,
+            17,
+            1,
+            20,
+            2,
+            5,
+            6,
+            7,
+            7,
+            5,
+            1,
+            11,
+            14,
+            16,
+            1,
+            19,
+            20,
+            21,
+            5,
+            6
+          ],
+          "maxBranchDepth": 21,
+          "junctions": 23,
+          "spike": {
+            "cell": {
+              "i": 0,
+              "j": 11
+            },
+            "inDeadEnd": true,
+            "onSolution": false,
+            "fromStart": 3
+          },
+          "startCell": {
+            "i": 0,
+            "j": 8
+          },
+          "exitCell": {
+            "i": 11,
+            "j": 5
+          }
+        }
+      }
+    },
+    {
+      "name": "Iteration 1 (seed 9)",
+      "group": "Iteration 1",
+      "seed": 9,
+      "analysis": {
+        "size": {
+          "w": 49,
+          "h": 49
+        },
+        "floorBlocks": 1725,
+        "hasStart": true,
+        "hasSpike": true,
+        "hasDoor": true,
+        "solvable": true,
+        "optimalPathLength": 122.47,
+        "optimalBlocks": 142,
+        "cells": {
+          "cols": 12,
+          "rows": 12,
+          "perfectMaze": true,
+          "solutionLength": 36,
+          "deadEnds": 29,
+          "deadEndDepths": [
+            1,
+            1,
+            5,
+            5,
+            5,
+            6,
+            6,
+            2,
+            3,
+            3,
+            3,
+            6,
+            1,
+            9,
+            2,
+            1,
+            22,
+            24,
+            2,
+            1,
+            3,
+            3,
+            2,
+            5,
+            3,
+            6,
+            16,
+            18,
+            19
+          ],
+          "maxBranchDepth": 24,
+          "junctions": 25,
+          "spike": {
+            "cell": {
+              "i": 2,
+              "j": 4
+            },
+            "inDeadEnd": true,
+            "onSolution": false,
+            "fromStart": 3
+          },
+          "startCell": {
+            "i": 0,
+            "j": 5
+          },
+          "exitCell": {
+            "i": 11,
+            "j": 7
+          }
+        }
+      }
+    },
+    {
+      "name": "Iteration 1 (seed 10)",
+      "group": "Iteration 1",
+      "seed": 10,
+      "analysis": {
+        "size": {
+          "w": 49,
+          "h": 49
+        },
+        "floorBlocks": 1725,
+        "hasStart": true,
+        "hasSpike": true,
+        "hasDoor": true,
+        "solvable": true,
+        "optimalPathLength": 99.56,
+        "optimalBlocks": 118,
+        "cells": {
+          "cols": 12,
+          "rows": 12,
+          "perfectMaze": true,
+          "solutionLength": 30,
+          "deadEnds": 29,
+          "deadEndDepths": [
+            3,
+            3,
+            5,
+            6,
+            2,
+            8,
+            2,
+            2,
+            7,
+            5,
+            2,
+            1,
+            8,
+            1,
+            4,
+            5,
+            5,
+            13,
+            14,
+            15,
+            10,
+            11,
+            13,
+            6,
+            6,
+            9,
+            16,
+            17,
+            18
+          ],
+          "maxBranchDepth": 18,
+          "junctions": 26,
+          "spike": {
+            "cell": {
+              "i": 1,
+              "j": 9
+            },
+            "inDeadEnd": true,
+            "onSolution": false,
+            "fromStart": 3
+          },
+          "startCell": {
+            "i": 0,
+            "j": 9
+          },
+          "exitCell": {
+            "i": 11,
+            "j": 5
+          }
+        }
+      }
+    }
+  ],
+  "heatmaps": [
+    "heatmap-explorer-iteration-1-seed-1.png",
+    "heatmap-explorer-iteration-1-seed-5.png",
+    "heatmap-explorer-iteration-1-seed-8.png",
+    "heatmap-explorer-iteration-1-seed-9.png",
+    "heatmap-explorer-iteration-1-seed-10.png"
+  ],
+  "solver": [],
+  "monkey": [],
+  "explorer": [
+    {
+      "bot": "explorer",
+      "layout": "Iteration 1 (seed 1)",
+      "seed": 1,
+      "iterations": 2588,
+      "ok": true,
+      "floorBlocks": 1725,
+      "reached": 1723,
+      "coverage": 0.999,
+      "coverageCurve": [
+        {
+          "it": 50,
+          "blocks": 160
+        },
+        {
+          "it": 100,
+          "blocks": 238
+        },
+        {
+          "it": 150,
+          "blocks": 298
+        },
+        {
+          "it": 200,
+          "blocks": 341
+        },
+        {
+          "it": 250,
+          "blocks": 378
+        },
+        {
+          "it": 300,
+          "blocks": 386
+        },
+        {
+          "it": 350,
+          "blocks": 419
+        },
+        {
+          "it": 400,
+          "blocks": 497
+        },
+        {
+          "it": 450,
+          "blocks": 564
+        },
+        {
+          "it": 500,
+          "blocks": 612
+        },
+        {
+          "it": 550,
+          "blocks": 652
+        },
+        {
+          "it": 600,
+          "blocks": 725
+        },
+        {
+          "it": 650,
+          "blocks": 810
+        },
+        {
+          "it": 700,
+          "blocks": 877
+        },
+        {
+          "it": 750,
+          "blocks": 959
+        },
+        {
+          "it": 800,
+          "blocks": 1067
+        },
+        {
+          "it": 850,
+          "blocks": 1138
+        },
+        {
+          "it": 900,
+          "blocks": 1211
+        },
+        {
+          "it": 950,
+          "blocks": 1249
+        },
+        {
+          "it": 1000,
+          "blocks": 1279
+        },
+        {
+          "it": 1050,
+          "blocks": 1305
+        },
+        {
+          "it": 1100,
+          "blocks": 1358
+        },
+        {
+          "it": 1150,
+          "blocks": 1402
+        },
+        {
+          "it": 1200,
+          "blocks": 1447
+        },
+        {
+          "it": 1250,
+          "blocks": 1497
+        },
+        {
+          "it": 1300,
+          "blocks": 1520
+        },
+        {
+          "it": 1350,
+          "blocks": 1543
+        },
+        {
+          "it": 1400,
+          "blocks": 1607
+        },
+        {
+          "it": 1450,
+          "blocks": 1640
+        },
+        {
+          "it": 1500,
+          "blocks": 1664
+        },
+        {
+          "it": 1550,
+          "blocks": 1697
+        },
+        {
+          "it": 1600,
+          "blocks": 1708
+        },
+        {
+          "it": 1650,
+          "blocks": 1717
+        },
+        {
+          "it": 1700,
+          "blocks": 1719
+        },
+        {
+          "it": 1750,
+          "blocks": 1721
+        },
+        {
+          "it": 1800,
+          "blocks": 1722
+        },
+        {
+          "it": 1850,
+          "blocks": 1722
+        },
+        {
+          "it": 1900,
+          "blocks": 1723
+        },
+        {
+          "it": 1950,
+          "blocks": 1723
+        },
+        {
+          "it": 2000,
+          "blocks": 1723
+        },
+        {
+          "it": 2050,
+          "blocks": 1723
+        },
+        {
+          "it": 2100,
+          "blocks": 1723
+        },
+        {
+          "it": 2150,
+          "blocks": 1723
+        },
+        {
+          "it": 2200,
+          "blocks": 1723
+        },
+        {
+          "it": 2250,
+          "blocks": 1723
+        },
+        {
+          "it": 2300,
+          "blocks": 1723
+        },
+        {
+          "it": 2350,
+          "blocks": 1723
+        },
+        {
+          "it": 2400,
+          "blocks": 1723
+        },
+        {
+          "it": 2450,
+          "blocks": 1723
+        },
+        {
+          "it": 2500,
+          "blocks": 1723
+        },
+        {
+          "it": 2550,
+          "blocks": 1723
+        }
+      ],
+      "unreachedFloorCount": 2,
+      "unreachedFloor": [
+        {
+          "x": 47,
+          "z": 30,
+          "why": "door (reaching it ends the level)"
+        },
+        {
+          "x": 2,
+          "z": 46,
+          "why": "spike (touching it resets you)"
+        }
+      ],
+      "disconnectedFloorCount": 0,
+      "disconnectedFloor": [],
+      "stuckSpots": [],
+      "counts": {
+        "spike": 21,
+        "escape": 27,
+        "simSeconds": 5729.6
+      },
+      "errors": []
+    },
+    {
+      "bot": "explorer",
+      "layout": "Iteration 1 (seed 5)",
+      "seed": 1,
+      "iterations": 2588,
+      "ok": true,
+      "floorBlocks": 1725,
+      "reached": 1723,
+      "coverage": 0.999,
+      "coverageCurve": [
+        {
+          "it": 50,
+          "blocks": 79
+        },
+        {
+          "it": 100,
+          "blocks": 110
+        },
+        {
+          "it": 150,
+          "blocks": 173
+        },
+        {
+          "it": 200,
+          "blocks": 279
+        },
+        {
+          "it": 250,
+          "blocks": 371
+        },
+        {
+          "it": 300,
+          "blocks": 410
+        },
+        {
+          "it": 350,
+          "blocks": 489
+        },
+        {
+          "it": 400,
+          "blocks": 562
+        },
+        {
+          "it": 450,
+          "blocks": 588
+        },
+        {
+          "it": 500,
+          "blocks": 624
+        },
+        {
+          "it": 550,
+          "blocks": 713
+        },
+        {
+          "it": 600,
+          "blocks": 806
+        },
+        {
+          "it": 650,
+          "blocks": 924
+        },
+        {
+          "it": 700,
+          "blocks": 968
+        },
+        {
+          "it": 750,
+          "blocks": 1014
+        },
+        {
+          "it": 800,
+          "blocks": 1071
+        },
+        {
+          "it": 850,
+          "blocks": 1116
+        },
+        {
+          "it": 900,
+          "blocks": 1148
+        },
+        {
+          "it": 950,
+          "blocks": 1183
+        },
+        {
+          "it": 1000,
+          "blocks": 1247
+        },
+        {
+          "it": 1050,
+          "blocks": 1285
+        },
+        {
+          "it": 1100,
+          "blocks": 1341
+        },
+        {
+          "it": 1150,
+          "blocks": 1391
+        },
+        {
+          "it": 1200,
+          "blocks": 1414
+        },
+        {
+          "it": 1250,
+          "blocks": 1498
+        },
+        {
+          "it": 1300,
+          "blocks": 1561
+        },
+        {
+          "it": 1350,
+          "blocks": 1581
+        },
+        {
+          "it": 1400,
+          "blocks": 1587
+        },
+        {
+          "it": 1450,
+          "blocks": 1611
+        },
+        {
+          "it": 1500,
+          "blocks": 1665
+        },
+        {
+          "it": 1550,
+          "blocks": 1696
+        },
+        {
+          "it": 1600,
+          "blocks": 1714
+        },
+        {
+          "it": 1650,
+          "blocks": 1718
+        },
+        {
+          "it": 1700,
+          "blocks": 1719
+        },
+        {
+          "it": 1750,
+          "blocks": 1720
+        },
+        {
+          "it": 1800,
+          "blocks": 1722
+        },
+        {
+          "it": 1850,
+          "blocks": 1723
+        },
+        {
+          "it": 1900,
+          "blocks": 1723
+        },
+        {
+          "it": 1950,
+          "blocks": 1723
+        },
+        {
+          "it": 2000,
+          "blocks": 1723
+        },
+        {
+          "it": 2050,
+          "blocks": 1723
+        },
+        {
+          "it": 2100,
+          "blocks": 1723
+        },
+        {
+          "it": 2150,
+          "blocks": 1723
+        },
+        {
+          "it": 2200,
+          "blocks": 1723
+        },
+        {
+          "it": 2250,
+          "blocks": 1723
+        },
+        {
+          "it": 2300,
+          "blocks": 1723
+        },
+        {
+          "it": 2350,
+          "blocks": 1723
+        },
+        {
+          "it": 2400,
+          "blocks": 1723
+        },
+        {
+          "it": 2450,
+          "blocks": 1723
+        },
+        {
+          "it": 2500,
+          "blocks": 1723
+        },
+        {
+          "it": 2550,
+          "blocks": 1723
+        }
+      ],
+      "unreachedFloorCount": 2,
+      "unreachedFloor": [
+        {
+          "x": 2,
+          "z": 22,
+          "why": "spike (touching it resets you)"
+        },
+        {
+          "x": 47,
+          "z": 30,
+          "why": "door (reaching it ends the level)"
+        }
+      ],
+      "disconnectedFloorCount": 0,
+      "disconnectedFloor": [],
+      "stuckSpots": [],
+      "counts": {
+        "spike": 25,
+        "escape": 31,
+        "simSeconds": 5720.65
+      },
+      "errors": []
+    },
+    {
+      "bot": "explorer",
+      "layout": "Iteration 1 (seed 8)",
+      "seed": 1,
+      "iterations": 2588,
+      "ok": true,
+      "floorBlocks": 1725,
+      "reached": 1723,
+      "coverage": 0.999,
+      "coverageCurve": [
+        {
+          "it": 50,
+          "blocks": 115
+        },
+        {
+          "it": 100,
+          "blocks": 217
+        },
+        {
+          "it": 150,
+          "blocks": 306
+        },
+        {
+          "it": 200,
+          "blocks": 422
+        },
+        {
+          "it": 250,
+          "blocks": 522
+        },
+        {
+          "it": 300,
+          "blocks": 567
+        },
+        {
+          "it": 350,
+          "blocks": 658
+        },
+        {
+          "it": 400,
+          "blocks": 758
+        },
+        {
+          "it": 450,
+          "blocks": 805
+        },
+        {
+          "it": 500,
+          "blocks": 866
+        },
+        {
+          "it": 550,
+          "blocks": 931
+        },
+        {
+          "it": 600,
+          "blocks": 950
+        },
+        {
+          "it": 650,
+          "blocks": 987
+        },
+        {
+          "it": 700,
+          "blocks": 1032
+        },
+        {
+          "it": 750,
+          "blocks": 1091
+        },
+        {
+          "it": 800,
+          "blocks": 1165
+        },
+        {
+          "it": 850,
+          "blocks": 1249
+        },
+        {
+          "it": 900,
+          "blocks": 1329
+        },
+        {
+          "it": 950,
+          "blocks": 1345
+        },
+        {
+          "it": 1000,
+          "blocks": 1368
+        },
+        {
+          "it": 1050,
+          "blocks": 1408
+        },
+        {
+          "it": 1100,
+          "blocks": 1452
+        },
+        {
+          "it": 1150,
+          "blocks": 1476
+        },
+        {
+          "it": 1200,
+          "blocks": 1527
+        },
+        {
+          "it": 1250,
+          "blocks": 1578
+        },
+        {
+          "it": 1300,
+          "blocks": 1617
+        },
+        {
+          "it": 1350,
+          "blocks": 1632
+        },
+        {
+          "it": 1400,
+          "blocks": 1646
+        },
+        {
+          "it": 1450,
+          "blocks": 1661
+        },
+        {
+          "it": 1500,
+          "blocks": 1689
+        },
+        {
+          "it": 1550,
+          "blocks": 1716
+        },
+        {
+          "it": 1600,
+          "blocks": 1719
+        },
+        {
+          "it": 1650,
+          "blocks": 1720
+        },
+        {
+          "it": 1700,
+          "blocks": 1720
+        },
+        {
+          "it": 1750,
+          "blocks": 1721
+        },
+        {
+          "it": 1800,
+          "blocks": 1722
+        },
+        {
+          "it": 1850,
+          "blocks": 1722
+        },
+        {
+          "it": 1900,
+          "blocks": 1722
+        },
+        {
+          "it": 1950,
+          "blocks": 1722
+        },
+        {
+          "it": 2000,
+          "blocks": 1723
+        },
+        {
+          "it": 2050,
+          "blocks": 1723
+        },
+        {
+          "it": 2100,
+          "blocks": 1723
+        },
+        {
+          "it": 2150,
+          "blocks": 1723
+        },
+        {
+          "it": 2200,
+          "blocks": 1723
+        },
+        {
+          "it": 2250,
+          "blocks": 1723
+        },
+        {
+          "it": 2300,
+          "blocks": 1723
+        },
+        {
+          "it": 2350,
+          "blocks": 1723
+        },
+        {
+          "it": 2400,
+          "blocks": 1723
+        },
+        {
+          "it": 2450,
+          "blocks": 1723
+        },
+        {
+          "it": 2500,
+          "blocks": 1723
+        },
+        {
+          "it": 2550,
+          "blocks": 1723
+        }
+      ],
+      "unreachedFloorCount": 2,
+      "unreachedFloor": [
+        {
+          "x": 47,
+          "z": 22,
+          "why": "door (reaching it ends the level)"
+        },
+        {
+          "x": 2,
+          "z": 46,
+          "why": "spike (touching it resets you)"
+        }
+      ],
+      "disconnectedFloorCount": 0,
+      "disconnectedFloor": [],
+      "stuckSpots": [],
+      "counts": {
+        "spike": 11,
+        "escape": 33,
+        "simSeconds": 5744.85
+      },
+      "errors": []
+    },
+    {
+      "bot": "explorer",
+      "layout": "Iteration 1 (seed 9)",
+      "seed": 1,
+      "iterations": 2588,
+      "ok": true,
+      "floorBlocks": 1725,
+      "reached": 1723,
+      "coverage": 0.999,
+      "coverageCurve": [
+        {
+          "it": 50,
+          "blocks": 180
+        },
+        {
+          "it": 100,
+          "blocks": 246
+        },
+        {
+          "it": 150,
+          "blocks": 318
+        },
+        {
+          "it": 200,
+          "blocks": 461
+        },
+        {
+          "it": 250,
+          "blocks": 531
+        },
+        {
+          "it": 300,
+          "blocks": 586
+        },
+        {
+          "it": 350,
+          "blocks": 663
+        },
+        {
+          "it": 400,
+          "blocks": 753
+        },
+        {
+          "it": 450,
+          "blocks": 822
+        },
+        {
+          "it": 500,
+          "blocks": 896
+        },
+        {
+          "it": 550,
+          "blocks": 1003
+        },
+        {
+          "it": 600,
+          "blocks": 1071
+        },
+        {
+          "it": 650,
+          "blocks": 1095
+        },
+        {
+          "it": 700,
+          "blocks": 1134
+        },
+        {
+          "it": 750,
+          "blocks": 1154
+        },
+        {
+          "it": 800,
+          "blocks": 1177
+        },
+        {
+          "it": 850,
+          "blocks": 1305
+        },
+        {
+          "it": 900,
+          "blocks": 1390
+        },
+        {
+          "it": 950,
+          "blocks": 1424
+        },
+        {
+          "it": 1000,
+          "blocks": 1455
+        },
+        {
+          "it": 1050,
+          "blocks": 1477
+        },
+        {
+          "it": 1100,
+          "blocks": 1510
+        },
+        {
+          "it": 1150,
+          "blocks": 1563
+        },
+        {
+          "it": 1200,
+          "blocks": 1620
+        },
+        {
+          "it": 1250,
+          "blocks": 1673
+        },
+        {
+          "it": 1300,
+          "blocks": 1708
+        },
+        {
+          "it": 1350,
+          "blocks": 1712
+        },
+        {
+          "it": 1400,
+          "blocks": 1720
+        },
+        {
+          "it": 1450,
+          "blocks": 1723
+        },
+        {
+          "it": 1500,
+          "blocks": 1723
+        },
+        {
+          "it": 1550,
+          "blocks": 1723
+        },
+        {
+          "it": 1600,
+          "blocks": 1723
+        },
+        {
+          "it": 1650,
+          "blocks": 1723
+        },
+        {
+          "it": 1700,
+          "blocks": 1723
+        },
+        {
+          "it": 1750,
+          "blocks": 1723
+        },
+        {
+          "it": 1800,
+          "blocks": 1723
+        },
+        {
+          "it": 1850,
+          "blocks": 1723
+        },
+        {
+          "it": 1900,
+          "blocks": 1723
+        },
+        {
+          "it": 1950,
+          "blocks": 1723
+        },
+        {
+          "it": 2000,
+          "blocks": 1723
+        },
+        {
+          "it": 2050,
+          "blocks": 1723
+        },
+        {
+          "it": 2100,
+          "blocks": 1723
+        },
+        {
+          "it": 2150,
+          "blocks": 1723
+        },
+        {
+          "it": 2200,
+          "blocks": 1723
+        },
+        {
+          "it": 2250,
+          "blocks": 1723
+        },
+        {
+          "it": 2300,
+          "blocks": 1723
+        },
+        {
+          "it": 2350,
+          "blocks": 1723
+        },
+        {
+          "it": 2400,
+          "blocks": 1723
+        },
+        {
+          "it": 2450,
+          "blocks": 1723
+        },
+        {
+          "it": 2500,
+          "blocks": 1723
+        },
+        {
+          "it": 2550,
+          "blocks": 1723
+        }
+      ],
+      "unreachedFloorCount": 2,
+      "unreachedFloor": [
+        {
+          "x": 10,
+          "z": 18,
+          "why": "spike (touching it resets you)"
+        },
+        {
+          "x": 47,
+          "z": 30,
+          "why": "door (reaching it ends the level)"
+        }
+      ],
+      "disconnectedFloorCount": 0,
+      "disconnectedFloor": [],
+      "stuckSpots": [],
+      "counts": {
+        "spike": 13,
+        "escape": 27,
+        "simSeconds": 5766.25
+      },
+      "errors": []
+    },
+    {
+      "bot": "explorer",
+      "layout": "Iteration 1 (seed 10)",
+      "seed": 1,
+      "iterations": 2588,
+      "ok": true,
+      "floorBlocks": 1725,
+      "reached": 1723,
+      "coverage": 0.999,
+      "coverageCurve": [
+        {
+          "it": 50,
+          "blocks": 141
+        },
+        {
+          "it": 100,
+          "blocks": 191
+        },
+        {
+          "it": 150,
+          "blocks": 249
+        },
+        {
+          "it": 200,
+          "blocks": 374
+        },
+        {
+          "it": 250,
+          "blocks": 429
+        },
+        {
+          "it": 300,
+          "blocks": 451
+        },
+        {
+          "it": 350,
+          "blocks": 519
+        },
+        {
+          "it": 400,
+          "blocks": 575
+        },
+        {
+          "it": 450,
+          "blocks": 595
+        },
+        {
+          "it": 500,
+          "blocks": 614
+        },
+        {
+          "it": 550,
+          "blocks": 684
+        },
+        {
+          "it": 600,
+          "blocks": 742
+        },
+        {
+          "it": 650,
+          "blocks": 812
+        },
+        {
+          "it": 700,
+          "blocks": 898
+        },
+        {
+          "it": 750,
+          "blocks": 944
+        },
+        {
+          "it": 800,
+          "blocks": 1020
+        },
+        {
+          "it": 850,
+          "blocks": 1082
+        },
+        {
+          "it": 900,
+          "blocks": 1142
+        },
+        {
+          "it": 950,
+          "blocks": 1203
+        },
+        {
+          "it": 1000,
+          "blocks": 1260
+        },
+        {
+          "it": 1050,
+          "blocks": 1330
+        },
+        {
+          "it": 1100,
+          "blocks": 1376
+        },
+        {
+          "it": 1150,
+          "blocks": 1457
+        },
+        {
+          "it": 1200,
+          "blocks": 1489
+        },
+        {
+          "it": 1250,
+          "blocks": 1568
+        },
+        {
+          "it": 1300,
+          "blocks": 1596
+        },
+        {
+          "it": 1350,
+          "blocks": 1611
+        },
+        {
+          "it": 1400,
+          "blocks": 1633
+        },
+        {
+          "it": 1450,
+          "blocks": 1648
+        },
+        {
+          "it": 1500,
+          "blocks": 1702
+        },
+        {
+          "it": 1550,
+          "blocks": 1717
+        },
+        {
+          "it": 1600,
+          "blocks": 1719
+        },
+        {
+          "it": 1650,
+          "blocks": 1721
+        },
+        {
+          "it": 1700,
+          "blocks": 1721
+        },
+        {
+          "it": 1750,
+          "blocks": 1722
+        },
+        {
+          "it": 1800,
+          "blocks": 1722
+        },
+        {
+          "it": 1850,
+          "blocks": 1722
+        },
+        {
+          "it": 1900,
+          "blocks": 1722
+        },
+        {
+          "it": 1950,
+          "blocks": 1723
+        },
+        {
+          "it": 2000,
+          "blocks": 1723
+        },
+        {
+          "it": 2050,
+          "blocks": 1723
+        },
+        {
+          "it": 2100,
+          "blocks": 1723
+        },
+        {
+          "it": 2150,
+          "blocks": 1723
+        },
+        {
+          "it": 2200,
+          "blocks": 1723
+        },
+        {
+          "it": 2250,
+          "blocks": 1723
+        },
+        {
+          "it": 2300,
+          "blocks": 1723
+        },
+        {
+          "it": 2350,
+          "blocks": 1723
+        },
+        {
+          "it": 2400,
+          "blocks": 1723
+        },
+        {
+          "it": 2450,
+          "blocks": 1723
+        },
+        {
+          "it": 2500,
+          "blocks": 1723
+        },
+        {
+          "it": 2550,
+          "blocks": 1723
+        }
+      ],
+      "unreachedFloorCount": 2,
+      "unreachedFloor": [
+        {
+          "x": 47,
+          "z": 22,
+          "why": "door (reaching it ends the level)"
+        },
+        {
+          "x": 6,
+          "z": 38,
+          "why": "spike (touching it resets you)"
+        }
+      ],
+      "disconnectedFloorCount": 0,
+      "disconnectedFloor": [],
+      "stuckSpots": [],
+      "counts": {
+        "spike": 11,
+        "escape": 28,
+        "simSeconds": 5772.4
+      },
+      "errors": []
+    }
+  ],
+  "errors": [],
+  "passed": true,
+  "options": {
+    "bots": [
+      "explorer"
+    ],
+    "brackets": [
+      "2-4",
+      "5-7",
+      "8-10",
+      "11-13"
+    ],
+    "seeds": 5,
+    "seed": null,
+    "layout": "iteration1"
+  },
+  "wallSeconds": 207.3
+}

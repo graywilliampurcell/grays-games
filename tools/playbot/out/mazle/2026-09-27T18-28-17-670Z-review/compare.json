@@ -1,0 +1,300 @@
+{
+  "game": "mazle",
+  "runDir": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review",
+  "createdAt": "2026-09-27T18:34:17.028Z",
+  "brackets": [
+    "5-7"
+  ],
+  "bracketsFrom": "user (--brackets)",
+  "testerProfile": null,
+  "comparablesMode": "claude-picks",
+  "comparablesNote": "No Tester profile: Claude picked these comparable games for this run: PBS KIDS mazes, ABCya logic games (maze and path puzzles), Monument Valley, A Maze Race.",
+  "comparables": [
+    {
+      "title": "PBS KIDS mazes",
+      "compare": "Onboarding style, spoken instructions, idle hints, and failure tone for a pre-reading 5-7 audience",
+      "why": "Same core genre (character-led simple maze) but built specifically for pre-readers with full voice-over and idle hints — directly targets mazle's biggest flagged gaps (no audio, no idle-stuck hint, text-only controls panel).",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/pbs-kids-mazes.json"
+    },
+    {
+      "title": "ABCya logic games (maze and path puzzles)",
+      "compare": "Grade/age-banded difficulty structure and instruction wording length",
+      "why": "Same genre (path/maze puzzles) explicitly organized by school grade with short audio+text instructions, useful to benchmark mazle's 25-word controls panel and single-level, no-ramp structure against a graded difficulty model.",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/abcya-logic-games-maze-and-path-puzzles.json"
+    },
+    {
+      "title": "Monument Valley",
+      "compare": "Wordless onboarding and no-fail, affordance-driven design",
+      "why": "Not a kids-marketed game but the reference genre's best example of teaching a 3D path-finding game with zero reading required and no punishing fail state, contrasting with mazle's text-heavy controls overlay and spike-reset failure.",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/monument-valley.json"
+    },
+    {
+      "title": "A Maze Race",
+      "compare": "Maze-size progression and multi-level ramp versus a single fixed maze",
+      "why": "Same core maze-navigation genre and web-playable like mazle, but structured as a sequence of growing mazes — useful contrast since mazle currently has only one level with no difficulty ramp beyond it.",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/a-maze-race.json"
+    }
+  ],
+  "summary": "Mazle already nails the fastest-win fundamentals for this genre — a single clear goal, instant low-cost retry, and a calm non-scary hazard shown by shape not color — but it is the only comparable game here with zero audio and a text-only, 25-word onboarding panel, both of which directly block pre-readers in the 5-7 bracket and fail the accessibility/usability checks (R16, idle-hint target, 5-word max). The highest-leverage fixes are small and fit a lightweight three.js game: a 3-6 word spoken instruction, a visible pause/mute/quit icon, an idle-stuck hint, and trimming the controls panel to icons. Lower-priority polish — a second/third maze for a difficulty ramp, a star on finish, and hiding the debug FPS/Position overlay — would round things out once the audio and reading gaps are closed.",
+  "items": [
+    {
+      "rank": 1,
+      "area": "onboarding",
+      "compared_with": [
+        "PBS KIDS mazes",
+        "ABCya logic games (maze and path puzzles)"
+      ],
+      "they_do": "PBS KIDS has a known character speak the goal aloud with a replay-voice button so nothing depends on reading; ABCya pairs a handful of words with audio narration scaled to grade level.",
+      "we_do": "Level 1 opens straight into play with a 25-word text-only controls overlay (WASD/arrows, strafe, mouse look, touch drag zones) that a 5-7 year old needs read to them, and there is no audio at all.",
+      "suggestion": "Add one speechSynthesis/WebAudio line, e.g. \"Use the arrows, find the door!\" (5 words), played once when Level 1 starts, with a small speaker-icon button to replay it, and shrink the on-screen text to match.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 2,
+      "area": "usability",
+      "compared_with": [
+        "PBS KIDS mazes",
+        "ABCya logic games (maze and path puzzles)"
+      ],
+      "they_do": "Both are built so a child can always get back out or replay instructions without help — PBS KIDS lets kids replay voice lines, and neither traps a child on the play screen.",
+      "we_do": "The playing screen has no visible pause/mute/quit control at all (automatic check: rule R16 fail); only developer debug panels are shown.",
+      "suggestion": "Add one icon-only button (top corner, ~48px touch target, no text) that pauses and offers \"Home\"/\"Play again\", satisfying R16 without adding any reading burden.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 3,
+      "area": "usability",
+      "compared_with": [
+        "PBS KIDS mazes"
+      ],
+      "they_do": "PBS KIDS shows an idle hint — a nudge, glow, or voice line — if a child pauses too long, tuned for younger players.",
+      "we_do": "Automatic checks flag no in-play hint when stuck; a 60s+ idle period currently triggers nothing, versus the ≤20s target for this bracket.",
+      "suggestion": "After ~15s of no movement, glow or arrow-highlight the next correct corridor (reusing the maze solver already used by the bot), optionally paired with a short \"this way!\" audio line.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 4,
+      "area": "accessibility",
+      "compared_with": [
+        "ABCya logic games (maze and path puzzles)",
+        "PBS KIDS mazes"
+      ],
+      "they_do": "ABCya's Pre-K/K puzzles keep on-screen text to a handful of words backed by audio; PBS KIDS needs no reading at all.",
+      "we_do": "The controls panel is a 25-word block, five times the 5-word max for this bracket, shown as a permanent overlay for the whole level.",
+      "suggestion": "Replace the WASD/arrow text with 2-3 simple drag-direction icons (e.g. a hand-drag glyph over screen-left, an eye/look glyph over screen-right) and drop the keyboard-key text for the touch path used by this bracket.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 5,
+      "area": "art and audio",
+      "compared_with": [
+        "PBS KIDS mazes",
+        "ABCya logic games (maze and path puzzles)"
+      ],
+      "they_do": "Both use continuous light music/sound effects and voice-over throughout play, plus a cheer sound on success.",
+      "we_do": "0 audio files, no WebAudio, no speechSynthesis — completely silent, including on the spike hit and the \"You found the way out!\" win screen.",
+      "suggestion": "Add two short WebAudio cues: a soft \"boop\" on spike contact paired with the existing instant reset, and a 1-2s cheer/chime when the door is reached on the win screen.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 6,
+      "area": "difficulty curve",
+      "compared_with": [
+        "A Maze Race"
+      ],
+      "they_do": "A Maze Race ramps maze size gradually across many levels, each finishable in 1-3 minutes, giving kids repeated wins with rising challenge.",
+      "we_do": "Only one 29x29 maze exists (34-cell solution, 8 dead ends); kid-persona runs already win 100% in a median 53.95s with nowhere to go afterward.",
+      "suggestion": "Reuse mazeCarver.js/levels.js to generate 2-3 smaller follow-on mazes (e.g. 11x11, 15x15, 21x21) as Levels 2-3, keeping the same single-hazard rule, so a session has a natural next step instead of stopping after one level.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 7,
+      "area": "goals and rewards",
+      "compared_with": [
+        "ABCya logic games (maze and path puzzles)",
+        "PBS KIDS mazes"
+      ],
+      "they_do": "ABCya gives a checkmark/cheer/brief animation and unlocks the next puzzle on completion; PBS KIDS sometimes awards stickers.",
+      "we_do": "Winning shows only the text \"You found the way out!\" and a \"Play again\" button — no stars, points, collectibles, or unlocks.",
+      "suggestion": "Award one star automatically on every finish (never scored on speed or mistakes) and show it on the win screen, rewarding finishing rather than perfection.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 8,
+      "area": "onboarding",
+      "compared_with": [
+        "Monument Valley",
+        "PBS KIDS mazes"
+      ],
+      "they_do": "Monument Valley teaches entirely wordlessly via glowing, tappable handles; PBS KIDS uses a character that points or speaks instead of showing text.",
+      "we_do": "Onboarding relies solely on a static 25-word text overlay rather than any in-play demonstration of the drag-to-move gesture.",
+      "suggestion": "On Level 1 only, play a 2-second animated hand/arrow glyph over the first corridor demonstrating the drag gesture before input is required, then fade it out.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 9,
+      "area": "accessibility",
+      "compared_with": [
+        "PBS KIDS mazes"
+      ],
+      "they_do": "PBS KIDS uses large touch targets and standard mobile-friendly viewport behavior that doesn't fight a parent trying to help.",
+      "we_do": "The page's meta-viewport disables pinch-zoom (axe moderate warning), preventing a parent from zooming in to help a child with any remaining text.",
+      "suggestion": "Remove user-scalable=no / maximum-scale=1 from the viewport meta tag so pinch-zoom works normally.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "low"
+    },
+    {
+      "rank": 10,
+      "area": "usability",
+      "compared_with": [
+        "PBS KIDS mazes",
+        "ABCya logic games (maze and path puzzles)"
+      ],
+      "they_do": "Both show only child-relevant UI on the play screen (goal/progress), with no developer instrumentation visible to the player.",
+      "we_do": "A persistent debug FPS/Position box stays on screen alongside the controls and level-name panels, adding visual clutter with no value to a young player.",
+      "suggestion": "Gate the FPS/Position debug box behind a ?debug=1 query flag so it only appears for developers and the play screen stays uncluttered for kids.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "low"
+    }
+  ],
+  "patterns": {
+    "present": [
+      {
+        "pattern": "Clear goal",
+        "evidence": "goals_and_rewards: \"One goal per level: find the door\" — a single, simple objective once the child is in the maze."
+      },
+      {
+        "pattern": "Instant retry",
+        "evidence": "core_loop: touching the spike resets the player to the start; difficulty_curve notes fail cost is low with 0-1 fails per kid run in bot data, no menu interruption."
+      },
+      {
+        "pattern": "Natural stopping points",
+        "evidence": "goals_and_rewards: winning shows \"You found the way out!\" with a \"Play again\" button that waits for input; no autoplay into another level."
+      },
+      {
+        "pattern": "Forgiving/non-scary failure design (hazard shown by shape not color)",
+        "evidence": "accessibility: \"hazards are shown by shape not color alone\"; art_and_audio describes the spike as a simple \"grey spike cone cluster\", not a threatening design."
+      }
+    ],
+    "missing": [
+      {
+        "pattern": "Sound on every tap / celebration on every success",
+        "suggestion": "Add a short WebAudio chime on reaching the door and a soft cue on spike contact; currently 0 audio files and no WebAudio/speechSynthesis exist.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Hints when stuck",
+        "suggestion": "Trigger a glow/arrow hint after ~15s idle, well under the current 60s+ with-no-hint state flagged by automatic checks.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Guide character",
+        "suggestion": "Introduce a small friendly character or arrow guide near the start that points toward the first corridor, since onboarding currently has no character or voice at all.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Show, don't tell (onboarding by doing)",
+        "suggestion": "Replace the static 25-word text overlay with a brief animated gesture demonstration on Level 1 before requiring input.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Collectibles and stars",
+        "suggestion": "Award a star automatically on every level finish, shown on the win screen, since there are currently no stars, points, or collectibles.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Gentle difficulty ramp / natural progression across levels",
+        "suggestion": "Add 2-3 additional smaller mazes as later levels so difficulty ramps gently instead of stopping after the single existing 29x29 maze.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Forgiving input",
+        "suggestion": "Add wall-slide/collision smoothing to movement — kid-persona runs already bump into walls 11.5 times/min versus a near-optimal solver bot, suggesting collision handling is stricter than it needs to be for small hands.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      }
+    ],
+    "avoid_seen": []
+  },
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5",
+    "seconds": 78,
+    "costUsd": 0.21030000000000001
+  },
+  "ourProfile": {
+    "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/mazle.json",
+    "source": "bot-run",
+    "cached": false,
+    "profile": {
+      "game": "mazle",
+      "source": "bot-run",
+      "brackets": [
+        "5-7"
+      ],
+      "genre": "First-person 3D maze escape",
+      "web_playable": "yes",
+      "onboarding": "No menu or tutorial; Level 1 opens straight into play with a controls panel (25 words: WASD/arrows, strafe, mouse look, touch drag zones) shown as an overlay the whole time. No taps required before play starts (taps-to-play check passed) but reading the controls text needs a 5-7 year old to be read to.",
+      "controls": "Keyboard W/↑ forward, S/↓ back, A/← strafe left, D/→ strafe right, mouse to look; touch play drags the left side of the screen to move and the right side to look, with no on-screen buttons.",
+      "core_loop": "Walk the 3D maze corridors, avoid the spike trap, and reach the exit door; touching the spike resets you to the start and you re-walk the path.",
+      "goals_and_rewards": "One goal per level: find the door. Winning shows \"You found the way out!\" with a \"Play again\" button; no stars, points, collectibles, or unlocks (bot run: kid persona 5-7 win rate 100% over 3 runs).",
+      "difficulty_curve": "Single 29x29-cell maze (perfect maze, 34-cell solution, 8 dead ends) with one spike hazard placed in a dead end only 3 cells from start, on-solution avoidable; fail cost is low (instant reset to start, 0-1 fails per kid run in the bot data) but there is no ramp beyond this one level.",
+      "game_feel": "Software-rendered fps averaged 37.6 (p95 frame 66.6ms, one spike to 466.6ms), no haptic/audio feedback on movement or the spike hit; solver bot finished near-optimally (99% of optimal path) while kid-persona runs bumped into walls often (11.5 bumps/min).",
+      "art_and_audio": "Low-poly pastel 3D (sky-blue walls, green floor, grey spike cone cluster, brown door with light-blue windows); 0 audio files, no speechSynthesis, no WebAudio — completely silent.",
+      "session_length": "Kid-persona (5-7) bot runs: median time to first win 53.95s, range 45-168s across 3 seeded runs, well within a 5-10 minute session; only one level exists so there's no continued session beyond that.",
+      "usability": "Automatic checks flag no in-play hint when stuck (idle 60s+ with no hint, target is ≤20s) and no visible pause/mute/quit controls on the playing screen (R16 fail); the persistent debug FPS/Position box is developer instrumentation with no value to a young player and adds visual clutter alongside the controls and level-name panels.",
+      "accessibility": "Text has good contrast (light text on dark boxes, brown/white \"Play again\" button) and hazards are shown by shape not color alone; but the controls text is a 25-word block above the 5-word max for this bracket, there is no spoken/audio version of any instruction (loudness check fails this bracket), and the page's meta-viewport disables pinch-zoom (axe moderate warning).",
+      "ads_and_purchases": "None seen; network check found only 2 same-origin requests and no analytics/tracker globals.",
+      "notes": "Biggest gaps for 5-7: missing pause/mute/quit control (fails rule R16), no audio/spoken instructions at all, and a text-heavy controls panel that a pre-reader can't parse alone — flagged by both the automatic checks and Claude's content review, despite play itself being fast, low-fail, and non-scary (spike is a simple grey cone, reset is instant)."
+    }
+  },
+  "cost": {
+    "seconds": 164,
+    "costUsd": 0.599
+  }
+}

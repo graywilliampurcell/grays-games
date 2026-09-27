@@ -1,0 +1,471 @@
+{
+  "game": "rolly-bally",
+  "runDir": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z",
+  "createdAt": "2026-09-27T17:44:27.715Z",
+  "brackets": [
+    "5-7",
+    "8-10"
+  ],
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5"
+  },
+  "seconds": 89,
+  "costUsd": 0.49,
+  "calls": [
+    {
+      "name": "always-true rules",
+      "seconds": 61,
+      "costUsd": 0.251,
+      "attempts": 1,
+      "problems": []
+    },
+    {
+      "name": "bracket rubric",
+      "seconds": 89,
+      "costUsd": 0.238,
+      "attempts": 1,
+      "problems": []
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "menu-home.png",
+      "screen": "menu",
+      "description": "Home screen (menu): big picture buttons and the grown-ups gear.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/menu-home.png"
+    },
+    {
+      "file": "menu-race-setup.png",
+      "screen": "menu",
+      "description": "Race setup screen, reached by tapping Race on Home.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/menu-race-setup.png"
+    },
+    {
+      "file": "menu-playground-setup.png",
+      "screen": "menu",
+      "description": "Playground setup screen, reached by tapping Playground on Home.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/menu-playground-setup.png"
+    },
+    {
+      "file": "playing-test-track.png",
+      "screen": "playing",
+      "description": "Playing: rolling along the test track a few seconds in.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/playing-test-track.png"
+    },
+    {
+      "file": "failing-gap-fall.png",
+      "screen": "failing",
+      "description": "Failing: the ball dropped through a gap in the track (respawns at the last checkpoint).",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/failing-gap-fall.png"
+    },
+    {
+      "file": "failing-respawn.png",
+      "screen": "failing",
+      "description": "Failing: after the fall, back on the track at the last checkpoint.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/failing-respawn.png"
+    },
+    {
+      "file": "winning-test-track-finish.png",
+      "screen": "winning",
+      "description": "Winning: just after crossing the test-track finish (fanfare plays, then back to the start).",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/winning-test-track-finish.png"
+    },
+    {
+      "file": "playing-race-countdown.png",
+      "screen": "playing",
+      "description": "Race mode: the countdown before the start.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/playing-race-countdown.png"
+    },
+    {
+      "file": "playing-race.png",
+      "screen": "playing",
+      "description": "Race mode: racing against the other balls a few seconds after GO.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/playing-race.png"
+    },
+    {
+      "file": "winning-race-finish.png",
+      "screen": "winning",
+      "description": "Winning: just after crossing the race finish line (place 1).",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/winning-race-finish.png"
+    },
+    {
+      "file": "winning-race-results.png",
+      "screen": "winning",
+      "description": "Race results screen (race state: results).",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/winning-race-results.png"
+    }
+  ],
+  "pastJudgmentsUsed": 0,
+  "result": "NEEDS_HUMAN",
+  "resultNote": "Claude is unsure about R16: a person decides.",
+  "needsHuman": [
+    {
+      "kind": "rule",
+      "rule": "R16",
+      "title": "Kids always have control",
+      "verdict": "unsure",
+      "reason": "Every play/fail/win screenshot shows only a \"Home (hold)\" button; no mute or pause icon is visible on these screens, and the Sound toggle in the source lives in Settings.js behind the \"Grown-ups (hold)\" gate on the Home screen rather than being reachable from within play, so it's unclear a child can mute sound without an adult's help mid-game.",
+      "screenshot": "playing-test-track.png",
+      "ask": "Claude is unsure about R16 (Kids always have control). Is this OK?"
+    }
+  ],
+  "rules": [
+    {
+      "rule": "R01",
+      "number": 1,
+      "title": "No blood",
+      "verdict": "pass",
+      "reason": "No blood, splatter or red gore anywhere; the red balls, red track trim and red hazards read as normal game colour.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R02",
+      "number": 2,
+      "title": "No weapons or guns",
+      "verdict": "pass",
+      "reason": "No weapons are shown or used to attack anyone; track pieces named \"Swinging hammer\" and \"Wrecking ball\" (e.g. the \"Hammer Time\" level) are static/moving course obstacles like Mazle's approved spike, not weapons wielded against characters.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R03",
+      "number": 3,
+      "title": "No bashing or breaking of living things",
+      "verdict": "pass",
+      "reason": "Nothing animate is bashed or broken; only balls rolling on tracks, ramps, gaps and plain obstacles are shown, none with faces.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R04",
+      "number": 4,
+      "title": "No injury or death shown",
+      "verdict": "pass",
+      "reason": "Falling through a gap just poofs/respawns the ball back at the last checkpoint with no wound, body, or death wording shown.",
+      "screenshot": "failing-gap-fall.png",
+      "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/failing-gap-fall.png"
+    },
+    {
+      "rule": "R05",
+      "number": 5,
+      "title": "No harm to animals or creatures",
+      "verdict": "pass",
+      "reason": "No animals or creatures appear in any screen or text; nothing is hunted, trapped or harmed.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R06",
+      "number": 6,
+      "title": "No scary content",
+      "verdict": "pass",
+      "reason": "All scenes are brightly lit (blue sky, green grass, sunny sky-road) with cheerful balls; nothing dark, threatening or jump-scare-like appears.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R07",
+      "number": 7,
+      "title": "No meanness",
+      "verdict": "pass",
+      "reason": "No insulting or mocking text appears anywhere in the UI strings or screenshots; only neutral labels like \"Go!\", \"FINISH\", \"Place 1\".",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R08",
+      "number": 8,
+      "title": "No stereotypes",
+      "verdict": "pass",
+      "reason": "Characters are plain colourful balls with no ethnic, gender or group-based caricature or jokes.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R09",
+      "number": 9,
+      "title": "No romance, sexual content, drugs, alcohol, tobacco or vaping",
+      "verdict": "pass",
+      "reason": "No romance, sexual content, or drug/alcohol/tobacco/vape imagery; hearts are not used at all in the shown UI.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R10",
+      "number": 10,
+      "title": "No bad language",
+      "verdict": "pass",
+      "reason": "No swearing or crude insults in any visible or source text; only friendly labels like \"Go!\" and \"FINISH\".",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R11",
+      "number": 11,
+      "title": "No dangerous stunts a kid could copy",
+      "verdict": "pass",
+      "reason": "The only \"risky\" action is a ball rolling along a clearly fantastical floating sky track, which is the rubric's explicit OK example, not a copyable real-world stunt.",
+      "screenshot": "playing-race.png",
+      "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/playing-race.png"
+    },
+    {
+      "rule": "R12",
+      "number": 12,
+      "title": "No gambling or casino-style mechanics",
+      "verdict": "pass",
+      "reason": "The \"World code\" emoji entry (🍇🦀⚽🐮) with a dice-style icon and \"New world\" button is a shareable seed for generating a playground layout, not a chance-based prize; no loot boxes, spins-for-reward or betting appear.",
+      "screenshot": "menu-playground-setup.png",
+      "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/menu-playground-setup.png"
+    },
+    {
+      "rule": "R13",
+      "number": 13,
+      "title": "No money, ads or data",
+      "verdict": "pass",
+      "reason": "No prices, purchases, ads, sign-in, or personal-info fields appear; the only settings are local (world code, ball skins) with no link out of the game visible.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R14",
+      "number": 14,
+      "title": "No manipulative design",
+      "verdict": "pass",
+      "reason": "The race countdown (3,2,1,GO!) is a normal start cue, and results/finish screens offer a clear \"Play again\"/Home choice with no streaks, timers-to-return, or guilt-trip prompts.",
+      "screenshot": "winning-race-results.png",
+      "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/winning-race-results.png"
+    },
+    {
+      "rule": "R15",
+      "number": 15,
+      "title": "Safe for the senses",
+      "verdict": "pass",
+      "reason": "Win screens show colourful confetti at a steady rate, not strobing; no red/white flash or single-frame flash pattern is evident, and no sound spike is indicated in the notes.",
+      "screenshot": "winning-race-finish.png",
+      "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/winning-race-finish.png"
+    },
+    {
+      "rule": "R16",
+      "number": 16,
+      "title": "Kids always have control",
+      "verdict": "unsure",
+      "reason": "Every play/fail/win screenshot shows only a \"Home (hold)\" button; no mute or pause icon is visible on these screens, and the Sound toggle in the source lives in Settings.js behind the \"Grown-ups (hold)\" gate on the Home screen rather than being reachable from within play, so it's unclear a child can mute sound without an adult's help mid-game.",
+      "screenshot": "playing-test-track.png",
+      "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/playing-test-track.png",
+      "needsHuman": true
+    }
+  ],
+  "bracketResults": {
+    "5-7": {
+      "label": "Early readers",
+      "result": "fail",
+      "checks": [
+        {
+          "check": "reading",
+          "title": "Reading needed",
+          "verdict": "warn",
+          "claudeVerdict": "warn",
+          "severity": "warn",
+          "reason": "All visible instruction/button text is short (\"Grown-ups (hold)\", \"Level 4: Hammer Time\", \"World code\" — all ≤4 words), satisfying the word-count half of the threshold. But the audio_with_text requirement is not met: source analysis shows no speechSynthesis and no voice-over audio files, so early readers who can't decode labels like \"Level 2: Bumpy Road\" or the Playground setup category names have no spoken fallback.",
+          "screenshot": "menu-playground-setup.png",
+          "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/menu-playground-setup.png",
+          "threshold": {
+            "max_words_per_instruction": 5,
+            "audio_with_text": true
+          }
+        },
+        {
+          "check": "spoken-instructions",
+          "title": "Spoken, replayable instructions",
+          "verdict": "fail",
+          "claudeVerdict": "fail",
+          "severity": "fail",
+          "reason": "Sound analysis confirms speechSynthesis is not used and no narrated audio files back the UI; only WebAudio (sound effects) is present. Early readers have no spoken, replayable instructions for menus (e.g. Playground setup's many category buttons) or in-game hints.",
+          "screenshot": "menu-playground-setup.png",
+          "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/menu-playground-setup.png",
+          "threshold": {
+            "spoken_instructions": "required",
+            "replayable": true
+          }
+        },
+        {
+          "check": "time-pressure",
+          "title": "Time pressure",
+          "verdict": "warn",
+          "claudeVerdict": "warn",
+          "severity": "warn",
+          "reason": "Race mode has a visible 3-2-1-GO countdown and simultaneous opponent balls racing toward a finish line with live placement (\"1st\") shown — genuine competitive time pressure. It's an optional mode (Playground/Test Track have none), which softens this, but it isn't \"gentle-optional\" pressure within Race itself.",
+          "screenshot": "playing-race-countdown.png",
+          "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/playing-race-countdown.png",
+          "threshold": {
+            "time_pressure": "gentle-optional"
+          }
+        },
+        {
+          "check": "failing",
+          "title": "Failing",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "warn",
+          "reason": "Falling through a track gap has no lose message or scary text — the ball simply drops (failing-gap-fall.png) and reappears at the last checkpoint on the track (failing-respawn.png) with the same minimal HUD, consistent with a soft, fast reset.",
+          "screenshot": null,
+          "screenshotPath": null,
+          "threshold": {
+            "failing": "soft-fail",
+            "instant_retry": true,
+            "max_retry_s": 3
+          }
+        },
+        {
+          "check": "things-on-screen",
+          "title": "Things on screen at once",
+          "verdict": "warn",
+          "claudeVerdict": "warn",
+          "severity": "warn",
+          "reason": "Actual gameplay screens are clean (just the Home button and the ball), but the Playground setup screen presents Back plus 3 size options, 2 surfaces, 3 terrains, 5 features, 3 star-density options, a world-code panel, and a Go button simultaneously — far above the 5-6 target for this bracket, even though it's a setup screen rather than live play.",
+          "screenshot": "menu-playground-setup.png",
+          "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/menu-playground-setup.png",
+          "threshold": {
+            "max_things_on_screen": 6,
+            "target_range": [
+              5,
+              6
+            ]
+          }
+        },
+        {
+          "check": "scariness",
+          "title": "Scariness",
+          "verdict": "warn",
+          "claudeVerdict": "warn",
+          "severity": "fail",
+          "reason": "Higher levels are named \"Hammer Time\" and \"Going Big\" and include pieces like \"Swinging hammer\" and \"Wrecking ball.\" The setup thumbnails render them as small, cartoonish grey/red shapes rather than menacing, but no in-motion gameplay screenshot of these obstacles was provided, so intensity for the youngest bracket can't be fully confirmed.",
+          "screenshot": "menu-race-setup.png",
+          "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/menu-race-setup.png",
+          "threshold": {
+            "scariness": "mild-cartoon-peril"
+          }
+        },
+        {
+          "check": "contrast",
+          "title": "Contrast",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "warn",
+          "reason": "Text consistently uses bold dark outlines or white-on-saturated-color styling (e.g. yellow \"Rolly Bally\" title with black outline on sky blue, white labels on solid green/red/blue buttons). Selected options in setup screens are marked with a thicker border, not color alone.",
+          "screenshot": null,
+          "screenshotPath": null,
+          "threshold": {
+            "min_contrast_ratio": 4.5,
+            "color_alone": false
+          }
+        }
+      ]
+    },
+    "8-10": {
+      "label": "Readers",
+      "result": "warn",
+      "checks": [
+        {
+          "check": "reading",
+          "title": "Reading needed",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "warn",
+          "reason": "All on-screen text (button labels, level names, setup categories, \"FINISH\", \"GO!\", place badges) is single words or short 2-4 word phrases using common vocabulary — well under a grade 3 reading level.",
+          "screenshot": null,
+          "screenshotPath": null,
+          "threshold": {
+            "max_reading_grade": 3
+          }
+        },
+        {
+          "check": "spoken-instructions",
+          "title": "Spoken, replayable instructions",
+          "verdict": "warn",
+          "claudeVerdict": "warn",
+          "severity": "warn",
+          "reason": "Spoken instructions are only recommended for this bracket, and none are present — the game relies entirely on icon/text buttons and short labels, which is acceptable for readers at this level but a missed nicety.",
+          "screenshot": "menu-home.png",
+          "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/menu-home.png",
+          "threshold": {
+            "spoken_instructions": "recommended"
+          }
+        },
+        {
+          "check": "time-pressure",
+          "title": "Time pressure",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "warn",
+          "reason": "Countdown starts and racing against opponent balls for placement is well within what's allowed for this bracket, and Race remains an optional mode alongside the untimed Playground and Test Track.",
+          "screenshot": null,
+          "screenshotPath": null,
+          "threshold": {
+            "time_pressure": "allowed"
+          }
+        },
+        {
+          "check": "failing",
+          "title": "Failing",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "warn",
+          "reason": "Same soft checkpoint-respawn behavior comfortably clears the more permissive lives-ok threshold for this bracket; no penalty screen or life-loss messaging was observed.",
+          "screenshot": null,
+          "screenshotPath": null,
+          "threshold": {
+            "failing": "lives-ok"
+          }
+        },
+        {
+          "check": "things-on-screen",
+          "title": "Things on screen at once",
+          "verdict": "warn",
+          "claudeVerdict": "warn",
+          "severity": "warn",
+          "reason": "The Playground setup screen has on the order of 18-19 simultaneous buttons/panels (size, surface, terrain, 5 features, star density, world code, Go, Back), exceeding the max of 8 for this bracket; Race setup (5 level cards + 4 race-length chips + Go/Back) is similarly dense.",
+          "screenshot": "menu-playground-setup.png",
+          "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/rolly-bally/2026-09-27T17-42-48-675Z/keyshots/menu-playground-setup.png",
+          "threshold": {
+            "max_things_on_screen": 8
+          }
+        },
+        {
+          "check": "scariness",
+          "title": "Scariness",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "warn",
+          "reason": "Named hazards like \"Swinging hammer\" and \"Wrecking ball\" read as mechanical obstacle-course elements in bright, low-poly cartoon style — well within mild fantasy-conflict/obstacle territory for this bracket.",
+          "screenshot": null,
+          "screenshotPath": null,
+          "threshold": {
+            "scariness": "fantasy-conflict"
+          }
+        },
+        {
+          "check": "contrast",
+          "title": "Contrast",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "warn",
+          "reason": "Same outlined/high-contrast text treatment holds throughout menus, HUD, and results screens, and selection state is conveyed via border/shape in addition to color.",
+          "screenshot": null,
+          "screenshotPath": null,
+          "threshold": {
+            "min_contrast_ratio": 4.5,
+            "color_alone": false
+          }
+        }
+      ]
+    }
+  },
+  "advisory": {
+    "result": "fail",
+    "strictestBracket": "5-7",
+    "note": "Bracket checks are advisory (AI verdicts); the strictest chosen bracket sets this result."
+  }
+}

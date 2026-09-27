@@ -1,0 +1,415 @@
+{
+  "title": "Tester report — 2026-09-27 · Mazle",
+  "game": "mazle",
+  "date": "2026-09-27",
+  "runDir": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review",
+  "planPage": "https://app.notion.com/p/3e762b14e6ba81e48999c2df1942a56f",
+  "brackets": [
+    "5-7"
+  ],
+  "bracketsFrom": "user (--brackets)",
+  "testerProfile": null,
+  "overall": "FAIL",
+  "strictestBracket": "5-7",
+  "perBracket": {
+    "5-7": {
+      "result": "FAIL",
+      "reasons": [
+        "FAIL: automatic checks: 1 fail, 4 warn",
+        "FAIL: always-true rule R16 (Kids always have control) broken per Claude (until a person clears it)",
+        "WARN: Claude rubric (advisory): 4 check(s) not met"
+      ]
+    }
+  },
+  "reasons": [
+    "FAIL: always-true rule R16 (Kids always have control) broken per Claude (until a person clears it)"
+  ],
+  "needsHuman": [
+    {
+      "kind": "claude-rule",
+      "rule": "R16",
+      "title": "Kids always have control",
+      "verdict": "fail",
+      "reason": "No screenshot (menu, playing, failing, or winning) shows any pause, mute, or quit/home control, and the automatic check confirms \"Playing screen has no visible pause, mute, quit controls\"; failing itself only costs a little progress (back to level start), but the missing controls break the rule.",
+      "fingerprint": "0b08429f7156",
+      "screenshot": "keyshots/playing-walk.png",
+      "file": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/claude.json",
+      "decide": "node tools/playbot/bin/playbot.js decide mazle tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/claude.json 0b08429f7156 <pass|warn|fail|ignore> --note \"why\""
+    }
+  ],
+  "rules": [
+    {
+      "rule": "R01",
+      "number": 1,
+      "title": "No blood",
+      "how": "both",
+      "auto": "pass",
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R02",
+      "number": 2,
+      "title": "No weapons or guns",
+      "how": "both",
+      "auto": "pass",
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R03",
+      "number": 3,
+      "title": "No bashing or breaking of living things",
+      "how": "claude",
+      "auto": null,
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R04",
+      "number": 4,
+      "title": "No injury or death shown",
+      "how": "both",
+      "auto": "pass",
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R05",
+      "number": 5,
+      "title": "No harm to animals or creatures",
+      "how": "both",
+      "auto": "pass",
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R06",
+      "number": 6,
+      "title": "No scary content",
+      "how": "claude",
+      "auto": null,
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R07",
+      "number": 7,
+      "title": "No meanness",
+      "how": "both",
+      "auto": "pass",
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R08",
+      "number": 8,
+      "title": "No stereotypes",
+      "how": "claude",
+      "auto": null,
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R09",
+      "number": 9,
+      "title": "No romance, sexual content, drugs, alcohol, tobacco or vaping",
+      "how": "both",
+      "auto": "pass",
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R10",
+      "number": 10,
+      "title": "No bad language",
+      "how": "both",
+      "auto": "pass",
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R11",
+      "number": 11,
+      "title": "No dangerous stunts a kid could copy",
+      "how": "claude",
+      "auto": null,
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R12",
+      "number": 12,
+      "title": "No gambling or casino-style mechanics",
+      "how": "both",
+      "auto": "pass",
+      "autoSummary": null,
+      "autoChecks": [],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R13",
+      "number": 13,
+      "title": "No money, ads or data",
+      "how": "both",
+      "auto": "pass",
+      "autoSummary": null,
+      "autoChecks": [
+        "network",
+        "permissions",
+        "links-out",
+        "input-fields"
+      ],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R14",
+      "number": 14,
+      "title": "No manipulative design",
+      "how": "both",
+      "auto": "pass",
+      "autoSummary": null,
+      "autoChecks": [
+        "countdown-timers"
+      ],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R15",
+      "number": 15,
+      "title": "Safe for the senses",
+      "how": "both",
+      "auto": "info",
+      "autoSummary": null,
+      "autoChecks": [
+        "flashing",
+        "loudness"
+      ],
+      "claude": "pass",
+      "claudeReason": null,
+      "humanDecision": null,
+      "needsHuman": false,
+      "fingerprint": null,
+      "screenshot": null,
+      "result": "PASS"
+    },
+    {
+      "rule": "R16",
+      "number": 16,
+      "title": "Kids always have control",
+      "how": "both",
+      "auto": "warn",
+      "autoSummary": "Playing screen has no visible pause, mute, quit controls",
+      "autoChecks": [
+        "pause-mute-quit"
+      ],
+      "claude": "fail",
+      "claudeReason": "No screenshot (menu, playing, failing, or winning) shows any pause, mute, or quit/home control, and the automatic check confirms \"Playing screen has no visible pause, mute, quit controls\"; failing itself only costs a little progress (back to level start), but the missing controls break the rule.",
+      "humanDecision": null,
+      "needsHuman": true,
+      "fingerprint": "0b08429f7156",
+      "screenshot": "keyshots/playing-walk.png",
+      "result": "FAIL"
+    }
+  ],
+  "bugs": [],
+  "comparables": {
+    "mode": "claude-picks",
+    "titles": [
+      "PBS KIDS mazes",
+      "ABCya logic games (maze and path puzzles)",
+      "Monument Valley",
+      "A Maze Race"
+    ],
+    "note": "No Tester profile: Claude picked these comparable games for this run: PBS KIDS mazes, ABCya logic games (maze and path puzzles), Monument Valley, A Maze Race."
+  },
+  "screenshots": [
+    {
+      "file": "keyshots/playing-walk.png",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/keyshots/playing-walk.png",
+      "caption": "R16 Kids always have control: Claude fail",
+      "why": "needs a human decision"
+    },
+    {
+      "file": "keyshots/menu-start.png",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/keyshots/menu-start.png",
+      "caption": "menu: Initial view when Level 1 opens (Mazle has no menu; this is the first screen a child sees, with the controls help and level name).",
+      "why": "key screen"
+    },
+    {
+      "file": "keyshots/failing-spike.png",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/keyshots/failing-spike.png",
+      "caption": "failing: Failing: right after touching the spike. The game sends the player back to the start and shows a message.",
+      "why": "key screen"
+    },
+    {
+      "file": "keyshots/winning-escaped.png",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/keyshots/winning-escaped.png",
+      "caption": "winning: Winning: the escaped screen after reaching the door.",
+      "why": "key screen"
+    },
+    {
+      "file": "level-1-load.png",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/level-1-load.png",
+      "caption": "spoken-instructions (5-7): No audio at all, so no spoken instructions (required for 5-7)",
+      "why": "automatic check fail"
+    },
+    {
+      "file": "heatmap-kids-5-7-level-1.png",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/heatmap-kids-5-7-level-1.png",
+      "caption": "heatmap: where the 5-7 kid persona spent time",
+      "why": "difficulty"
+    },
+    {
+      "file": "keyshots/playing-spike-ahead.png",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/keyshots/playing-spike-ahead.png",
+      "caption": "playing: Playing: standing a few cells from the floor spike hazard, looking at it.",
+      "why": "key screen"
+    },
+    {
+      "file": "keyshots/failing-spike-later.png",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/keyshots/failing-spike-later.png",
+      "caption": "failing: Failing: one second after the spike, still at the start with the message.",
+      "why": "key screen"
+    }
+  ],
+  "videos": [
+    {
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/video/solver.webm",
+      "bot": "solver",
+      "uploaded": false
+    }
+  ],
+  "steps": {
+    "smoke": {
+      "status": "ok",
+      "seconds": 2,
+      "passed": true
+    },
+    "checks": {
+      "status": "ok",
+      "seconds": 48,
+      "overall": "FAIL"
+    },
+    "play": {
+      "status": "ok",
+      "seconds": 49,
+      "passed": true,
+      "seeds": 3
+    },
+    "video": {
+      "status": "ok",
+      "seconds": 17,
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/video/solver.webm",
+      "won": true,
+      "local": true
+    },
+    "judge-rules": {
+      "status": "ok",
+      "seconds": 78
+    },
+    "compare": {
+      "status": "ok",
+      "seconds": 164
+    }
+  },
+  "notion": {
+    "markdownFile": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-28-17-670Z-review/report.md",
+    "note": "Page title = `title`; page content = report.md without its first line (the \"# title\" heading). Replace each \"[[screenshot: <file>]]\" line with the uploaded image markdown."
+  }
+}

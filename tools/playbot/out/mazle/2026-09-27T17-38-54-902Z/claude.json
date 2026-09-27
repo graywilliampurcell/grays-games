@@ -1,0 +1,434 @@
+{
+  "game": "mazle",
+  "runDir": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z",
+  "createdAt": "2026-09-27T17:54:49.523Z",
+  "brackets": [
+    "5-7"
+  ],
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5"
+  },
+  "seconds": 64,
+  "costUsd": 0.384,
+  "calls": [
+    {
+      "name": "always-true rules",
+      "seconds": 37,
+      "costUsd": 0.193,
+      "attempts": 1,
+      "problems": []
+    },
+    {
+      "name": "bracket rubric",
+      "seconds": 64,
+      "costUsd": 0.191,
+      "attempts": 1,
+      "problems": []
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "menu-start.png",
+      "screen": "menu",
+      "description": "Initial view when Level 1 opens (Mazle has no menu; this is the first screen a child sees, with the controls help and level name).",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/menu-start.png"
+    },
+    {
+      "file": "playing-walk.png",
+      "screen": "playing",
+      "description": "Playing: a few steps into the maze after walking forward.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/playing-walk.png"
+    },
+    {
+      "file": "playing-spike-ahead.png",
+      "screen": "playing",
+      "description": "Playing: standing a few cells from the floor spike hazard, looking at it.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/playing-spike-ahead.png"
+    },
+    {
+      "file": "failing-spike.png",
+      "screen": "failing",
+      "description": "Failing: right after touching the spike. The game sends the player back to the start and shows a message.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/failing-spike.png"
+    },
+    {
+      "file": "failing-spike-later.png",
+      "screen": "failing",
+      "description": "Failing: one second after the spike, still at the start with the message.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/failing-spike-later.png"
+    },
+    {
+      "file": "playing-door-ahead.png",
+      "screen": "playing",
+      "description": "Playing: in front of the exit door (the goal).",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/playing-door-ahead.png"
+    },
+    {
+      "file": "winning-escaped.png",
+      "screen": "winning",
+      "description": "Winning: the escaped screen after reaching the door.",
+      "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/winning-escaped.png"
+    }
+  ],
+  "pastJudgmentsUsed": 0,
+  "result": "FAIL",
+  "resultNote": "Always-true rule(s) R16 flagged by Claude: the review FAILS until a person clears it.",
+  "needsHuman": [
+    {
+      "kind": "rule",
+      "rule": "R16",
+      "title": "Kids always have control",
+      "verdict": "fail",
+      "reason": "No pause button, mute button, or quit/home control is visible on any screen (menu, playing, failing, or winning) — only debug FPS/position text, control instructions, and (on the win screen) a \"Play again\" button are shown; failing itself only costs a little progress (back to the maze start), which is fine, but the missing pause/mute/quit controls fail the rule.",
+      "screenshot": "playing-walk.png",
+      "ask": "Claude says R16 (Kids always have control) is broken. The review fails until a person clears it."
+    }
+  ],
+  "findings": [
+    {
+      "check": "claude-rules",
+      "status": "fail",
+      "summary": "Claude fail: No pause button, mute button, or quit/home control is visible on any screen (menu, playing, failing, or winning) — only debug FPS/position text, control instructions, and (on the win screen) a \"Play again\" button are shown; failing itself only costs a little progress (back to the maze start), which is fine, but the missing pause/mute/quit controls fail the rule.",
+      "rule": "R16",
+      "evidence": {
+        "screenshot": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/playing-walk.png",
+        "details": {
+          "verdict": "fail",
+          "title": "Kids always have control"
+        }
+      },
+      "fingerprint": "0b08429f7156"
+    },
+    {
+      "check": "claude-rubric",
+      "status": "warn",
+      "summary": "Claude warn: The controls panel is one instruction a child must parse, but it's ~25 words with key names, arrow symbols, and abbreviations (\"W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look\") — far over 5 words. The spike message \"Ouch! A spike sent you back to the start.\" is 8 words. Only \"You found the way out!\" (5 words) and \"Level 1\" (2 words) fit the threshold.",
+      "rubricCheck": "reading",
+      "bracket": "5-7",
+      "evidence": {
+        "screenshot": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/menu-start.png",
+        "details": {
+          "severity": "warn"
+        }
+      },
+      "fingerprint": "0c9b3f32c481"
+    },
+    {
+      "check": "claude-rubric",
+      "status": "fail",
+      "summary": "Claude fail: Source shows 0 audio files, no speechSynthesis, no WebAudio, and no <audio> elements — none of the on-screen text (controls, spike message, win message) is spoken or replayable, which this bracket requires for early/non-readers.",
+      "rubricCheck": "spoken-instructions",
+      "bracket": "5-7",
+      "evidence": {
+        "screenshot": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/menu-start.png",
+        "details": {
+          "severity": "fail"
+        }
+      },
+      "fingerprint": "2e491975e24d"
+    }
+  ],
+  "rules": [
+    {
+      "rule": "R01",
+      "number": 1,
+      "title": "No blood",
+      "verdict": "pass",
+      "reason": "No blood, splatter or bleed wording anywhere; the only red is the fail-message UI box, which is explicitly OK as UI colour.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R02",
+      "number": 2,
+      "title": "No weapons or guns",
+      "verdict": "pass",
+      "reason": "The only hazard is the static floor spike cluster, an approved environmental hazard, not a weapon; no gun, sword or other weapon appears in any screenshot or text.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R03",
+      "number": 3,
+      "title": "No bashing or breaking of living things",
+      "verdict": "pass",
+      "reason": "Nothing animate is bashed or broken; the player just bumps a faceless spike hazard and resets to the start.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R04",
+      "number": 4,
+      "title": "No injury or death shown",
+      "verdict": "pass",
+      "reason": "On hitting the spike the game only shows the kind message \"Ouch! A spike sent you back to the start.\" and resets position, with no wound, body, or death wording shown.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R05",
+      "number": 5,
+      "title": "No harm to animals or creatures",
+      "verdict": "pass",
+      "reason": "No animals or creatures appear in any screenshot or text.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R06",
+      "number": 6,
+      "title": "No scary content",
+      "verdict": "pass",
+      "reason": "The maze is brightly and evenly lit (sky-blue walls, green floor) in every playing shot, and even the dim door-interior winning screen is soft brown, not dark or menacing; no monsters or chases appear.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R07",
+      "number": 7,
+      "title": "No meanness",
+      "verdict": "pass",
+      "reason": "The only failure text, \"Ouch! A spike sent you back to the start.\", is a kind exclamation with no insult or mockery.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R08",
+      "number": 8,
+      "title": "No stereotypes",
+      "verdict": "pass",
+      "reason": "No characters, costumes, accents, or group-based jokes appear anywhere; the game has no human or cultural depictions at all.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R09",
+      "number": 9,
+      "title": "No romance, sexual content, drugs, alcohol, tobacco or vaping",
+      "verdict": "pass",
+      "reason": "No romance, sexual content, or drug/alcohol/tobacco/vape imagery appears in any screenshot or text.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R10",
+      "number": 10,
+      "title": "No bad language",
+      "verdict": "pass",
+      "reason": "All visible text (\"Ouch! A spike sent you back to the start.\", \"You found the way out!\", \"Play again\", control instructions) is clean, with no swearing or crude insults.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R11",
+      "number": 11,
+      "title": "No dangerous stunts a kid could copy",
+      "verdict": "pass",
+      "reason": "No real-life-copyable dangerous stunts (fire, outlets, medicine, unsafe climbing) are shown or rewarded; the maze and spike hazard are clearly fantastical game elements.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R12",
+      "number": 12,
+      "title": "No gambling or casino-style mechanics",
+      "verdict": "pass",
+      "reason": "No spin-the-wheel, loot box, or chance-based reward mechanic appears; the only outcome shown is a fixed \"You found the way out!\" win state with a \"Play again\" choice.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R13",
+      "number": 13,
+      "title": "No money, ads or data",
+      "verdict": "pass",
+      "reason": "No prices, store, ads, sign-in/account screen, personal-data prompt, chat, or outbound links appear anywhere; only a local FPS/position debug overlay and game UI are shown.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R14",
+      "number": 14,
+      "title": "No manipulative design",
+      "verdict": "pass",
+      "reason": "There is no countdown, streak, energy timer, or guilt-trip button; on winning, the child gets a plain optional \"Play again\" button with no forced autoplay into a next level.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R15",
+      "number": 15,
+      "title": "Safe for the senses",
+      "verdict": "pass",
+      "reason": "Screenshots show flat, evenly lit scenes with no strobing or rapid colour changes, and the source has zero audio files, so no sudden loud sound is possible.",
+      "screenshot": null,
+      "screenshotPath": null
+    },
+    {
+      "rule": "R16",
+      "number": 16,
+      "title": "Kids always have control",
+      "verdict": "fail",
+      "reason": "No pause button, mute button, or quit/home control is visible on any screen (menu, playing, failing, or winning) — only debug FPS/position text, control instructions, and (on the win screen) a \"Play again\" button are shown; failing itself only costs a little progress (back to the maze start), which is fine, but the missing pause/mute/quit controls fail the rule.",
+      "screenshot": "playing-walk.png",
+      "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/playing-walk.png",
+      "finding": {
+        "check": "claude-rules",
+        "status": "fail",
+        "summary": "Claude fail: No pause button, mute button, or quit/home control is visible on any screen (menu, playing, failing, or winning) — only debug FPS/position text, control instructions, and (on the win screen) a \"Play again\" button are shown; failing itself only costs a little progress (back to the maze start), which is fine, but the missing pause/mute/quit controls fail the rule.",
+        "rule": "R16",
+        "evidence": {
+          "screenshot": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/playing-walk.png",
+          "details": {
+            "verdict": "fail",
+            "title": "Kids always have control"
+          }
+        },
+        "fingerprint": "0b08429f7156"
+      },
+      "needsHuman": true
+    }
+  ],
+  "bracketResults": {
+    "5-7": {
+      "label": "Early readers",
+      "result": "fail",
+      "checks": [
+        {
+          "check": "reading",
+          "title": "Reading needed",
+          "verdict": "warn",
+          "claudeVerdict": "warn",
+          "severity": "warn",
+          "reason": "The controls panel is one instruction a child must parse, but it's ~25 words with key names, arrow symbols, and abbreviations (\"W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look\") — far over 5 words. The spike message \"Ouch! A spike sent you back to the start.\" is 8 words. Only \"You found the way out!\" (5 words) and \"Level 1\" (2 words) fit the threshold.",
+          "screenshot": "menu-start.png",
+          "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/menu-start.png",
+          "threshold": {
+            "max_words_per_instruction": 5,
+            "audio_with_text": true
+          },
+          "finding": {
+            "check": "claude-rubric",
+            "status": "warn",
+            "summary": "Claude warn: The controls panel is one instruction a child must parse, but it's ~25 words with key names, arrow symbols, and abbreviations (\"W/↑ Forward | S/↓ Back A/← Strafe Left | D/→ Strafe Right Mouse to Look Around Touch: drag left side to move, right side to look\") — far over 5 words. The spike message \"Ouch! A spike sent you back to the start.\" is 8 words. Only \"You found the way out!\" (5 words) and \"Level 1\" (2 words) fit the threshold.",
+            "rubricCheck": "reading",
+            "bracket": "5-7",
+            "evidence": {
+              "screenshot": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/menu-start.png",
+              "details": {
+                "severity": "warn"
+              }
+            },
+            "fingerprint": "0c9b3f32c481"
+          }
+        },
+        {
+          "check": "spoken-instructions",
+          "title": "Spoken, replayable instructions",
+          "verdict": "fail",
+          "claudeVerdict": "fail",
+          "severity": "fail",
+          "reason": "Source shows 0 audio files, no speechSynthesis, no WebAudio, and no <audio> elements — none of the on-screen text (controls, spike message, win message) is spoken or replayable, which this bracket requires for early/non-readers.",
+          "screenshot": "menu-start.png",
+          "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/menu-start.png",
+          "threshold": {
+            "spoken_instructions": "required",
+            "replayable": true
+          },
+          "finding": {
+            "check": "claude-rubric",
+            "status": "fail",
+            "summary": "Claude fail: Source shows 0 audio files, no speechSynthesis, no WebAudio, and no <audio> elements — none of the on-screen text (controls, spike message, win message) is spoken or replayable, which this bracket requires for early/non-readers.",
+            "rubricCheck": "spoken-instructions",
+            "bracket": "5-7",
+            "evidence": {
+              "screenshot": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/menu-start.png",
+              "details": {
+                "severity": "fail"
+              }
+            },
+            "fingerprint": "2e491975e24d"
+          }
+        },
+        {
+          "check": "time-pressure",
+          "title": "Time pressure",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "warn",
+          "reason": "No visible timer, countdown, or racing opponent in any screenshot; the FPS counter is a dev stat, not player-facing pressure. Play is self-paced.",
+          "screenshot": null,
+          "screenshotPath": null,
+          "threshold": {
+            "time_pressure": "gentle-optional"
+          }
+        },
+        {
+          "check": "failing",
+          "title": "Failing",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "warn",
+          "reason": "On touching the spike the player is already back at the start position (2.5, 0.0, 2.5, matching menu-start.png) by the first failing screenshot, so retry is instant, not a multi-second delay. Wording is soft (\"sent you back to the start\", no death/lose language). Minor note: the bold red banner and \"Ouch!\" reads a bit alarming for the youngest kids even though the mechanic itself is gentle — consider a softer color/word (e.g. a yellow \"Oops! Back to the start\").",
+          "screenshot": "failing-spike.png",
+          "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/failing-spike.png",
+          "threshold": {
+            "failing": "soft-fail",
+            "instant_retry": true,
+            "max_retry_s": 3
+          }
+        },
+        {
+          "check": "things-on-screen",
+          "title": "Things on screen at once",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "warn",
+          "reason": "At most ~4-5 competing elements at once (FPS/Position box, Controls box, Level badge, plus the spike hazard or a message banner) — within the 5-6 target. Worth flagging: the FPS/Position debug overlay (e.g. \"Position: 7.5, 0.0, 2.5\") looks like leftover dev-tooling rather than something meant for a young child and adds visual noise; recommend hiding it in the kid-facing build.",
+          "screenshot": "menu-start.png",
+          "screenshotPath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z/keyshots/menu-start.png",
+          "threshold": {
+            "max_things_on_screen": 6,
+            "target_range": [
+              5,
+              6
+            ]
+          }
+        },
+        {
+          "check": "scariness",
+          "title": "Scariness",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "fail",
+          "reason": "Low-poly, brightly colored environment (sky blue, green grass) with a geometric grey spike trap rather than a menacing creature; the win screen's dim brown vignette around the door is moody but not threatening. Overall reads as mild, cartoon-level peril appropriate for 5-7.",
+          "screenshot": null,
+          "screenshotPath": null,
+          "threshold": {
+            "scariness": "mild-cartoon-peril"
+          }
+        },
+        {
+          "check": "contrast",
+          "title": "Contrast",
+          "verdict": "pass",
+          "claudeVerdict": "pass",
+          "severity": "warn",
+          "reason": "Text panels use white/light-grey text on solid dark backgrounds (Controls box, FPS/Position box, Level badge, red Ouch! banner, win message) — all comfortably above 4.5:1. The spike hazard is distinguished by its shape/silhouette, not color alone, so no information relies on color perception.",
+          "screenshot": null,
+          "screenshotPath": null,
+          "threshold": {
+            "min_contrast_ratio": 4.5,
+            "color_alone": false
+          }
+        }
+      ]
+    }
+  },
+  "advisory": {
+    "result": "fail",
+    "strictestBracket": "5-7",
+    "note": "Bracket checks are advisory (AI verdicts); the strictest chosen bracket sets this result."
+  }
+}

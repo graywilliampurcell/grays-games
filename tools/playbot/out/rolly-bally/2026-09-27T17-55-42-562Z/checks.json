@@ -1,0 +1,397 @@
+{
+  "game": "rolly-bally",
+  "baseUrl": "http://192.168.1.9:9076/rolly-bally/",
+  "brackets": [
+    "2-4",
+    "5-7",
+    "8-10",
+    "11-13"
+  ],
+  "only": [
+    "flashing"
+  ],
+  "startedAt": "2026-09-27T17:55:42.565Z",
+  "finishedAt": "2026-09-27T17:56:25.954Z",
+  "summary": {
+    "overall": "WARN",
+    "brackets": {
+      "2-4": {
+        "status": "WARN",
+        "counts": {
+          "pass": 3,
+          "info": 0,
+          "warn": 1,
+          "fail": 0
+        },
+        "fails": [],
+        "warns": [
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-playground",
+            "summary": "play (5.0 s @60fps): max 0 flashes/s over a 1/3-screen area, red 0/s, whole frame 0/s, local (1/6-screen) 3/s (limit 3/s)",
+            "fingerprint": "f2a421ba54b8"
+          }
+        ]
+      },
+      "5-7": {
+        "status": "WARN",
+        "counts": {
+          "pass": 3,
+          "info": 0,
+          "warn": 1,
+          "fail": 0
+        },
+        "fails": [],
+        "warns": [
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-playground",
+            "summary": "play (5.0 s @60fps): max 0 flashes/s over a 1/3-screen area, red 0/s, whole frame 0/s, local (1/6-screen) 3/s (limit 3/s)",
+            "fingerprint": "f2a421ba54b8"
+          }
+        ]
+      },
+      "8-10": {
+        "status": "WARN",
+        "counts": {
+          "pass": 3,
+          "info": 0,
+          "warn": 1,
+          "fail": 0
+        },
+        "fails": [],
+        "warns": [
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-playground",
+            "summary": "play (5.0 s @60fps): max 0 flashes/s over a 1/3-screen area, red 0/s, whole frame 0/s, local (1/6-screen) 3/s (limit 3/s)",
+            "fingerprint": "f2a421ba54b8"
+          }
+        ]
+      },
+      "11-13": {
+        "status": "WARN",
+        "counts": {
+          "pass": 3,
+          "info": 0,
+          "warn": 1,
+          "fail": 0
+        },
+        "fails": [],
+        "warns": [
+          {
+            "check": "flashing",
+            "rule": "R15",
+            "target": "home-playground",
+            "summary": "play (5.0 s @60fps): max 0 flashes/s over a 1/3-screen area, red 0/s, whole frame 0/s, local (1/6-screen) 3/s (limit 3/s)",
+            "fingerprint": "f2a421ba54b8"
+          }
+        ]
+      }
+    },
+    "rules": {
+      "R15": "warn"
+    },
+    "checks": {
+      "flashing": {
+        "status": "warn",
+        "perBracket": {
+          "all": "warn"
+        },
+        "count": 4
+      }
+    },
+    "alwaysTrueFails": [],
+    "counts": {
+      "pass": 3,
+      "info": 0,
+      "warn": 1,
+      "fail": 0
+    }
+  },
+  "targets": [
+    {
+      "target": "home-playground",
+      "url": "http://192.168.1.9:9076/rolly-bally/?test=1",
+      "hook": "ready",
+      "screenshot": "home-playground-load.png",
+      "playFrames": 300,
+      "seconds": 13.841
+    },
+    {
+      "target": "home-race",
+      "url": "http://192.168.1.9:9076/rolly-bally/?test=1",
+      "hook": "ready",
+      "screenshot": "home-race-load.png",
+      "playFrames": 300,
+      "seconds": 11.657
+    },
+    {
+      "target": "mode-test-track-test-1",
+      "url": "http://192.168.1.9:9076/rolly-bally/?mode=test-track&test=1",
+      "hook": "ready",
+      "screenshot": "mode-test-track-test-1-load.png",
+      "playFrames": 300,
+      "seconds": 9.335
+    },
+    {
+      "target": "gallery-1-test-1",
+      "url": "http://192.168.1.9:9076/rolly-bally/?gallery=1&test=1",
+      "hook": "ready",
+      "screenshot": "gallery-1-test-1-load.png",
+      "playFrames": 300,
+      "seconds": 8.478
+    }
+  ],
+  "judgmentsApplied": 0,
+  "findings": [
+    {
+      "check": "flashing",
+      "status": "warn",
+      "summary": "play (5.0 s @60fps): max 0 flashes/s over a 1/3-screen area, red 0/s, whole frame 0/s, local (1/6-screen) 3/s (limit 3/s)",
+      "rule": "R15",
+      "target": "home-playground",
+      "evidence": {
+        "screenshot": "home-playground-play-flash-frames.png",
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "warn",
+          "general": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "red": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "local": {
+            "maxTransitionsPerSecond": 7,
+            "maxFlashesPerSecond": 3,
+            "worstStartFrame": 125,
+            "worstWindow": {
+              "x": 0.03125,
+              "y": 0.125,
+              "w": 0.15625,
+              "h": 0.16666666666666666
+            }
+          },
+          "localRed": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "changeShots": [],
+          "contactSheet": "home-playground-play-flash-frames.png",
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "f2a421ba54b8"
+    },
+    {
+      "check": "flashing",
+      "status": "pass",
+      "summary": "play (5.0 s @60fps): max 0 flashes/s over a 1/3-screen area, red 0/s, whole frame 0/s, local (1/6-screen) 0/s (limit 3/s)",
+      "rule": "R15",
+      "target": "home-race",
+      "evidence": {
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "pass",
+          "general": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "red": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "local": {
+            "maxTransitionsPerSecond": 1,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 293,
+            "worstWindow": {
+              "x": 0.1875,
+              "y": 0.5833333333333334,
+              "w": 0.15625,
+              "h": 0.16666666666666666
+            }
+          },
+          "localRed": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "changeShots": [],
+          "contactSheet": null,
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "4157ba98e542"
+    },
+    {
+      "check": "flashing",
+      "status": "pass",
+      "summary": "play (5.0 s @60fps): max 0 flashes/s over a 1/3-screen area at 0%,21%, red 0/s, whole frame 0/s, local (1/6-screen) 1/s (limit 3/s)",
+      "rule": "R15",
+      "target": "mode-test-track-test-1",
+      "evidence": {
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "pass",
+          "general": {
+            "maxTransitionsPerSecond": 1,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 238,
+            "worstWindow": {
+              "x": 0,
+              "y": 0.20833333333333334,
+              "w": 0.34375,
+              "h": 0.3333333333333333
+            }
+          },
+          "red": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "local": {
+            "maxTransitionsPerSecond": 2,
+            "maxFlashesPerSecond": 1,
+            "worstStartFrame": 193,
+            "worstWindow": {
+              "x": 0.1875,
+              "y": 0.20833333333333334,
+              "w": 0.15625,
+              "h": 0.16666666666666666
+            }
+          },
+          "localRed": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "changeShots": [
+            {
+              "frame": 122,
+              "area": 0.3046875,
+              "screenshot": "mode-test-track-test-1-play-f122.png"
+            },
+            {
+              "frame": 238,
+              "area": 0.30859375,
+              "screenshot": "mode-test-track-test-1-play-f238.png"
+            }
+          ],
+          "contactSheet": null,
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "efca8b9f9188"
+    },
+    {
+      "check": "flashing",
+      "status": "pass",
+      "summary": "play (5.0 s @60fps): max 0 flashes/s over a 1/3-screen area at 0%,38%, red 0/s, whole frame 0/s, local (1/6-screen) 0/s (limit 3/s)",
+      "rule": "R15",
+      "target": "gallery-1-test-1",
+      "evidence": {
+        "details": {
+          "frames": 300,
+          "seconds": 5,
+          "status": "pass",
+          "general": {
+            "maxTransitionsPerSecond": 1,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 194,
+            "worstWindow": {
+              "x": 0,
+              "y": 0.375,
+              "w": 0.34375,
+              "h": 0.3333333333333333
+            }
+          },
+          "red": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "local": {
+            "maxTransitionsPerSecond": 1,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 194,
+            "worstWindow": {
+              "x": 0.4375,
+              "y": 0.125,
+              "w": 0.15625,
+              "h": 0.16666666666666666
+            }
+          },
+          "localRed": {
+            "maxTransitionsPerSecond": 0,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 0,
+            "worstWindow": null
+          },
+          "mean": {
+            "maxTransitionsPerSecond": 1,
+            "maxFlashesPerSecond": 0,
+            "worstStartFrame": 194,
+            "worstWindow": {
+              "x": 0,
+              "y": 0,
+              "w": 1,
+              "h": 1
+            }
+          },
+          "changeShots": [
+            {
+              "frame": 194,
+              "area": 0.4401041666666667,
+              "screenshot": "gallery-1-test-1-play-f194.png"
+            }
+          ],
+          "contactSheet": null,
+          "note": "Canvas only; DOM overlays are not sampled. The contact sheet shows the worst 1 s window (60 frames, 1/60 s apart, downscaled)."
+        }
+      },
+      "fingerprint": "4c6350034fd5"
+    }
+  ]
+}

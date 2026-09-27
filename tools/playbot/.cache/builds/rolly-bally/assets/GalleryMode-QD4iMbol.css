@@ -1,0 +1,56 @@
+/* Track piece gallery HUD (debug page). */
+.gal-caption {
+  position: absolute;
+  top: calc(16px + var(--rb-safe-top));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 18px;
+  border-radius: var(--rb-radius-sm);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--rb-ink);
+  font-size: 20px;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.gal-caption small {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.7;
+  text-align: center;
+}
+
+.gal-buttons {
+  position: absolute;
+  left: calc(16px + var(--rb-safe-left));
+  bottom: calc(16px + var(--rb-safe-bottom));
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.gal-buttons .rb-btn {
+  position: relative;
+}
+
+.gal-buttons .gal-badge {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border-radius: 15px;
+  background: var(--rb-ink);
+  color: var(--rb-white);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 30px;
+  pointer-events: none;
+}
+
+.gal-buttons .rb-btn[aria-pressed='false'] {
+  opacity: 0.55;
+}

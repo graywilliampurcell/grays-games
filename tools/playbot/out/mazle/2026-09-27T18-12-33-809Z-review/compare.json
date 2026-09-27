@@ -1,0 +1,279 @@
+{
+  "game": "mazle",
+  "runDir": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T18-12-33-809Z-review",
+  "createdAt": "2026-09-27T18:27:11.960Z",
+  "brackets": [
+    "5-7"
+  ],
+  "bracketsFrom": "user (--brackets)",
+  "testerProfile": null,
+  "comparablesMode": "claude-picks",
+  "comparablesNote": "No Tester profile: Claude picked these comparable games for this run: PBS KIDS mazes, ABCya logic and path puzzles, Pac-Man, Monument Valley.",
+  "comparables": [
+    {
+      "title": "PBS KIDS mazes",
+      "compare": "Onboarding style (spoken goal + replay-voice vs. mazle's 25-word text box), idle hints, and how failure is handled for pre-readers",
+      "why": "Same character-led simple-maze genre aimed squarely at the 5-7 bracket, and it does the exact things mazle's automatic checks flagged as missing: audio-first instructions and hints when idle",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/pbs-kids-mazes.json"
+    },
+    {
+      "title": "ABCya logic and path puzzles",
+      "compare": "Grade-banded difficulty framing and instruction wording length against mazle's flat single-maze difficulty and 25-word Controls box",
+      "why": "Directly comparable maze/path-puzzle genre with instructions and difficulty explicitly graded for early-elementary readers, useful for judging whether mazle's text is age-appropriate",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/abcya-logic-and-path-puzzles.json"
+    },
+    {
+      "title": "Pac-Man",
+      "compare": "Constant audio feedback on every action/pickup versus mazle's total silence, and pacing of danger feedback",
+      "why": "Classic maze-chase game where sound reinforces every event; mazle has zero audio anywhere, making this the sharpest reference point for what audio feedback could add (chase tension itself is not a model to copy for 5-7)",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/pac-man.json"
+    },
+    {
+      "title": "Monument Valley",
+      "compare": "Wordless onboarding, affordance highlighting, and no-fail/low-stakes design versus mazle's reading-dependent instructions and instant reset-to-start on hazard hit",
+      "why": "Best-in-class example of teaching a spatial navigation puzzle without any reading, which is precisely the gap the automatic checks found in mazle for this age bracket",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/monument-valley.json"
+    }
+  ],
+  "summary": "Mazle passes the low-stakes/no-monetization bar cleanly for 5-7 year olds, but the automatic checks are right that it's built like a tool for testing, not a game for pre-readers: a 25-word text-only Controls box, total silence, no hints when a child gets lost, and no on-screen pause/mute/quit make it inaccessible without adult reading help. PBS KIDS mazes and Monument Valley both show that the same maze-navigation goal can be taught and supported with zero required reading, and Pac-Man shows how much a few short sounds add to a currently-silent game. Fixing spoken onboarding, idle hints, basic sound, and a visible exit control would close most of the gap without changing mazle's core loop or art style.",
+  "items": [
+    {
+      "rank": 1,
+      "area": "onboarding",
+      "compared_with": [
+        "PBS KIDS mazes",
+        "Monument Valley"
+      ],
+      "they_do": "PBS KIDS mazes has a known character speak the goal aloud with a replay-voice button so nothing depends on reading; Monument Valley teaches the whole navigation mechanic wordlessly, with glowing handles showing what to do, so zero words appear before the child's first input.",
+      "we_do": "Mazle opens straight into play with an always-on 25-word Controls text box (5x over the 5-word/5-7 reading threshold) and no spoken alternative; 0 taps before play, but the instructions require reading, which the automatic checks flagged as a fail for this bracket.",
+      "suggestion": "Add a 3-4 word spoken line via Web Speech API's speechSynthesis at level start (e.g. 'Find the door!'), and shrink the Controls box to arrow-key icons instead of sentences so it doesn't require reading at all.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 2,
+      "area": "usability",
+      "compared_with": [
+        "PBS KIDS mazes"
+      ],
+      "they_do": "PBS KIDS mazes gives a gentle nudge (voice line or highlight) if a child pauses too long, built specifically for pre-readers who get stuck easily.",
+      "we_do": "Mazle's automatic checks found no visible hint within 20s of idling and a hard fail at 60s+; the kid-persona runs had 2 stuck episodes on average and one run took 168s to finish versus a 22.7s solver time.",
+      "suggestion": "After ~15s with no forward progress, briefly pulse or glow the wall opening that leads toward the door so the child has a visual nudge without any text.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 3,
+      "area": "usability",
+      "compared_with": [
+        "ABCya logic and path puzzles",
+        "Monument Valley"
+      ],
+      "they_do": "ABCya breaks its content into short, discrete puzzles with clear stopping points between them, and Monument Valley gives each chapter a natural stopping point, so a child (or parent) always has an obvious place to step away.",
+      "we_do": "Mazle is a single continuous level with no pause, mute, or quit control anywhere on the playing screen, which the automatic checks flagged directly.",
+      "suggestion": "Add one small, always-visible icon button (no text) in a corner that pauses the maze and returns to the start/replay screen, so a parent or child can exit mid-level without losing track of what's happening.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 4,
+      "area": "art and audio",
+      "compared_with": [
+        "Pac-Man",
+        "PBS KIDS mazes"
+      ],
+      "they_do": "Pac-Man plays a distinct sound on every dot eaten and every ghost event, and PBS KIDS mazes has full voice-over and music throughout, so feedback is constant and audio-first.",
+      "we_do": "Mazle has 0 audio files and no WebAudio or speechSynthesis anywhere in the source; the spike hit is a silent instant reset with only a red text toast.",
+      "suggestion": "Add 2-3 short oscillator-based WebAudio tones with no external files needed: a soft thud when the spike is hit and a cheerful chime when the door is reached.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 5,
+      "area": "goals and rewards",
+      "compared_with": [
+        "ABCya logic and path puzzles",
+        "PBS KIDS mazes"
+      ],
+      "they_do": "ABCya gives level progress plus simple praise on completion, and PBS KIDS mazes has the character celebrate and sometimes awards stickers or collectibles.",
+      "we_do": "Mazle's only reward is a text screen reading 'You found the way out!' with a Play again button — no stars, collectibles, or celebration animation.",
+      "suggestion": "Add a 1-2 second celebration on finish (the door swings open, a small confetti burst, a cheerful chime) before showing the Play again button.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 6,
+      "area": "difficulty curve",
+      "compared_with": [
+        "ABCya logic and path puzzles",
+        "PBS KIDS mazes"
+      ],
+      "they_do": "ABCya explicitly grades difficulty by age/grade band, and PBS KIDS mazes keeps paths very short and gentle so kids almost never get lost.",
+      "we_do": "Mazle's 7x7-cell maze is flat and untuned for age: the solver finishes in 22.7s, but the 5-7 persona ranged 45-168s with 2 stuck episodes, so nearly all the difficulty comes from getting lost rather than the single hazard.",
+      "suggestion": "For the 5-7 bracket, shrink the maze to roughly 4x4-5x5 cells, or lay a faint trail of collectible dots along the correct path so a lost child has a visible thread to follow.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 7,
+      "area": "accessibility",
+      "compared_with": [
+        "PBS KIDS mazes",
+        "ABCya logic and path puzzles"
+      ],
+      "they_do": "PBS KIDS mazes and ABCya use large, solid-background UI elements built for early readers, so buttons stay high-contrast regardless of the scene behind them.",
+      "we_do": "The automatic check flagged mazle's brown 'Play again' button as borderline contrast because it sits directly over the shifting 3D background.",
+      "suggestion": "Give the 'Play again' button a solid high-contrast panel (e.g. a white or dark rounded rectangle) behind it so its contrast never depends on the 3D scene.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 8,
+      "area": "game feel",
+      "compared_with": [
+        "Pac-Man",
+        "Monument Valley"
+      ],
+      "they_do": "Pac-Man and Monument Valley both give tight, instant feedback (sound and/or motion) on every relevant event, with no perceptible jank.",
+      "we_do": "Mazle runs at 38.5 FPS average on a software renderer with p95 frame time of 66.7ms and a 550ms max spike, and the spike hit has no juice at all — just an instant reset and a text toast.",
+      "suggestion": "Add a brief screen-flash plus the new hit sound on spike contact, and check whether hardware rendering can be forced (avoiding the SwiftShader fallback) to cut the worst frame spikes.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "low"
+    },
+    {
+      "rank": 9,
+      "area": "ads and purchases",
+      "compared_with": [
+        "ABCya logic and path puzzles",
+        "Monument Valley"
+      ],
+      "they_do": "ABCya shows ads on its free tier (removable only via paid subscription), while Monument Valley is paid up-front but still ad-free.",
+      "we_do": "Mazle has no ads, no IAP prompts, and confirmed same-origin-only network traffic with no analytics or trackers.",
+      "suggestion": "Keep mazle ad- and tracker-free as features are added; if analytics are ever needed, log same-origin only rather than adding a third-party SDK.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "low"
+    }
+  ],
+  "patterns": {
+    "present": [
+      {
+        "pattern": "Instant retry",
+        "evidence": "Hitting the spike causes an instant reset to the start with a red text toast and no menu in the way, per the game_feel and difficulty_curve notes."
+      },
+      {
+        "pattern": "Natural stopping points",
+        "evidence": "Reaching the door shows a 'You found the way out!' screen with a Play again button that waits for input; no autoplay into another level."
+      }
+    ],
+    "missing": [
+      {
+        "pattern": "Show, don't tell (onboarding by doing)",
+        "suggestion": "Replace the 25-word text Controls box with a short animated hand/arrow prompt shown over the first few seconds of play.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Hints when stuck",
+        "suggestion": "Trigger a glow or arrow toward the next open corridor after ~15s of no forward progress, well inside the 20s threshold the automatic checks use.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Sound on every tap / celebration on every success",
+        "suggestion": "Add a hazard-hit thud and a door-reached chime using short WebAudio tones; no external audio files required.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Collectibles and stars",
+        "suggestion": "Add a few small pickups along the maze path that reward exploration even before reaching the door.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Guide character",
+        "suggestion": "Consider a simple friendly on-screen marker or voice line at start ('Find the door!') rather than a full character, to keep scope small.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Gentle difficulty ramp",
+        "suggestion": "Since only one flat maze exists, size it for the bracket (smaller for 5-7) rather than using one fixed 7x7 layout for everyone.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Juice / game feel",
+        "suggestion": "Add a small visual/audio reaction on the spike hit instead of an instant silent reset, so failure reads as a game event rather than a glitch.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      }
+    ],
+    "avoid_seen": []
+  },
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5",
+    "seconds": 101,
+    "costUsd": 0.1754272
+  },
+  "ourProfile": {
+    "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/mazle.json",
+    "source": "bot-run",
+    "cached": true,
+    "profile": {
+      "game": "mazle",
+      "source": "bot-run",
+      "brackets": [
+        "5-7"
+      ],
+      "genre": "3D first-person maze/escape (perfect-maze navigation with one hazard)",
+      "web_playable": "yes",
+      "onboarding": "No menu; level opens straight into play with an always-on Controls text box (25 words) and an FPS/position debug readout overlaid on the maze — 0 taps before play (taps-to-play check passed) but the instructions require reading, not listening.",
+      "controls": "Keyboard: W/↑ forward, S/↓ back, A/← strafe left, D/→ strafe right, mouse to look; touch: drag left side to move, drag right side to look — no on-screen buttons.",
+      "core_loop": "Walk/strafe through a 7x7-cell (29x29 block) maze corridor by corridor, avoiding one spike trap, until reaching the door to win.",
+      "goals_and_rewards": "Single goal per level: find the door; reward is a text screen \"You found the way out!\" with a \"Play again\" button — no stars, collectibles, or other unlocks seen.",
+      "difficulty_curve": "Flat within the level (one maze, one hazard); solver bot finished in 22.7s near-optimally, kid persona (5-7) won 100% of 3 runs with a median 54s and one run taking 168s after getting stuck twice, so difficulty spikes mainly from getting lost, not from the spike itself.",
+      "game_feel": "Reported FPS is 38.5 average (software/SwiftShader renderer) with p95 frame time 66.7ms and a max frame spike of 550ms; no juice/particles/screen-shake seen on spike hit, just an instant reset to start and a red text toast, with no sound on any input (0 audio files, no speechSynthesis/WebAudio).",
+      "art_and_audio": "Flat-shaded low-poly 3D style (sky-blue sky, grey walls, green floor, dark grey spike cluster, brown door); completely silent — no music, sound effects, or voice-over anywhere in the source.",
+      "session_length": "One level explored in this run; kid-persona sessions ranged 45-168 seconds to win, fitting well inside the target 5-10 minute session cap (capS 600s, 0 quits).",
+      "usability": "Menu-less entry and clear FPS/position debug readout are good for testing but the 25-word always-on Controls text is far above the 5-word/5-7 reading threshold and there's no spoken alternative; the explorer bot needed up to 878 iterations to fully map the maze and there were 2 stuck episodes on average across kid runs, with the automatic checks also flagging no visible hint within 20s of idling (fails at 60s+) and no pause/mute/quit control anywhere on the playing screen.",
+      "accessibility": "No color-alone cues noted (spike and door are distinct 3D shapes, not just color); text appears high-contrast in most boxes but the automatic check couldn't fully verify contrast against the shifting 3D background and flagged the brown \"Play again\" button as borderline; no mute control exists (moot since there's no audio); touch support exists (drag zones) but touch-target check found no tappable DOM elements to size-check since it's canvas-only; page also disables pinch-zoom (axe: meta-viewport moderate warning).",
+      "ads_and_purchases": "None seen: no ads, no in-app purchase prompts, no external links, and network check confirmed all requests stayed same-origin with no analytics/tracker calls.",
+      "notes": "Automatic checks overall result was FAIL for the 5-7 bracket, driven by: no spoken instructions (loudness check, required for this bracket), reading level over threshold, no visible pause/mute/quit control, and no hint within the 20s target when idle/stuck; Claude's rubric review agreed and additionally called out the spike's fail message and reset-to-start as low-stakes and non-scary, and confirmed no time pressure and an uncluttered screen (3-5 UI elements) during normal play."
+    }
+  },
+  "cost": {
+    "seconds": 121,
+    "costUsd": 0.276
+  }
+}

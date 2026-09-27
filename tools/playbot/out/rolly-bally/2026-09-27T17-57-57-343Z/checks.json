@@ -1,0 +1,439 @@
+{
+  "game": "rolly-bally",
+  "baseUrl": "http://192.168.1.9:9076/rolly-bally/",
+  "brackets": [
+    "2-4",
+    "5-7",
+    "8-10",
+    "11-13"
+  ],
+  "only": [
+    "network",
+    "links-out",
+    "input-fields",
+    "permissions",
+    "word-scan"
+  ],
+  "startedAt": "2026-09-27T17:57:57.349Z",
+  "finishedAt": "2026-09-27T17:58:04.502Z",
+  "summary": {
+    "overall": "PASS",
+    "brackets": {
+      "2-4": {
+        "status": "PASS",
+        "counts": {
+          "pass": 5,
+          "info": 4,
+          "warn": 0,
+          "fail": 0
+        },
+        "fails": [],
+        "warns": []
+      },
+      "5-7": {
+        "status": "PASS",
+        "counts": {
+          "pass": 5,
+          "info": 4,
+          "warn": 0,
+          "fail": 0
+        },
+        "fails": [],
+        "warns": []
+      },
+      "8-10": {
+        "status": "PASS",
+        "counts": {
+          "pass": 5,
+          "info": 4,
+          "warn": 0,
+          "fail": 0
+        },
+        "fails": [],
+        "warns": []
+      },
+      "11-13": {
+        "status": "PASS",
+        "counts": {
+          "pass": 5,
+          "info": 4,
+          "warn": 0,
+          "fail": 0
+        },
+        "fails": [],
+        "warns": []
+      }
+    },
+    "rules": {
+      "R13": "info",
+      "R04": "info",
+      "R01": "info",
+      "R12": "info"
+    },
+    "checks": {
+      "network": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "permissions": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "links-out": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "input-fields": {
+        "status": "pass",
+        "perBracket": {
+          "all": "pass"
+        },
+        "count": 1
+      },
+      "word-scan": {
+        "status": "info",
+        "perBracket": {
+          "all": "info"
+        },
+        "count": 5
+      }
+    },
+    "alwaysTrueFails": [],
+    "counts": {
+      "pass": 5,
+      "info": 4,
+      "warn": 0,
+      "fail": 0
+    }
+  },
+  "targets": [
+    {
+      "target": "home-playground",
+      "url": "http://192.168.1.9:9076/rolly-bally/?test=1",
+      "hook": "ready",
+      "screenshot": "home-playground-load.png",
+      "seconds": 3.176
+    },
+    {
+      "target": "home-race",
+      "url": "http://192.168.1.9:9076/rolly-bally/?test=1",
+      "hook": "ready",
+      "screenshot": "home-race-load.png",
+      "seconds": 2.672
+    },
+    {
+      "target": "mode-test-track-test-1",
+      "url": "http://192.168.1.9:9076/rolly-bally/?mode=test-track&test=1",
+      "hook": "ready",
+      "screenshot": "mode-test-track-test-1-load.png",
+      "seconds": 0.548
+    },
+    {
+      "target": "gallery-1-test-1",
+      "url": "http://192.168.1.9:9076/rolly-bally/?gallery=1&test=1",
+      "hook": "ready",
+      "screenshot": "gallery-1-test-1-load.png",
+      "seconds": 0.544
+    }
+  ],
+  "judgmentsApplied": 0,
+  "findings": [
+    {
+      "check": "network",
+      "status": "pass",
+      "summary": "All 37 requests stayed on http://192.168.1.9:9076 (0 data:/blob:); no analytics globals",
+      "rule": "R13",
+      "evidence": {
+        "details": {
+          "sameOrigin": 37,
+          "local": 0,
+          "trackerListSize": 99345
+        }
+      },
+      "fingerprint": "af8adb1e2748"
+    },
+    {
+      "check": "permissions",
+      "status": "pass",
+      "summary": "No permission prompts requested",
+      "rule": "R13",
+      "evidence": {
+        "details": {
+          "checkedTargets": [
+            "home-playground",
+            "home-race",
+            "mode-test-track-test-1",
+            "gallery-1-test-1"
+          ]
+        }
+      },
+      "fingerprint": "d2a5d9ccc70d"
+    },
+    {
+      "check": "links-out",
+      "status": "pass",
+      "summary": "No links out, window.open, popups or navigations away (10 screens)",
+      "rule": "R13",
+      "evidence": {
+        "details": {
+          "screens": [
+            "home-playground:load",
+            "home-playground:tap1-Playground",
+            "home-playground:tap2-Go",
+            "home-playground:playing",
+            "home-race:load",
+            "home-race:tap1-Race",
+            "home-race:tap2-Go",
+            "home-race:playing",
+            "mode-test-track-test-1:load",
+            "gallery-1-test-1:load"
+          ]
+        }
+      },
+      "fingerprint": "cc0f5c3a3de0"
+    },
+    {
+      "check": "input-fields",
+      "status": "pass",
+      "summary": "No text/email/password inputs on any screen",
+      "rule": "R13",
+      "evidence": {
+        "details": {}
+      },
+      "fingerprint": "80215d1b1a2a"
+    },
+    {
+      "check": "word-scan",
+      "status": "info",
+      "summary": "Source code hits: \"dead\", \"wound\" (2), e.g. src/rolly-bally/src/app/PlayScreen.js:17: … // Never strand a kid on a dead screen: fall back to home. …",
+      "rule": "R04",
+      "evidence": {
+        "details": {
+          "kind": "code",
+          "hits": [
+            {
+              "rule": "R04",
+              "word": "dead",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/app/PlayScreen.js:17",
+              "context": "… // Never strand a kid on a dead screen: fall back to home. …"
+            },
+            {
+              "rule": "R04",
+              "word": "wound",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackBuilder.js:93",
+              "context": "…// Quad p1-p2-p3-p4 (a loop), wound so its normal points along `o…"
+            }
+          ],
+          "total": 2
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "1f3c1ba758f7"
+    },
+    {
+      "check": "word-scan",
+      "status": "info",
+      "summary": "Source code hits: \"bleed\" (1), e.g. src/rolly-bally/src/ball/Ball.js:206: …rue); // Soft speed cap: bleed off horizontal speed above th…",
+      "rule": "R01",
+      "evidence": {
+        "details": {
+          "kind": "code",
+          "hits": [
+            {
+              "rule": "R01",
+              "word": "bleed",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/ball/Ball.js:206",
+              "context": "…rue); // Soft speed cap: bleed off horizontal speed above th…"
+            }
+          ],
+          "total": 1
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "97160c2bdbf3"
+    },
+    {
+      "check": "word-scan",
+      "status": "info",
+      "summary": "Source code hits: \"subscribe\" (3), e.g. src/rolly-bally/src/core/Events.js:8: …dlers = new Map(); } /** Subscribe; returns an unsubscribe funct…",
+      "rule": "R13",
+      "evidence": {
+        "details": {
+          "kind": "code",
+          "hits": [
+            {
+              "rule": "R13",
+              "word": "subscribe",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/core/Events.js:8",
+              "context": "…dlers = new Map(); } /** Subscribe; returns an unsubscribe funct…"
+            },
+            {
+              "rule": "R13",
+              "word": "subscribe",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/core/Save.js:98",
+              "context": "… return this.data; } /** Subscribe to changes. Returns an unsubs…"
+            },
+            {
+              "rule": "R13",
+              "word": "subscribe",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/core/Save.js:99",
+              "context": "…an unsubscribe function. */ subscribe(fn) { this.listeners.add(…"
+            }
+          ],
+          "total": 3
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "ad963fa21c0b"
+    },
+    {
+      "check": "word-scan",
+      "status": "info",
+      "summary": "Source code hits: \"slots\" (12), e.g. src/rolly-bally/src/race/RaceSim.js:72: … const slot = this.track.startSlots[0]; this.ownsBall = !ball…",
+      "rule": "R12",
+      "evidence": {
+        "details": {
+          "kind": "code",
+          "hits": [
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/race/RaceSim.js:72",
+              "context": "… const slot = this.track.startSlots[0]; this.ownsBall = !ball…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/race/RaceSim.js:93",
+              "context": "…rd); // Opponents in the slots behind, with seeded skins tha…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/race/RaceSim.js:105",
+              "context": "… slot: this.track.startSlots[1 + i], level: this…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/race/Results.js:29",
+              "context": "…es: earned medals, then empty slots. */ function medalRow(medals,…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackBuilder.js:16",
+              "context": "…nearest, // checkpoints, startSlots, laneAt, aiOffsetAt, hazardZo…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackLayout.js:12",
+              "context": "…r), forward} // layout.startSlots [{position, for…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackLayout.js:169",
+              "context": "…eckpoints = []; this.startSlots = []; this.boostZones = […"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackLayout.js:193",
+              "context": "… for (const slot of f.slots) { const fr = thi…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/TrackLayout.js:195",
+              "context": "…lot.s); this.startSlots.push({ s: fr.s,…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/pieces/start.js:2",
+              "context": "…t (0) is in front, center; AI slots behind. export const START_P…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track/pieces/start.js:25",
+              "context": "… ', s: 6, slots: [ { s: 6, latera…"
+            },
+            {
+              "rule": "R12",
+              "word": "slots",
+              "kind": "code",
+              "severity": "info",
+              "where": "src/rolly-bally/src/track-gallery/GalleryMode.js:103",
+              "context": "…) { const slot = t.startSlots[0]; return { position: …"
+            }
+          ],
+          "total": 12
+        },
+        "screenshot": "home-playground-load.png"
+      },
+      "fingerprint": "c87facbbf799"
+    },
+    {
+      "check": "word-scan",
+      "status": "pass",
+      "summary": "No flagged words in 46 game strings or in visible/source strings (18 code-only hits are info)",
+      "evidence": {
+        "details": {
+          "strings": 46,
+          "paths": [
+            "src/rolly-bally/index.html",
+            "src/rolly-bally/src",
+            "src/rolly-bally/public"
+          ]
+        }
+      },
+      "fingerprint": "247614259a94"
+    }
+  ]
+}

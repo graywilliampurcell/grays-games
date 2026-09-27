@@ -1,0 +1,270 @@
+{
+  "game": "mazle",
+  "runDir": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/out/mazle/2026-09-27T17-38-54-902Z",
+  "createdAt": "2026-09-27T17:48:33.533Z",
+  "brackets": [
+    "5-7"
+  ],
+  "bracketsFrom": "Tester profile",
+  "testerProfile": {
+    "source": "/tmp/claude-1000/-home-joep-src-github-com-graywilliampurcell-grays-games/501234c5-a67b-445a-8971-d01a4c24b97f/scratchpad/mazle-plan.md",
+    "genre": "first-person maze",
+    "focus": "the spike and its \"Ouch!\" message are allowed on purpose"
+  },
+  "comparablesMode": "tester-profile",
+  "comparablesNote": "Comparable games from the Tester profile: PBS KIDS mazes, Pac-Man, Monument Valley.",
+  "comparables": [
+    {
+      "title": "PBS KIDS mazes",
+      "compare": "onboarding and voice-over",
+      "why": "listed in the game's Tester profile",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/pbs-kids-mazes.json"
+    },
+    {
+      "title": "Pac-Man",
+      "compare": "feedback and pacing",
+      "why": "listed in the game's Tester profile",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/pac-man.json"
+    },
+    {
+      "title": "Monument Valley",
+      "compare": "wordless onboarding",
+      "why": "listed in the game's Tester profile",
+      "source": "general-knowledge-not-played",
+      "profilePath": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/comparables/monument-valley.json"
+    }
+  ],
+  "summary": "Mazle's biggest gap for 5-7 year olds is that it communicates everything through text and silence: no voice, no sound effects, and a debug overlay left on screen, where PBS KIDS mazes and Monument Valley lean on voice-over or wordless visual cues so pre-readers never have to read. The soft-fail spike and instant reset are already well-tuned for this age group and shouldn't change. Closing the audio, celebration, and stray-debug-info gaps would bring mazle much closer to genre norms for the youngest bracket without touching the core maze mechanic.",
+  "items": [
+    {
+      "rank": 1,
+      "area": "onboarding",
+      "compared_with": [
+        "PBS KIDS mazes",
+        "Monument Valley"
+      ],
+      "they_do": "PBS KIDS has a character speak the goal aloud with a replay-voice button; Monument Valley is fully wordless, using glowing handles to show what to do.",
+      "we_do": "Level 1 opens straight into the maze with a 4-line, ~30-word text-only controls box (WASD/arrows, mouse look, touch drag zones) and no spoken or visual goal cue.",
+      "suggestion": "Add a 3-word spoken line ('Find the door!') via the Web Speech API when Level 1 starts, and make the exit door glow or pulse so the goal is visible without reading.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 2,
+      "area": "art and audio",
+      "compared_with": [
+        "PBS KIDS mazes",
+        "Monument Valley"
+      ],
+      "they_do": "PBS KIDS runs full voice-over and music throughout; Monument Valley has ambient music and musical feedback on every drag, with no voice-over.",
+      "we_do": "The build ships 0 audio assets total, with no speechSynthesis, WebAudio, or <audio> elements anywhere.",
+      "suggestion": "Add a short looping ambient track (three.js/Web Audio) plus a one-shot footstep or 'whoosh' sound tied to movement so the game isn't silent for a pre-reader.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 3,
+      "area": "usability",
+      "compared_with": [
+        "Monument Valley",
+        "PBS KIDS mazes"
+      ],
+      "they_do": "Both keep the screen free of anything but game content and controls sized for the player; Monument Valley shows no fail state or stray UI at all.",
+      "we_do": "A dev-only 'FPS: Infinity / Position' debug overlay is visible on every screenshot, and no pause, mute, or quit/home control exists anywhere (fails rubric R16).",
+      "suggestion": "Hide the FPS/position readout behind a dev-only flag (e.g. ?debug=1) and add a single home-icon button in a corner that returns to Level 1.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 4,
+      "area": "accessibility",
+      "compared_with": [
+        "PBS KIDS mazes"
+      ],
+      "they_do": "Instructions are audio-first with large touch targets, so nothing depends on reading.",
+      "we_do": "The controls box and the 8-word spike message ('Ouch! A spike sent you back to the start.') both exceed the ~5-words-per-instruction target for this bracket, with no audio pairing.",
+      "suggestion": "Shorten the spike message to 'Ouch! Back to start.' (4 words) and play a short 'ouch' sound effect alongside it, keeping the spike itself unchanged since it's allowed on purpose.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "high"
+    },
+    {
+      "rank": 5,
+      "area": "game feel",
+      "compared_with": [
+        "Pac-Man"
+      ],
+      "they_do": "Pac-Man gives tight, instant response with a distinct sound on every dot eaten, so feedback is constant.",
+      "we_do": "There is no sound-on-input anywhere, including no audio cue when the player reaches the door and wins.",
+      "suggestion": "Add a short chime (WebAudio, 1-2 notes) that plays the instant the player touches the door, before the 'You found the way out!' text appears.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 6,
+      "area": "goals and rewards",
+      "compared_with": [
+        "Pac-Man",
+        "PBS KIDS mazes"
+      ],
+      "they_do": "Pac-Man awards fruit bonuses along the way; PBS KIDS games sometimes award stickers or collectibles on success.",
+      "we_do": "Winning only shows the text 'You found the way out!' with a 'Play again' button — no stars, collectibles, or unlocks appear anywhere in the evidence.",
+      "suggestion": "Show one earned star (not a 1-3 rating tied to speed or perfection, just a single star for finishing) on the win screen to give a small visible reward.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 7,
+      "area": "core loop",
+      "compared_with": [
+        "Monument Valley"
+      ],
+      "they_do": "Monument Valley clearly highlights interactive parts of the world so the player always knows what to do next.",
+      "we_do": "The maze corridors give no visual cue toward the door — the player must explore blind, relying only on the text controls box read at the start.",
+      "suggestion": "Add a faint directional glow or floor arrow near the player that points toward the door, especially useful for the youngest 5-year-olds in the bracket.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "medium"
+    },
+    {
+      "rank": 8,
+      "area": "difficulty curve",
+      "compared_with": [
+        "Pac-Man",
+        "PBS KIDS mazes"
+      ],
+      "they_do": "PBS KIDS mazes are very gentle with almost no way to fail outright; Pac-Man ramps difficulty gradually level to level.",
+      "we_do": "Only Level 1 has been measured, with no data yet on how maze size or spike placement changes across levels.",
+      "suggestion": "Keep the first 1-2 levels short and nearly impossible to fail (few corridors, spike far from the direct path), and add a small 'Level 1' counter on screen so progress is visible.",
+      "matters_for_brackets": [
+        "5-7"
+      ],
+      "priority": "low"
+    }
+  ],
+  "patterns": {
+    "present": [
+      {
+        "pattern": "Instant retry",
+        "evidence": "Touching the spike is an instant, no-cost soft fail that resets the player to the exact start position (2.5, 0.0, 2.5) rather than showing a game-over screen or menu."
+      },
+      {
+        "pattern": "Natural stopping points",
+        "evidence": "Winning shows 'You found the way out!' with a 'Play again' button; no autoplay into a next level is implied by the evidence."
+      },
+      {
+        "pattern": "Forgiving input / no punishing failure",
+        "evidence": "Hitting the spike costs only a reset to the start position, with no life system, item loss, or level restart."
+      }
+    ],
+    "missing": [
+      {
+        "pattern": "Guide character",
+        "suggestion": "Add a small friendly character or arrow that appears at level start and points toward the door, since pre-readers respond better to a character than to a text controls box.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Show, don't tell (onboarding by doing)",
+        "suggestion": "Replace or supplement the 4-line text controls box with an animated hand/arrow showing a drag-to-move gesture on the first few seconds of Level 1.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Sound on every tap",
+        "suggestion": "Add a small sound effect to the 'Play again' button press and to movement start, since the build currently has zero audio assets.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Celebration on every success",
+        "suggestion": "Pair the win text with a brief visual flourish (confetti or a color flash) and a short sound within ~0.5s of reaching the door.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Collectibles and stars",
+        "suggestion": "Add a single star reward on the win screen for finishing the level, without requiring perfection to earn it.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Hints when stuck",
+        "suggestion": "If the player idles or loops in the maze for ~15-20 seconds, show a gentle glow toward the door, sooner than for older brackets.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Visible progress",
+        "suggestion": "Add a simple level indicator (e.g. 'Level 1') so the child can see progress once more levels exist.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      },
+      {
+        "pattern": "Customisation earned by play",
+        "suggestion": "Once stars or collectibles exist, let a few earned by playing unlock a cosmetic (e.g. wall or floor color), never sold or bought.",
+        "matters_for_brackets": [
+          "5-7"
+        ]
+      }
+    ],
+    "avoid_seen": []
+  },
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5",
+    "seconds": 54,
+    "costUsd": 0.1360352
+  },
+  "ourProfile": {
+    "path": "/home/joep/src/github.com/graywilliampurcell/grays-games/tools/playbot/profiles/mazle.json",
+    "source": "bot-run (key screenshots only; no play.json yet)",
+    "cached": true,
+    "profile": {
+      "game": "mazle",
+      "source": "bot-run",
+      "brackets": [
+        "5-7"
+      ],
+      "genre": "3D first-person maze / escape",
+      "web_playable": "yes",
+      "onboarding": "No menu — Level 1 opens straight into the 3D maze with a controls box in the corner (4 lines, ~30 words: WASD/arrows, mouse look, touch drag zones); not measured in taps-to-play since no bot play.json exists, but zero taps are needed to start moving.",
+      "controls": "Keyboard W/↑ forward, S/↓ back, A/← and D/→ strafe, mouse to look; touch equivalent is drag left side to move, drag right side to look.",
+      "core_loop": "Walk the maze corridors, avoid the spike trap, find and reach the exit door.",
+      "goals_and_rewards": "One goal per level (reach the door); winning shows the text \"You found the way out!\" with a \"Play again\" button — no stars, collectibles, or unlocks seen in the evidence.",
+      "difficulty_curve": "Not measured beyond Level 1; touching the spike is an instant, no-cost soft fail (message + reset to the exact start position 2.5, 0.0, 2.5) rather than a life system or game-over screen.",
+      "game_feel": "Not measured — the only performance data is the decorative \"FPS: Infinity\" debug readout, and there is no sound-on-input since the build ships 0 audio assets.",
+      "art_and_audio": "Flat-shaded, low-poly geometric style (grey walls, green floor, pale-blue sky/ceiling panel, brown door); no audio at all — 0 audio files, no speechSynthesis, no WebAudio, no <audio> elements.",
+      "session_length": "Not measured (no play.json/time-to-win data); position readouts show the player traveled from (2.5, 2.5) to the door at roughly (27, 22) over the run.",
+      "usability": "Fails rubric R16: no pause, mute, or quit/home control appears on any screen — the only interactive element anywhere is \"Play again\" after winning. A dev-only \"FPS/Position\" debug overlay is visible on every screenshot and should be hidden before shipping.",
+      "accessibility": "Contrast is strong (white/light text on solid dark panels in every screenshot, comfortably above 4.5:1) and no cues rely on color alone. However all instructions are text-only with no audio pairing, and the controls block plus the 8-word death message (\"Ouch! A spike sent you back to the start.\") exceed the ~5-words-per-instruction target for this bracket.",
+      "ads_and_purchases": "none seen",
+      "notes": "failing-spike.png and failing-spike-later.png (~1s apart) show an identical frame, so how long the failure message lingers or whether it blocks movement isn't confirmed from evidence; the spike hazard itself is a mild, cartoonish grey cone trap with an \"Ouch!\" response, not a scary character."
+    }
+  },
+  "cost": {
+    "seconds": 54,
+    "costUsd": 0.136
+  }
+}

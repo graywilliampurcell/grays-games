@@ -1,0 +1,299 @@
+import { N as Vector3, i as BlockMesh } from "./index-Cs7XvCIe.js";
+import { i as nearestStrip, n as buildStrips, r as forwardOf, t as buildPath } from "./pathBuilder-BnVEtb7h.js";
+import { r as Ball, t as ChaseCamera } from "./ChaseCamera-CIJzGBRJ.js";
+//#region src/test-track/TestTrackMode.js
+var deg = (d) => d * Math.PI / 180;
+var TEST_TRACK = [
+	{
+		kind: "start",
+		len: 8,
+		width: 8,
+		rails: true,
+		color: "start"
+	},
+	{
+		kind: "straight",
+		len: 16,
+		width: 8,
+		rails: true
+	},
+	{
+		kind: "curve-left",
+		len: 22,
+		width: 8,
+		rails: true,
+		turn: deg(90)
+	},
+	{
+		kind: "uphill",
+		len: 12,
+		width: 8,
+		rails: true,
+		rise: 3
+	},
+	{
+		kind: "top",
+		len: 6,
+		width: 8,
+		rails: true
+	},
+	{
+		kind: "downhill",
+		len: 12,
+		width: 8,
+		rails: true,
+		rise: -3
+	},
+	{
+		kind: "curve-right",
+		len: 18,
+		width: 8,
+		rails: true,
+		turn: deg(-90)
+	},
+	{
+		kind: "narrow",
+		len: 14,
+		width: 3
+	},
+	{
+		kind: "wide",
+		len: 8,
+		width: 6
+	},
+	{
+		kind: "launch",
+		len: 6,
+		width: 6,
+		rise: 1.4
+	},
+	{
+		kind: "gap",
+		len: 2.5,
+		width: 6,
+		gap: true,
+		rise: -1.4
+	},
+	{
+		kind: "landing",
+		len: 10,
+		width: 8,
+		rails: true
+	},
+	{
+		kind: "hairpin",
+		len: 36,
+		width: 8,
+		rails: true,
+		turn: deg(180)
+	},
+	{
+		kind: "railed",
+		len: 30,
+		width: 8,
+		rails: true
+	},
+	{
+		kind: "finish",
+		len: 8,
+		width: 8,
+		rails: true,
+		color: "finish"
+	}
+];
+var FEEL_PRESETS = [
+	{
+		name: "d1",
+		speedCap: 6,
+		autoRoll: true
+	},
+	{
+		name: "d2",
+		speedCap: 7,
+		autoRoll: true
+	},
+	{
+		name: "d3",
+		speedCap: 8,
+		autoRoll: true
+	},
+	{
+		name: "d4",
+		speedCap: 10,
+		autoRoll: false
+	},
+	{
+		name: "d5",
+		speedCap: 12,
+		autoRoll: false
+	}
+];
+var FALL_DEPTH = 8;
+var RESPAWN_DELAY = .6;
+var TestTrackMode = class {
+	async start(ctx, config) {
+		this.ctx = ctx;
+		const { scene, physics, camera, save } = ctx;
+		this.blocks = new BlockMesh({ palette: "race" });
+		const { strips, segmentStarts } = buildStrips(TEST_TRACK);
+		this.strips = strips;
+		this.segmentStarts = segmentStarts;
+		buildPath({
+			physics,
+			blocks: this.blocks,
+			strips
+		});
+		this._addFinishArch();
+		scene.add(this.blocks.build());
+		const auto = ctx.params?.raw?.auto === "1" || config.auto === true;
+		this.presetIndex = auto ? 0 : 3;
+		this.progress = 2;
+		this.checkpoint = 0;
+		this.falling = 0;
+		this.finished = 0;
+		const spawn = this._spawnAt(0);
+		const skin = save.get().skins.selected;
+		this.ball = new Ball({
+			physics,
+			scene,
+			position: spawn.pos,
+			skin
+		});
+		this._applyPreset();
+		this.cam = new ChaseCamera(camera, { mode: "track" });
+		this.cam.snap(spawn.pos, spawn.dir);
+		this.forward = spawn.dir.clone();
+		this._tmpF = new Vector3();
+		ctx.debug.watch("speed", () => this.ball.speed);
+		ctx.debug.watch("piece", () => `${this.progress} ${this.strips[this.progress].kind}`);
+		ctx.debug.watch("feel", () => {
+			const t = this.ball.tuning;
+			return `${FEEL_PRESETS[this.presetIndex].name} cap ${t.speedCap} ${t.autoRoll ? "auto" : "manual"}`;
+		});
+		ctx.debug.watch("grnd", () => this.ball.isGrounded() ? "yes" : "no");
+	}
+	_addFinishArch() {
+		const s = this.strips[this.segmentStarts[this.segmentStarts.length - 1] + 4];
+		const hw = s.width / 2 + .6;
+		const r = new Vector3(Math.cos(s.yaw), 0, -Math.sin(s.yaw));
+		for (const side of [-1, 1]) {
+			const p = s.a.clone().addScaledVector(r, side * hw);
+			this.blocks.addBox({
+				x: p.x,
+				y: p.y + 2.5,
+				z: p.z
+			}, {
+				x: 1,
+				y: 5,
+				z: 1
+			}, "white", { yaw: s.yaw });
+		}
+		for (let i = 0; i < 10; i++) for (let j = 0; j < 2; j++) {
+			const off = -hw + (i + .5) * (2 * hw) / 10;
+			const p = s.a.clone().addScaledVector(r, off);
+			this.blocks.addBox({
+				x: p.x,
+				y: p.y + 5.25 + j * .5,
+				z: p.z
+			}, {
+				x: 2 * hw / 10,
+				y: .5,
+				z: .6
+			}, (i + j) % 2 ? "finishDark" : "finish", {
+				yaw: s.yaw,
+				jitter: 0
+			});
+		}
+	}
+	_spawnAt(stripIndex) {
+		const s = this.strips[stripIndex];
+		const pos = s.a.clone().lerp(s.b, .5);
+		pos.y += this.ball ? this.ball.radius + .3 : .8;
+		return {
+			pos,
+			dir: forwardOf(s.yaw)
+		};
+	}
+	_applyPreset() {
+		const p = FEEL_PRESETS[this.presetIndex];
+		this.ball.setTuning({
+			speedCap: p.speedCap,
+			autoRoll: p.autoRoll
+		});
+	}
+	update(dt) {
+		const { input } = this.ctx;
+		const pos = this.ball.getPosition(this._tmpPos || (this._tmpPos = new Vector3()));
+		const near = nearestStrip(this.strips, pos, this.progress);
+		if (near.dist < 6) {
+			this.progress = near.index;
+			for (let i = near.index; i > this.checkpoint; i--) if (this.strips[i].checkpoint) {
+				this.checkpoint = i;
+				break;
+			}
+		}
+		const ahead = this.strips[Math.min(this.strips.length - 1, this.progress + 3)];
+		forwardOf(ahead.yaw, this._tmpF);
+		this.forward.lerp(this._tmpF, .08).normalize();
+		this.cam.setForward(this.forward);
+		this.ball.update(dt, input.getMove(), this.forward);
+		const floorY = Math.min(this.strips[this.progress].a.y, this.strips[this.progress].b.y);
+		if (!this.falling && pos.y < floorY - FALL_DEPTH) this.falling = RESPAWN_DELAY;
+		if (this.falling) {
+			this.falling -= dt;
+			if (this.falling <= 0) {
+				this.falling = 0;
+				this.respawn();
+			}
+		}
+		const last = this.segmentStarts[this.segmentStarts.length - 1];
+		if (!this.finished && this.progress >= last + 5) {
+			this.finished = 2.5;
+			this.ctx.audio.play("fanfare");
+		}
+		if (this.finished) {
+			this.finished -= dt;
+			if (this.finished <= 0) {
+				this.finished = 0;
+				this.checkpoint = 0;
+				this.progress = 0;
+				this.respawn();
+			}
+		}
+	}
+	render(alpha, frameDt) {
+		const look = this.ctx.input.consumeLook();
+		if (look.dx || look.dy) this.cam.addLook(look.dx, look.dy);
+		this.ball.render(alpha, frameDt);
+		this.cam.update(Math.min(frameDt, .1), {
+			position: this.ball.position,
+			velocity: this.ball.velocity
+		});
+	}
+	respawn() {
+		const spawn = this._spawnAt(this.checkpoint);
+		this.progress = this.checkpoint;
+		this.ball.respawn(spawn.pos, spawn.dir);
+		this.forward.copy(spawn.dir);
+		this.cam.snap(spawn.pos, spawn.dir);
+		this.ctx.audio.play("boing");
+	}
+	nextPiece() {
+		const seg = this.strips[this.progress].segment;
+		const next = this.segmentStarts[(seg + 1) % this.segmentStarts.length];
+		this.checkpoint = next;
+		if (this.strips[next].gap) this.checkpoint = this.segmentStarts[(seg + 2) % this.segmentStarts.length];
+		this.respawn();
+	}
+	regenerate() {
+		this.presetIndex = (this.presetIndex + 1) % FEEL_PRESETS.length;
+		this._applyPreset();
+		this.ctx.audio.play("pop");
+	}
+	dispose() {
+		this.ball?.dispose();
+		this.blocks?.dispose();
+	}
+};
+//#endregion
+export { FEEL_PRESETS, TEST_TRACK, TestTrackMode as default };

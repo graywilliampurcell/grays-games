@@ -1,0 +1,32 @@
+{
+  "game": "mazle",
+  "baseUrl": "http://127.0.0.1:9180/nothing/",
+  "startedAt": "2026-09-27T17:27:16.749Z",
+  "finishedAt": "2026-09-27T17:27:16.849Z",
+  "browser": {
+    "version": "153.0.8010.12"
+  },
+  "passed": false,
+  "results": [
+    {
+      "url": "http://127.0.0.1:9180/nothing/?test=1",
+      "startedAt": "2026-09-27T17:27:16.749Z",
+      "browserVersion": "153.0.8010.12",
+      "screenshots": [],
+      "warnings": [],
+      "errors": [
+        "smoke run failed: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:9180/nothing/?test=1\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:9180/nothing/?test=1\", waiting until \"load\"\u001b[22m\n",
+        "request failed: http://127.0.0.1:9180/nothing/?test=1 (net::ERR_CONNECTION_REFUSED)"
+      ],
+      "consoleErrors": [],
+      "consoleWarnings": [],
+      "pageErrors": [],
+      "failedRequests": [
+        {
+          "url": "http://127.0.0.1:9180/nothing/?test=1",
+          "failure": "net::ERR_CONNECTION_REFUSED"
+        }
+      ]
+    }
+  ]
+}

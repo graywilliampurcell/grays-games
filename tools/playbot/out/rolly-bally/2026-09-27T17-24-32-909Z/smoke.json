@@ -1,0 +1,60 @@
+{
+  "game": "rolly-bally",
+  "baseUrl": "http://192.168.1.9:9075/rolly-bally/",
+  "startedAt": "2026-09-27T17:24:33.451Z",
+  "finishedAt": "2026-09-27T17:25:42.069Z",
+  "browser": {
+    "version": "153.0.8010.12"
+  },
+  "passed": true,
+  "results": [
+    {
+      "url": "http://192.168.1.9:9075/rolly-bally/?mode=test-track&test=1",
+      "startedAt": "2026-09-27T17:24:33.451Z",
+      "browserVersion": "153.0.8010.12",
+      "screenshots": [
+        "mode-test-track-test-1-ready.png",
+        "mode-test-track-test-1-later.png"
+      ],
+      "warnings": [
+        "window.__game hook missing; used canvas + wait fallback"
+      ],
+      "errors": [],
+      "loadMs": 126,
+      "hook": "missing",
+      "readyMs": 33037,
+      "webgl": {
+        "contextLost": [],
+        "contextRestored": []
+      },
+      "consoleErrors": [],
+      "consoleWarnings": [],
+      "pageErrors": [],
+      "failedRequests": []
+    },
+    {
+      "url": "http://192.168.1.9:9075/rolly-bally/?gallery=1&test=1",
+      "startedAt": "2026-09-27T17:25:07.754Z",
+      "browserVersion": "153.0.8010.12",
+      "screenshots": [
+        "gallery-1-test-1-ready.png",
+        "gallery-1-test-1-later.png"
+      ],
+      "warnings": [
+        "window.__game hook missing; used canvas + wait fallback"
+      ],
+      "errors": [],
+      "loadMs": 69,
+      "hook": "missing",
+      "readyMs": 33035,
+      "webgl": {
+        "contextLost": [],
+        "contextRestored": []
+      },
+      "consoleErrors": [],
+      "consoleWarnings": [],
+      "pageErrors": [],
+      "failedRequests": []
+    }
+  ]
+}

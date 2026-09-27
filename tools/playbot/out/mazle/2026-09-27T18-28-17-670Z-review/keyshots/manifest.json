@@ -1,0 +1,346 @@
+{
+  "game": "mazle",
+  "baseUrl": "http://127.0.0.1:9180/mazle/",
+  "capturedAt": "2026-09-27T18:30:20.984Z",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "shots": [
+    {
+      "file": "menu-start.png",
+      "screen": "menu",
+      "label": "start",
+      "description": "Initial view when Level 1 opens (Mazle has no menu; this is the first screen a child sees, with the controls help and level name).",
+      "url": "http://127.0.0.1:9180/mazle/?test=1",
+      "text": [
+        "FPS: Infinity\nPosition: 2.5, 0.0, 2.5",
+        "Controls:\nW/↑ Forward | S/↓ Back\nA/← Strafe Left | D/→ Strafe Right\nMouse to Look Around\nTouch: drag left side to move, right side to look",
+        "Level 1"
+      ],
+      "state": {
+        "t": 0.033333,
+        "pos": {
+          "x": 2.5,
+          "y": 0,
+          "z": 2.5
+        },
+        "vel": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "yaw": -1.570796,
+        "pitch": 0,
+        "escaped": false,
+        "frozen": false,
+        "level": {
+          "index": 0,
+          "name": "Level 1"
+        },
+        "cellSize": 1,
+        "spike": {
+          "x": 6.5,
+          "z": 10.5
+        },
+        "door": {
+          "x": 28,
+          "z": 22.5
+        },
+        "start": {
+          "x": 2.5,
+          "z": 2.5,
+          "yaw": -1.570796
+        }
+      }
+    },
+    {
+      "file": "playing-walk.png",
+      "screen": "playing",
+      "label": "walk",
+      "description": "Playing: a few steps into the maze after walking forward.",
+      "url": "http://127.0.0.1:9180/mazle/?test=1",
+      "text": [
+        "FPS: Infinity\nPosition: 7.5, 0.0, 2.5",
+        "Controls:\nW/↑ Forward | S/↓ Back\nA/← Strafe Left | D/→ Strafe Right\nMouse to Look Around\nTouch: drag left side to move, right side to look",
+        "Level 1"
+      ],
+      "state": {
+        "t": 0.866667,
+        "pos": {
+          "x": 7.466497,
+          "y": 0,
+          "z": 2.5
+        },
+        "vel": {
+          "x": 4.390022,
+          "y": 0,
+          "z": 0
+        },
+        "yaw": -1.570796,
+        "pitch": 0,
+        "escaped": false,
+        "frozen": false,
+        "level": {
+          "index": 0,
+          "name": "Level 1"
+        },
+        "cellSize": 1,
+        "spike": {
+          "x": 6.5,
+          "z": 10.5
+        },
+        "door": {
+          "x": 28,
+          "z": 22.5
+        },
+        "start": {
+          "x": 2.5,
+          "z": 2.5,
+          "yaw": -1.570796
+        }
+      }
+    },
+    {
+      "file": "playing-spike-ahead.png",
+      "screen": "playing",
+      "label": "spike-ahead",
+      "description": "Playing: standing a few cells from the floor spike hazard, looking at it.",
+      "url": "http://127.0.0.1:9180/mazle/?test=1",
+      "text": [
+        "FPS: Infinity\nPosition: 3.5, 0.0, 10.5",
+        "Controls:\nW/↑ Forward | S/↓ Back\nA/← Strafe Left | D/→ Strafe Right\nMouse to Look Around\nTouch: drag left side to move, right side to look",
+        "Level 1"
+      ],
+      "state": {
+        "t": 0.883333,
+        "pos": {
+          "x": 3.5,
+          "y": 0,
+          "z": 10.5
+        },
+        "vel": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "yaw": -1.570796,
+        "pitch": 0,
+        "escaped": false,
+        "frozen": false,
+        "level": {
+          "index": 0,
+          "name": "Level 1"
+        },
+        "cellSize": 1,
+        "spike": {
+          "x": 6.5,
+          "z": 10.5
+        },
+        "door": {
+          "x": 28,
+          "z": 22.5
+        },
+        "start": {
+          "x": 2.5,
+          "z": 2.5,
+          "yaw": -1.570796
+        }
+      }
+    },
+    {
+      "file": "failing-spike.png",
+      "screen": "failing",
+      "label": "spike",
+      "description": "Failing: right after touching the spike. The game sends the player back to the start and shows a message.",
+      "url": "http://127.0.0.1:9180/mazle/?test=1",
+      "text": [
+        "FPS: Infinity\nPosition: 2.5, 0.0, 2.5",
+        "Controls:\nW/↑ Forward | S/↓ Back\nA/← Strafe Left | D/→ Strafe Right\nMouse to Look Around\nTouch: drag left side to move, right side to look",
+        "Level 1",
+        "Ouch! A spike sent you back to the start."
+      ],
+      "state": {
+        "t": 0.916667,
+        "pos": {
+          "x": 2.5,
+          "y": 0,
+          "z": 2.5
+        },
+        "vel": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "yaw": -1.570796,
+        "pitch": 0,
+        "escaped": false,
+        "frozen": false,
+        "level": {
+          "index": 0,
+          "name": "Level 1"
+        },
+        "cellSize": 1,
+        "spike": {
+          "x": 6.5,
+          "z": 10.5
+        },
+        "door": {
+          "x": 28,
+          "z": 22.5
+        },
+        "start": {
+          "x": 2.5,
+          "z": 2.5,
+          "yaw": -1.570796
+        }
+      }
+    },
+    {
+      "file": "failing-spike-later.png",
+      "screen": "failing",
+      "label": "spike-later",
+      "description": "Failing: one second after the spike, still at the start with the message.",
+      "url": "http://127.0.0.1:9180/mazle/?test=1",
+      "text": [
+        "FPS: Infinity\nPosition: 2.5, 0.0, 2.5",
+        "Controls:\nW/↑ Forward | S/↓ Back\nA/← Strafe Left | D/→ Strafe Right\nMouse to Look Around\nTouch: drag left side to move, right side to look",
+        "Level 1",
+        "Ouch! A spike sent you back to the start."
+      ],
+      "state": {
+        "t": 1.916667,
+        "pos": {
+          "x": 2.5,
+          "y": 0,
+          "z": 2.5
+        },
+        "vel": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "yaw": -1.570796,
+        "pitch": 0,
+        "escaped": false,
+        "frozen": false,
+        "level": {
+          "index": 0,
+          "name": "Level 1"
+        },
+        "cellSize": 1,
+        "spike": {
+          "x": 6.5,
+          "z": 10.5
+        },
+        "door": {
+          "x": 28,
+          "z": 22.5
+        },
+        "start": {
+          "x": 2.5,
+          "z": 2.5,
+          "yaw": -1.570796
+        }
+      }
+    },
+    {
+      "file": "playing-door-ahead.png",
+      "screen": "playing",
+      "label": "door-ahead",
+      "description": "Playing: in front of the exit door (the goal).",
+      "url": "http://127.0.0.1:9180/mazle/?test=1",
+      "text": [
+        "FPS: Infinity\nPosition: 26.7, 0.0, 21.7",
+        "Controls:\nW/↑ Forward | S/↓ Back\nA/← Strafe Left | D/→ Strafe Right\nMouse to Look Around\nTouch: drag left side to move, right side to look",
+        "Level 1"
+      ],
+      "state": {
+        "t": 0.016667,
+        "pos": {
+          "x": 26.709563,
+          "y": 0,
+          "z": 21.735296
+        },
+        "vel": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "yaw": -2.105751,
+        "pitch": 0,
+        "escaped": false,
+        "frozen": false,
+        "level": {
+          "index": 0,
+          "name": "Level 1"
+        },
+        "cellSize": 1,
+        "spike": {
+          "x": 6.5,
+          "z": 10.5
+        },
+        "door": {
+          "x": 28,
+          "z": 22.5
+        },
+        "start": {
+          "x": 2.5,
+          "z": 2.5,
+          "yaw": -1.570796
+        }
+      }
+    },
+    {
+      "file": "winning-escaped.png",
+      "screen": "winning",
+      "label": "escaped",
+      "description": "Winning: the escaped screen after reaching the door.",
+      "url": "http://127.0.0.1:9180/mazle/?test=1",
+      "text": [
+        "FPS: Infinity\nPosition: 26.9, 0.0, 21.8",
+        "Controls:\nW/↑ Forward | S/↓ Back\nA/← Strafe Left | D/→ Strafe Right\nMouse to Look Around\nTouch: drag left side to move, right side to look",
+        "Level 1",
+        "You found the way out!",
+        "Play again"
+      ],
+      "state": {
+        "t": 0.35,
+        "pos": {
+          "x": 26.901297,
+          "y": 0,
+          "z": 21.848917
+        },
+        "vel": {
+          "x": 3.02323,
+          "y": 0,
+          "z": 1.791544
+        },
+        "yaw": -2.105751,
+        "pitch": 0,
+        "escaped": true,
+        "frozen": true,
+        "level": {
+          "index": 0,
+          "name": "Level 1"
+        },
+        "cellSize": 1,
+        "spike": {
+          "x": 6.5,
+          "z": 10.5
+        },
+        "door": {
+          "x": 28,
+          "z": 22.5
+        },
+        "start": {
+          "x": 2.5,
+          "z": 2.5,
+          "yaw": -1.570796
+        }
+      }
+    }
+  ],
+  "warnings": [],
+  "pageErrors": []
+}
