@@ -1,0 +1,367 @@
+# playbot — content rules that are ALWAYS true
+#
+# Source of record: Notion "2026-09-27-game-tester-bot-plan", section
+# "Content rules that are always true" (rules 1–3 confirmed by JP; 4–16 added
+# and confirmed by JP 2026-09-27). Numbered 1–16 in the page's order.
+#
+# - Checked on every review, whatever age bracket(s) are chosen.
+# - Breaking ANY rule fails the review, regardless of bracket.
+# - A Claude flag on one of these rules fails the review until a person clears it
+#   (AI verdicts are otherwise advisory; only automatic checks block CI).
+# - A Claude answer of "unsure" goes to a human (JP); the decision is saved in
+#   judgments/ so the same question is not asked again.
+# - Every flag must carry the screenshot (or text/file location) that caused it.
+#
+# check: auto   = decided by automatic checks only
+#        claude = decided by the Claude judge (screenshots + all game text)
+#        both   = automatic checks feed evidence; Claude also judges
+#
+# Automatic check ids (implemented by the harness):
+#   network-trackers   requests to third-party hosts / EasyList + EasyPrivacy matches
+#   links-out          anchors, window.open or navigations leaving the game origin
+#   permission-prompts camera/mic/location/notification/storage-access prompts
+#   flashing           > 3 flashes per second, saturated red flashes (WCAG 2.3.1)
+#   loudness           sudden loud sounds (peak jump) in recorded audio
+#   word-scan          lib/wordscan.js over game text, asset names and code
+#   pause-mute-quit    a pause, mute and quit/home control can be found and works
+#   input-fields       text/email inputs, sign-in or account forms (personal data)
+#   countdown-timers   visible countdowns / timers detected in UI text or state
+#
+# NUMBERING NOTE: the plan says "Automatically: rules 13–15 by recording network
+# traffic, permission prompts, links, flashing and loudness" and "With Claude:
+# rules 1–12". In the page's 1–16 order that maps to 13 = money/ads/data
+# (network, permissions, links), 14 = manipulative design, 15 = senses
+# (flashing, loudness). The listed signals don't really cover 14 (it is mostly a
+# judgment call), and rule 16 (kids always have control) appears in neither
+# list. Here: 13 and 15 are "both" with the automatic checks, 14 is "both"
+# (countdown-timers + Claude), and 16 is "both" (pause-mute-quit + Claude).
+# Rule 12 (gambling) is Claude-judged plus the word-scan, as the plan's
+# "scan ... for weapon, blood, kill and gambling words" implies.
+
+rules:
+  - id: R01
+    number: 1
+    title: No blood
+    text: No blood.
+    check: both
+    auto_checks: [word-scan]
+    claude_prompt: >-
+      Does any screenshot or game text show or mention blood, including red
+      splatter, drips or pools that read as blood, or words like "blood" or
+      "bleed"? Red paint, lava, berries or red UI that clearly is not blood is
+      fine. Answer pass, fail or unsure.
+    examples_ok:
+      - Red spikes or a red lava floor with no splatter
+      - A red "try again" button
+    examples_fail:
+      - Red splatter when the player hits a hazard
+      - A character with a bleeding cut
+
+  - id: R02
+    number: 2
+    title: No weapons or guns
+    text: No weapons or guns.
+    check: both
+    auto_checks: [word-scan]
+    claude_prompt: >-
+      Does any screen or text show or mention a weapon (gun, sword, knife, bomb,
+      bow and arrow used on anything, cannon aimed at characters, etc.), even a
+      toy or cartoon one used to attack? Tools used as tools (an axe chopping a
+      plain tree, a hammer building) are fine. Static environmental hazards
+      (spikes on the floor, a spinning bar) are not weapons. Answer pass, fail
+      or unsure.
+    examples_ok:
+      - Floor spikes that send the player back to the start (Mazle)
+      - An axe chopping a plain, faceless tree
+    examples_fail:
+      - A blaster the player shoots at creatures
+      - A sword pickup, even in a cartoon style
+
+  - id: R03
+    number: 3
+    title: No bashing or breaking of living things
+    text: >-
+      No bashing or breaking of living things. Breaking objects is fine
+      (chopping down a tree). Hurting anything with a face or personality is not
+      (a tree that is a cartoon character). The test is whether the thing is
+      animate: people, animals, creatures, or objects with faces or feelings.
+    check: claude
+    auto_checks: []
+    claude_prompt: >-
+      Does the player (or the game) bash, smash, squash, break, knock over or
+      destroy anything ANIMATE — a person, animal, creature, or any object drawn
+      with a face, eyes or feelings (e.g. a smiling crate, a tree with a face)?
+      Breaking plain objects (crates, walls, faceless trees, blocks) is fine.
+      Bumping into something without it being hurt is fine. Answer pass, fail
+      or unsure, and name the thing and whether it has a face.
+    examples_ok:
+      - Rolling a ball through a stack of plain blocks
+      - Chopping down a normal tree
+    examples_fail:
+      - Smashing a crate that has a face and cries
+      - Rolling over a cartoon character to squash it
+
+  - id: R04
+    number: 4
+    title: No injury or death shown
+    text: >-
+      No wounds, no dead bodies, no "killed" wording. When the player fails,
+      they bump, poof or reset, and are never hurt on screen.
+    check: both
+    auto_checks: [word-scan]
+    claude_prompt: >-
+      When anyone fails or hits a hazard, is injury or death SHOWN or SAID —
+      wounds, a body lying still, a skull or gravestone as a death marker, a
+      character crying in pain, or words like "killed", "dead", "died", "you
+      die"? A hazard that resets, bumps or poofs the player back without showing
+      anyone hurt is fine, and a short kind exclamation like "Ouch!" or "Oops!"
+      is fine (Mazle's spike + "Ouch!" is explicitly approved by JP
+      2026-09-27). Answer pass, fail or unsure.
+    examples_ok:
+      - Mazle spike sends the player back to the start with an "Ouch!" message
+      - Ball falls off the track, poofs and respawns
+    examples_fail:
+      - '"You died!" game-over screen'
+      - A character lying flat with X eyes after a hit
+
+  - id: R05
+    number: 5
+    title: No harm to animals or creatures
+    text: No harm to animals or creatures, including hunting or trapping them for points.
+    check: both
+    auto_checks: [word-scan]
+    claude_prompt: >-
+      Does the game hurt, chase down, hunt, trap, catch-to-keep, capture or score
+      points for harming animals or creatures? Collecting stars or fruit is fine;
+      befriending, feeding or rescuing animals is fine. Answer pass, fail or unsure.
+    examples_ok:
+      - Helping a lost puppy find its way home
+      - Collecting stars around a friendly cat
+    examples_fail:
+      - Points for catching fish in a net
+      - Trapping bugs in jars as collectibles
+
+  - id: R06
+    number: 6
+    title: No scary content
+    text: >-
+      No jump scares, horror monsters or threatening chases, and no dark,
+      menacing scenes for young brackets.
+    check: claude
+    auto_checks: [loudness]
+    claude_prompt: >-
+      Is anything scary: a sudden jump scare (something appearing suddenly with
+      a loud sound), a horror-style monster, something threatening that chases
+      the player, or a dark, menacing scene? Judge darkness and menace against
+      the youngest chosen bracket (2–4 and 5–7 should see no dark or menacing
+      scenes). A dim maze that is cosy and clearly readable is fine; a friendly
+      character following the player is fine. Answer pass, fail or unsure and
+      say which bracket it affects.
+    examples_ok:
+      - A softly lit maze with bright walls and a friendly guide
+      - A silly cartoon ghost that waves
+    examples_fail:
+      - A monster that runs at the player with a roar
+      - A pitch-black corridor with red eyes
+
+  - id: R07
+    number: 7
+    title: No meanness
+    text: >-
+      No bullying, insults, or characters who mock the player. Failure messages
+      are kind ("Oops! Try again", never "You're bad at this").
+    check: both
+    auto_checks: [word-scan]
+    claude_prompt: >-
+      Read every message, especially on failing. Does any text, voice or
+      character insult, tease, mock or bully the player or another character
+      ("loser", "you're bad at this", laughing at the player)? Kind failure
+      messages ("Oops! Try again", "Ouch!", "So close!") are fine. Answer pass,
+      fail or unsure and quote the text.
+    examples_ok:
+      - '"Oops! Try again"'
+      - '"Ouch!" when hitting a spike'
+    examples_fail:
+      - '"LOSER!" on the fail screen'
+      - A character pointing and laughing when the player falls
+
+  - id: R08
+    number: 8
+    title: No stereotypes
+    text: No stereotypes and no jokes at the expense of any group of people.
+    check: claude
+    auto_checks: []
+    claude_prompt: >-
+      Do any characters, costumes, accents in text, names or jokes rely on a
+      stereotype of a group of people (nationality, ethnicity, religion, gender,
+      disability, body type, age), or make fun of a group? Answer pass, fail or
+      unsure.
+    examples_ok:
+      - A varied cast of kids with no caricatured features
+    examples_fail:
+      - A character whose whole design is an ethnic caricature
+      - A joke about a group being bad at something
+
+  - id: R09
+    number: 9
+    title: No romance, sexual content, drugs, alcohol, tobacco or vaping
+    text: No romance or sexual content. No drugs, alcohol, tobacco or vaping.
+    check: both
+    auto_checks: [word-scan]
+    claude_prompt: >-
+      Is there any romance (kissing, dating, hearts shown as romantic love),
+      sexual or suggestive content, or any drugs, alcohol, cigarettes, vapes or
+      pills shown as recreational? Hearts as health or "like" icons are fine;
+      family hugs are fine. Answer pass, fail or unsure.
+    examples_ok:
+      - Heart icons as a collectible or health meter
+      - A parent hugging a child
+    examples_fail:
+      - Two characters kissing as a reward
+      - A beer mug or a cigarette as a pickup
+
+  - id: R10
+    number: 10
+    title: No bad language
+    text: No bad language or crude insults.
+    check: both
+    auto_checks: [word-scan]
+    claude_prompt: >-
+      Does any text, audio transcript, asset name visible to the player, or
+      on-screen image contain swearing, masked swearing ("f***", "#$%!"),
+      crude words or crude insults? Answer pass, fail or unsure and quote it.
+    examples_ok:
+      - '"Uh-oh!"'
+    examples_fail:
+      - Masked swearing in a speech bubble
+      - '"Stupid!" as a fail message'
+
+  - id: R11
+    number: 11
+    title: No dangerous stunts a kid could copy
+    text: >-
+      No dangerous stunts a kid could copy in real life, like playing with fire,
+      electrical outlets or medicine, shown as fun.
+    check: claude
+    auto_checks: []
+    claude_prompt: >-
+      Does the game show, as fun or rewarded, something a child could copy in
+      real life and get hurt: playing with fire or matches, sticking things in
+      electrical outlets, eating medicine or unknown pills, climbing on high
+      ledges or windows, riding without a seatbelt/helmet, hiding in a
+      fridge or washing machine? Clearly fantastical actions (a ball rolling on
+      a floating track) are fine. Answer pass, fail or unsure.
+    examples_ok:
+      - A ball rolling along a floating sky track
+    examples_fail:
+      - Collecting pills as power-ups
+      - Poking a fork into a wall socket for sparkles and points
+
+  - id: R12
+    number: 12
+    title: No gambling or casino-style mechanics
+    text: >-
+      No gambling or casino-style mechanics, including random prize boxes and
+      spinning wheels for rewards.
+    check: both
+    auto_checks: [word-scan]
+    claude_prompt: >-
+      Is there any gambling or chance-based reward mechanic: a slot machine,
+      spin-the-wheel, random prize box / loot box / mystery egg / gacha, betting
+      coins, scratch cards, or casino imagery (chips, cards, dice for prizes)?
+      Seeded random level layouts and fixed star rewards for finishing are fine.
+      Answer pass, fail or unsure.
+    examples_ok:
+      - Earning 3 stars for finishing a level fast
+      - A random maze layout each play
+    examples_fail:
+      - '"Spin the wheel for a prize!" after each level'
+      - A mystery box that gives a random skin
+
+  - id: R13
+    number: 13
+    title: No money, ads or data
+    text: >-
+      No purchases, ads, accounts or personal information; no tracking or
+      analytics; no chat with other players; no links out of the game.
+    check: both
+    auto_checks: [network-trackers, links-out, permission-prompts, input-fields, word-scan]
+    claude_prompt: >-
+      Is there any sign of money, ads or data collection: prices, "buy", coins
+      sold for real money, a store, an ad banner or video ad, a "watch an ad"
+      button, a sign-in or account screen, a box asking for name, email, age,
+      location or photo, a chat window, or a link/button that leaves the game
+      (to a website, app store or social media)? A local nickname that never
+      leaves the device is unsure (send to a human). Answer pass, fail or unsure.
+    examples_ok:
+      - Skins unlocked by playing, with no price
+      - A grown-up menu that only changes local settings
+    examples_fail:
+      - '"Get 500 gems for $0.99"'
+      - A "Rate us!" button opening the app store
+      - A Google Analytics request in the network log
+
+  - id: R14
+    number: 14
+    title: No manipulative design
+    text: >-
+      No countdown pressure, streaks, guilt-trip buttons, "come back tomorrow"
+      rewards, or autoplay with no stopping point.
+    check: both
+    auto_checks: [countdown-timers, word-scan]
+    claude_prompt: >-
+      Does the game pressure the child to keep playing or come back: a countdown
+      to a limited offer or reward, a daily streak, a login/"come back tomorrow"
+      reward, energy that refills over real time, a guilt-trip button ("No, I
+      don't like prizes"), a fake-urgent or fake "x2" button, a sad character
+      when the child tries to stop, or autoplay into the next level with no
+      natural stopping point? A gentle, optional in-level timer for older
+      brackets is judged by the rubric, not here. Answer pass, fail or unsure.
+    examples_ok:
+      - A "Play again" / "Home" choice after each level
+      - An optional race timer for the 8–10 bracket
+    examples_fail:
+      - '"Your streak will be lost!"'
+      - Next level starts automatically with no way to stop
+      - A crying mascot on the quit button
+
+  - id: R15
+    number: 15
+    title: Safe for the senses
+    text: >-
+      No flashing faster than 3 times a second (WCAG 2.3.1) and no sudden loud
+      sounds.
+    check: both
+    auto_checks: [flashing, loudness]
+    claude_prompt: >-
+      From the screenshots/frames and audio notes, is there fast flashing or
+      strobing (more than 3 flashes a second, especially saturated red), rapid
+      full-screen color changes, or a sudden sound much louder than the rest of
+      the game? Answer pass, fail or unsure.
+    examples_ok:
+      - A soft glow pulse once a second on a collectible
+      - A cheerful chime on success at normal volume
+    examples_fail:
+      - A red/white strobe when the player is hit
+      - A sudden loud buzzer on fail
+
+  - id: R16
+    number: 16
+    title: Kids always have control
+    text: >-
+      There's always a way to pause, mute and quit, and failing never costs
+      more than a little progress.
+    check: both
+    auto_checks: [pause-mute-quit]
+    claude_prompt: >-
+      On every screen (menu, playing, failing, winning), can the child see a
+      way to pause, to mute sound and to quit or go home? When the player fails,
+      do they lose only a little progress (back to the start of the level or a
+      checkpoint), rather than losing collected items, unlocks or many levels?
+      Answer pass, fail or unsure and name the missing control.
+    examples_ok:
+      - Pause and mute buttons always in a corner; fail restarts the level
+      - Mazle spike sends the player back to the maze start
+    examples_fail:
+      - No mute button during play
+      - Failing once wipes all collected stars

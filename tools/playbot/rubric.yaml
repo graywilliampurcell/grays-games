@@ -1,0 +1,221 @@
+# playbot — per-bracket rubric
+#
+# Source of record: Notion "2026-09-27-game-tester-bot-plan", "Age brackets"
+# and Part 1 "Full rubric by bracket".
+#
+# NUMBERS ARE STARTING POINTS. Apart from the ~2 cm and 44 px touch-target
+# figures (NN/g, WCAG), thresholds here are proposed, not from a source. We tune
+# them after watching Gray play. Persona params are likewise guesses.
+#
+# how: A = the bot measures it, V = Claude judges from screenshots/text,
+#      H = a person decides.
+# severity (when the threshold is missed):
+#   fail = a clear blocker for that bracket
+#   warn = a tuning number; report it, don't fail on it
+# Several brackets chosen: one column per bracket; the overall result is set by
+# the strictest chosen bracket, and each finding names the bracket it affects.
+# The always-true rules (rules.yaml) apply on top of this, to every bracket.
+# null in a threshold means "no limit / not checked for this bracket".
+
+brackets:
+  "2-4":
+    label: Pre-readers
+    description: >-
+      No reading at all, spoken instructions, tap or big swipe only, no time
+      pressure, no "lose", hint within about 10 s, big touch targets (about 2 cm).
+  "5-7":
+    label: Early readers
+    description: >-
+      5 words or fewer per instruction plus audio, simple controls, soft
+      failing, 5–10 min sessions.
+  "8-10":
+    label: Readers
+    description: >-
+      Reading at about grade 2–3, two-key combos OK, lives OK, 10–15 min sessions.
+  "11-13":
+    label: Older kids
+    description: >-
+      Real challenge OK, mild fantasy conflict still within the always-true
+      rules, 15–20 min sessions.
+
+checks:
+  - id: touch-target
+    title: Smallest touch target
+    how: [A]
+    thresholds:
+      "2-4":   { min_touch_target_px: 76, approx_cm: 2.0 }
+      "5-7":   { min_touch_target_px: 57, approx_cm: 1.5 }
+      "8-10":  { min_touch_target_px: 44 }
+      "11-13": { min_touch_target_px: 44 }
+    severity: { "2-4": fail, "5-7": warn, "8-10": warn, "11-13": warn }
+
+  - id: reading
+    title: Reading needed
+    how: [A, V]
+    thresholds:
+      "2-4":   { reading_required: false, max_words_per_instruction: 0 }
+      "5-7":   { max_words_per_instruction: 5, audio_with_text: true }
+      "8-10":  { max_reading_grade: 3 }     # about grade 2–3
+      "11-13": { max_reading_grade: 6 }     # about grade 5–6
+    severity: { "2-4": fail, "5-7": warn, "8-10": warn, "11-13": warn }
+
+  - id: spoken-instructions
+    title: Spoken, replayable instructions
+    how: [A, V]
+    thresholds:
+      "2-4":   { spoken_instructions: required, replayable: true }
+      "5-7":   { spoken_instructions: required, replayable: true }
+      "8-10":  { spoken_instructions: recommended }
+      "11-13": { spoken_instructions: optional }
+    severity: { "2-4": fail, "5-7": fail, "8-10": warn, "11-13": warn }
+
+  - id: controls
+    title: Controls
+    how: [A]
+    thresholds:
+      "2-4":
+        allowed: [tap, big-swipe]
+        held_keys: false
+        key_combos: false
+        drag: false
+      "5-7":
+        allowed: [tap, simple-drag, arrows]
+        held_keys: true        # holding an arrow to move is OK
+        key_combos: false
+      "8-10":
+        allowed: [tap, drag, arrows, keys, two-key-combos]
+        held_keys: true
+        key_combos: 2          # max keys pressed together
+      "11-13":
+        allowed: any
+    severity: { "2-4": fail, "5-7": warn, "8-10": warn, "11-13": warn }
+
+  - id: time-pressure
+    title: Time pressure
+    how: [A, V]
+    thresholds:
+      "2-4":   { time_pressure: none }
+      "5-7":   { time_pressure: gentle-optional }   # no fail on timeout; can be turned off
+      "8-10":  { time_pressure: allowed }
+      "11-13": { time_pressure: allowed }
+    severity: { "2-4": fail, "5-7": warn, "8-10": warn, "11-13": warn }
+
+  - id: failing
+    title: Failing
+    how: [A, V]
+    thresholds:
+      "2-4":   { failing: no-lose, instant_retry: true, max_retry_s: 2 }
+      "5-7":   { failing: soft-fail, instant_retry: true, max_retry_s: 3 }
+      "8-10":  { failing: lives-ok }
+      "11-13": { failing: full-challenge }
+    severity: { "2-4": fail, "5-7": warn, "8-10": warn, "11-13": warn }
+
+  - id: hint-when-stuck
+    title: Hint when stuck
+    how: [A]
+    thresholds:
+      "2-4":   { hint_within_s: 10 }
+      "5-7":   { hint_within_s: 20 }
+      "8-10":  { hint_within_s: 45, hint_range_s: [30, 60] }
+      "11-13": { hint_within_s: null }   # optional
+    severity: { "2-4": warn, "5-7": warn, "8-10": warn, "11-13": warn }
+
+  - id: session-length
+    title: Level or session length
+    how: [A]
+    thresholds:
+      "2-4":   { session_minutes: [3, 5] }
+      "5-7":   { session_minutes: [5, 10] }
+      "8-10":  { session_minutes: [10, 15] }
+      "11-13": { session_minutes: [15, 20] }
+    severity: { "2-4": warn, "5-7": warn, "8-10": warn, "11-13": warn }
+
+  - id: taps-to-play
+    title: Taps until playing
+    how: [A]
+    thresholds:
+      "2-4":   { max_taps_to_play: 1 }
+      "5-7":   { max_taps_to_play: 2 }
+      "8-10":  { max_taps_to_play: 3 }
+      "11-13": { max_taps_to_play: 4 }
+    severity: { "2-4": warn, "5-7": warn, "8-10": warn, "11-13": warn }
+
+  - id: things-on-screen
+    title: Things on screen at once
+    how: [A, V]
+    thresholds:
+      "2-4":   { max_things_on_screen: 4, target_range: [3, 4] }
+      "5-7":   { max_things_on_screen: 6, target_range: [5, 6] }
+      "8-10":  { max_things_on_screen: 8 }
+      "11-13": { max_things_on_screen: null }
+    severity: { "2-4": warn, "5-7": warn, "8-10": warn, "11-13": warn }
+
+  - id: scariness
+    title: Scariness
+    how: [V, H]
+    thresholds:
+      "2-4":   { scariness: none }
+      "5-7":   { scariness: mild-cartoon-peril }
+      "8-10":  { scariness: fantasy-conflict }
+      "11-13": { scariness: mild-fantasy-conflict }   # as written in the plan; always-true rules still apply
+    severity: { "2-4": fail, "5-7": fail, "8-10": warn, "11-13": warn }
+
+  - id: contrast
+    title: Contrast
+    how: [A, V]
+    thresholds:
+      "2-4":   { min_contrast_ratio: 4.5, color_alone: false }
+      "5-7":   { min_contrast_ratio: 4.5, color_alone: false }
+      "8-10":  { min_contrast_ratio: 4.5, color_alone: false }
+      "11-13": { min_contrast_ratio: 4.5, color_alone: false }
+    severity: { "2-4": warn, "5-7": warn, "8-10": warn, "11-13": warn }
+
+  - id: fun
+    title: Is it fun?
+    how: [H]
+    thresholds:
+      "2-4":   { method: watch-a-child }
+      "5-7":   { method: watch-a-child }
+      "8-10":  { method: watch-a-child }
+      "11-13": { method: watch-a-child }
+    severity: { "2-4": human, "5-7": human, "8-10": human, "11-13": human }
+
+# "Clumsy kid" persona per bracket. Younger = slower reactions, shakier aim,
+# more misses on small targets. All values are starting guesses.
+#   reaction_ms            delay before reacting to something new on screen
+#   aim_jitter             random offset as a fraction of the target's size
+#   miss_small_target_prob chance of missing a target smaller than the
+#                          bracket's min_touch_target_px
+#   hold_duration_jitter   +/- fraction applied to how long a key/joystick is held
+#   wrong_turn_prob        chance of taking a wrong branch at a junction
+#   give_up_after_s        stuck this long with no progress → persona quits
+#                          (reported as a stuck spot)
+personas:
+  "2-4":
+    reaction_ms: 900
+    aim_jitter: 0.35
+    miss_small_target_prob: 0.5
+    hold_duration_jitter: 0.5
+    wrong_turn_prob: 0.4
+    give_up_after_s: 30
+  "5-7":
+    reaction_ms: 600
+    aim_jitter: 0.2
+    miss_small_target_prob: 0.25
+    hold_duration_jitter: 0.35
+    wrong_turn_prob: 0.25
+    give_up_after_s: 60
+  "8-10":
+    reaction_ms: 400
+    aim_jitter: 0.12
+    miss_small_target_prob: 0.1
+    hold_duration_jitter: 0.2
+    wrong_turn_prob: 0.15
+    give_up_after_s: 120
+  "11-13":
+    reaction_ms: 300
+    aim_jitter: 0.08
+    miss_small_target_prob: 0.05
+    hold_duration_jitter: 0.1
+    wrong_turn_prob: 0.1
+    give_up_after_s: 180
