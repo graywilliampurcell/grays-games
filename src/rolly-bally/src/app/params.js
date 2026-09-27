@@ -5,20 +5,22 @@
 //   ?gallery=1            (track piece gallery; same as ?mode=gallery; works
 //                          without ?debug=1 on purpose, see CONTRACT.md)
 //   ?debug=1              (debug overlay + R/N/G hotkeys)
+//   ?test=1               (bot hook window.__game, see src/debug/testHooks.js)
 
 import { normalizeConfig } from './configs.js';
 
 /**
  * @param {string} search location.search
- * @returns {{debug:boolean, mode:string|null, config:object|null, raw:Object<string,string>}}
+ * @returns {{debug:boolean, test:boolean, mode:string|null, config:object|null, raw:Object<string,string>}}
  */
 export function parseUrlParams(search) {
   const q = new URLSearchParams(search);
   const raw = Object.fromEntries(q.entries());
   const debug = q.get('debug') === '1' || q.get('debug') === 'true';
+  const test = q.get('test') === '1' || q.get('test') === 'true';
   let mode = q.get('mode');
   if (!mode && (q.get('gallery') === '1' || q.get('gallery') === 'true')) mode = 'gallery';
-  if (!mode) return { debug, mode: null, config: null, raw };
+  if (!mode) return { debug, test, mode: null, config: null, raw };
 
   const seed = q.get('seed') || undefined;
   let config;
@@ -39,5 +41,5 @@ export function parseUrlParams(search) {
   } else {
     config = { seed, piece: q.get('piece') || undefined };
   }
-  return { debug, mode, config: normalizeConfig(mode, config), raw };
+  return { debug, test, mode, config: normalizeConfig(mode, config), raw };
 }
