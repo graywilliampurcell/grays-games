@@ -1,0 +1,415 @@
+/* Race HUD, banners and results (prefix race-). */
+
+/* ---------- progress bar (top center) ---------- */
+
+.race-progress {
+  position: absolute;
+  top: calc(22px + var(--rb-safe-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(52vw, 560px);
+  height: 58px;
+  pointer-events: none;
+}
+
+.race-progress__track {
+  position: absolute;
+  left: 0;
+  right: 44px;
+  top: 22px;
+  height: 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 4px solid var(--rb-white);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.race-progress__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-radius: 6px;
+  background: var(--rb-green);
+}
+
+.race-progress__flag {
+  position: absolute;
+  right: 0;
+  top: 2px;
+  width: 50px;
+  height: 50px;
+}
+
+.race-progress__flag .icon {
+  width: 100%;
+  height: 100%;
+}
+
+.race-dot {
+  position: absolute;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  border: 3px solid var(--rb-white);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  will-change: left;
+}
+
+.race-dot--player {
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border: 4px solid var(--rb-white);
+  background: var(--rb-white);
+  overflow: hidden;
+  z-index: 2;
+}
+
+.race-dot--player canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+}
+
+/* ---------- series pips (under the bar) ---------- */
+
+.race-series {
+  position: absolute;
+  top: calc(86px + var(--rb-safe-top));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.race-series i {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: 3px solid var(--rb-white);
+}
+
+.race-series i.current {
+  background: var(--rb-white);
+  transform: scale(1.25);
+}
+
+/* ---------- position badge (top right) ---------- */
+
+.race-place {
+  position: absolute;
+  top: calc(12px + var(--rb-safe-top));
+  right: calc(16px + var(--rb-safe-right));
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  border: 6px solid var(--rb-white);
+  box-shadow: var(--rb-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rb-ink);
+  font-weight: 900;
+  font-size: 64px;
+  line-height: 1;
+  pointer-events: none;
+  transition: background-color 0.3s;
+}
+
+.race-place sup {
+  font-size: 26px;
+  margin-top: -22px;
+}
+
+.race-place.bump {
+  animation: race-bump 0.35s ease-out;
+}
+
+@keyframes race-bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* ---------- banners ---------- */
+
+.race-banner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 38%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.race-banner span {
+  display: block;
+  font-size: min(30vh, 220px);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--rb-white);
+  -webkit-text-stroke: 7px var(--rb-ink);
+  paint-order: stroke fill;
+  text-shadow: 0 10px 0 rgba(0, 0, 0, 0.25);
+  animation: race-count 0.9s ease-out both;
+}
+
+.race-banner--go span {
+  color: var(--rb-green);
+  animation-duration: 1.1s;
+}
+
+.race-banner--finish span {
+  font-size: min(18vh, 140px);
+  padding: 10px 34px;
+  border-radius: var(--rb-radius);
+  border: 8px solid var(--rb-white);
+  -webkit-text-stroke: 5px var(--rb-ink);
+  background: repeating-conic-gradient(#1d1d2b 0 25%, #ffffff 0 50%) 0 0 / 48px 48px;
+  animation: rb-pop 0.45s ease-out both;
+}
+
+@keyframes race-count {
+  0% { transform: scale(2.2); opacity: 0; }
+  25% { transform: scale(1); opacity: 1; }
+  75% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.7); opacity: 0; }
+}
+
+.race-check {
+  position: absolute;
+  top: calc(120px + var(--rb-safe-top));
+  left: 50%;
+  width: 84px;
+  height: 84px;
+  margin-left: -42px;
+  border-radius: 50%;
+  background: var(--rb-pink);
+  border: 5px solid var(--rb-white);
+  color: var(--rb-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: race-flash 1s ease-out both;
+}
+
+.race-check .icon {
+  width: 60%;
+  height: 60%;
+}
+
+@keyframes race-flash {
+  0% { transform: scale(0.3); opacity: 0; }
+  20% { transform: scale(1.15); opacity: 1; }
+  70% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1) translateY(-20px); opacity: 0; }
+}
+
+/* Boost: cyan speed glow at the screen edges. */
+.race-boost {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(34, 211, 238, 0.55) 100%);
+  animation: race-boost 0.9s ease-out both;
+}
+
+@keyframes race-boost {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Falling: soft white fade. */
+.race-fade {
+  position: absolute;
+  inset: 0;
+  background: var(--rb-white);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- confetti ---------- */
+
+.race-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.race-confetti i {
+  position: absolute;
+  top: -20px;
+  width: 14px;
+  height: 22px;
+  border-radius: 3px;
+  animation: race-fall linear both;
+}
+
+@keyframes race-fall {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(var(--dx), 110vh, 0) rotate(var(--rot)); opacity: 0; }
+}
+
+/* ---------- results + trophy panels ---------- */
+
+.race-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: calc(16px + var(--rb-safe-top)) calc(16px + var(--rb-safe-right)) calc(16px + var(--rb-safe-bottom))
+    calc(16px + var(--rb-safe-left));
+  background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.35), rgba(29, 29, 43, 0.55));
+  pointer-events: auto;
+  animation: race-panel-in 0.3s ease-out both;
+}
+
+@keyframes race-panel-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.race-panel__medal {
+  width: min(38vh, 260px);
+  height: min(38vh, 260px);
+  animation: rb-pop 0.5s ease-out both;
+  filter: drop-shadow(0 10px 0 rgba(0, 0, 0, 0.25));
+}
+
+.race-panel__medal .icon {
+  width: 100%;
+  height: 100%;
+}
+
+.race-panel__row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Finishing order: balls on little steps. */
+.race-podium__slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.race-podium__slot canvas {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 4px solid var(--rb-white);
+  background: var(--rb-white);
+}
+
+.race-podium__slot.me canvas {
+  width: 76px;
+  height: 76px;
+  border-color: var(--rb-yellow);
+  box-shadow: 0 0 0 4px var(--rb-ink);
+}
+
+.race-podium__step {
+  width: 64px;
+  border-radius: 8px 8px 0 0;
+  border: 4px solid var(--rb-white);
+  border-bottom: 0;
+  color: var(--rb-ink);
+  font-weight: 900;
+  font-size: 22px;
+  text-align: center;
+  padding-top: 4px;
+}
+
+.race-medals {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 90vw;
+}
+
+.race-medals .icon {
+  width: min(12vh, 72px);
+  height: min(12vh, 72px);
+  animation: rb-pop 0.4s ease-out both;
+}
+
+.race-medals .todo {
+  width: min(12vh, 72px);
+  height: min(12vh, 72px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.race-medals .todo::after {
+  content: '';
+  width: 40%;
+  height: 40%;
+  border-radius: 50%;
+  border: 4px dashed rgba(255, 255, 255, 0.8);
+}
+
+.race-panel__btn {
+  width: min(24vh, 150px);
+  height: min(24vh, 150px);
+}
+
+.race-panel__btn[disabled] {
+  opacity: 0.5;
+}
+
+.race-panel__cup {
+  width: min(46vh, 320px);
+  height: min(46vh, 320px);
+  animation: rb-pop 0.6s ease-out both;
+  filter: drop-shadow(0 12px 0 rgba(0, 0, 0, 0.25));
+}
+
+.race-panel__cup .icon {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-height: 560px) {
+  .race-place {
+    width: 88px;
+    height: 88px;
+    font-size: 48px;
+  }
+  .race-progress {
+    top: calc(12px + var(--rb-safe-top));
+  }
+  .race-series {
+    top: calc(72px + var(--rb-safe-top));
+  }
+}
+
+/* Series code (4 emoji) on the trophy panel: small decoration for grown-ups. */
+.race-seed {
+  font-size: clamp(18px, 3.5vh, 26px);
+  letter-spacing: 3px;
+  opacity: 0.85;
+  white-space: nowrap;
+  user-select: text;
+  -webkit-user-select: text;
+}
