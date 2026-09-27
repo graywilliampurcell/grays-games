@@ -1,0 +1,29 @@
+{
+  "title": "PBS KIDS mazes",
+  "slug": "pbs-kids-mazes",
+  "source": "general-knowledge-not-played",
+  "profile": {
+    "game": "PBS KIDS mazes",
+    "source": "general-knowledge-not-played",
+    "genre": "character-led simple mazes",
+    "web_playable": "yes (pbskids.org, PBS KIDS Games app)",
+    "onboarding": "A known character speaks the goal aloud and a replay-voice button lets kids hear it again, so nothing depends on reading.",
+    "controls": "Tap/click or drag along the path; arrow keys on desktop.",
+    "core_loop": "Guide the character to a friend or item through a short path.",
+    "goals_and_rewards": "Character celebrates on success; some games award stickers or collectibles.",
+    "difficulty_curve": "Very gentle, with almost no way to fail outright.",
+    "game_feel": "Soft, friendly audio/visual feedback on every tap.",
+    "art_and_audio": "Familiar TV characters, full voice-over, and music throughout.",
+    "session_length": "Roughly 3-10 minutes.",
+    "usability": "Built for pre-readers, with idle hints if a child pauses too long.",
+    "accessibility": "Large touch targets, audio-first instructions, no reading required.",
+    "ads_and_purchases": "None (non-commercial, PBS-funded).",
+    "notes": "General knowledge only, not played this session; useful mainly as a contrast for how much mazle relies on unvoiced text."
+  },
+  "sessionFile": null,
+  "madeAt": "2026-09-27T17:41:15.779Z",
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5"
+  }
+}

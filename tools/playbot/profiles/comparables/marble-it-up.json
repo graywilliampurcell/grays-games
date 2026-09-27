@@ -1,0 +1,29 @@
+{
+  "title": "Marble It Up",
+  "slug": "marble-it-up",
+  "source": "general-knowledge-not-played",
+  "profile": {
+    "game": "Marble It Up",
+    "source": "general-knowledge-not-played",
+    "genre": "3D marble platformer / time trial",
+    "web_playable": "no (PC/console)",
+    "onboarding": "Early tutorial levels introduce jumping and power-ups one at a time before combining them.",
+    "controls": "Move plus jump, with a separate camera stick to look around the course.",
+    "core_loop": "Roll and jump through a 3D course to the finish line, then optionally chase a faster medal time.",
+    "goals_and_rewards": "Finishing earns gems and a medal tier based on time; gems and progress unlock new marble skins.",
+    "difficulty_curve": "Moderate for a first clear, with real depth for players chasing gold-medal speed-run times.",
+    "game_feel": "Responsive controls with a satisfying sense of momentum and weight to the marble.",
+    "art_and_audio": "Clean, bright, colorful presentation.",
+    "session_length": "Roughly 1-3 minutes per level.",
+    "usability": "Restarting after a fall or miss is nearly instant, minimizing downtime.",
+    "accessibility": "Requires coordinating movement, jump, and camera together, plus timer-based goals, which is more demanding than a single-input game.",
+    "ads_and_purchases": "Paid up-front game with cosmetic DLC; no ads or forced purchases in core play.",
+    "notes": "Useful for comparing whether Rolly Bally's ball unlocks feel earned through play (like here) versus gated behind a store."
+  },
+  "sessionFile": null,
+  "madeAt": "2026-09-27T17:45:59.999Z",
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5"
+  }
+}
