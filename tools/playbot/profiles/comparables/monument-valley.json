@@ -1,0 +1,29 @@
+{
+  "title": "Monument Valley",
+  "slug": "monument-valley",
+  "source": "general-knowledge-not-played",
+  "profile": {
+    "game": "Monument Valley",
+    "source": "general-knowledge-not-played",
+    "genre": "perspective-illusion path puzzle",
+    "web_playable": "no (iOS/Android/PC apps)",
+    "onboarding": "Wordless; the player taps where to walk and glowing handles show what can be moved.",
+    "controls": "Tap to walk, drag to rotate or slide parts of the world.",
+    "core_loop": "Reshape the world so the path connects, then walk to the goal.",
+    "goals_and_rewards": "Reaching the goal triggers a beautiful visual reveal each chapter.",
+    "difficulty_curve": "Very smooth, introducing one new idea per chapter.",
+    "game_feel": "Calm and tactile, with musical feedback on every drag.",
+    "art_and_audio": "Pastel art with ambient music and no voice-over.",
+    "session_length": "About 10-15 minutes per chapter, with natural stopping points.",
+    "usability": "No fail state at all, with interactive parts clearly highlighted.",
+    "accessibility": "No reading required and no time pressure.",
+    "ads_and_purchases": "Paid up-front, with a paid expansion.",
+    "notes": "General knowledge only, not played this session; useful mainly as a contrast for onboarding and failure design rather than genre fit."
+  },
+  "sessionFile": null,
+  "madeAt": "2026-09-27T17:41:15.779Z",
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5"
+  }
+}

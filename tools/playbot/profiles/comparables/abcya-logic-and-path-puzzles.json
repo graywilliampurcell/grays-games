@@ -1,0 +1,29 @@
+{
+  "title": "ABCya logic and path puzzles",
+  "slug": "abcya-logic-and-path-puzzles",
+  "source": "general-knowledge-not-played",
+  "profile": {
+    "game": "ABCya logic and path puzzles",
+    "source": "general-knowledge-not-played",
+    "genre": "educational logic/path puzzles organized by grade",
+    "web_playable": "yes (abcya.com)",
+    "onboarding": "Short instruction paired with audio narration, pitched to the selected grade level.",
+    "controls": "Click/tap, or arrow keys.",
+    "core_loop": "Solve a small logic or path puzzle, then move to the next one.",
+    "goals_and_rewards": "Level progress plus simple praise on completion.",
+    "difficulty_curve": "Organized explicitly by grade band, from Pre-K through grade 6.",
+    "game_feel": "Functional rather than flashy.",
+    "art_and_audio": "Bright, simple art with basic sound cues.",
+    "session_length": "About 5-10 minutes.",
+    "usability": "Clear goals, with grade labels that help parents pick the right level.",
+    "accessibility": "Large UI elements tuned for early grades.",
+    "ads_and_purchases": "Ads on the free tier; a paid subscription removes them.",
+    "notes": "General knowledge only, not played this session."
+  },
+  "sessionFile": null,
+  "madeAt": "2026-09-27T17:41:15.779Z",
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5"
+  }
+}
