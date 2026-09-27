@@ -7,7 +7,7 @@ import { dirname, extname, resolve } from 'node:path';
 
 const MEDIA = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp' };
 
-export async function judge({ prompt, images = [], schema, provider, model, config = {}, timeoutMs = 300000 }) {
+export async function judge({ prompt, images = [], schema, provider, model, config = {}, timeoutMs = 600000 }) {
   provider ??= config.judge?.provider ?? 'claude-code';
   model ??= config.judge?.model ?? 'claude-sonnet-5';
   const absImages = images.map((p) => resolve(p));
