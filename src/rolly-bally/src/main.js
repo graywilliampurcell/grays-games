@@ -14,6 +14,7 @@ import { PlayScreen } from './app/PlayScreen.js';
 import { parseUrlParams } from './app/params.js';
 import { registerScreens, startScreen } from './ui/screens/index.js';
 import { showReloadButton } from './app/reloadButton.js';
+import { startSelfUpdate } from './app/selfUpdate.js';
 
 // iOS Safari ignores user-scalable=no; block pinch/double-tap zoom here.
 for (const type of ['gesturestart', 'gesturechange', 'gestureend']) {
@@ -36,7 +37,7 @@ async function boot() {
   input.setEnabled(false);
   const debug = new DebugOverlay({ enabled: params.debug, parent: document.body });
 
-  const app = { save, events, audio, input, debug, params, router: null, game: null, version: __APP_VERSION__ };
+  const app = { save, events, audio, input, debug, params, router: null, game: null, version: __APP_VERSION__, build: __APP_BUILD__ };
   app.router = new Router(document.getElementById('screen'), app);
   app.game = new Game({ canvas: document.getElementById('game'), hudRoot: document.getElementById('mode-ui'), app });
   app.router.register('play', () => new PlayScreen());
@@ -56,6 +57,8 @@ async function boot() {
     await app.router.go(start.name, start.params || {});
   }
   testHooks?.markReady();
+  // Self-update: Home-Screen launches never refetch on their own (U0).
+  if (!params.test) app.update = startSelfUpdate(app);
 }
 
 boot().catch((err) => {

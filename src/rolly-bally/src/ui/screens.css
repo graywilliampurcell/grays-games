@@ -135,6 +135,25 @@ canvas.ui-skin-pic {
 .home-btn:nth-child(3) { transform: rotate(2deg); }
 .home-btn:active { transform: translateY(6px) scale(0.97); }
 
+.home-update {
+  position: absolute !important;
+  top: calc(16px + var(--rb-safe-top));
+  right: calc(16px + var(--rb-safe-right));
+  width: min(30vh, 22vw, 200px);
+  height: min(30vh, 22vw, 200px);
+  min-width: 120px;
+  min-height: 120px;
+  font-size: clamp(16px, 2.8vh, 24px);
+  animation: ui-throb 0.8s ease-in-out infinite alternate;
+}
+
+.home-update .icon {
+  width: 55%;
+  height: 55%;
+  max-width: none;
+  max-height: none;
+}
+
 .home-corner {
   position: absolute;
   right: calc(16px + var(--rb-safe-right));
