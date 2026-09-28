@@ -44,7 +44,7 @@ describe('pathways config', () => {
       size: 'large', theme: 'snow', bumpiness: 'flat', stuff: ['bouncePads', 'darkTunnels'], stars: 'some', seed: 'abc',
     });
     const all = pathwaysToPlaygroundConfig({ seed: 's' });
-    expect(all.stuff).toEqual(['bouncePads', 'ramps', 'darkTunnels', 'jumps']);
+    expect(all.stuff).toEqual(['bouncePads', 'ramps', 'darkTunnels', 'trick']);
     expect(all.stars).toBe('lots');
   });
 

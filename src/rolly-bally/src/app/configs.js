@@ -75,14 +75,13 @@ export function normalizePathwaysConfig(c = {}) {
   };
 }
 
-// Pathways stuff → the feature types the world generator places. Trick
-// stands in as jumps until the trick mountain exists (P3).
-const PATHWAYS_TO_PLAYGROUND_STUFF = { bouncy: 'bouncePads', ramps: 'ramps', darkTunnels: 'darkTunnels', trick: 'jumps' };
+// Pathways stuff → the feature types the world generator places.
+const PATHWAYS_TO_PLAYGROUND_STUFF = { bouncy: 'bouncePads', ramps: 'ramps', darkTunnels: 'darkTunnels', trick: 'trick' };
 const PATHWAYS_TO_PLAYGROUND_STARS = { everywhere: 'lots', medium: 'some' };
 
 /**
  * The world-generator config for a Pathways setup (same seed, same world).
- * Its stuff can include Pathways-only feature types (darkTunnels), so it is
+ * Its stuff can include Pathways-only feature types (darkTunnels, trick), so it is
  * not limited to Playground's own stuff list.
  */
 export function pathwaysToPlaygroundConfig(c = {}) {

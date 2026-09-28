@@ -28,6 +28,7 @@ import {
   generate, cellCenter, cellRange, heightAt, floodFill, vIndex, WALK_MAX_RANGE,
 } from '../playground/TerrainGenerator.js';
 import { STAR_HOVER } from '../playground/Stars.js';
+import { FEATURE_SPECS, featureCell } from '../playground/Features.js';
 
 export const ROAD_HALF = 1; // centerline ± 1 cell → 3 cells wide
 export const STAR_GAP = { everywhere: 3, medium: 6 };
@@ -72,6 +73,11 @@ export function generatePathways(config) {
       legs.push([{ id: node.id, out: node.in }, { id: node.id, in: node.out }]);
     }
   }
+  // Features with a road inside them (the trick mountain's run-up).
+  world.features.forEach((f, i) => {
+    const to = FEATURE_SPECS[f.type].roadTo;
+    if (to) legs.push([{ id: `${f.type}${i}`, out: f.access[0] }, { id: `${f.type}${i}`, in: featureCell(f, n, to[0], to[1]) }]);
+  });
 
   const cells = new Uint8Array(n * n);
   const center = [];
