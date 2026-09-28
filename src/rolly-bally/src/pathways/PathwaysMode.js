@@ -9,7 +9,8 @@
 //    it, a small sideways push keeps the ball near the middle (a bowling
 //    bumper, not a rail);
 //  - respawn at the nearest point on a road;
-//  - dark tunnels: the world goes dark inside them (darkTunnel.js).
+//  - dark tunnels: the world goes dark inside them (darkTunnel.js);
+//  - trick mountains: shoot up, earn stars for height (trick.js).
 
 import * as THREE from 'three';
 import PlaygroundMode from '../playground/PlaygroundMode.js';
@@ -18,6 +19,8 @@ import { worldToCell } from '../playground/TerrainGenerator.js';
 import { DEFAULT_TUNING } from '../ball/Ball.js';
 import { assistAccel } from './pathAssist.js';
 import { DarkTunnels } from './darkTunnel.js';
+import { TrickMountains, trickCost } from './trick.js';
+import './pathways.css';
 
 export const PATHWAYS_TUNING = {
   speedCap: 9, // same as Playground
@@ -49,6 +52,36 @@ export default class PathwaysMode extends PlaygroundMode {
     super._buildWorld(config);
     this.world.dark = new DarkTunnels({ scene: this.ctx.scene, features: this.world.data.features, audio: this.ctx.audio });
     if (this.ball) this.world.dark.attachBall(this.ball);
+    this._trickTimers = this._trickTimers || [];
+    this.world.tricks = new TrickMountains({
+      physics: this.ctx.physics,
+      scene: this.ctx.scene,
+      features: this.world.data.features,
+      audio: this.ctx.audio,
+      ui: this.ctx.ui,
+      camera: this.ctx.camera,
+      counter: () => this.hud.stars,
+      spend: () => {
+        const cost = trickCost(this.sessionStars);
+        if (cost) {
+          this.sessionStars -= cost;
+          this.hud.count.textContent = String(this.sessionStars);
+        }
+        return cost;
+      },
+      earn: (n, from) => {
+        this.world.tricks.flyStars(n, from);
+        for (let i = 0; i < n; i++) {
+          // Count each star as it lands in the counter.
+          this._trickTimers.push(setTimeout(() => {
+            this.sessionStars++;
+            this.ctx.events.emit('starCollected', { sessionStars: this.sessionStars });
+            this.ctx.audio.play('pop', { pitch: 1.2 + i * 0.1 });
+            this._bumpStarHud();
+          }, 850 + i * 120));
+        }
+      },
+    });
     const arrows = buildArrows(this.world.data.paths.arrows, config.theme);
     if (arrows) {
       this.ctx.scene.add(arrows);
@@ -58,18 +91,34 @@ export default class PathwaysMode extends PlaygroundMode {
   }
 
   _disposeWorld() {
+    for (const t of this._trickTimers || []) clearTimeout(t);
+    this._trickTimers = [];
     this.world?.dark?.dispose();
+    this.world?.tricks?.dispose();
     super._disposeWorld();
   }
 
   update(dt) {
     super.update(dt);
+    this.world.tricks.update(dt);
     this._pathAssist(dt);
+  }
+
+  postStep(dt) {
+    super.postStep(dt);
+    this.world.tricks.postStep(dt, this.ball);
   }
 
   render(alpha, frameDt) {
     super.render(alpha, frameDt);
-    this.world.dark.update(Math.min(frameDt, 0.1), this.ball.position, this.ball.velocity);
+    const dt = Math.min(frameDt, 0.1);
+    this.world.dark.update(dt, this.ball.position, this.ball.velocity);
+    this.world.tricks.render(dt, this.ball.position);
+  }
+
+  respawn() {
+    super.respawn();
+    this.world?.tricks?.reset();
   }
 
   _pathAssist(dt) {

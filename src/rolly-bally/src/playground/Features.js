@@ -75,6 +75,21 @@ export const FEATURE_SPECS = {
     access: [[2, 0], [2, 13]],
     stars: [[2.5, 4.5, 0.9], [2.5, 7, 0.9], [2.5, 9.5, 0.9]],
   },
+  // Pathways "trick mountain": straight run-up, soft landing pad, then a tall
+  // curved mountain. Rolling into its foot launches the ball straight up;
+  // the launch, star cost and scoring live in pathways/trick.js.
+  trick: {
+    W: 5,
+    L: 16,
+    height: 4.5,
+    pad: [6, 9], // v range of the soft landing pad
+    launch: 10.5, // v of the launch line at the mountain's foot
+    foot: 11, // the mountain starts here
+    blocked: (u, v) => v >= 11,
+    access: [[2, 0]],
+    roadTo: [2, 10], // the run-up is road too
+    stars: [],
+  },
   // Post in the middle with a slowly spinning bar.
   bumpers: {
     W: 7,
@@ -106,7 +121,7 @@ export function featureToWorld(f, u, v) {
 }
 
 /** Local cell (u, v) → world cell (cx, cz). */
-function featureCell(f, n, u, v) {
+export function featureCell(f, n, u, v) {
   const p = featureToWorld(f, u + 0.5, v + 0.5);
   return { cx: Math.floor(p.x + n / 2), cz: Math.floor(p.z + n / 2) };
 }
@@ -225,6 +240,7 @@ export class FeatureSet {
       else if (f.type === 'bouncePads') this._bouncePad(f, blocks);
       else if (f.type === 'tunnels') this._tunnel(f, blocks);
       else if (f.type === 'darkTunnels') this._darkTunnel(f, blocks);
+      else if (f.type === 'trick') this._trick(f, blocks);
       else if (f.type === 'bumpers') this._bumper(f, blocks);
     }
     this._buildPadMesh();
@@ -395,6 +411,30 @@ export class FeatureSet {
     add(0.5, h / 2, { x: 1, y: h, z: len });
     add(4.5, h / 2, { x: 1, y: h, z: len });
     add(2.5, h + 0.4, { x: 5, y: 0.8, z: len });
+  }
+
+  /**
+   * Trick mountain blocks + colliders: a quarter-pipe profile of 0.5 m
+   * slices rising to a near-vertical lip, a pink soft pad and white run-up
+   * stripes. The big star sign and all the behaviour are in pathways/trick.js.
+   */
+  _trick(f, blocks) {
+    const s = FEATURE_SPECS.trick;
+    const R = 4; // quarter-pipe radius
+    const colors = ['purple', '#9b52ee', 'purple', '#9b52ee'];
+    for (let k = 0; k < 9; k++) {
+      const x = Math.min(R, k * 0.5 + 0.25);
+      const h = k === 8 ? s.height : R - Math.sqrt(R * R - x * x) + 0.15;
+      this._box(f, blocks, 2.5, s.foot + k * 0.5 + 0.25, h / 2, { x: 5, y: h, z: 0.5 }, colors[k % colors.length], { jitter: 0 });
+      // snowy top edge on each step reads as "mountain"
+      this._box(f, blocks, 2.5, s.foot + k * 0.5 + 0.25, h + 0.06, { x: 5, y: 0.12, z: 0.5 }, 'white', { collide: false, jitter: 0 });
+    }
+    const [p0, p1] = s.pad;
+    blocks.addBox(this._at(f, 2.5, (p0 + p1) / 2, 0.04), { x: 5, y: 0.1, z: p1 - p0 }, 'pink', { yaw: f.yaw, jitter: 0 });
+    for (const u of [0.25, 4.75]) this._box(f, blocks, u, (p0 + p1) / 2, 0.12, { x: 0.5, y: 0.24, z: p1 - p0 }, '#ff8fc0', { collide: false, jitter: 0 });
+    for (let v = 1; v < p0; v += 2) {
+      this._box(f, blocks, 2.5, v + 0.5, 0.02, { x: 0.5, y: 0.05, z: 1 }, 'white', { collide: false, jitter: 0 });
+    }
   }
 
   _bumper(f, blocks) {
