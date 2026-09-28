@@ -75,20 +75,22 @@ export function normalizePathwaysConfig(c = {}) {
   };
 }
 
-// Pathways P0 plays an ordinary Playground world. Nearest Playground
-// equivalents until paths, dark tunnels and the trick mountain exist
-// (P1-P3): Trick stands in as jumps for now.
-const PATHWAYS_TO_PLAYGROUND_STUFF = { bouncy: 'bouncePads', ramps: 'ramps', darkTunnels: 'tunnels', trick: 'jumps' };
+// Pathways stuff → the feature types the world generator places. Trick
+// stands in as jumps until the trick mountain exists (P3).
+const PATHWAYS_TO_PLAYGROUND_STUFF = { bouncy: 'bouncePads', ramps: 'ramps', darkTunnels: 'darkTunnels', trick: 'jumps' };
 const PATHWAYS_TO_PLAYGROUND_STARS = { everywhere: 'lots', medium: 'some' };
 
-/** The Playground config a Pathways setup plays (same seed, same world). */
+/**
+ * The world-generator config for a Pathways setup (same seed, same world).
+ * Its stuff can include Pathways-only feature types (darkTunnels), so it is
+ * not limited to Playground's own stuff list.
+ */
 export function pathwaysToPlaygroundConfig(c = {}) {
   const p = normalizePathwaysConfig(c);
-  return normalizePlaygroundConfig({
-    ...p,
+  return {
+    ...normalizePlaygroundConfig({ ...p, stars: PATHWAYS_TO_PLAYGROUND_STARS[p.stars] }),
     stuff: p.stuff.map((s) => PATHWAYS_TO_PLAYGROUND_STUFF[s]),
-    stars: PATHWAYS_TO_PLAYGROUND_STARS[p.stars],
-  });
+  };
 }
 
 /** Test-track / gallery take an optional seed only. */
