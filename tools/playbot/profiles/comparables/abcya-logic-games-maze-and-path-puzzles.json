@@ -1,0 +1,29 @@
+{
+  "title": "ABCya logic games (maze and path puzzles)",
+  "slug": "abcya-logic-games-maze-and-path-puzzles",
+  "source": "general-knowledge-not-played",
+  "profile": {
+    "game": "ABCya logic games (maze and path puzzles)",
+    "source": "general-knowledge-not-played",
+    "genre": "Educational logic and path-puzzle games organized by school grade level (Pre-K through 6), hosted on abcya.com.",
+    "web_playable": "Yes — browser-based, playable directly on the site with no download or account needed.",
+    "onboarding": "Each puzzle opens with a short text instruction plus audio narration of the goal, with wording length and reading level scaled to the selected grade band; Pre-K/K puzzles use only a few words backed by voice-over.",
+    "controls": "Click or tap to select and move pieces; some path-style puzzles use arrow keys or a drag gesture to trace a route.",
+    "core_loop": "Solve a small logic or path puzzle (find a route, sort or match pieces, connect a trail) and advance to the next puzzle in the grade set.",
+    "goals_and_rewards": "Completing a puzzle triggers simple praise (a checkmark, cheer sound, or brief animation) and unlocks the next puzzle; there is no points economy or collectible system typical of the genre.",
+    "difficulty_curve": "Difficulty is organized by separate grade-level folders rather than one continuous ramp — a Pre-K path puzzle is much simpler and shorter than the same title's grade-3+ version, so age-fit comes from picking the right grade band rather than in-game scaling.",
+    "game_feel": "Functional and responsive but not highly polished; feedback is light, limited to a sound cue or brief animation rather than physics-driven or tactile response.",
+    "art_and_audio": "Bright, flat, cartoon-style art aimed at classroom and home use; short voice-over lines read instructions aloud alongside simple sound effects, with no heavy music production.",
+    "session_length": "Individual puzzles typically take under a minute; a session across several puzzles in one grade set runs roughly 5-10 minutes.",
+    "usability": "Grade labels let a parent or teacher pick a puzzle with age-appropriate wording and length for a 5-7 year old, and younger-grade puzzles keep on-screen text to a handful of words backed by audio rather than a paragraph.",
+    "accessibility": "Large click targets and spoken instructions support pre-readers in the Pre-K/K sets, so a child does not strictly need to read if they use the audio prompt, though some grade bands still lean partly on text.",
+    "ads_and_purchases": "The free tier shows ads between or around games; ABCya also offers a paid premium subscription that removes ads and unlocks extra content.",
+    "notes": "Best comparator for Mazle's wordy controls panel: ABCya's grade-banded design shows a 5-7-appropriate maze/path puzzle keeps instruction text to a few words plus audio narration, rather than a 25-word block a pre-reader needs read to them."
+  },
+  "sessionFile": null,
+  "madeAt": "2026-09-27T18:32:59.384Z",
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5"
+  }
+}

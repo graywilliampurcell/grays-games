@@ -42,7 +42,9 @@ async function boot() {
   app.router.register('play', () => new PlayScreen());
   registerScreens(app.router, app);
 
-  if (params.debug) window.rollyBally = app; // poke around from the console
+  if (params.debug || params.test) window.rollyBally = app; // poke around from the console
+  // ?test=1: bot hook window.__game (test-only module, not loaded otherwise).
+  const testHooks = params.test ? (await import('./debug/testHooks.js')).installTestHooks(app) : null;
 
   if (loader) loader.classList.add('hidden');
   setTimeout(() => loader && loader.remove(), 600);
@@ -53,6 +55,7 @@ async function boot() {
     const start = startScreen(params);
     await app.router.go(start.name, start.params || {});
   }
+  testHooks?.markReady();
 }
 
 boot().catch((err) => {

@@ -1,0 +1,29 @@
+{
+  "title": "Pac-Man",
+  "slug": "pac-man",
+  "source": "general-knowledge-not-played",
+  "profile": {
+    "game": "Pac-Man",
+    "source": "general-knowledge-not-played",
+    "genre": "arcade maze chase",
+    "web_playable": "yes (Google Doodle Pac-Man; official web versions)",
+    "onboarding": "None; the goal is learned by playing.",
+    "controls": "Arrow keys or swipe, one direction at a time.",
+    "core_loop": "Eat dots while avoiding ghosts, with a power pellet to briefly turn the tables.",
+    "goals_and_rewards": "Clear the maze for score, with fruit bonuses along the way.",
+    "difficulty_curve": "Speeds up each level and uses a lives system.",
+    "game_feel": "Tight, instant response with a distinct sound on every dot eaten.",
+    "art_and_audio": "High-contrast, readable visuals with constant audio feedback.",
+    "session_length": "About 2-10 minutes per game.",
+    "usability": "The goal is instantly clear from the first screen.",
+    "accessibility": "Requires fast reactions; the ghost chase can feel threatening for younger kids.",
+    "ads_and_purchases": "None in the classic or Doodle versions.",
+    "notes": "General knowledge only, not played this session; compare for feedback/pacing, not for the chase-and-threat mechanic itself."
+  },
+  "sessionFile": null,
+  "madeAt": "2026-09-27T17:41:15.779Z",
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5"
+  }
+}

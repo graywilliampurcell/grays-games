@@ -1,0 +1,29 @@
+{
+  "title": "Super Monkey Ball",
+  "slug": "super-monkey-ball",
+  "source": "general-knowledge-not-played",
+  "profile": {
+    "game": "Super Monkey Ball",
+    "source": "general-knowledge-not-played",
+    "genre": "Tilt-the-stage 3D ball rolling",
+    "web_playable": "no (console/PC/mobile)",
+    "onboarding": "First stages are wide and flat with minimal instruction, easing players into the tilt control before adding hazards.",
+    "controls": "One stick tilts the whole world; there are no separate jump/action buttons in the core mode.",
+    "core_loop": "Roll the ball across a floating stage to reach the goal gate before the timer runs out.",
+    "goals_and_rewards": "Reaching the goal gate triggers a celebration; bananas scattered along the route are the main collectible reward.",
+    "difficulty_curve": "Ramps steadily across worlds, with later stages demanding precise, fast tilting.",
+    "game_feel": "Praised for excellent ball physics and camera work, giving strong tactile feedback on every roll and near-miss.",
+    "art_and_audio": "Bright, cheerful low-poly worlds with an energetic announcer voice on key moments.",
+    "session_length": "About 30-60 seconds per stage, so sessions are made of many quick attempts.",
+    "usability": "Falling off restarts the stage almost instantly, keeping frustration low despite failure.",
+    "accessibility": "Every stage has a hard timer, and fine tilt control becomes demanding in later worlds, which may frustrate the youngest players.",
+    "ads_and_purchases": "None in the main packaged releases; some mobile spin-off versions differ and weren't checked here.",
+    "notes": "Good benchmark for whether Rolly Bally's fall-and-respawn (no timer) is a gentler, more 5-7-friendly version of this same fall-out mechanic."
+  },
+  "sessionFile": null,
+  "madeAt": "2026-09-27T17:45:59.999Z",
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "title": "Mario Kart (Mario Kart 8 Deluxe / Tour)",
+  "slug": "mario-kart-mario-kart-8-deluxe-tour",
+  "source": "general-knowledge-not-played",
+  "profile": {
+    "game": "Mario Kart (Mario Kart 8 Deluxe / Tour)",
+    "source": "general-knowledge-not-played",
+    "genre": "Kart racing",
+    "web_playable": "no (Nintendo Switch; Tour on mobile)",
+    "onboarding": "Icon-driven menus, with smart-steering and auto-accelerate assist options that let very young or new players just point and go.",
+    "controls": "Steer, accelerate, and use items; assists can reduce this to essentially one-stick play.",
+    "core_loop": "Race a short multi-lap course, using items and shortcuts to place as high as possible.",
+    "goals_and_rewards": "Race placement, trophies, and cosmetic/kart unlocks reward both winning and repeated play.",
+    "difficulty_curve": "Multiple speed (CC) classes plus AI rubber-banding keep races close regardless of skill level.",
+    "game_feel": "Considered best-in-class for kart racing, with highly tactile drift and boost feedback.",
+    "art_and_audio": "Bright, iconic characters with lively, upbeat music throughout races.",
+    "session_length": "About 2-3 minutes per race, roughly 10 minutes for a full cup of races.",
+    "usability": "Assist modes specifically let 4-6-year-olds complete races and feel successful.",
+    "accessibility": "Smart steering and auto-accelerate options remove the fine motor/timing demands of manual driving.",
+    "ads_and_purchases": "None on Nintendo Switch; the mobile Tour version has included gacha-style 'pipe' loot mechanics, which is a monetization pattern to avoid.",
+    "notes": "Worth checking whether Rolly Bally's Race mode needs an easier/assisted variant for the 5-7 bracket the way Mario Kart offers assists, given the profile flags time-pressure concerns for that age group."
+  },
+  "sessionFile": null,
+  "madeAt": "2026-09-27T17:45:59.999Z",
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5"
+  }
+}

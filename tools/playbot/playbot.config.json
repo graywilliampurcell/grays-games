@@ -1,0 +1,52 @@
+{
+  "server": { "host": "192.168.1.9", "port": 9073 },
+  "browser": {
+    "viewport": { "width": 1280, "height": 720 },
+    "args": ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"]
+  },
+  "smoke": { "readyTimeoutMs": 30000, "hookGraceMs": 10000, "fallbackWaitMs": 3000, "stepFrames": 60 },
+  "judge": {
+    "provider": "claude-code",
+    "model": "claude-sonnet-5",
+    "reviewModel": "claude-opus-5-5"
+  },
+  "reports": {
+    "fallbackParent": {
+      "title": "Game tester reports",
+      "under": "Research",
+      "underUrl": "https://app.notion.com/p/3a862b14e6ba812f8f7bff0d365e0f23",
+      "url": null,
+      "note": "Notion parent for reports of games with no planPage. The /playtest skill creates it under underUrl once and records its URL with `playbot reports-parent <game> --set <url>`."
+    }
+  },
+  "games": {
+    "mazle": {
+      "dir": "src/playtest",
+      "smokeUrls": ["?test=1"],
+      "planPage": "https://app.notion.com/p/3e762b14e6ba81e48999c2df1942a56f",
+      "checks": {
+        "input": "mazle",
+        "scanPaths": ["index.html", "js"],
+        "flows": [
+          { "name": "level-1", "url": "?test=1", "taps": [], "playing": "!s.escaped && !s.frozen",
+            "note": "test mode skips the pointer-lock click; on a desktop the first click locks the mouse" }
+        ]
+      }
+    },
+    "rolly-bally": {
+      "dir": "src/rolly-bally",
+      "smokeUrls": ["?mode=test-track&test=1", "?gallery=1&test=1"],
+      "planPage": null,
+      "checks": {
+        "input": "joystick",
+        "scanPaths": ["index.html", "src", "public"],
+        "flows": [
+          { "name": "home-playground", "url": "?test=1", "playing": "s.mode === 'playground' && s.screen === 'play'",
+            "taps": [{ "tap": ".home-btn >> nth=0", "label": "Playground" }, { "tap": ".ui-go", "label": "Go" }] },
+          { "name": "home-race", "url": "?test=1", "playing": "s.mode === 'race'",
+            "taps": [{ "tap": ".home-btn >> nth=1", "label": "Race" }, { "tap": ".ui-go", "label": "Go" }] }
+        ]
+      }
+    }
+  }
+}
