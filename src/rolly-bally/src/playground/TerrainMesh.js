@@ -29,8 +29,14 @@ function groundColor(theme, pal, y, lowest, sloped, out) {
   return out.set(sloped ? pal.grassDark : pal.grass);
 }
 
+// Pathways roads: sand on grass, blue ice on snow; lighter dashes down the middle.
+const ROAD_COLORS = {
+  grass: { road: '#e6cf8f', dash: '#fff3cf' },
+  snow: { road: '#86c3ec', dash: '#e3f4ff' },
+};
+
 /**
- * @param {{n, heights, minH, maxH, theme}} world
+ * @param {{n, heights, minH, maxH, theme, paths?}} world
  * @returns {THREE.Mesh}
  */
 export function buildTerrainMesh(world) {
@@ -47,6 +53,8 @@ export function buildTerrainMesh(world) {
   let k = 0;
   const c = new THREE.Color();
   const dirt = new THREE.Color(pal.dirt);
+  const roads = world.paths?.cells;
+  const roadPal = ROAD_COLORS[theme];
 
   const vert = (x, y, z, color) => {
     pos[k] = x;
@@ -69,7 +77,9 @@ export function buildTerrainMesh(world) {
       const h01 = h[vIndex(n, cx, cz + 1)];
       const h11 = h[vIndex(n, cx + 1, cz + 1)];
       const sloped = cellRange(t, cx, cz) > 0;
-      groundColor(theme, pal, cellMin(t, cx, cz), minH, sloped, c);
+      const road = roads ? roads[cx * n + cz] : 0;
+      if (road) c.set(road === 3 ? roadPal.dash : roadPal.road);
+      else groundColor(theme, pal, cellMin(t, cx, cz), minH, sloped, c);
       // Checker + jitter so individual 1 m blocks read.
       const f = 1 + (cellHash(cx, cz) * 2 - 1) * 0.045 + ((cx + cz) & 1 ? -0.03 : 0.02);
       c.multiplyScalar(f);

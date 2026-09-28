@@ -111,9 +111,11 @@ export class StarField {
    * @param {object} o
    * @param {THREE.Object3D} o.scene
    * @param {Array<{x,y,z}>} o.stars from generate()
+   * @param {number} [o.radius] pickup distance (m) from the ball center
    */
-  constructor({ scene, stars }) {
+  constructor({ scene, stars, radius = COLLECT_RADIUS }) {
     this.scene = scene;
+    this.radius = radius;
     this.stars = stars.map((s, i) => ({ ...s, phase: i * 0.7, state: 'idle', t: 0 }));
     this.remaining = this.stars.length;
     this.time = 0;
@@ -161,7 +163,7 @@ export class StarField {
   /** Check the ball against idle stars. Returns the number collected this call. */
   collect(ballPos) {
     let got = 0;
-    const r2 = COLLECT_RADIUS * COLLECT_RADIUS;
+    const r2 = this.radius * this.radius;
     for (const s of this.stars) {
       if (s.state !== 'idle') continue;
       const dx = s.x - ballPos.x;

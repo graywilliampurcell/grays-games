@@ -88,7 +88,7 @@ export class Game {
 
     const scene = new THREE.Scene();
     scene.add(makeDefaultLights());
-    applySky(scene, name === 'playground' ? cfg.theme || 'grass' : 'race');
+    applySky(scene, name === 'playground' || name === 'pathways' ? cfg.theme || 'grass' : 'race');
     const physics = new Physics();
     const ui = document.createElement('div');
     ui.className = 'mode-ui';
