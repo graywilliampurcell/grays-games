@@ -54,7 +54,7 @@ export default class PlaygroundMode {
       scene: ctx.scene,
       position: spawnPos,
       skin: ctx.save.get().skins.selected,
-      tuning: { speedCap: 9 },
+      tuning: this.ballTuning(),
     });
     this.lastSafe.set(spawnPos.x, spawnPos.y, spawnPos.z);
     this.ball.dust?.setColor(config.theme === 'snow' ? 0xffffff : 0xf1e6cc);
@@ -76,10 +76,24 @@ export default class PlaygroundMode {
   }
 
   // ------------------------------------------------------------ world
+  // Hooks for modes built on this one (Pathways): world generator, ball
+  // tuning, star pickup radius and respawn point.
+
+  generateWorld(config) {
+    return generate(config);
+  }
+
+  ballTuning() {
+    return { speedCap: 9 };
+  }
+
+  starRadius() {
+    return undefined; // StarField default
+  }
 
   _buildWorld(config) {
     const { scene, physics, audio } = this.ctx;
-    const data = generate(config);
+    const data = this.generateWorld(config);
     const theme = config.theme === 'snow' ? 'snow' : 'grass';
     const far = Math.min(230, 90 + data.n * 0.6);
     applySky(scene, theme, { near: theme === 'snow' ? 30 : 45, far });
@@ -129,7 +143,7 @@ export default class PlaygroundMode {
     w.features = new FeatureSet({ physics, scene, blocks: w.blocks, features: data.features, audio });
     scene.add(w.blocks.build());
 
-    w.stars = new StarField({ scene, stars: data.stars });
+    w.stars = new StarField({ scene, stars: data.stars, radius: this.starRadius() });
     w.snow = theme === 'snow' ? new Snowfall(scene) : null;
 
     this.world = w;
@@ -311,8 +325,8 @@ export default class PlaygroundMode {
 
   // ------------------------------------------------------------ respawn / debug
 
-  /** Respawn at the safe pad nearest to where the ball last touched ground. */
-  respawn() {
+  /** Where to respawn: the safe pad nearest to where the ball last touched ground. */
+  respawnPoint() {
     const { pads } = this.world.data;
     let best = pads[0];
     let bestD = Infinity;
@@ -323,7 +337,11 @@ export default class PlaygroundMode {
         best = p;
       }
     }
-    const pos = { x: best.x, y: best.y + 0.8, z: best.z };
+    return { x: best.x, y: best.y + 0.8, z: best.z };
+  }
+
+  respawn() {
+    const pos = this.respawnPoint();
     this.cam.getForward(this._fwd);
     this.ball.respawn(pos, this._fwd);
     this.lastSafe.set(pos.x, pos.y, pos.z);

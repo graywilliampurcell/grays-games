@@ -6,6 +6,7 @@ export const MODES = {
   'test-track': () => import('../test-track/TestTrackMode.js'),
   race: () => import('../race/RaceMode.js'),
   playground: () => import('../playground/PlaygroundMode.js'),
+  pathways: () => import('../pathways/PathwaysMode.js'),
   gallery: () => import('../track-gallery/GalleryMode.js'),
 };
 

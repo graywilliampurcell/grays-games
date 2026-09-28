@@ -3,15 +3,14 @@
 // trick; all on by default). Dice re-rolls the seed (shown as 4 emoji);
 // choices are remembered separately from Playground's.
 //
-// P0: Go plays an ordinary Playground world built from these choices
-// (pathwaysToPlaygroundConfig); paths, dark tunnels and the trick mountain
-// come in P1-P3.
+// Go plays the Pathways mode (roads through the world). Dark tunnels and the
+// trick mountain come in P2-P3; until then they are ordinary tunnels/jumps.
 
 import * as icons from '../icons/index.js';
 import { h, iconButton, backButton, goButton, setPressed } from '../components.js';
 import {
   PLAYGROUND_SIZES, PLAYGROUND_THEMES, PLAYGROUND_BUMPINESS, PATHWAYS_STUFF, PATHWAYS_STARS,
-  pathwaysToPlaygroundConfig,
+  normalizePathwaysConfig,
 } from '../../app/configs.js';
 import { randomEmojiSeed } from '../../core/Rng.js';
 import { pathwaysSetupFrom } from '../progress.js';
@@ -78,7 +77,7 @@ export class PathwaysSetupScreen {
 
     const go = goButton(app, () => {
       remember();
-      app.router.go('play', { mode: 'playground', config: pathwaysToPlaygroundConfig(state), returnTo: 'pathways-setup' });
+      app.router.go('play', { mode: 'pathways', config: normalizePathwaysConfig(state), returnTo: 'pathways-setup' });
     });
 
     const sync = () => {

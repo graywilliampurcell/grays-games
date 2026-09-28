@@ -1,6 +1,7 @@
 // URL parameters for quick repro / debugging.
 //   ?mode=race&d=3&n=5&seed=🍎🐶🚀⚽   (+ &race=K: start at race K)
 //   ?mode=playground&size=large&theme=snow&bump=mountains&stuff=ramps,jumps&stars=lots&seed=abc
+//   ?mode=pathways&size=small&theme=grass&bump=hilly&stuff=bouncy,trick&stars=medium&seed=abc
 //   ?mode=test-track
 //   ?gallery=1            (track piece gallery; same as ?mode=gallery; works
 //                          without ?debug=1 on purpose, see CONTRACT.md)
@@ -28,7 +29,7 @@ export function parseUrlParams(search) {
     config = { difficulty: q.get('d') ?? q.get('difficulty'), races: q.get('n') ?? q.get('races'), seed };
     // Debug: start the series at race K. Only this URL-launched run sees it.
     if (q.get('race')) config.startRace = q.get('race');
-  } else if (mode === 'playground') {
+  } else if (mode === 'playground' || mode === 'pathways') {
     const stuff = q.get('stuff');
     config = {
       size: q.get('size') || undefined,

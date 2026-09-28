@@ -99,6 +99,7 @@ export function normalizeSimpleConfig(c = {}) {
 export const NORMALIZERS = {
   race: normalizeRaceConfig,
   playground: normalizePlaygroundConfig,
+  pathways: normalizePathwaysConfig,
   'test-track': normalizeSimpleConfig,
   gallery: normalizeSimpleConfig,
 };
