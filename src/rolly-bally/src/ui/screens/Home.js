@@ -1,5 +1,6 @@
-// Home: three big picture buttons (Playground, Race, My Balls) and a small
-// gear in the corner that needs a 1 s hold to open the grown-up menu.
+// Home: three big picture buttons (Playground, Pathways, Race). My Balls and
+// the grown-up gear (1 s hold) are small round buttons in the bottom-right
+// corner.
 
 import * as icons from '../icons/index.js';
 import { h, iconButton, makeHoldButton } from '../components.js';
@@ -10,7 +11,7 @@ export class HomeScreen {
     const data = app.save.get();
     const hasNew = (data.ui?.newSkins || []).length > 0;
 
-    const ball = drawSkinIcon(data.skins.selected, 192);
+    const ball = drawSkinIcon(data.skins.selected, 128);
     ball.className = 'icon ui-skin-pic';
 
     const buttons = h('div', { class: 'rb-row home-buttons' },
@@ -19,14 +20,19 @@ export class HomeScreen {
         onTap: () => app.router.go('playground-setup'),
       }),
       iconButton({
+        icon: icons.pathways, caption: 'Pathways', color: 'yellow', kind: 'big', className: 'home-btn', app,
+        onTap: () => app.router.go('pathways-setup'),
+      }),
+      iconButton({
         icon: icons.flag, caption: 'Race', color: 'red', kind: 'big', className: 'home-btn', app,
         onTap: () => app.router.go('race-setup'),
       }),
-      iconButton({
-        icon: ball, caption: 'My Balls', label: 'My Balls', color: 'blue', kind: 'big', className: `home-btn${hasNew ? ' has-new' : ''}`, app,
-        onTap: () => app.router.go('skins'),
-      }),
     );
+
+    const balls = iconButton({
+      icon: ball, label: 'My Balls', kind: 'round', color: 'blue', className: `home-balls${hasNew ? ' has-new' : ''}`, app,
+      onTap: () => app.router.go('skins'),
+    });
 
     const gear = iconButton({ icon: icons.gear, label: 'Grown-ups (hold)', kind: 'round', color: 'white', className: 'home-gear' });
     makeHoldButton(gear, () => {
@@ -37,7 +43,7 @@ export class HomeScreen {
     this.el = h('div', { class: 'rb-screen ui-screen home' },
       h('h1', { class: 'home-title', 'aria-label': 'Rolly Bally' }, 'Rolly Bally'),
       buttons,
-      gear,
+      h('div', { class: 'home-corner' }, balls, gear),
     );
     root.append(this.el);
   }

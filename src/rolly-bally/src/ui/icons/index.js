@@ -19,6 +19,15 @@ export const hills = svg(`
 `);
 
 /** Checkered finish flag (Race). */
+/** A winding yellow road over green hills with a ball on it (Pathways). */
+export const pathways = svg(`
+  <path d="M0 62 Q24 48 50 58 T100 52 V100 H0 Z" fill="#7fd36b"/>
+  <path d="M40 100 C40 82 76 80 70 66 C64 54 30 58 34 44 C37 34 58 32 60 22" fill="none" stroke="#1d1d2b" stroke-width="22" stroke-linecap="round"/>
+  <path d="M40 100 C40 82 76 80 70 66 C64 54 30 58 34 44 C37 34 58 32 60 22" fill="none" stroke="#ffd21f" stroke-width="16" stroke-linecap="round"/>
+  <path d="M40 100 C40 82 76 80 70 66 C64 54 30 58 34 44 C37 34 58 32 60 22" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="5 7"/>
+  <circle cx="36" cy="44" r="10" fill="#e8302e" stroke="#fff" stroke-width="3"/>
+`);
+
 export const flag = (() => {
   let cells = '';
   for (let r = 0; r < 4; r++) {
@@ -268,3 +277,22 @@ export const stars = {
   lots: svg([[22, 30], [50, 22], [78, 30], [34, 66], [66, 66]]
     .map(([x, y]) => `<path d="${starPath(x, y, 18)}" fill="#ffd21f" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>`).join('')),
 };
+
+// ------------------------------------------------------------ pathways
+
+/** Pathways "Stuff" chips (bouncy, ramps, dark tunnels, trick mountain). */
+export const pathwaysStuff = {
+  bouncy: stuff.bouncePads,
+  ramps: stuff.ramps,
+  darkTunnels: svg(`
+    <path d="M10 86 V52 A40 40 0 0 1 90 52 V86 H70 V56 A20 20 0 0 0 30 56 V86 Z" fill="#5b6070" stroke="#fff" stroke-width="4"/>
+    <path d="M30 86 V56 A20 20 0 0 1 70 56 V86 Z" fill="#000"/>
+    <circle cx="42" cy="72" r="2.5" fill="#ffd21f"/><circle cx="58" cy="66" r="2" fill="#fff"/>`),
+  trick: svg(`
+    <path d="M8 88 Q58 88 66 30 L66 88 Z" fill="#8a3ee8" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M76 70 V14 M66 26 L76 14 L86 26" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${starPath(40, 66, 12)}" fill="#ffd21f" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>`),
+};
+
+/** Pathways "Stars" chips: everywhere / medium (no "none"). */
+export const pathwaysStars = { everywhere: stars.lots, medium: stars.some };

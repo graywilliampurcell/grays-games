@@ -6,6 +6,7 @@ import '../screens.css';
 import { HomeScreen } from './Home.js';
 import { RaceSetupScreen } from './RaceSetup.js';
 import { PlaygroundSetupScreen } from './PlaygroundSetup.js';
+import { PathwaysSetupScreen } from './PathwaysSetup.js';
 import { SkinsScreen } from './Skins.js';
 import { SettingsScreen } from './Settings.js';
 import { showPause } from './Pause.js';
@@ -28,6 +29,7 @@ export function registerScreens(router, app) {
   router.register('home', () => new HomeScreen());
   router.register('race-setup', () => new RaceSetupScreen());
   router.register('playground-setup', () => new PlaygroundSetupScreen());
+  router.register('pathways-setup', () => new PathwaysSetupScreen());
   router.register('skins', () => new SkinsScreen());
   router.register('settings', () => new SettingsScreen());
 }
