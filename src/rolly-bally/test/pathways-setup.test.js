@@ -36,15 +36,15 @@ describe('pathways config', () => {
     expect(normalizePathwaysConfig({ stuff: [] }).stuff).toEqual([]);
   });
 
-  it('plays as an ordinary Playground world with the same seed', () => {
+  it('maps onto the world generator config with the same seed', () => {
     const p = pathwaysToPlaygroundConfig({
       size: 'large', theme: 'snow', bumpiness: 'flat', stuff: ['bouncy', 'darkTunnels'], stars: 'medium', seed: 'abc',
     });
     expect(p).toEqual({
-      size: 'large', theme: 'snow', bumpiness: 'flat', stuff: ['bouncePads', 'tunnels'], stars: 'some', seed: 'abc',
+      size: 'large', theme: 'snow', bumpiness: 'flat', stuff: ['bouncePads', 'darkTunnels'], stars: 'some', seed: 'abc',
     });
     const all = pathwaysToPlaygroundConfig({ seed: 's' });
-    expect(all.stuff).toEqual(['ramps', 'jumps', 'bouncePads', 'tunnels']);
+    expect(all.stuff).toEqual(['bouncePads', 'ramps', 'darkTunnels', 'jumps']);
     expect(all.stars).toBe('lots');
   });
 

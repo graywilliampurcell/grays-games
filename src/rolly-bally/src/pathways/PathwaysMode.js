@@ -8,7 +8,8 @@
 //  - gentle path assist: on a road, while the finger points roughly along
 //    it, a small sideways push keeps the ball near the middle (a bowling
 //    bumper, not a rail);
-//  - respawn at the nearest point on a road.
+//  - respawn at the nearest point on a road;
+//  - dark tunnels: the world goes dark inside them (darkTunnel.js).
 
 import * as THREE from 'three';
 import PlaygroundMode from '../playground/PlaygroundMode.js';
@@ -16,6 +17,7 @@ import { generatePathways } from './PathwaysGenerator.js';
 import { worldToCell } from '../playground/TerrainGenerator.js';
 import { DEFAULT_TUNING } from '../ball/Ball.js';
 import { assistAccel } from './pathAssist.js';
+import { DarkTunnels } from './darkTunnel.js';
 
 export const PATHWAYS_TUNING = {
   speedCap: 9, // same as Playground
@@ -38,8 +40,15 @@ export default class PathwaysMode extends PlaygroundMode {
     return STAR_RADIUS;
   }
 
+  async start(ctx, config) {
+    await super.start(ctx, config);
+    this.world.dark.attachBall(this.ball);
+  }
+
   _buildWorld(config) {
     super._buildWorld(config);
+    this.world.dark = new DarkTunnels({ scene: this.ctx.scene, features: this.world.data.features, audio: this.ctx.audio });
+    if (this.ball) this.world.dark.attachBall(this.ball);
     const arrows = buildArrows(this.world.data.paths.arrows, config.theme);
     if (arrows) {
       this.ctx.scene.add(arrows);
@@ -48,9 +57,19 @@ export default class PathwaysMode extends PlaygroundMode {
     this._right = new THREE.Vector3();
   }
 
+  _disposeWorld() {
+    this.world?.dark?.dispose();
+    super._disposeWorld();
+  }
+
   update(dt) {
     super.update(dt);
     this._pathAssist(dt);
+  }
+
+  render(alpha, frameDt) {
+    super.render(alpha, frameDt);
+    this.world.dark.update(Math.min(frameDt, 0.1), this.ball.position, this.ball.velocity);
   }
 
   _pathAssist(dt) {
@@ -103,7 +122,8 @@ function buildArrows(list, theme) {
   s.closePath();
   const geo = new THREE.ShapeGeometry(s);
   geo.rotateX(Math.PI / 2); // lie flat, tip toward +z
-  const mat = new THREE.MeshBasicMaterial({
+  // Lit (not basic) so the arrows go dark inside dark tunnels too.
+  const mat = new THREE.MeshLambertMaterial({
     color: theme === 'snow' ? '#2f7fd0' : '#ff8a1f',
     side: THREE.DoubleSide,
     polygonOffset: true,

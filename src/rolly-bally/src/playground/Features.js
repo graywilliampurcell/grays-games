@@ -63,6 +63,18 @@ export const FEATURE_SPECS = {
     access: [[2, 0], [2, 8]],
     stars: [[2.5, 2.5, 0.9], [2.5, 4.5, 0.9], [2.5, 6.5, 0.9]],
   },
+  // Pathways "dark tunnel": 12 blocks long, straight, no branches. Walls and
+  // roof are solid; a dark mouth on the ground at each end. Darkness itself
+  // is done by the Pathways mode (pathways/darkTunnel.js).
+  darkTunnels: {
+    W: 5,
+    L: 14,
+    height: 3,
+    inside: [1, 13], // v range under the roof
+    blocked: (u, v) => v >= 1 && v < 13 && (u === 0 || u === 4),
+    access: [[2, 0], [2, 13]],
+    stars: [[2.5, 4.5, 0.9], [2.5, 7, 0.9], [2.5, 9.5, 0.9]],
+  },
   // Post in the middle with a slowly spinning bar.
   bumpers: {
     W: 7,
@@ -212,6 +224,7 @@ export class FeatureSet {
       else if (f.type === 'jumps') this._jump(f, blocks);
       else if (f.type === 'bouncePads') this._bouncePad(f, blocks);
       else if (f.type === 'tunnels') this._tunnel(f, blocks);
+      else if (f.type === 'darkTunnels') this._darkTunnel(f, blocks);
       else if (f.type === 'bumpers') this._bumper(f, blocks);
     }
     this._buildPadMesh();
@@ -346,6 +359,42 @@ export class FeatureSet {
     add(0.5, h / 2, { x: 1, y: h, z: 7 });
     add(4.5, h / 2, { x: 1, y: h, z: 7 });
     add(2.5, h + 0.4, { x: 5, y: 0.8, z: 7 });
+  }
+
+  _darkTunnel(f, blocks) {
+    const s = FEATURE_SPECS.darkTunnels;
+    const h = s.height;
+    const [v0, v1] = s.inside;
+    const len = v1 - v0;
+    const mid = (v0 + v1) / 2;
+    for (let v = v0; v < v1; v++) {
+      const color = (v + f.cx0 + f.cz0) % 2 ? '#3b3f4c' : '#454a58';
+      for (const u of [0.5, 4.5]) this._box(f, blocks, u, v + 0.5, h / 2, { x: 1, y: h, z: 1 }, color, { collide: false });
+      this._box(f, blocks, 2.5, v + 0.5, h + 0.4, { x: 5, y: 0.8, z: 1 }, color, { collide: false });
+    }
+    // The "mouth": black frame blocks at both openings and a dark patch on
+    // the ground just outside and inside each end.
+    for (const v of [v0 + 0.5, v1 - 0.5]) {
+      for (const u of [0.5, 4.5]) this._box(f, blocks, u, v, h / 2 + 0.02, { x: 1.08, y: h + 0.04, z: 1.04 }, 'black', { collide: false, jitter: 0 });
+      this._box(f, blocks, 2.5, v, h + 0.4, { x: 5.08, y: 0.84, z: 1.04 }, 'black', { collide: false, jitter: 0 });
+    }
+    for (const v of [v0, v1]) {
+      this._box(f, blocks, 2.5, v, 0.03, { x: 3, y: 0.06, z: 2 }, '#15161c', { collide: false, jitter: 0 });
+    }
+    const add = (u, dy, size) => {
+      const c = this._at(f, u, mid, dy);
+      const { body } = this.physics.addFixedCuboid({
+        position: c,
+        halfExtents: { x: size.x / 2, y: size.y / 2, z: size.z / 2 },
+        yaw: f.yaw,
+        friction: 0.5,
+        tag: 'feature',
+      });
+      this.bodies.push(body);
+    };
+    add(0.5, h / 2, { x: 1, y: h, z: len });
+    add(4.5, h / 2, { x: 1, y: h, z: len });
+    add(2.5, h + 0.4, { x: 5, y: 0.8, z: len });
   }
 
   _bumper(f, blocks) {
