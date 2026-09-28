@@ -62,7 +62,7 @@ export class SettingsScreen {
       h('div', { class: 'setup-title', html: icons.gear }),
       h('div', { class: 'rb-row' }, sound, reset),
       stats,
-      h('p', { class: 'st-version' }, `Rolly Bally v${app.version}`),
+      h('p', { class: 'st-version' }, `Rolly Bally v${app.version} · build ${app.build}`),
       h('p', { class: 'st-note' }, 'Tip: add this page to the Home Screen (Share → Add to Home Screen) for full-screen play.'),
       confirm,
     );

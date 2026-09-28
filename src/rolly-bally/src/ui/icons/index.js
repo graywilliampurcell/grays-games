@@ -91,6 +91,12 @@ export const lock = svg(`
 `);
 
 /** Dice showing five pips (re-roll the seed). */
+/** Circular arrow: "New version!" reload button on Home. */
+export const refresh = svg(`
+  <path d="M78 50 A28 28 0 1 1 66 27" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round"/>
+  <path d="M54 10 L78 22 L60 40 Z" fill="currentColor" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>
+`);
+
 export const dice = svg(`
   <rect x="12" y="12" width="76" height="76" rx="16" fill="#fff" stroke="${INK}" stroke-width="6"/>
   <circle cx="32" cy="32" r="7" fill="${INK}"/><circle cx="68" cy="32" r="7" fill="${INK}"/>

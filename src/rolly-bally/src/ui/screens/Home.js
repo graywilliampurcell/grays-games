@@ -40,7 +40,16 @@ export class HomeScreen {
       app.router.go('settings');
     });
 
+    // A new deploy arrived while a game was going (see app/selfUpdate.js).
+    const update = app.update?.pending
+      ? iconButton({
+        icon: icons.refresh, caption: 'New version!', label: 'New version! Tap to update', color: 'green', kind: 'chip', className: 'home-update', app,
+        onTap: () => app.update.reloadNow(),
+      })
+      : null;
+
     this.el = h('div', { class: 'rb-screen ui-screen home' },
+      update,
       h('h1', { class: 'home-title', 'aria-label': 'Rolly Bally' }, 'Rolly Bally'),
       buttons,
       h('div', { class: 'home-corner' }, balls, gear),
