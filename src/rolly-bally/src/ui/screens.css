@@ -135,10 +135,37 @@ canvas.ui-skin-pic {
 .home-btn:nth-child(3) { transform: rotate(2deg); }
 .home-btn:active { transform: translateY(6px) scale(0.97); }
 
-.home-gear {
-  position: absolute !important;
+.home-corner {
+  position: absolute;
   right: calc(16px + var(--rb-safe-right));
   bottom: calc(16px + var(--rb-safe-bottom));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* My Balls: small but still an easy tap for Gray. */
+.home-balls {
+  width: calc(var(--rb-menu-min) * 1.25);
+  height: calc(var(--rb-menu-min) * 1.25);
+}
+
+.home-balls .icon {
+  width: 78%;
+  height: 78%;
+}
+
+.home-balls.has-new::after {
+  top: -14px;
+  right: -14px;
+  width: 36px;
+  height: 36px;
+  line-height: 34px;
+  font-size: 22px;
+  border-width: 3px;
+}
+
+.home-gear {
   width: var(--rb-menu-min);
   height: var(--rb-menu-min);
   color: #7a8599;
@@ -671,6 +698,10 @@ canvas.ui-skin-pic {
 
 @media (max-height: 560px) {
   .home-title { font-size: 40px; -webkit-text-stroke: 4px var(--rb-ink); }
+  /* Keep the big buttons clear of the My Balls + gear corner. */
+  .home { padding-bottom: calc(var(--rb-menu-min) + 24px + var(--rb-safe-bottom)); }
+  .home-corner { right: calc(10px + var(--rb-safe-right)); bottom: calc(10px + var(--rb-safe-bottom)); gap: 10px; }
+  .home-balls { width: var(--rb-menu-min); height: var(--rb-menu-min); }
   .setup-title { display: none; }
   .ui-screen { gap: 12px; padding-top: calc(12px + var(--rb-safe-top)); }
   .setup-body { padding-left: calc(var(--rb-menu-min) + 8px); }

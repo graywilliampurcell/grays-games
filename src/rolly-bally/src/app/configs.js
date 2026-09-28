@@ -10,6 +10,8 @@ export const PLAYGROUND_THEMES = ['grass', 'snow'];
 export const PLAYGROUND_BUMPINESS = ['flat', 'hilly', 'mountains'];
 export const PLAYGROUND_STUFF = ['ramps', 'jumps', 'bouncePads', 'tunnels', 'bumpers'];
 export const PLAYGROUND_STARS = ['none', 'some', 'lots'];
+export const PATHWAYS_STUFF = ['bouncy', 'ramps', 'darkTunnels', 'trick'];
+export const PATHWAYS_STARS = ['everywhere', 'medium'];
 
 function oneOf(value, allowed, fallback) {
   return allowed.includes(value) ? value : fallback;
@@ -54,6 +56,39 @@ export function normalizePlaygroundConfig(c = {}) {
     stars: oneOf(c.stars, PLAYGROUND_STARS, 'some'),
     seed: seedOr(c.seed),
   };
+}
+
+/**
+ * Pathways setup: {size, theme, bumpiness, stuff: string[], stars, seed}.
+ * Same size/theme/bumpiness as Playground; its own stuff and stars (no
+ * "none"). All stuff is on by default.
+ */
+export function normalizePathwaysConfig(c = {}) {
+  const stuffIn = Array.isArray(c.stuff) ? c.stuff : PATHWAYS_STUFF;
+  return {
+    size: oneOf(c.size, PLAYGROUND_SIZES, 'medium'),
+    theme: oneOf(c.theme, PLAYGROUND_THEMES, 'grass'),
+    bumpiness: oneOf(c.bumpiness, PLAYGROUND_BUMPINESS, 'hilly'),
+    stuff: PATHWAYS_STUFF.filter((s) => stuffIn.includes(s)),
+    stars: oneOf(c.stars, PATHWAYS_STARS, 'everywhere'),
+    seed: seedOr(c.seed),
+  };
+}
+
+// Pathways P0 plays an ordinary Playground world. Nearest Playground
+// equivalents until paths, dark tunnels and the trick mountain exist
+// (P1-P3): Trick stands in as jumps for now.
+const PATHWAYS_TO_PLAYGROUND_STUFF = { bouncy: 'bouncePads', ramps: 'ramps', darkTunnels: 'tunnels', trick: 'jumps' };
+const PATHWAYS_TO_PLAYGROUND_STARS = { everywhere: 'lots', medium: 'some' };
+
+/** The Playground config a Pathways setup plays (same seed, same world). */
+export function pathwaysToPlaygroundConfig(c = {}) {
+  const p = normalizePathwaysConfig(c);
+  return normalizePlaygroundConfig({
+    ...p,
+    stuff: p.stuff.map((s) => PATHWAYS_TO_PLAYGROUND_STUFF[s]),
+    stars: PATHWAYS_TO_PLAYGROUND_STARS[p.stars],
+  });
 }
 
 /** Test-track / gallery take an optional seed only. */

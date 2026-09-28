@@ -11,12 +11,13 @@
 // unknown fields):
 //   ui.race       last Race setup   {difficulty, races}
 //   ui.playground last Playground setup {size, theme, bumpiness, stuff, stars, seed}
+//   ui.pathways   last Pathways setup (same shape, Pathways stuff/stars)
 //   ui.newSkins   unlocked skins not yet seen in My Balls (for "new" badges)
 //   ui.recentWorlds  last RECENT_WORLDS Playground setups played (newest
 //                 first, one per seed) so an earlier world can be found again
 
 import { SKINS, STARTER_SKIN_IDS, UNLOCK_ORDER } from '../ball/skinData.js';
-import { normalizeRaceConfig, normalizePlaygroundConfig } from '../app/configs.js';
+import { normalizeRaceConfig, normalizePlaygroundConfig, normalizePathwaysConfig } from '../app/configs.js';
 import { defaultSave } from '../core/Save.js';
 
 export const STARS_PER_SKIN = 50;
@@ -73,6 +74,7 @@ export function migrateSave(input) {
   out.ui = {
     race: raceSetupFrom(ui.race),
     playground: playgroundSetupFrom(ui.playground),
+    pathways: pathwaysSetupFrom(ui.pathways),
     newSkins: Array.isArray(ui.newSkins) ? ui.newSkins.filter((id) => unlocked.includes(id)) : [],
     recentWorlds: recentWorldsFrom(ui.recentWorlds),
   };
@@ -88,6 +90,11 @@ export function raceSetupFrom(v) {
 /** Remembered Playground setup (keeps the seed so a favorite world sticks). */
 export function playgroundSetupFrom(v) {
   return normalizePlaygroundConfig(v || {});
+}
+
+/** Remembered Pathways setup (keeps the seed, like Playground). */
+export function pathwaysSetupFrom(v) {
+  return normalizePathwaysConfig(v || {});
 }
 
 /** Remembered recent Playground worlds: valid setups, unique seeds, newest first. */
@@ -161,6 +168,7 @@ export function resetProgressData(data) {
   fresh.ui = {
     race: raceSetupFrom(data.ui?.race),
     playground: playgroundSetupFrom(data.ui?.playground),
+    pathways: pathwaysSetupFrom(data.ui?.pathways),
     newSkins: [],
     recentWorlds: recentWorldsFrom(data.ui?.recentWorlds),
   };
@@ -204,6 +212,10 @@ export class Progress {
 
   setPlaygroundSetup(v) {
     this.save.update({ ui: { playground: playgroundSetupFrom(v) } });
+  }
+
+  setPathwaysSetup(v) {
+    this.save.update({ ui: { pathways: pathwaysSetupFrom(v) } });
   }
 
   /** Remember a Playground world that was played (Go). */
