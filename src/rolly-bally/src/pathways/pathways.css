@@ -68,3 +68,62 @@
   transform: translate(-50%, -50%) scale(0.7);
   opacity: 0;
 }
+
+/* Sky roads: the end card (trip stars, Again / New world). */
+
+.pw-end {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  background: rgba(255, 255, 255, 0.25);
+  animation: pw-end-in 0.35s ease-out both;
+}
+
+.pw-end__stars {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 34px 10px 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--rb-shadow);
+  font-family: var(--rb-font);
+  font-size: 96px;
+  font-weight: 900;
+  color: var(--rb-ink);
+  pointer-events: none;
+}
+
+.pw-end__stars svg {
+  width: 110px;
+  height: 110px;
+  fill: var(--rb-yellow);
+  stroke: #c98a00;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  animation: pw-spin 1.6s ease-in-out infinite;
+}
+
+.pw-end__buttons {
+  display: flex;
+  gap: 40px;
+}
+
+@keyframes pw-end-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes pw-spin {
+  0%, 100% { transform: rotate(-12deg) scale(1); }
+  50% { transform: rotate(12deg) scale(1.12); }
+}
+
+@media (max-height: 500px) {
+  .pw-end__stars { font-size: 64px; }
+  .pw-end__stars svg { width: 76px; height: 76px; }
+}

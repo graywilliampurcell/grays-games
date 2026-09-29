@@ -34,6 +34,7 @@ import hammer from './pieces/hammer.js';
 import wreckingBall from './pieces/wreckingBall.js';
 import spinner from './pieces/spinner.js';
 import movingPlatform from './pieces/movingPlatform.js';
+import pad from './pieces/pad.js';
 
 const MIN_LEVEL = {
   start: 1,
@@ -84,7 +85,10 @@ export const PIECES = [
 
 export const PIECE_IDS = PIECES.map((p) => p.id);
 
-const BY_ID = new Map(PIECES.map((p) => [p.id, p]));
+// Pieces other modes build with that are not race pieces (not in PIECES).
+const EXTRA_PIECES = [{ hazard: false, gap: false, ...pad, minLevel: Infinity }];
+
+const BY_ID = new Map([...PIECES, ...EXTRA_PIECES].map((p) => [p.id, p]));
 
 export function getPiece(id) {
   const p = BY_ID.get(id);
