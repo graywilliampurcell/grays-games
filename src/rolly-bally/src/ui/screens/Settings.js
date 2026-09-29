@@ -1,9 +1,18 @@
 // Grown-up menu (reached by holding the Home gear for 1 s): sound on/off,
-// reset progress (with a confirm that needs a 1.5 s hold), and the version.
-// Text is fine here.
+// reset progress (with a confirm that needs a 1.5 s hold), check for updates,
+// and the version. Text is fine here.
 
 import * as icons from '../icons/index.js';
 import { h, iconButton, backButton, makeHoldButton } from '../components.js';
+import { browserChecker } from '../../app/selfUpdate.js';
+
+/** What the update line says for a checkNow() result. */
+export function updateMessage(result) {
+  if (!result) return 'Checking…';
+  if (result.status === 'updating') return 'Updating…';
+  if (result.status === 'current') return `Up to date · ${result.version} · ${result.build}`;
+  return 'Can\'t check right now, try again.';
+}
 
 export class SettingsScreen {
   mount(root, params, app) {
@@ -15,6 +24,21 @@ export class SettingsScreen {
         progress.setSound(!save.get().settings.sound);
         render();
         app.audio.play('click');
+      },
+    });
+
+    // Check for updates now (reuses the self-update checker; on the dev
+    // server or in test runs there's no running one, so make one).
+    const updateLine = h('p', { class: 'st-update', 'aria-live': 'polite' });
+    const update = iconButton({
+      icon: icons.refresh, caption: 'Check for updates', label: 'Check for updates', kind: 'big', color: 'green', className: 'st-check', app,
+      onTap: async () => {
+        if (update.disabled) return;
+        update.disabled = true;
+        updateLine.textContent = updateMessage(null);
+        const result = await (app.update || browserChecker(app)).checkNow();
+        updateLine.textContent = updateMessage(result);
+        if (result.status !== 'updating') update.disabled = false;
       },
     });
 
@@ -60,7 +84,8 @@ export class SettingsScreen {
     this.el = h('div', { class: 'rb-screen ui-screen settings' },
       backButton(app),
       h('div', { class: 'setup-title', html: icons.gear }),
-      h('div', { class: 'rb-row' }, sound, reset),
+      h('div', { class: 'rb-row' }, sound, update, reset),
+      updateLine,
       stats,
       h('p', { class: 'st-version' }, `Rolly Bally v${app.version} · build ${app.build}`),
       h('p', { class: 'st-note' }, 'Tip: add this page to the Home Screen (Share → Add to Home Screen) for full-screen play.'),
