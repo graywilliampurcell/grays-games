@@ -122,7 +122,7 @@ describe('sky roads: layout', () => {
       const lots = generateSkyRoads({ seed, stars: 'everywhere' });
       const some = generateSkyRoads({ seed, stars: 'medium' });
       expect(lots.stars.length).toBeGreaterThan(some.stars.length * 1.7);
-      for (const st of lots.stars) {
+      for (const st of lots.stars.filter((x) => !x.bonus)) {
         const l = lots.layouts[st.road];
         const n = l.nearest(st);
         expect(Math.abs(n.lateral)).toBeLessThan(ROAD_WIDTH / 2 - 0.5);
@@ -130,7 +130,7 @@ describe('sky roads: layout', () => {
         expect(n.height).toBeLessThan(1.3);
         expect(l.pieceAt(n.s).id).not.toBe('pad');
       }
-      const road0 = lots.stars.filter((s) => s.road === 0).map((s) => lots.layouts[0].nearest(s).s).sort((a, b) => a - b);
+      const road0 = lots.stars.filter((s) => s.road === 0 && !s.bonus).map((s) => lots.layouts[0].nearest(s).s).sort((a, b) => a - b);
       for (let i = 1; i < road0.length; i++) {
         const gap = road0[i] - road0[i - 1];
         if (gap < STAR_GAP.everywhere * 1.5) expect(gap).toBeGreaterThan(STAR_GAP.everywhere * 0.7);

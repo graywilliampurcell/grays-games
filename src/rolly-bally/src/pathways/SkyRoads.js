@@ -7,6 +7,7 @@
 //     roads:     [{kind: 'trunk'|'branch', entries, options}]  piece lists for TrackLayout/Track
 //     layouts:   [Layout]         one per road (Layout = TrackLayout, or Track in the mode)
 //     junctions: [{kind: 'fork'|'merge', x, y, z, yaw}]  where two branches leave / join
+//     features:  [{type, road, s0, s1, position, forward, right, yaw}]  stuff on its own straight
 //     stars:     [{x, y, z, road}]
 //     spawn:     {x, y, z, dir}   road height at the middle of the start pad
 //     end:       {road, s0, s1, position, forward, yaw, width}  the end pad
@@ -21,7 +22,13 @@
 //
 // Setup chips: size → number of forks and trunk length; bumpiness → how much
 // the roads go up and down; stars → a star every 3 m (Everywhere) or 6 m
-// (Medium) along every road.
+// (Medium) along every road; stuff → which features sit on the roads.
+//
+// Stuff (bouncy, ramps, dark tunnels, trick) each get their own flat
+// straight stretch of road (FEATURE_LEN): one in the middle of every fork
+// branch (so a fork can be a real choice: tunnel this way, bounce that way)
+// and sometimes one on the trunk. Every chosen kind shows up at least once
+// when there's room; the builders are in SkyFeatures.js.
 
 import { Rng } from '../core/Rng.js';
 import { normalizePathwaysConfig } from '../app/configs.js';
@@ -46,6 +53,9 @@ export const BUMPS = {
   hilly: { rise: 2, chance: 0.35, maxY: 6 },
   mountains: { rise: 4, chance: 0.55, maxY: 14 },
 };
+/** Straight road each kind of stuff sits on (m). */
+export const FEATURE_LEN = { bouncy: 16, ramps: 14, darkTunnels: 14, trick: 26 };
+export const TRUNK_FEATURE_CHANCE = 0.5;
 const MAX_HEADING = deg(45);
 const BRANCH_TURN = 45; // degrees each branch bends out and back
 const BRANCH_CURVE_LEN = 12;
@@ -62,6 +72,13 @@ export function generateSkyRoads(config, { Layout = TrackLayout } = {}) {
   const size = SIZES[cfg.size] || SIZES.medium;
   const bumps = BUMPS[cfg.bumpiness] || BUMPS.hilly;
   const state = { heading: 0, y: 0 };
+  const nextFeature = featurePicker(rng, cfg.stuff);
+  // Trunk stretches: the first always gets stuff, the last one too while a
+  // chosen kind hasn't shown up yet, the others sometimes.
+  const trunkFeature = (which) => {
+    const want = which === 'first' || (which === 'last' && nextFeature.unseen() > 0) || rng.chance(TRUNK_FEATURE_CHANCE);
+    return want ? nextFeature() : null;
+  };
 
   const roads = [];
   const layouts = [];
@@ -78,7 +95,7 @@ export function generateSkyRoads(config, { Layout = TrackLayout } = {}) {
   let entries = [
     pad(START_PAD.len, START_PAD.width, START_PAD.width, { color: 'startPad', wallAt: 0.3 }),
     pad(5, START_PAD.width, ROAD_WIDTH),
-    ...trunkPieces(rng, size.trunk, bumps, state),
+    ...trunkPieces(rng, size.trunk, bumps, state, trunkFeature('first')),
   ];
   let start = { x: 0, y: 0, z: 0, yaw: 0 };
 
@@ -88,13 +105,16 @@ export function generateSkyRoads(config, { Layout = TrackLayout } = {}) {
     const e = trunk.pieces[trunk.pieces.length - 1].exit;
     junctions.push({ kind: 'fork', x: e.x, y: e.y, z: e.z, yaw: e.yaw });
 
-    // Both branches: same shape mirrored, same length middle, own hills.
+    // Both branches: same shape mirrored, same length middle, own hills or
+    // own stuff.
     const out = rng.int(2, 6);
-    const middle = rng.int(3, 5) * 6;
+    const stuff = [nextFeature(), nextFeature()];
+    const need = Math.max(0, ...stuff.map((t) => (t ? FEATURE_LEN[t] + 4 : 0)));
+    const middle = Math.max(rng.int(3, 5), Math.ceil(need / 6)) * 6;
     const r = rightXZ(e.yaw);
     const ends = [];
     for (const side of [-1, 1]) {
-      const pieces = branchPieces(side, out, middle, rng, bumps, state.y);
+      const pieces = branchPieces(side, out, middle, rng, bumps, state.y, stuff[(side + 1) / 2]);
       const at = { x: e.x + r.x * side * BRANCH_OFFSET, y: e.y, z: e.z + r.z * side * BRANCH_OFFSET, yaw: e.yaw };
       const b = addRoad('branch', pieces, at);
       ends.push(b.pieces[b.pieces.length - 1].exit);
@@ -106,7 +126,7 @@ export function generateSkyRoads(config, { Layout = TrackLayout } = {}) {
       yaw: (ends[0].yaw + ends[1].yaw) / 2,
     };
     junctions.push({ kind: 'merge', ...start });
-    entries = [pad(3, FORK_WIDTH), pad(5, FORK_WIDTH, ROAD_WIDTH), ...trunkPieces(rng, size.trunk, bumps, state)];
+    entries = [pad(3, FORK_WIDTH), pad(5, FORK_WIDTH, ROAD_WIDTH), ...trunkPieces(rng, size.trunk, bumps, state, trunkFeature(f === size.forks - 1 ? 'last' : 'middle'))];
   }
 
   // End pad, with a wall at the far end.
@@ -136,13 +156,24 @@ export function generateSkyRoads(config, { Layout = TrackLayout } = {}) {
     }
   }
 
+  const features = [];
+  layouts.forEach((l, road) => {
+    for (const p of l.pieces) {
+      const type = p.params.feature;
+      if (!type) continue;
+      const f = l.spline.sampleAt(p.s0);
+      features.push({ type, road, s0: p.s0, s1: p.s1, position: { ...f.position }, forward: { ...f.forward }, right: { ...f.right }, yaw: f.yaw });
+    }
+  });
+
   return {
     config: cfg,
     width: ROAD_WIDTH,
     roads,
     layouts,
     junctions,
-    stars: placeStars(layouts, STAR_GAP[cfg.stars] || STAR_GAP.everywhere),
+    features,
+    stars: placeStars(layouts, features, STAR_GAP[cfg.stars] || STAR_GAP.everywhere),
     spawn,
     end,
     minY,
@@ -151,8 +182,28 @@ export function generateSkyRoads(config, { Layout = TrackLayout } = {}) {
   };
 }
 
-/** Trunk: straights, gentle curves (heading kept within ±45°) and ramps. */
-function trunkPieces(rng, count, bumps, state) {
+/**
+ * Deals out the chosen stuff: a shuffled round of every kind, then another,
+ * so each kind shows up before any repeats. null when no stuff is chosen.
+ */
+function featurePicker(rng, stuff) {
+  let deck = [];
+  const seen = new Set();
+  const next = () => {
+    if (!stuff.length) return null;
+    if (!deck.length) deck = rng.shuffle(stuff);
+    const t = deck.pop();
+    seen.add(t);
+    return t;
+  };
+  next.unseen = () => stuff.length - seen.size;
+  return next;
+}
+
+const featurePiece = (type) => ({ id: 'straight', len: FEATURE_LEN[type], feature: type });
+
+/** Trunk: straights, gentle curves (heading kept within ±45°), ramps, and maybe one feature. */
+function trunkPieces(rng, count, bumps, state, feature = null) {
   const out = [];
   for (let i = 0; i < count; i++) {
     const ramp = bumps.rise > 0 && rng.chance(bumps.chance);
@@ -175,6 +226,7 @@ function trunkPieces(rng, count, bumps, state) {
       out.push({ id: 'straight', len: rng.int(8, 14) });
     }
   }
+  if (feature) out.splice(rng.int(0, out.length), 0, featurePiece(feature));
   return out;
 }
 
@@ -185,11 +237,16 @@ const rampLen = (rise) => (rise >= 4 ? 16 : 12);
  * middle stretch (flat or a hill), then the mirror image back in. The shape
  * only depends on (out, middle), so both branches end side by side.
  */
-function branchPieces(side, out, middle, rng, bumps, y) {
+function branchPieces(side, out, middle, rng, bumps, y, feature = null) {
   const away = side < 0 ? 'curve-gentle-left' : 'curve-gentle-right';
   const back = side < 0 ? 'curve-gentle-right' : 'curve-gentle-left';
   const bend = (id) => ({ id, angle: BRANCH_TURN, len: BRANCH_CURVE_LEN });
   const mid = [];
+  if (feature) {
+    const run = (middle - FEATURE_LEN[feature]) / 2;
+    mid.push({ id: 'straight', len: run }, featurePiece(feature), { id: 'straight', len: run });
+    return [bend(away), { id: 'straight', len: out }, bend(back), ...mid, bend(back), { id: 'straight', len: out }, bend(away)];
+  }
   const hillUp = bumps.rise > 0 && rng.chance(0.6);
   const hillDown = !hillUp && bumps.rise > 0 && y - bumps.rise >= 0 && rng.chance(0.4);
   if (hillUp || hillDown) {
@@ -211,11 +268,14 @@ function branchPieces(side, out, middle, rng, bumps, y) {
 }
 
 /** Stars along every road (not on the pads), gently weaving side to side. */
-function placeStars(layouts, gap) {
+function placeStars(layouts, features, gap) {
   const stars = [];
   layouts.forEach((l, road) => {
     for (let s = gap / 2; s < l.length; s += gap) {
-      if (l.pieceAt(s).id === 'pad') continue;
+      const piece = l.pieceAt(s);
+      if (piece.id === 'pad') continue;
+      // Stuff with its own bonus stars (or that throws you up) keeps the road clear.
+      if (['bouncy', 'ramps', 'trick'].includes(piece.params.feature)) continue;
       const f = l.spline.sampleAt(s);
       const lateral = Math.sin(s * 0.3 + road) * ROAD_WIDTH * 0.18;
       stars.push({
@@ -226,8 +286,25 @@ function placeStars(layouts, gap) {
       });
     }
   });
+  for (const f of features) {
+    for (const [along, up] of FEATURE_STARS[f.type] || []) {
+      stars.push({
+        x: f.position.x + f.forward.x * along,
+        y: f.position.y + up,
+        z: f.position.z + f.forward.z * along,
+        road: f.road,
+        bonus: true,
+      });
+    }
+  }
   return stars;
 }
+
+/** Bonus stars on stuff: [meters along the feature, height above the road]. */
+export const FEATURE_STARS = {
+  bouncy: [[6, 2.6], [8.5, 3.4], [11, 2.6]], // up in the air after the bounce
+  ramps: [[5.8, 2.1], [7, 2.1], [8.2, 2.1]], // on the hump's top
+};
 
 /**
  * Nearest road point to p over every road: {road, s, dist, lateral, height}.

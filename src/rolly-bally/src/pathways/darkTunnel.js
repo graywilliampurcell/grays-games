@@ -5,10 +5,10 @@
 // inside still sparkle (they have their own glow); the far opening shows as
 // a bright white rectangle. Leaving, it fades back over the last 2 blocks
 // and plays a "whoosh". The tunnel blocks and colliders themselves are built
-// by FeatureSet (playground/Features.js, type 'darkTunnels').
+// by the mode (pathways/SkyFeatures.js on the sky roads).
 
 import * as THREE from 'three';
-import { FEATURE_SPECS, featureToWorld } from '../playground/Features.js';
+import { FEATURE_SPECS } from '../playground/Features.js';
 
 export const FADE_BLOCKS = 2; // fade in / out over this many blocks
 export const MAX_DARK = 0.92; // how dark the lights get at full darkness
@@ -34,14 +34,17 @@ export function tunnelLocal(f, x, z) {
 
 const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
 
+/** The ground tunnel's shape (u across [0, W), walls 1 block thick). */
+export const GROUND_TUNNEL = { ...FEATURE_SPECS.darkTunnels, margin: 1 };
+
 /**
  * Pure: darkness 0..1 at local position (u, v), height y above the tunnel
  * floor. Full in the middle, fading over FADE_BLOCKS at each end, 0 outside.
+ * spec: {W, inside: [v0, v1], height, margin} (u inside [margin, W - margin]).
  */
-export function darknessAt(u, v, y = 0) {
-  const s = FEATURE_SPECS.darkTunnels;
+export function darknessAt(u, v, y = 0, s = GROUND_TUNNEL) {
   const [v0, v1] = s.inside;
-  if (u < 1 || u > s.W - 1 || v < v0 || v > v1 || y > s.height) return 0;
+  if (u < s.margin || u > s.W - s.margin || v < v0 || v > v1 || y > s.height) return 0;
   return Math.min(smooth((v - v0) / FADE_BLOCKS), smooth((v1 - v) / FADE_BLOCKS));
 }
 
@@ -50,45 +53,40 @@ export class DarkTunnels {
   /**
    * @param {object} o
    * @param {THREE.Scene} o.scene
-   * @param {Array} o.features world features (only darkTunnels are used)
+   * @param {Array} o.tunnels [{y, fwd: {x, z}, yaw, spec, local(x, z) → {u, v},
+   *   exits: [{x, y, z}, {x, y, z}] (entrance, far end), exitSize: {w, h}}]
    * @param {object} o.audio
    */
-  constructor({ scene, features, audio }) {
+  constructor({ scene, tunnels, audio }) {
     this.scene = scene;
     this.audio = audio;
-    this.tunnels = features.filter((f) => f.type === 'darkTunnels');
+    this.tunnels = tunnels;
     this.dark = 0;
     this.peak = 0;
-    this.meshes = [];
     this.lights = [];
     scene.traverse((o) => {
       if (o.isLight) this.lights.push({ light: o, base: o.intensity });
     });
     this.sky = scene.background?.isColor ? scene.background.clone() : null;
     this.fog = scene.fog ? scene.fog.color.clone() : null;
-    this._c = new THREE.Color();
 
     // A white "daylight" rectangle in each opening, facing in; only the one
     // ahead is shown, and only in the dark.
-    const s = FEATURE_SPECS.darkTunnels;
-    const geo = new THREE.PlaneGeometry(3, s.height);
     this.mat = new THREE.MeshBasicMaterial({ color: '#ffffff', fog: false, toneMapped: false, side: THREE.DoubleSide });
-    this.exits = [];
-    for (const f of this.tunnels) {
-      const ends = [];
-      for (const v of s.inside) {
-        const p = featureToWorld(f, 2.5, v === s.inside[0] ? v + 0.02 : v - 0.02);
+    this.geos = [];
+    this.exits = tunnels.map((f) => {
+      const geo = new THREE.PlaneGeometry(f.exitSize.w, f.exitSize.h);
+      this.geos.push(geo);
+      return f.exits.map((p) => {
         const m = new THREE.Mesh(geo, this.mat);
-        m.position.set(p.x, f.y + s.height / 2, p.z);
+        m.position.set(p.x, p.y, p.z);
         m.rotation.y = f.yaw;
         m.visible = false;
         m.name = 'dark-tunnel-exit';
         scene.add(m);
-        ends.push(m);
-      }
-      this.exits.push(ends);
-    }
-    this.geo = geo;
+        return m;
+      });
+    });
   }
 
   get count() {
@@ -117,8 +115,8 @@ export class DarkTunnels {
     let local = null;
     for (let i = 0; i < this.tunnels.length; i++) {
       const f = this.tunnels[i];
-      const l = tunnelLocal(f, pos.x, pos.z);
-      const d = darknessAt(l.u, l.v, pos.y - f.y);
+      const l = f.local(pos.x, pos.z);
+      const d = darknessAt(l.u, l.v, pos.y - f.y, f.spec);
       if (d > want) {
         want = d;
         at = i;
@@ -144,7 +142,7 @@ export class DarkTunnels {
     if (at >= 0 && this.dark > 0.05) {
       const f = this.tunnels[at];
       const along = vel.x * f.fwd.x + vel.z * f.fwd.z;
-      const ahead = Math.abs(along) < 0.3 ? (local.v < FEATURE_SPECS.darkTunnels.L / 2 ? 1 : 0) : along > 0 ? 1 : 0;
+      const ahead = Math.abs(along) < 0.3 ? (local.v < f.spec.L / 2 ? 1 : 0) : along > 0 ? 1 : 0;
       this.exits[at][ahead].visible = true;
     }
   }
@@ -161,7 +159,7 @@ export class DarkTunnels {
   dispose() {
     this._apply(0);
     for (const ends of this.exits) for (const m of ends) m.removeFromParent();
-    this.geo.dispose();
+    for (const g of this.geos) g.dispose();
     this.mat.dispose();
   }
 }
