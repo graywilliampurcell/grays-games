@@ -10,8 +10,12 @@
 // The reload adds ?u=<build> so Safari can't hand back a cached index.html,
 // and each build is reloaded for at most once per session so a stale cache
 // can never cause a reload loop. No service worker.
+//
+// The grown-up menu's "Check for updates" button (U1) calls checkNow():
+// check right away and say what happened (updating / up to date / can't check).
 
 export const UPDATE_CHECK_MS = 5 * 60 * 1000;
+export const UPDATING_DELAY_MS = 700; // long enough to read "Updating…" before the reload
 const RELOADED_KEY = 'rolly-bally:reloadedFor';
 
 /** Pure: the live build to switch to, or null if none/unknown/same. */
@@ -64,6 +68,28 @@ export function createUpdateChecker({ local, fetchVersion, isBusy, reload, onPen
     }
   }
 
+  /**
+   * "Check for updates": fetch now and report
+   *   {status: 'updating', build}            newer build live; reloads after UPDATING_DELAY_MS
+   *   {status: 'current', version, build}    the running build is the live one
+   *   {status: 'error'}                      couldn't fetch / read version.json
+   * A tap always reloads for a newer build (no once-per-session guard: a person asked).
+   */
+  async function checkNow() {
+    let remote = null;
+    try {
+      remote = await fetchVersion();
+    } catch {
+      remote = null;
+    }
+    if (!remote || typeof remote.build !== 'string' || !remote.build) return { status: 'error' };
+    const build = newerBuild(remote, local);
+    if (!build) return { status: 'current', version: local.version, build: local.build };
+    const url = reloadUrl(href ? href() : window.location.href, build);
+    setTimeout(() => reload(url), UPDATING_DELAY_MS);
+    return { status: 'updating', build };
+  }
+
   /** The Home screen's "New version!" button: always reloads. */
   function reloadNow() {
     const build = state.pending || local.build;
@@ -72,21 +98,20 @@ export function createUpdateChecker({ local, fetchVersion, isBusy, reload, onPen
 
   return {
     check,
+    checkNow,
     reloadNow,
     get pending() { return state.pending; },
   };
 }
 
-/** Wire the checker to the browser: launch, foreground, and a timer. */
-export function startSelfUpdate(app) {
-  const local = { version: app.version, build: app.build };
-  if (!local.build || local.build === 'dev') return null; // dev server: nothing to compare
+/** A checker wired to the browser (fetch, sessionStorage, location). */
+export function browserChecker(app) {
   const session = {
     get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } },
     set: (k, v) => { try { sessionStorage.setItem(k, v); } catch { /* private mode */ } },
   };
-  const checker = createUpdateChecker({
-    local,
+  return createUpdateChecker({
+    local: { version: app.version, build: app.build },
     session,
     fetchVersion: async () => {
       const res = await fetch(new URL('version.json', document.baseURI), { cache: 'no-store' });
@@ -96,6 +121,12 @@ export function startSelfUpdate(app) {
     reload: (url) => window.location.replace(url),
     onPending: () => app.events?.emit('updatePending'),
   });
+}
+
+/** Wire the checker to the browser: launch, foreground, and a timer. */
+export function startSelfUpdate(app) {
+  if (!app.build || app.build === 'dev') return null; // dev server: nothing to compare
+  const checker = browserChecker(app);
   checker.check();
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') checker.check();

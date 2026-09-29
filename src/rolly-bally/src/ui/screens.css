@@ -561,6 +561,7 @@ canvas.ui-skin-pic {
 }
 
 .st-sound,
+.st-check,
 .st-reset {
   width: min(30vh, 200px);
   height: min(30vh, 200px);
@@ -575,6 +576,18 @@ canvas.ui-skin-pic {
   font-size: 18px;
   -webkit-user-select: text;
   user-select: text;
+}
+
+.st-update {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.st-check:disabled {
+  opacity: 0.7;
 }
 
 .st-version {
