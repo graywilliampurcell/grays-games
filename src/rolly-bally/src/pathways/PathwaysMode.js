@@ -12,6 +12,8 @@
 //  - Falling off: fade, "boing", back on the road where you left it.
 //  - The end pad under a rainbow star arch: confetti and a cheer, the trip's
 //    stars big, then Again (same world) or New world (dice).
+//  - Stuff on the roads (SkyFeatures.js): bounce pads, humps, dark tunnels
+//    and the trick mountain.
 //
 // Debug hotkeys (?debug=1): R respawn, G new world.
 
@@ -33,6 +35,8 @@ import { iconButton } from '../ui/components.js';
 import { refresh, dice } from '../ui/icons/index.js';
 import { generateSkyRoads, nearestRoad, START_PAD, END_PAD, FORK_GAP } from './SkyRoads.js';
 import { assistAccel } from './pathAssist.js';
+import { SkyFeatures } from './SkyFeatures.js';
+import { trickCost } from './trick.js';
 
 export const PATHWAYS_TUNING = {
   speedCap: 9, // same as Playground
@@ -45,6 +49,7 @@ const FADE_TIME = 0.35;
 const FALL_BELOW = 10; // meters under the lowest road → respawn
 const GROUND_BELOW = 60; // the ground far below (just for looks)
 const STAR_CHEER_EVERY = 10;
+const CAM_MIN = 1.2; // closest the camera gets when a tunnel roof is in the way
 const UP = new THREE.Vector3(0, 1, 0);
 const RAINBOW = ['red', 'orange', 'yellow', 'green', 'blue', 'purple'];
 
@@ -87,6 +92,10 @@ export default class PathwaysMode {
     this._pos = new THREE.Vector3();
     this._fwd = new THREE.Vector3();
     this._right = new THREE.Vector3();
+    this._look = new THREE.Vector3();
+    this._dir = new THREE.Vector3();
+    this._camTarget = new THREE.Vector3();
+    this.camPull = null;
     this.stuck = new StuckWatch();
     this._cancelConfetti = [];
     this._timers = [];
@@ -103,6 +112,7 @@ export default class PathwaysMode {
       tuning: { ...PATHWAYS_TUNING },
     });
     this.lastSafe.copy(spawn);
+    this.world.features.attachBall(this.ball);
     this.ball.dust?.setColor(0xffffff);
     this.ball.onLand = (impact) => ctx.audio.play('thump', { volume: Math.min(0.6, impact / 18), pitch: 1.6 });
 
@@ -132,6 +142,18 @@ export default class PathwaysMode {
     for (const t of w.tracks) t.build({ physics, scene, palette, handlers });
 
     w.blocks = new BlockMesh({ palette });
+    w.features = new SkyFeatures({
+      physics,
+      scene,
+      blocks: w.blocks,
+      features: data.features,
+      audio,
+      ui: this.ctx.ui,
+      camera: this.ctx.camera,
+      counter: () => this.hud.stars,
+      spend: () => this._spendTrick(),
+      earn: (n, from) => this._earnTrick(n, from),
+    });
     this._startChecker(w.blocks, data, palette);
     this._dividers(w, data);
     this._rainbowArch(w, data);
@@ -237,6 +259,9 @@ export default class PathwaysMode {
     const w = this.world;
     if (!w) return;
     const { physics } = this.ctx;
+    for (const t of this._trickTimers || []) clearTimeout(t);
+    this._trickTimers = [];
+    w.features.dispose();
     for (const t of w.tracks) t.dispose();
     w.stars.dispose();
     w.snow?.dispose();
@@ -277,6 +302,30 @@ export default class PathwaysMode {
     stars.classList.add('pg-stars--bump');
   }
 
+  /** The trick costs 1 star from the counter if there are any (never the saved total). */
+  _spendTrick() {
+    const cost = trickCost(this.sessionStars);
+    if (cost) {
+      this.sessionStars -= cost;
+      this.hud.count.textContent = String(this.sessionStars);
+    }
+    return cost;
+  }
+
+  /** Trick stars fly into the counter and count as they land. */
+  _earnTrick(n, from) {
+    this.world.features.tricks.flyStars(n, from);
+    this._trickTimers = this._trickTimers || [];
+    for (let i = 0; i < n; i++) {
+      this._trickTimers.push(setTimeout(() => {
+        this.sessionStars++;
+        this.ctx.events.emit('starCollected', { sessionStars: this.sessionStars });
+        this.ctx.audio.play('pop', { pitch: 1.2 + i * 0.1 });
+        this._bumpStarHud();
+      }, 850 + i * 120));
+    }
+  }
+
   _cheer(n) {
     this._cancelConfetti.push(confetti(this.ctx.ui, n));
     if (this._cancelConfetti.length > 4) this._cancelConfetti.shift();
@@ -289,6 +338,7 @@ export default class PathwaysMode {
     this.cam.getForward(this._fwd);
     this.ball.update(dt, input.getMove(), this._fwd);
     this.world.tracks.forEach((t) => t.update(dt));
+    this.world.features.update(dt);
 
     if (this._hitEnd && !this.ended) this._finish();
 
@@ -309,7 +359,8 @@ export default class PathwaysMode {
     this._pathAssist(dt);
   }
 
-  postStep() {
+  postStep(dt) {
+    this.world.features.postStep(dt, this.ball);
     const got = this.world.stars.collect(this.ball.getPosition(this._pos));
     if (!got) return;
     const { audio, events } = this.ctx;
@@ -332,6 +383,8 @@ export default class PathwaysMode {
     if (look.dx || look.dy) this.cam.addLook(look.dx, look.dy);
     this.ball.render(alpha, frameDt);
     this.cam.update(dt, { position: this.ball.position, velocity: this.ball.velocity });
+    this._keepCameraClear(dt);
+    this.world.features.render(dt, this.ball.position, this.ball.velocity);
     this.world.tracks.forEach((t) => t.render(alpha));
     this.world.stars.render(dt);
     this.world.snow?.update(dt, this.ctx.camera.position);
@@ -345,9 +398,41 @@ export default class PathwaysMode {
     this.hud.fade.style.opacity = o.toFixed(3);
   }
 
+  /**
+   * Tunnel roofs and the like hide the ball: pull the camera in along the
+   * ball→camera ray when a feature is in the way (fast in, slow out).
+   */
+  _keepCameraClear(dt) {
+    const camera = this.ctx.camera;
+    const focus = this._look.copy(this.cam.focus);
+    focus.y += 0.6;
+    const dir = this._dir.copy(camera.position).sub(focus);
+    const full = dir.length();
+    if (full < 1e-3) return;
+    dir.divideScalar(full);
+    const { world, RAPIER } = this.ctx.physics;
+    const hit = world.castRay(
+      new RAPIER.Ray(focus, dir),
+      full,
+      true,
+      RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
+      undefined,
+      undefined,
+      this.ball.body,
+      (collider) => this.ctx.physics.info(collider)?.tag === 'feature',
+    );
+    const want = hit ? Math.max(CAM_MIN, hit.timeOfImpact - 0.35) : full;
+    if (this.camPull === null || want < this.camPull) this.camPull = want;
+    else this.camPull += (want - this.camPull) * (1 - Math.exp(-2 * dt));
+    if (this.camPull >= full - 1e-3) return;
+    camera.position.copy(this._camTarget.copy(focus).addScaledVector(dir, this.camPull));
+    this.cam.getForward(this._fwd);
+    camera.lookAt(focus.x + this._fwd.x * this.cam.lookAhead, focus.y, focus.z + this._fwd.z * this.cam.lookAhead);
+  }
+
   /** Nudge toward the middle of the road while the finger points along it. */
   _pathAssist(dt) {
-    if (this.fade || this.ended || !this.ball.isGrounded()) return;
+    if (this.fade || this.ended || this.world.features.flying || !this.ball.isGrounded()) return;
     const move = this.ctx.input.getMove();
     if (!move || (!move.x && !move.y)) return;
     const f = this.cam.getForward(this._fwd);
@@ -406,9 +491,11 @@ export default class PathwaysMode {
     this.ended = false;
     this.fade = null;
     this.ctx.input.setEnabled(true);
+    this.world.features.attachBall(this.ball);
     const spawn = this._spawnPos();
     this.ball.respawn(spawn, this.world.data.spawn.dir);
     this.lastSafe.copy(spawn);
+    this.camPull = null;
     this.stuck.reset();
     this.cam.snap(spawn, this.world.data.spawn.dir);
     this.ctx.audio.play('pop');
@@ -429,10 +516,12 @@ export default class PathwaysMode {
 
   respawn() {
     const { position, forward } = this.respawnPoint();
+    this.world.features.reset();
     this.ball.respawn(position, forward);
     this.lastSafe.copy(position);
     this.stuck.reset();
     this.cam.snap(position, forward);
+    this.camPull = null;
     this.ctx.audio.play('boing');
   }
 
@@ -442,6 +531,7 @@ export default class PathwaysMode {
 
   dispose() {
     for (const cancel of this._cancelConfetti || []) cancel();
+    for (const t of this._trickTimers || []) clearTimeout(t);
     for (const t of this._timers || []) clearTimeout(t);
     this._disposeWorld();
     this.ball?.dispose();

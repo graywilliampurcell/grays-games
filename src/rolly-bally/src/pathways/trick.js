@@ -1,5 +1,5 @@
-// Trick mountain (Pathways P3): run at it, it shoots you straight up, you
-// earn stars for how high you go, then you land back on the soft pad.
+// Trick mountain (Pathways P3, in the sky since P6): run at it, it shoots you
+// straight up, you earn stars for how high you go, then you land on the soft pad.
 //
 //  - Costs 1 star from the counter if you have any; free when it's at 0.
 //    The launch always works. (Only the on-screen counter goes down; saved
@@ -7,13 +7,13 @@
 //  - Faster in → higher up. Even a slow roll gives a small hop.
 //  - A height meter rises on the left during the flight, with star marks.
 //  - At the peak, 1–5 stars pop out and fly into the counter.
-//  - The flight is aimed back onto the pink pad, which catches the ball
-//    with a small soft bounce. Steering is off during the flight so a
-//    finger still held on "forward" can't carry the ball off the pad.
-// Blocks and colliders are built by FeatureSet (Features.js, type 'trick').
+//  - The flight is aimed onto the pink pad, which catches the ball with a
+//    small soft bounce. Steering is off during the flight so a finger still
+//    held on "forward" can't carry the ball off the pad.
+// TrickMountains runs the launch, flight, meter and stars; the mountain's
+// blocks are built by the mode (pathways/SkyFeatures.js on the sky roads).
 
 import * as THREE from 'three';
-import { FEATURE_SPECS, featureToWorld } from '../playground/Features.js';
 import { GRAVITY } from '../core/Physics.js';
 
 const G = -GRAVITY;
@@ -77,7 +77,7 @@ export class TrickMountains {
    * @param {(n: number, from: {x, y}) => void} o.earn add n stars (from = screen point)
    * @param {() => HTMLElement} o.counter the star counter element (fly target)
    */
-  constructor({ physics, scene, features, audio, ui, camera, spend, earn, counter }) {
+  constructor({ physics, scene, tricks, audio, ui, camera, spend, earn, counter }) {
     this.physics = physics;
     this.scene = scene;
     this.audio = audio;
@@ -90,7 +90,7 @@ export class TrickMountains {
     this.meshes = [];
     this.flight = null;
     this.meterHold = 0;
-    this.tricks = features.filter((f) => f.type === 'trick').map((f) => this._build(f));
+    this.tricks = tricks.map((d) => this._build(d));
     if (this.tricks.length) this._buildMeter();
   }
 
@@ -98,26 +98,22 @@ export class TrickMountains {
     return this.tricks.length;
   }
 
-  _build(f) {
-    const s = FEATURE_SPECS.trick;
-    const at = (u, v, dy = 0) => {
-      const p = featureToWorld(f, u, v);
-      return { x: p.x, y: f.y + dy, z: p.z };
-    };
-    const t = { f, hit: false, padHit: false, cooldown: 0, pad: at(2.5, (s.pad[0] + s.pad[1]) / 2) };
+  /**
+   * One trick from its world-space description:
+   * {fwd: {x, z}, launch: {position, halfExtents, yaw}, pad: {position, halfExtents, yaw},
+   *  target: {x, y, z} (where the flight lands), star: {position, yaw}}
+   */
+  _build(d) {
+    const t = { f: d, hit: false, padHit: false, cooldown: 0, pad: d.target };
     const launch = this.physics.addSensorCuboid({
-      position: at(2.5, s.launch, 0.7),
-      halfExtents: { x: 2.4, y: 0.7, z: 0.5 },
-      yaw: f.yaw,
+      ...d.launch,
       tag: 'trickLaunch',
       onCollide: ({ otherInfo, started }) => {
         if (started && otherInfo?.tag === 'ball') t.hit = true;
       },
     });
     const pad = this.physics.addSensorCuboid({
-      position: at(2.5, (s.pad[0] + s.pad[1]) / 2, 0.6),
-      halfExtents: { x: 2.4, y: 0.5, z: (s.pad[1] - s.pad[0]) / 2 },
-      yaw: f.yaw,
+      ...d.pad,
       tag: 'trickPad',
       onCollide: ({ otherInfo, started }) => {
         if (started && otherInfo?.tag === 'ball') t.padHit = true;
@@ -125,11 +121,10 @@ export class TrickMountains {
     });
     this.bodies.push(launch.body, pad.body);
 
-    // Big star sign on top of the mountain, facing the run-up.
+    // Big star sign, facing the run-up.
     const star = new THREE.Mesh(starGeometry(), new THREE.MeshLambertMaterial({ color: '#ffd21f', emissive: '#8a6400', flatShading: true }));
-    const top = at(2.5, s.foot + 4.2, s.height + 1.6);
-    star.position.set(top.x, top.y, top.z);
-    star.rotation.y = f.yaw + Math.PI;
+    star.position.set(d.star.position.x, d.star.position.y, d.star.position.z);
+    star.rotation.y = d.star.yaw;
     star.name = 'trick-star';
     this.scene.add(star);
     this.meshes.push(star);
