@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mazle Map Playtest</title>
     <style>
         * {
@@ -15,12 +15,281 @@
             font-family: Arial, sans-serif;
             background: #000;
             overflow: hidden;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        
+        /* On-screen touch controls (iPad). Which ones show depends on the chosen
+           setup; the see-through and size settings set --ctl-opacity/--ctl-scale. */
+        body {
+            --ctl-opacity: 0.6;
+            --ctl-scale: 1;
+        }
+
+        .touch-ctl {
+            position: absolute;
+            bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+            display: none;
+            opacity: var(--ctl-opacity);
+            transform: scale(var(--ctl-scale));
+        }
+
+        .touch-ctl.left {
+            left: calc(30px + env(safe-area-inset-left, 0px));
+            transform-origin: bottom left;
+        }
+
+        .touch-ctl.right {
+            right: calc(30px + env(safe-area-inset-right, 0px));
+            transform-origin: bottom right;
+        }
+
+        body.touch.touch-circles #walk-circle,
+        body.touch.touch-circles #look-circle,
+        body.touch.touch-simple #walk-circle {
+            display: block;
+        }
+
+        body.touch.touch-arrows .pad {
+            display: grid;
+        }
+
+        .touch-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: 3px solid #fff;
+            pointer-events: none;
+        }
+
+        .touch-circle .knob {
+            position: absolute;
+            left: 42px;
+            top: 42px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .touch-circle .icon,
+        .pad .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+        }
+
+        .touch-circle .icon {
+            position: absolute;
+            inset: 0;
+        }
+
+        /* Arrow pads: a plus shape of four big buttons around an icon */
+        .pad {
+            grid-template-columns: repeat(3, 72px);
+            grid-template-rows: repeat(3, 72px);
+            grid-template-areas:
+                ".    up   ."
+                "left mid  right"
+                ".    down .";
+            gap: 6px;
+        }
+
+        .pad-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #222;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: inset 0 -6px 0 #b9b9b9;
+        }
+
+        .pad-btn.pressed {
+            background: #ffd84a;
+            box-shadow: inset 0 3px 0 #c9a521;
+        }
+
+        .pad .icon {
+            grid-area: mid;
+        }
+
+        /* Pause button (iPad), top-right corner */
+        #pause-btn {
+            position: absolute;
+            top: calc(12px + env(safe-area-inset-top, 0px));
+            right: calc(12px + env(safe-area-inset-right, 0px));
+            width: 72px;
+            height: 72px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            border: 3px solid #fff;
+            border-radius: 16px;
+        }
+
+        body.touch #pause-btn {
+            display: flex;
+        }
+
+        body.paused #pause-btn,
+        body.escaped #pause-btn,
+        body.done #pause-btn,
+        body.done .touch-ctl,
+        body.done #controls {
+            display: none !important;
+        }
+
+        /* Pause menu, Settings, Quit */
+        #menu {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.45);
+            touch-action: manipulation;
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-width: 300px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+            color: #fff;
+            text-align: center;
+            background: rgba(30, 30, 30, 0.92);
+            border-radius: 18px;
+        }
+
+        .panel h2 {
+            font-size: 30px;
+        }
+
+        .panel h3 {
+            font-size: 20px;
+            color: #ccc;
+            margin-top: 6px;
+        }
+
+        .item {
+            font-size: 28px;
+            font-weight: bold;
+            padding: 14px 24px;
+            background: #4a4a4a;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .item.glow {
+            background: #6a5a1a;
+            box-shadow: 0 0 0 4px #ffd84a, 0 0 22px 4px #ffd84a;
+        }
+
+        .panel-list,
+        #touch-sliders {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .item.choice.selected::before {
+            content: '✓ ';
+        }
+
+        .item.toggle::after {
+            content: ': Off';
+            color: #bbb;
+        }
+
+        .item.toggle.on::after {
+            content: ': On';
+            color: #9f9;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 22px;
+        }
+
+        .slider-row input {
+            flex: 1;
+            height: 44px;
+        }
+
+        .slider-row .value {
+            width: 32px;
+            font-weight: bold;
+        }
+
+        #thanks {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.75);
+        }
+
+        #thanks h1 {
+            font-size: 44px;
+        }
+
+        #message {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 20px;
+            background: rgba(150, 20, 20, 0.85);
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 90vw;
+        }
+        
+        #finish-title {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        [hidden] {
+            display: none !important;
         }
         
         #canvas {
             display: block;
             width: 100%;
             height: 100vh;
+        }
+        
+        #level {
+            position: absolute;
+            top: calc(10px + env(safe-area-inset-top, 0px));
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 20px;
+            border-radius: 8px;
+            pointer-events: none;
         }
         
         #ui {
@@ -35,19 +304,80 @@
             font-family: monospace;
         }
         
+        /* Picture of the keys for the chosen keyboard setup (computer only) */
         #controls {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
-            color: #aaa;
-            font-size: 12px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 15px;
-            border-radius: 5px;
-            font-family: monospace;
-            max-width: 300px;
+            bottom: 16px;
+            left: 16px;
+            display: flex;
+            gap: 18px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            pointer-events: none;
         }
-        
+
+        body.touch #controls {
+            display: none;
+        }
+
+        #controls .help {
+            display: none;
+            grid-template-columns: repeat(3, 56px);
+            gap: 6px;
+            justify-items: center;
+            align-items: center;
+        }
+
+        body.keys-simple #controls .arrows,
+        body.keys-shift #controls .arrows,
+        body.keys-shift #controls .shift,
+        body.keys-full #controls .arrows,
+        body.keys-full #controls .wasd {
+            display: grid;
+        }
+
+        #controls .arrows,
+        #controls .wasd {
+            grid-template-areas:
+                ".    walk  ."
+                ".    up    ."
+                "left down  right"
+                "tl   .     tr";
+        }
+
+        #controls .shift {
+            grid-template-areas:
+                ".     .     ."
+                ".     .     ."
+                "shift shift sl"
+                ".     .     .";
+        }
+
+        #controls .key {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #222;
+            background: #f4f4f4;
+            border-radius: 10px;
+            box-shadow: inset 0 -5px 0 #b9b9b9;
+        }
+
+        #controls .key.wide {
+            width: 118px;
+            font-size: 24px;
+        }
+
+        #controls .label {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
         .stat {
             margin: 5px 0;
         }
@@ -58,12 +388,83 @@
         <div class="stat">FPS: <span id="fps">0</span></div>
         <div class="stat">Position: <span id="position">0, 0, 0</span></div>
     </div>
-    <div id="controls">
-        <strong>Controls:</strong><br>
-        W/↑ Forward | S/↓ Back<br>
-        A/← Strafe Left | D/→ Strafe Right<br>
-        Mouse to Look Around
+    <div id="controls" aria-label="Keys that move you">
+        <div class="help wasd">
+            <span class="label" style="grid-area: walk">walk</span>
+            <span class="key" style="grid-area: up">W</span>
+            <span class="key" style="grid-area: left">A</span>
+            <span class="key" style="grid-area: down">S</span>
+            <span class="key" style="grid-area: right">D</span>
+            <span class="label" style="grid-area: tl">slide</span>
+            <span class="label" style="grid-area: tr">slide</span>
+        </div>
+        <div class="help arrows">
+            <span class="label" style="grid-area: walk">walk</span>
+            <span class="key" style="grid-area: up">↑</span>
+            <span class="key" style="grid-area: left">←</span>
+            <span class="key" style="grid-area: down">↓</span>
+            <span class="key" style="grid-area: right">→</span>
+            <span class="label" style="grid-area: tl">turn</span>
+            <span class="label" style="grid-area: tr">turn</span>
+        </div>
+        <div class="help shift">
+            <span class="key wide" style="grid-area: shift">⇧ Shift</span>
+            <span class="label" style="grid-area: sl">slide</span>
+        </div>
     </div>
+    <div id="level"></div>
+    <div id="message" hidden></div>
+    <div id="walk-circle" class="touch-ctl touch-circle left"><div class="knob"><div class="icon">🚶</div></div></div>
+    <div id="look-circle" class="touch-ctl touch-circle right"><div class="knob"><div class="icon">👀</div></div></div>
+    <div id="left-pad" class="touch-ctl pad left">
+        <div class="pad-btn" data-action="forward" style="grid-area: up">↑</div>
+        <div class="pad-btn" data-action="step-left" style="grid-area: left">←</div>
+        <div class="icon">🚶</div>
+        <div class="pad-btn" data-action="step-right" style="grid-area: right">→</div>
+        <div class="pad-btn" data-action="back" style="grid-area: down">↓</div>
+    </div>
+    <div id="right-pad" class="touch-ctl pad right">
+        <div class="pad-btn" data-action="look-up" style="grid-area: up">↑</div>
+        <div class="pad-btn" data-action="turn-left" style="grid-area: left">←</div>
+        <div class="icon">👀</div>
+        <div class="pad-btn" data-action="turn-right" style="grid-area: right">→</div>
+        <div class="pad-btn" data-action="look-down" style="grid-area: down">↓</div>
+    </div>
+    <button id="pause-btn" aria-label="Pause">⏸</button>
+    <div id="menu" hidden>
+        <div id="menu-main" class="panel">
+            <div class="item" data-act="resume">Keep playing</div>
+            <div class="item" data-act="start-over">Start over</div>
+            <div class="item" data-act="settings">Settings</div>
+            <div class="item" data-act="quit">Quit</div>
+        </div>
+        <div id="menu-settings" class="panel" hidden>
+            <h2>Settings</h2>
+            <h3>Controls</h3>
+            <div id="setup-list" class="panel-list"></div>
+            <div id="touch-sliders">
+                <h3>See-through</h3>
+                <div class="slider-row"><input id="see-through" type="range" min="1" max="10" step="1"><span id="see-through-value" class="value"></span></div>
+                <h3>Size</h3>
+                <div class="slider-row"><input id="size" type="range" min="1" max="10" step="1"><span id="size-value" class="value"></span></div>
+            </div>
+            <h3>Sound</h3>
+            <div class="item toggle" data-act="toggle" data-setting="music">Music</div>
+            <div class="item toggle" data-act="toggle" data-setting="sfx">Sound effects</div>
+            <div class="item" data-act="back">Back</div>
+        </div>
+        <div id="menu-finish" class="panel" hidden>
+            <h1 id="finish-title">You did it!</h1>
+            <div class="item" data-act="next-level">Start Level 2</div>
+            <div class="item" data-act="finish-quit">Quit</div>
+        </div>
+        <div id="menu-quit" class="panel" hidden>
+            <h2>Are you sure you want to quit?</h2>
+            <div class="item" data-act="yes">Yes</div>
+            <div class="item" data-act="no">No</div>
+        </div>
+    </div>
+    <div id="thanks" hidden><h1>Thanks for playing!</h1></div>
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>
