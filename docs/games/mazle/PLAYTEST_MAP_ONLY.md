@@ -58,7 +58,7 @@ This playtest version is designed to test **map navigation and movement mechanic
 - **Forward/Back**: W/Up Arrow or Gamepad Stick
 - **Left/Right Strafe**: A/D or Left/Right Arrow
 - **Look Around**: Mouse movement (or gamepad right stick)
-- **Alternative**: Touch controls for mobile (joystick overlay)
+- **Alternative**: Touch controls for mobile (joystick overlay); see [TOUCH_CONTROLS.md](TOUCH_CONTROLS.md)
 
 ### Camera System
 
