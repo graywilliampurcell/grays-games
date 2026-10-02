@@ -1,2 +1,5 @@
 # Ignore Python virtual environment
 venv/
+
+# Build-loop agent state (rewritten every tick)
+.claude/skills/build-loop/STATE.md
