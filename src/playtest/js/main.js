@@ -230,7 +230,7 @@ function horizontalDistance(a, b) {
 function checkSpikeAndDoor() {
     if (escaped) return;
 
-    if (horizontalDistance(player.position, maze.spikePosition) < maze.spikeRadius + SPIKE_TOUCH_MARGIN) {
+    if (maze.touchesSpike(player.position, SPIKE_TOUCH_MARGIN)) {
         player.resetTo(maze.getStartPosition(), maze.getStartYaw());
         testHooks?.emit('spike');
         sound.ouch();

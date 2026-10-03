@@ -70,6 +70,7 @@ export function installTestHooks(game) {
             grid: (game.getLevelIndex() >= 0 ? LEVELS[game.getLevelIndex()].layout : layout).slice(),
             cellSize: 1,
             spike: { x: maze.spikePosition.x, z: maze.spikePosition.z },
+            spikeRows: maze.spikeRows.map((r) => ({ x: r.position.x, z: r.position.z, spansX: r.spansX })),
             door: { x: maze.doorPosition.x, z: maze.doorPosition.z },
             start: { x: start.x, z: start.z, yaw: round(maze.getStartYaw()) },
         };

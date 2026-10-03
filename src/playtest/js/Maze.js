@@ -48,6 +48,8 @@ function fluffTexture(color, width, height, seed) {
 // A maze built from a fixed layout (see js/levels.js).
 // Block (x, z) spans [x, x+1) x [z, z+1) in the world.
 export const SPIKE_RADIUS = 0.75; // the normal spike plate's radius
+const SPIKE_ROW_WIDTH = 3; // a spike row covers the whole 3-block corridor
+const SPIKE_ROW_DEPTH = 0.9;
 
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
@@ -64,6 +66,8 @@ export class Maze {
 
         // grid[x][z]: 1 = wall, 0 = floor
         this.grid = [];
+        // Rows of spikes right across a corridor ('Y', Level 5 on): no way past
+        this.spikeRows = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -72,8 +76,15 @@ export class Maze {
                 const center = new THREE.Vector3(x + 0.5, 0, z + 0.5);
                 if (ch === 'S') this.startPosition = center;
                 if (ch === 'X') this.spikePosition = center;
+                if (ch === 'Y') this.spikeRows.push({ position: center, x, z });
                 if (ch === 'D') this.doorBlock = { x, z };
             }
+        }
+
+        // A row spans the corridor it sits in: across x when the corridor runs
+        // along z (walls two blocks to either side in x), otherwise across z
+        for (const row of this.spikeRows) {
+            row.spansX = this.grid[row.x - 2]?.[row.z] === 1 && this.grid[row.x + 2]?.[row.z] === 1;
         }
 
         // Collision data: [x][z][y], same wall value at every height
@@ -84,6 +95,7 @@ export class Maze {
         this.renderMaze();
         this.createDoor();
         this.createSpike();
+        for (const row of this.spikeRows) this.createSpikeRow(row);
         this.scene.add(this.root);
     }
 
@@ -265,6 +277,41 @@ export class Maze {
         spike.scale.set(this.spikeRadius / SPIKE_RADIUS, 1, this.spikeRadius / SPIKE_RADIUS);
         spike.position.copy(this.spikePosition);
         this.root.add(spike);
+    }
+
+    // A row of spikes right across a 3-block corridor, one block deep
+    createSpikeRow(row) {
+        const group = new THREE.Group();
+        const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
+        const base = new THREE.Mesh(
+            new THREE.BoxGeometry(SPIKE_ROW_WIDTH, 0.08, SPIKE_ROW_DEPTH),
+            new THREE.MeshStandardMaterial({ color: 0x4a4d52, metalness: 0.5, roughness: 0.6 })
+        );
+        base.position.y = 0.04;
+        group.add(base);
+        const coneGeometry = new THREE.ConeGeometry(0.12, 0.6, 10);
+        for (let k = 0; k < 7; k++) {
+            for (const dz of [-0.22, 0.22]) {
+                const cone = new THREE.Mesh(coneGeometry, metal);
+                cone.position.set(-1.29 + k * 0.43 + (dz > 0 ? 0.2 : 0), 0.38, dz);
+                cone.castShadow = true;
+                group.add(cone);
+            }
+        }
+        if (!row.spansX) group.rotation.y = Math.PI / 2;
+        group.position.copy(row.position);
+        this.root.add(group);
+    }
+
+    // Is a point within `margin` of any spike? (The round spike counts from the
+    // edge of its plate; a row counts across its whole width.)
+    touchesSpike(point, margin) {
+        if (this.spikePosition && Math.hypot(point.x - this.spikePosition.x, point.z - this.spikePosition.z) < this.spikeRadius + margin) return true;
+        return this.spikeRows.some((row) => {
+            const across = row.spansX ? point.x - row.position.x : point.z - row.position.z;
+            const along = row.spansX ? point.z - row.position.z : point.x - row.position.x;
+            return Math.abs(across) < SPIKE_ROW_WIDTH / 2 + margin && Math.abs(along) < SPIKE_ROW_DEPTH / 2 + margin;
+        });
     }
 
     getStartPosition() {

@@ -1,5 +1,6 @@
 // Fixed level layouts. One string per row, one character per block:
-//   '#' wall, ' ' floor, 'S' start, 'X' spike, 'D' exit door (in the outer wall)
+//   '#' wall, ' ' floor, 'S' start, 'X' spike, 'Y' row of spikes right across
+//   a corridor, 'D' exit door (in the outer wall)
 // Found with tools/find-level.mjs. theme: colors and the fluffy look, see Maze.js.
 // music: the level's tune (see sound.js), a little sneakier each level.
 // spikeRadius: size of the spike's plate (default 0.75; see Maze.js).
@@ -137,6 +138,41 @@ export const LEVELS = [
             '#           #       #',
             '#           #       #',
             '#           #       #',
+            '#####################',
+        ],
+    },
+    {
+        name: 'Level 5',
+        // Two spikes. `node tools/find-level.mjs level5`, seed 30. 5 x 5
+        // corridors. Correct path 17 cells; 4 dead ends each 2 cells deep.
+        // X: the spike on the path, in the long straight top corridor (path
+        // cell 10 of 17); plate 0.6 (Level 4: 0.55), so the room to walk past
+        // is about 15% narrower again. Y: a row of spikes right across the
+        // opening of a straight dead end below the path: no way past.
+        theme: COTTON_CANDY,
+        music: 'march',
+        spikeRadius: 0.6,
+        layout: [
+            '#####################',
+            '#                   #',
+            '#                   D',
+            '#                   #',
+            '#   #################',
+            '#                   #',
+            '#         X         #',
+            '#                   #',
+            '#################   #',
+            '#   #               #',
+            '#   #               #',
+            '#   #               #',
+            '#   #   #   #   #   #',
+            '#   #   #   # Y #   #',
+            '#   #   #   #   #   #',
+            '#   #   #   #   #   #',
+            '#   #####   #   #   #',
+            '#           #   #   #',
+            '# S         #   #   #',
+            '#           #   #   #',
             '#####################',
         ],
     },

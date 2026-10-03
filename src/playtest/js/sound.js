@@ -112,6 +112,30 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.4, length: 0.2, brightness: 8000 },
     },
+    // Level 5: a little brassy march (B-flat major), only a little sneakier
+    // than Level 4. Each phrase is a low call, "bum, ba-ba, BAAH", answered
+    // higher up, with one darker bar (E-flat minor). Steady march bass and
+    // off-beat "chicks", no ticking, on a brass-like lead.
+    march: {
+        tempo: 120,
+        bars: [[46, 'maj'], [46, 'maj'], [39, 'maj'], [46, 'maj'], [43, 'min'], [39, 'min'], [41, 'maj'], [46, 'maj']],
+        bass: [0, null, 0, null, 0, null, 0, null],
+        bassLength: 0.16,
+        stabs: [1, 5],
+        stabLevel: 0.04,
+        ticks: false,
+        melody: [
+            58, null, 58, 58, 70, null, null, null,
+            74, 72, 70, null, 72, null, null, null,
+            63, null, 63, 63, 75, null, null, null,
+            74, 72, 70, null, 67, null, null, null,
+            62, null, 62, 62, 74, null, null, null,
+            73, 70, 66, null, 70, null, null, null,
+            65, null, 65, 65, 77, null, 75, 74,
+            70, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.13, length: 0.22, brightness: 1500 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

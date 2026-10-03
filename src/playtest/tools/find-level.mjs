@@ -5,6 +5,7 @@
 //   node tools/find-level.mjs level2     # Level 2 rules
 //   node tools/find-level.mjs level3     # Level 3 rules
 //   node tools/find-level.mjs level4     # Level 4 rules (Level 3's, new start row)
+//   node tools/find-level.mjs level5     # Level 5 rules (path spike + a dead end blocked by a spike row)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -26,17 +27,28 @@
 // Levels 1-3 start in, so the layout is new. (Its narrower gap is the spike's
 // size in js/levels.js, not the layout.)
 //
+// Level 5 rules (Iteration 17): Level 3's, plus a second spike: a row of
+// spikes ('Y') across the whole corridor just inside the opening of a
+// straight dead end that branches off the path, so going in always touches
+// it, you can see it from the path, and it never reaches into the path.
+//
 // Every cell not on the path belongs to a dead end, so for Level 1 the path
 // covers 25 - 5 - 3 = 17 cells (Level 2: 25 - 8 - 3 = 14). The search lays a
 // random path of that length and keeps it if the cells it leaves over can be
 // hung off it that way.
 import { mulberry32, analyzeMaze, toLayout } from '../js/mazeCarver.js';
+import { LEVELS } from '../js/levels.js';
+
+// Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
+const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
+const EXISTING = new Set(LEVELS.map((l) => shape(l.layout)));
 
 const COLS = 5;
 const ROWS = 5;
 const LEVEL2 = process.argv[2] === 'level2';
-const LEVEL3 = process.argv[2] === 'level3' || process.argv[2] === 'level4'; // spike on the path
+const LEVEL3 = ['level3', 'level4', 'level5'].includes(process.argv[2]); // spike on the path
 const LEVEL4 = process.argv[2] === 'level4';
+const LEVEL5 = process.argv[2] === 'level5';
 const SHORT_DEAD_ENDS = LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
 const SHORT_DEPTH = LEVEL2 || LEVEL3 ? 2 : 1; // how deep each of those dead ends is
 const SPIKE_DEPTH = LEVEL3 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
@@ -46,6 +58,7 @@ const PATH_LENGTH = COLS * ROWS - SHORT_DEAD_ENDS * SHORT_DEPTH - SPIKE_DEPTH;
 const LEVEL1_START_ROW = 3;
 const LEVEL2_START_ROW = 2;
 const LEVEL3_START_ROW = 4;
+const LEVEL4_START_ROW = 0;
 const SEEDS = 2000;
 const STEPS_PER_SEED = 200000;
 
@@ -202,6 +215,14 @@ function hangPathSpike(path, random) {
         // Each dead end must branch off a path cell other than the spike's
         const roots = chains.map((chain) => shuffle(neighbours(chain[0]).filter((n) => onPath.has(key(n)) && key(n) !== key(spike)), random)[0]);
         if (roots.some((r) => !r)) continue;
+        // Level 5: a straight dead end (path cell -> first -> last in a line) for the spike row
+        let blocker = null;
+        if (LEVEL5) {
+            const straight = chains.map((chain, c) => ({ chain, from: roots[c] }))
+                .filter(({ chain, from }) => step(from, chain[0]) === step(chain[0], chain[1]));
+            if (straight.length === 0) continue;
+            blocker = straight[Math.floor(random() * straight.length)];
+        }
         const links = [];
         for (let i = 0; i < COLS; i++) {
             links[i] = [];
@@ -216,7 +237,7 @@ function hangPathSpike(path, random) {
             link(chain[0], roots[c]);
             for (let n = 1; n < chain.length; n++) link(chain[n - 1], chain[n]);
         });
-        return { links, spikeCell: spike, spikeIndex: k };
+        return { links, spikeCell: spike, spikeIndex: k, blocker };
     }
     return null;
 }
@@ -229,6 +250,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL2 && path[0].j === LEVEL1_START_ROW) continue; // start somewhere new
     if (LEVEL3 && (path[0].j === LEVEL1_START_ROW || path[0].j === LEVEL2_START_ROW)) continue;
     if (LEVEL4 && path[0].j === LEVEL3_START_ROW) continue;
+    if (LEVEL5 && path[0].j === LEVEL4_START_ROW) continue; // a new layout; only Level 4's start is ruled out
     const hung = LEVEL3 ? hangPathSpike(path, random) : hangDeadEnds(path, random);
     if (!hung) continue;
 
@@ -242,7 +264,8 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
             deadEnds.every((d) => d.depth === SHORT_DEPTH) &&
             maxBranchDepth === SHORT_DEPTH &&
             solution.some((c) => c.i === hung.spikeCell.i && c.j === hung.spikeCell.j);
-        if (ok) best = { seed, links: hung.links, startCell, exitCell, spikeCell: hung.spikeCell, solution, deadEnds, spike: { fromStart: hung.spikeIndex } };
+        const isNew = !EXISTING.has(shape(toLayout(hung.links, { startCell, exitCell, spikeCell: hung.spikeCell })));
+        if (ok && (isNew || !LEVEL5)) best = { seed, links: hung.links, startCell, exitCell, spikeCell: hung.spikeCell, solution, deadEnds, spike: { fromStart: hung.spikeIndex }, blocker: hung.blocker };
         continue;
     }
     const spike = deadEnds.find((d) => d.i === hung.spikeCell.i && d.j === hung.spikeCell.j);
@@ -264,7 +287,24 @@ if (!best) {
 }
 
 const layout = toLayout(best.links, best);
+if (LEVEL5 && EXISTING.has(shape(layout))) {
+    console.error('Found only a maze that is already a level; loosen the rules.');
+    process.exit(1);
+}
+if (best.blocker) {
+    // The spike row: the dead end's first block in from the opening, across its middle
+    const { chain, from } = best.blocker;
+    const cell = chain[0];
+    const di = cell.i - from.i;
+    const dj = cell.j - from.j;
+    const x = di === 0 ? 4 * cell.i + 2 : 4 * cell.i + (di > 0 ? 1 : 3);
+    const z = dj === 0 ? 4 * cell.j + 2 : 4 * cell.j + (dj > 0 ? 1 : 3);
+    const row = layout[z].split('');
+    row[x] = 'Y';
+    layout[z] = row.join('');
+}
 console.log(layout.map((row) => `        '${row}',`).join('\n'));
 console.log(`\nseed ${best.seed}: ${COLS}x${ROWS}, path ${best.solution.length} cells, ` +
     `${best.deadEnds.length} dead ends (depths ${best.deadEnds.map((d) => d.depth).join(',')}), ` +
-    `spike ${best.spike.fromStart} cells from start`);
+    `spike ${best.spike.fromStart} cells from start` +
+    (best.blocker ? `, spike row in the dead end at ${best.blocker.chain[0].i},${best.blocker.chain[0].j}` : ''));
