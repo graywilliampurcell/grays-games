@@ -11,6 +11,7 @@
 //   node tools/find-level.mjs level8     # Level 8 rules (Level 7's, new layout and start row)
 //   node tools/find-level.mjs level9     # Level 9 rules (the spike row hidden round a dead end's corner)
 //   node tools/find-level.mjs level10    # Level 10 rules (Level 8's again: a visible spike row, new layout)
+//   node tools/find-level.mjs level11    # Level 11 rules (Space World: 6 x 6, Level 2's dead ends, Level 1's hidden spike)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -47,7 +48,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -56,8 +57,11 @@ const OTHERS = LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout
 const OTHER_ROWS = new Set(LEVELS.filter((l) => l.name !== TARGET).flatMap((l) => l.layout.flatMap((r, z) => [...r].map((ch, x) => (ch === 'Y' ? `${x},${z}` : null)).filter(Boolean))));
 const differentEnough = (layoutShape) => OTHERS.every((o) => [...o].filter((ch, k) => ch !== layoutShape[k]).length >= MIN_DIFFERENT);
 
-const COLS = 5;
-const ROWS = 5;
+// Level 11 (Space World): 6 x 6, dead ends 2 cells deep like Level 2 and a
+// hidden spike trail like Level 1 (3 cells, one turn, out of sight of the path)
+const LEVEL11 = process.argv[2] === 'level11';
+const COLS = LEVEL11 ? 6 : 5;
+const ROWS = LEVEL11 ? 6 : 5;
 const LEVEL2 = process.argv[2] === 'level2';
 const LEVEL3 = ['level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9', 'level10'].includes(process.argv[2]); // spike on the path
 const LEVEL4 = process.argv[2] === 'level4';
@@ -67,8 +71,8 @@ const LEVEL7 = ['level7', 'level8', 'level9', 'level10'].includes(process.argv[2
 const LEVEL8 = ['level8', 'level9', 'level10'].includes(process.argv[2]); // clearly new layout and spike-row spot
 const LEVEL9 = process.argv[2] === 'level9'; // the spike row hidden just round a dead end's corner
 const LEVEL10 = process.argv[2] === 'level10'; // the finale: a visible spike row again
-const SHORT_DEAD_ENDS = LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
-const SHORT_DEPTH = LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 2 : 1; // how deep each of those dead ends is
+const SHORT_DEAD_ENDS = LEVEL11 ? 6 : LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
+const SHORT_DEPTH = LEVEL11 || (!LEVEL7 && (LEVEL2 || LEVEL3)) ? 2 : LEVEL7 ? 3 : 1; // how deep each of those dead ends is
 const SPIKE_DEPTH = LEVEL3 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
 const SPIKE_BRANCH_WITHIN = 3; // the spike dead end leaves the path in its first 3 cells
 const PATH_LENGTH = COLS * ROWS - SHORT_DEAD_ENDS * SHORT_DEPTH - SPIKE_DEPTH;
@@ -363,6 +367,23 @@ function rowVisible(rows, blocker, solution) {
     return viewpoints.some((v) => usable.some((t) => clear(v, t)));
 }
 
+// Can the spike ('X') be seen from anywhere on the given path cells?
+function spikeVisible(rows, pathCells) {
+    const isWall = (x, z) => rows[Math.floor(z)]?.[Math.floor(x)] === '#' || rows[Math.floor(z)]?.[Math.floor(x)] === 'D' || rows[Math.floor(z)]?.[Math.floor(x)] === undefined;
+    const z0 = rows.findIndex((r) => r.includes('X'));
+    const x0 = rows[z0].indexOf('X');
+    const targets = [];
+    for (const fa of [-0.2, 0.5, 1.2]) for (const fb of [-0.2, 0.5, 1.2]) targets.push([x0 + fa, z0 + fb]);
+    const viewpoints = [];
+    for (const c of pathCells) for (const fx of [1.45, 2, 2.5, 3, 3.55]) for (const fz of [1.45, 2, 2.5, 3, 3.55]) viewpoints.push([4 * c.i + fx, 4 * c.j + fz]);
+    const clear = ([ax, az], [bx, bz]) => {
+        const n = Math.ceil(Math.hypot(bx - ax, bz - az) / 0.05);
+        for (let k = 1; k < n; k++) if (isWall(ax + ((bx - ax) * k) / n, az + ((bz - az) * k) / n)) return false;
+        return true;
+    };
+    return viewpoints.some((v) => targets.some((t) => clear(v, t)));
+}
+
 let best = null;
 for (let seed = 1; seed <= SEEDS && !best; seed++) {
     const random = mulberry32(seed);
@@ -379,6 +400,12 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL9 && path[0].j === LEVEL8_START_ROW) continue;
     const hung = LEVEL3 ? hangPathSpike(path, random) : hangDeadEnds(path, random);
     if (!hung) continue;
+
+    // Level 11: the spike must be out of sight from everywhere on the path
+    if (LEVEL11) {
+        const rows = toLayout(hung.links, { startCell: path[0], exitCell: path[path.length - 1], spikeCell: hung.spikeCell });
+        if (spikeVisible(rows, path)) continue;
+    }
 
     // Double-check the finished maze with the same analysis the old levels used
     const startCell = path[0];

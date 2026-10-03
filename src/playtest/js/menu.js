@@ -91,12 +91,13 @@ export class Menu {
     // the last level, "More levels coming soon!" with just Quit
     // finaleTitle: the last level of a world shows its own title (Level 10:
     // "You beat Cotton Candy World!") with just Quit
-    showFinish(nextLevelName, finaleTitle) {
+    // nextLabel: the button's own words (Level 10: "Start Space World")
+    showFinish(nextLevelName, finaleTitle, nextLabel) {
         this.root.hidden = false;
-        document.getElementById('finish-title').textContent = nextLevelName ? 'You did it!' : finaleTitle || 'More levels coming soon!';
+        document.getElementById('finish-title').textContent = finaleTitle || (nextLevelName ? 'You did it!' : 'More levels coming soon!');
         const next = this.panels.finish.querySelector('[data-act=next-level]');
         next.hidden = !nextLevelName;
-        if (nextLevelName) next.textContent = `Start ${nextLevelName}`;
+        if (nextLevelName) next.textContent = nextLabel || `Start ${nextLevelName}`;
         this.finishGlow = nextLevelName ? 'next-level' : 'finish-quit';
         this.show('finish', this.finishGlow);
         this.offerUpdate();

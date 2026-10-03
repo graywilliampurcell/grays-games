@@ -8,6 +8,9 @@
 
 // Levels 1-10 share the cotton candy look: fluffy pink walls on blue ground.
 const COTTON_CANDY = { wall: 0xff9fcf, floor: 0x6fb8ff, sky: 0xe6d6ff, fluffy: true };
+// Levels 11-20, Space World: star walls, metal floor, a dark sky with Earth,
+// the Moon and things flying by (see Maze.js)
+const SPACE = { wall: 0x1c2153, floor: 0x8c939c, sky: 0x04060f, space: true };
 
 export const LEVELS = [
     {
@@ -333,6 +336,7 @@ export const LEVELS = [
         music: 'finale',
         spikeRadius: 0.72,
         finale: 'You beat Cotton Candy World!',
+        nextLabel: 'Start Space World',
         layout: [
             '#####################',
             '#           #       #',
@@ -355,6 +359,44 @@ export const LEVELS = [
             '#   #               D',
             '#   #               #',
             '#####################',
+        ],
+    },
+    {
+        name: 'Level 11',
+        // Welcome to Space World. `node tools/find-level.mjs level11`, seed 26.
+        // 6 x 6 corridors. Correct path 21 cells; 6 dead ends each 2 cells
+        // deep; the spike trail is 3 cells deep with one turn, leaving the
+        // path in its first 3 cells (spike 5 cells from the start), and a
+        // program checked the spike can't be seen from the path. No spike on
+        // the path, no doors, no slippery spots.
+        theme: SPACE,
+        music: 'twinkle',
+        layout: [
+            '#########################',
+            '#       #   #           #',
+            '# X     #   #           D',
+            '#       #   #           #',
+            '#####   #   #########   #',
+            '#   #   #   #       #   #',
+            '#   #   #   #       #   #',
+            '#   #   #   #       #   #',
+            '#   #   #   #   #####   #',
+            '#               #       #',
+            '#               #       #',
+            '#               #       #',
+            '#####   #####   #   #####',
+            '#       #       #       #',
+            '# S     #       #       #',
+            '#       #       #       #',
+            '#   #####   #########   #',
+            '#   #       #       #   #',
+            '#   #       #       #   #',
+            '#   #       #       #   #',
+            '#   #   #   #   #   #   #',
+            '#   #   #       #       #',
+            '#   #   #       #       #',
+            '#   #   #       #       #',
+            '#########################',
         ],
     },
 ];

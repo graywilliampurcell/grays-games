@@ -45,6 +45,88 @@ function fluffTexture(color, width, height, seed) {
     return texture;
 }
 
+// Space World walls: deep blue with lots of little stars that glow, so the
+// walls stand out against the dark sky
+function starTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#1c2153';
+    g.fillRect(0, 0, width, height);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    const colors = ['255,255,255', '255,240,170', '170,220,255', '255,200,240'];
+    for (let i = 0; i < (width * height) / 60; i++) {
+        const x = random() * width;
+        const y = random() * height;
+        const radius = 1 + random() * (random() < 0.1 ? 5 : 2.2);
+        const c = colors[Math.floor(random() * colors.length)];
+        const glow = g.createRadialGradient(x, y, 0, x, y, radius * 2.2);
+        glow.addColorStop(0, `rgba(${c},1)`);
+        glow.addColorStop(0.35, `rgba(${c},0.8)`);
+        glow.addColorStop(1, `rgba(${c},0)`);
+        g.fillStyle = glow;
+        g.fillRect(x - radius * 2.2, y - radius * 2.2, radius * 4.4, radius * 4.4);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Space World floor: grey metal plates with seams and rivets
+function metalTexture(size) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#8c939c';
+    g.fillRect(0, 0, size, size);
+    const plate = size / 2;
+    for (let px = 0; px < 2; px++) {
+        for (let pz = 0; pz < 2; pz++) {
+            const x = px * plate;
+            const z = pz * plate;
+            const shade = g.createLinearGradient(x, z, x + plate, z + plate);
+            shade.addColorStop(0, 'rgba(255,255,255,0.12)');
+            shade.addColorStop(1, 'rgba(0,0,0,0.12)');
+            g.fillStyle = shade;
+            g.fillRect(x, z, plate, plate);
+            g.strokeStyle = '#5d636b';
+            g.lineWidth = 3;
+            g.strokeRect(x + 1.5, z + 1.5, plate - 3, plate - 3);
+            g.fillStyle = '#c3c9d1';
+            for (const [rx, rz] of [[8, 8], [plate - 8, 8], [8, plate - 8], [plate - 8, plate - 8]]) {
+                g.beginPath();
+                g.arc(x + rx, z + rz, 2.5, 0, Math.PI * 2);
+                g.fill();
+            }
+        }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// A planet or moon for the sky: a base color with blobs (land, craters)
+function planetTexture(base, blobs, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 128;
+    const g = canvas.getContext('2d');
+    g.fillStyle = base;
+    g.fillRect(0, 0, 256, 128);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < 40; i++) {
+        const color = blobs[Math.floor(random() * blobs.length)];
+        g.fillStyle = color;
+        g.beginPath();
+        g.ellipse(random() * 256, 14 + random() * 100, 6 + random() * 22, 4 + random() * 14, random() * Math.PI, 0, Math.PI * 2);
+        g.fill();
+    }
+    return new THREE.CanvasTexture(canvas);
+}
+
 // A maze built from a fixed layout (see js/levels.js).
 // Block (x, z) spans [x, x+1) x [z, z+1) in the world.
 export const SPIKE_RADIUS = 0.75; // the normal spike plate's radius
@@ -122,9 +204,16 @@ export class Maze {
         }
 
         const fluffy = this.theme.fluffy;
-        const wallMaterial = fluffy
-            ? new THREE.MeshStandardMaterial({ map: fluffTexture(this.theme.wall, 128, 512, 7), roughness: 1, emissive: this.theme.wall, emissiveIntensity: 0.15 })
-            : new THREE.MeshStandardMaterial({ color: this.theme.wall });
+        const space = this.theme.space;
+        let wallMaterial;
+        if (space) {
+            const stars = starTexture(128, 512, 5);
+            wallMaterial = new THREE.MeshStandardMaterial({ map: stars, emissiveMap: stars, emissive: 0xffffff, emissiveIntensity: 0.55, roughness: 0.9 });
+        } else if (fluffy) {
+            wallMaterial = new THREE.MeshStandardMaterial({ map: fluffTexture(this.theme.wall, 128, 512, 7), roughness: 1, emissive: this.theme.wall, emissiveIntensity: 0.15 });
+        } else {
+            wallMaterial = new THREE.MeshStandardMaterial({ color: this.theme.wall });
+        }
         const wallGeometry = new THREE.BoxGeometry(1, this.height, 1);
         const walls = new THREE.InstancedMesh(wallGeometry, wallMaterial, count);
         const matrix = new THREE.Matrix4();
@@ -145,7 +234,11 @@ export class Maze {
 
         // Floor
         let floorMaterial;
-        if (fluffy) {
+        if (space) {
+            const map = metalTexture(128);
+            map.repeat.set(this.width / 2, this.depth / 2);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 0.45, metalness: 0.35 });
+        } else if (fluffy) {
             const map = fluffTexture(this.theme.floor, 256, 256, 3);
             map.repeat.set(this.width / 4, this.depth / 4);
             floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
@@ -157,6 +250,102 @@ export class Maze {
         floor.position.set(this.width / 2, -0.1, this.depth / 2);
         floor.receiveShadow = true;
         this.root.add(floor);
+
+        if (space) this.addSpaceSky();
+    }
+
+    // Space World sky: Earth and the Moon far away (they stay put, so which
+    // side they're on depends on where you look), and meteors, comets and
+    // rocket ships that fly by high overhead. Just to look at: no dangers.
+    addSpaceSky() {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        const earth = new THREE.Mesh(
+            new THREE.SphereGeometry(45, 32, 20),
+            new THREE.MeshBasicMaterial({ map: planetTexture('#2f6fd6', ['#3fa34d', '#57b85f', '#e8eef5', '#2a8a3d'], 9), fog: false })
+        );
+        earth.position.set(cx - 170, 270, cz - 230);
+        this.root.add(earth);
+        const moon = new THREE.Mesh(
+            new THREE.SphereGeometry(16, 24, 16),
+            new THREE.MeshBasicMaterial({ map: planetTexture('#c9ccd2', ['#9ea3ab', '#b3b7be', '#878c94'], 4), fog: false })
+        );
+        moon.position.set(cx + 190, 220, cz + 150);
+        this.root.add(moon);
+
+        this.flyers = [];
+        const kinds = ['meteor', 'comet', 'rocket', 'meteor', 'comet', 'rocket', 'meteor'];
+        kinds.forEach((kind, k) => {
+            const flyer = this.makeFlyer(kind);
+            this.root.add(flyer.object);
+            this.flyers.push(flyer);
+            this.launchFlyer(flyer, k / kinds.length);
+        });
+    }
+
+    makeFlyer(kind) {
+        const group = new THREE.Group();
+        const basic = (color, extra = {}) => new THREE.MeshBasicMaterial({ color, fog: false, ...extra });
+        if (kind === 'meteor') {
+            const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(1.4), basic(0xb07a4a));
+            const trail = new THREE.Mesh(new THREE.ConeGeometry(1.1, 9, 10, 1, true), basic(0xff9a3c, { transparent: true, opacity: 0.55 }));
+            trail.rotation.z = Math.PI / 2;
+            trail.position.x = -5;
+            group.add(rock, trail);
+        } else if (kind === 'comet') {
+            const head = new THREE.Mesh(new THREE.SphereGeometry(1.3, 16, 12), basic(0xdff4ff));
+            const tail = new THREE.Mesh(new THREE.ConeGeometry(1.6, 16, 12, 1, true), basic(0x9fd8ff, { transparent: true, opacity: 0.4 }));
+            tail.rotation.z = Math.PI / 2;
+            tail.position.x = -8.5;
+            group.add(head, tail);
+        } else {
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 5, 14), basic(0xf2f2f2));
+            const nose = new THREE.Mesh(new THREE.ConeGeometry(0.9, 2, 14), basic(0xe23b3b));
+            nose.position.y = 3.5;
+            const flame = new THREE.Mesh(new THREE.ConeGeometry(0.7, 2.6, 12), basic(0xffb428));
+            flame.rotation.z = Math.PI;
+            flame.position.y = -3.8;
+            group.add(body, nose, flame);
+            for (const a of [0, Math.PI / 2, Math.PI, Math.PI * 1.5]) {
+                const fin = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.4, 1.2), basic(0xe23b3b));
+                fin.position.set(Math.sin(a) * 0.95, -2, Math.cos(a) * 0.95);
+                fin.rotation.y = a;
+                group.add(fin);
+            }
+            group.rotation.z = -Math.PI / 2; // fly nose-first along x
+        }
+        const object = new THREE.Group();
+        object.add(group);
+        return { kind, object, velocity: new THREE.Vector3(), life: 0 };
+    }
+
+    // Send a flyer across the sky on a new path, `ahead` of the way along it (0-1)
+    launchFlyer(flyer, ahead = 0) {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = flyer.kind === 'rocket' ? 14 : flyer.kind === 'comet' ? 18 : 26;
+        const span = 260;
+        const dir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
+        const side = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar((Math.random() - 0.5) * 120);
+        const start = new THREE.Vector3(cx, 30 + Math.random() * 45, cz).addScaledVector(dir, -span / 2).add(side);
+        flyer.velocity.copy(dir).multiplyScalar(speed);
+        flyer.velocity.y = flyer.kind === 'meteor' ? -2 : (Math.random() - 0.5) * 2;
+        flyer.life = span / speed;
+        flyer.object.position.copy(start).addScaledVector(flyer.velocity, flyer.life * ahead);
+        flyer.life *= 1 - ahead;
+        flyer.object.lookAt(flyer.object.position.clone().add(flyer.velocity));
+        flyer.object.rotateY(-Math.PI / 2); // models point along +x
+    }
+
+    // Move the things flying through the sky (called every frame)
+    update(dt) {
+        if (!this.flyers) return;
+        for (const flyer of this.flyers) {
+            flyer.object.position.addScaledVector(flyer.velocity, dt);
+            flyer.life -= dt;
+            if (flyer.life <= 0) this.launchFlyer(flyer);
+        }
     }
 
     // Cotton-candy puffs: soft balls along the tops of the walls and at their feet
@@ -268,10 +457,13 @@ export class Maze {
         base.position.y = 0.04;
         spike.add(base);
 
-        const coneGeometry = new THREE.ConeGeometry(0.12, 0.6, 10);
+        // Space World: pointy glowing crystals instead of metal spikes (same size, same danger)
+        const space = this.theme.space;
+        const crystal = new THREE.MeshStandardMaterial({ color: 0x9a7bff, emissive: 0x5a2fd6, emissiveIntensity: 0.6, roughness: 0.2, metalness: 0.1 });
+        const coneGeometry = space ? new THREE.OctahedronGeometry(0.17, 0).scale(0.8, 2.4, 0.8) : new THREE.ConeGeometry(0.12, 0.6, 10);
         const offsets = [[0, 0], [0.35, 0.2], [-0.35, 0.2], [0.2, -0.35], [-0.2, -0.35], [0, 0.42]];
         for (const [ox, oz] of offsets) {
-            const cone = new THREE.Mesh(coneGeometry, metal);
+            const cone = new THREE.Mesh(coneGeometry, space ? crystal : metal);
             cone.position.set(ox, 0.38, oz);
             cone.castShadow = true;
             spike.add(cone);

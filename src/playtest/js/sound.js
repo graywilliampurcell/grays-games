@@ -256,6 +256,29 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.1, length: 0.12, brightness: 2500 },
     },
+    // Level 11, welcome to Space World: a happy twinkly tune (E major). A
+    // bright little chime runs up and down each chord without stopping, like
+    // twinkling stars, over long, slow bass notes and soft chords.
+    twinkle: {
+        tempo: 132,
+        bars: [[40, 'maj'], [37, 'min'], [45, 'maj'], [47, 'maj'], [40, 'maj'], [44, 'min'], [45, 'maj'], [47, 'maj']],
+        bass: [0, null, null, null, 7, null, null, null],
+        bassLength: 0.4,
+        stabs: [0],
+        stabLevel: 0.035,
+        ticks: false,
+        melody: [
+            76, 80, 83, 88, 83, 80, 76, 80,
+            73, 76, 80, 85, 80, 76, 73, 76,
+            69, 73, 76, 81, 76, 73, 69, 73,
+            71, 75, 78, 83, 78, 75, 71, 75,
+            76, 80, 83, 88, 83, 80, 76, 80,
+            68, 71, 75, 80, 75, 71, 68, 71,
+            69, 73, 76, 81, 76, 73, 69, 73,
+            71, 75, 78, 83, 86, 83, 78, 75,
+        ],
+        lead: { wave: 'square', level: 0.1, length: 0.08, brightness: 6000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

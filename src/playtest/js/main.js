@@ -189,6 +189,9 @@ function animate() {
     const deltaTime = (now - lastTime) / 1000;
     lastTime = now;
 
+    // Things flying through the sky (Space World) keep moving, even while paused
+    maze?.update?.(Math.min(deltaTime, 0.1));
+
     // Clamp big gaps, e.g. after switching tabs. In test mode the bot steps the game.
     if (paused) {
         // Everything stays frozen while the menu is open
@@ -250,7 +253,7 @@ function checkSpikeAndDoor() {
         sound.cheer({ long: !!finale });
         if (finale) showConfetti();
         // "You did it!" (Start the next level / Quit), the finale's screen, or "More levels coming soon!"
-        menu.showFinish(LEVELS[levelIndex + 1]?.name, finale);
+        menu.showFinish(LEVELS[levelIndex + 1]?.name, finale, LEVELS[levelIndex]?.nextLabel);
         testHooks?.emit('escape');
     }
 }
