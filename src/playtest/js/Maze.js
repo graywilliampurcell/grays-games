@@ -47,8 +47,13 @@ function fluffTexture(color, width, height, seed) {
 
 // A maze built from a fixed layout (see js/levels.js).
 // Block (x, z) spans [x, x+1) x [z, z+1) in the world.
+export const SPIKE_RADIUS = 0.75; // the normal spike plate's radius
+
 export class Maze {
-    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4 } = {}) {
+    // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
+    // Level 3's spike on the path is smaller so there's room to walk round it)
+    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS } = {}) {
+        this.spikeRadius = spikeRadius;
         this.scene = scene;
         this.theme = theme;
         // Everything this maze adds to the scene, so it can be taken away again
@@ -256,6 +261,8 @@ export class Maze {
             spike.add(cone);
         }
 
+        // Shrink (or grow) the whole cluster sideways to the level's spike size
+        spike.scale.set(this.spikeRadius / SPIKE_RADIUS, 1, this.spikeRadius / SPIKE_RADIUS);
         spike.position.copy(this.spikePosition);
         this.root.add(spike);
     }

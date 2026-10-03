@@ -21,7 +21,8 @@ const settings = TEST_MODE ? { ...DEFAULT_SETTINGS } : loadSettings();
 let messageTimer = null;
 let testHooks = null; // only set with ?test=1
 
-const SPIKE_TOUCH_DISTANCE = 1.0;
+// You touch the spike when you're this close to the edge of its plate
+const SPIKE_TOUCH_MARGIN = 0.25; // normal spike: 0.75 + 0.25 = 1.0
 const DOOR_TOUCH_DISTANCE = 1.3;
 let frameCount = 0;
 let lastTime = performance.now();
@@ -127,7 +128,7 @@ function loadLevel(level, index) {
     levelIndex = index;
     maze?.dispose();
     const theme = level.theme || LEVELS[0].theme;
-    maze = new Maze(scene, level.layout, theme);
+    maze = new Maze(scene, level.layout, theme, { spikeRadius: level.spikeRadius ?? LEVELS[index]?.spikeRadius });
     maze.build();
     collisionManager = new CollisionManager(maze.getMazeData());
     scene.background.set(theme.sky);
@@ -202,7 +203,7 @@ function horizontalDistance(a, b) {
 function checkSpikeAndDoor() {
     if (escaped) return;
 
-    if (horizontalDistance(player.position, maze.spikePosition) < SPIKE_TOUCH_DISTANCE) {
+    if (horizontalDistance(player.position, maze.spikePosition) < maze.spikeRadius + SPIKE_TOUCH_MARGIN) {
         player.resetTo(maze.getStartPosition(), maze.getStartYaw());
         testHooks?.emit('spike');
         sound.ouch();
