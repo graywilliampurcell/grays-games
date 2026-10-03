@@ -1,20 +1,24 @@
-// Pause menu, Settings and Quit (plan Sections 3 and 4).
+// Main menu (plan Section 6), pause menu, Settings and Quit (plan Sections 3 and 4).
 //
 // Computer: the spacebar pauses; ↑/↓ move the glow and the spacebar picks.
 // iPad: the ⏸ button pauses; tap an option to pick it.
-// The same menu shows the "You did it!" screen when a level is finished.
+// The same menu shows the "You did it!" screen when a level is finished, and
+// the main menu (Mazle: Continue / New game) when the game opens.
 
 import { TOUCH_SETUPS, KEYBOARD_SETUPS } from './settings.js';
 
 export class Menu {
     // game: { canPause(), pause(), resume(), startOver(), quit(), nextLevel(),
+    //         hasSave(), continueGame(), newGame(), toMainMenu(),
     //         settings, changeSettings(changes) }
     constructor(game) {
         this.game = game;
-        this.state = 'closed'; // closed | main | settings | quit | finish | thanks
+        this.state = 'closed'; // closed | title | erase | main | settings | quit | finish | thanks
         this.quitFrom = 'main'; // the panel Quit → No goes back to
         this.root = document.getElementById('menu');
         this.panels = {
+            title: document.getElementById('menu-title'),
+            erase: document.getElementById('menu-erase'),
             main: document.getElementById('menu-main'),
             settings: document.getElementById('menu-settings'),
             quit: document.getElementById('menu-quit'),
@@ -89,6 +93,14 @@ export class Menu {
         this.show('finish', nextLevelName ? 'next-level' : 'finish-quit');
     }
 
+    // Main menu: Continue (only with a saved spot, and then it glows first) / New game
+    showTitle() {
+        this.root.hidden = false;
+        const hasSave = this.game.hasSave();
+        this.panels.title.querySelector('[data-act=continue]').hidden = !hasSave;
+        this.show('title', hasSave ? 'continue' : 'new-game');
+    }
+
     // Take the menu away without resuming (a new level is starting)
     dismiss() {
         this.state = 'closed';
@@ -138,6 +150,21 @@ export class Menu {
         } else if (act === 'start-over') {
             this.game.startOver();
             this.close();
+        } else if (act === 'continue') {
+            this.game.continueGame();
+            this.close();
+        } else if (act === 'new-game') {
+            // A saved spot would be lost, so ask first (No glows first)
+            if (this.game.hasSave()) this.show('erase', 'erase-no');
+            else this.startNewGame();
+        } else if (act === 'erase-yes') {
+            this.startNewGame();
+        } else if (act === 'erase-no') {
+            this.show('title', 'new-game');
+        } else if (act === 'main-menu') {
+            // Saves the spot like Quit does, so no "Are you sure?"
+            this.game.toMainMenu();
+            this.showTitle();
         } else if (act === 'settings') {
             this.show('settings', 'setup');
         } else if (act === 'quit' || act === 'finish-quit') {
@@ -165,6 +192,11 @@ export class Menu {
             this.glowIndex = this.items().indexOf(item);
             this.paintGlow();
         }
+    }
+
+    startNewGame() {
+        this.game.newGame();
+        this.close();
     }
 
     // Settings: the control setups for this device, (iPad only) the sliders, and the sound switches

@@ -171,6 +171,7 @@ export class Sound {
     // ---- Music ----
 
     startMusic() {
+        if (!this.timer) this.musicStep = 0; // a level's tune starts from its beginning
         this.musicWanted = true;
         if (this.ctx) this.startScheduler();
     }

@@ -140,6 +140,8 @@
             display: flex;
         }
 
+        body.title .touch-ctl,
+        body.title #controls,
         body.paused #pause-btn,
         body.escaped #pause-btn,
         body.done #pause-btn,
@@ -171,6 +173,18 @@
             text-align: center;
             background: rgba(30, 30, 30, 0.92);
             border-radius: 18px;
+        }
+
+        /* Main menu: the game's name above Continue / New game */
+        .panel h1.title {
+            font-size: 64px;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            color: #ffb3dd;
+        }
+
+        body.title #menu {
+            background: rgba(40, 0, 40, 0.6);
         }
 
         .panel h2 {
@@ -432,9 +446,20 @@
     </div>
     <button id="pause-btn" aria-label="Pause">⏸</button>
     <div id="menu" hidden>
+        <div id="menu-title" class="panel" hidden>
+            <h1 class="title">Mazle</h1>
+            <div class="item" data-act="continue">Continue</div>
+            <div class="item" data-act="new-game">New game</div>
+        </div>
+        <div id="menu-erase" class="panel" hidden>
+            <h2>Are you sure? This erases your saved spot.</h2>
+            <div class="item" data-act="erase-yes">Yes</div>
+            <div class="item" data-act="erase-no">No</div>
+        </div>
         <div id="menu-main" class="panel">
             <div class="item" data-act="resume">Keep playing</div>
             <div class="item" data-act="start-over">Start over</div>
+            <div class="item" data-act="main-menu">Main menu</div>
             <div class="item" data-act="settings">Settings</div>
             <div class="item" data-act="quit">Quit</div>
         </div>
