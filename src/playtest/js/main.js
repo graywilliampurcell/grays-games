@@ -5,7 +5,7 @@ import { LEVELS } from './levels.js';
 import { InputManager } from './InputManager.js';
 import { CollisionManager } from './CollisionManager.js';
 import { installTestHooks, TEST_MODE } from './testHooks.js';
-import { DEFAULT_SETTINGS, loadSettings, saveSettings, loadProgress, saveProgress } from './settings.js';
+import { DEFAULT_SETTINGS, loadSettings, saveSettings, loadProgress, saveProgress, clearProgress } from './settings.js';
 import { Menu } from './menu.js';
 import { Sound } from './sound.js';
 
@@ -68,17 +68,15 @@ function init() {
     scene.add(sun);
     scene.add(sun.target);
 
-    // Quit saved where Gray was: carry straight on from there
-    const progress = TEST_MODE ? null : loadProgress();
-    if (progress && LEVELS[progress.level]) levelIndex = progress.level;
+    // The saved spot's level sits behind the main menu (test mode: Level 1, straight into play)
+    const progress = savedSpot();
+    if (progress) levelIndex = progress.level;
     loadLevel(LEVELS[levelIndex], levelIndex);
 
     // Player setup
     player = new Player(camera, settings);
     player.resetTo(maze.getStartPosition(), maze.getStartYaw());
-    if (progress && LEVELS[progress.level]) {
-        player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
-    }
+    if (progress) player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
 
     // Input manager
     inputManager = new InputManager();
@@ -92,15 +90,29 @@ function init() {
         startOver,
         quit,
         nextLevel,
+        hasSave: () => !!savedSpot(),
+        continueGame,
+        newGame,
+        toMainMenu,
         changeSettings,
     });
     applySettings();
     document.addEventListener('mazle:touch', applySettings);
 
-    // Music and sound effects; the music starts with the first key press or tap
+    // Music and sound effects. No music on the main menu; a level's tune starts
+    // with the level (and, in test mode, with the first key press or tap).
     sound = new Sound(settings, (name) => testHooks?.emit('sound', { name }));
     sound.setTune(LEVELS[levelIndex]?.music);
-    sound.startMusic();
+
+    // The game opens on the main menu (plan Section 6). Test mode skips it so
+    // the play bot starts straight in Level 1.
+    if (TEST_MODE) {
+        sound.startMusic();
+    } else {
+        pause();
+        document.body.classList.add('title');
+        menu.showTitle();
+    }
     if (TEST_MODE) window.__sound = sound; // lets browser tests measure the sound
 
     // Handle window resize
@@ -247,6 +259,44 @@ function nextLevel() {
     testHooks?.emit('level', { index: levelIndex });
 }
 
+// The saved spot (from Quit or Main menu), if it's for a level that exists.
+// Test mode ignores it.
+function savedSpot() {
+    const progress = TEST_MODE ? null : loadProgress();
+    return progress && LEVELS[progress.level] ? progress : null;
+}
+
+// Leave the main menu and start playing (the menu resumes the game)
+function startPlaying(index) {
+    if (index !== levelIndex) loadLevel(LEVELS[index], index);
+    playAgain();
+    quitDone = false;
+    document.body.classList.remove('title', 'done');
+    document.getElementById('thanks').hidden = true;
+    sound.startMusic();
+}
+
+// Main menu → Continue: back to the saved spot, facing the same way
+function continueGame() {
+    const progress = savedSpot();
+    if (!progress) return newGame();
+    startPlaying(progress.level);
+    player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
+}
+
+// Main menu → New game: erase the saved spot and start Level 1 from its start
+function newGame() {
+    clearProgress();
+    startPlaying(0);
+}
+
+// Pause menu → Main menu: save the spot the same way Quit does, music stops
+function toMainMenu() {
+    saveSpot();
+    sound.stopMusic();
+    document.body.classList.add('title');
+}
+
 // Pause menu actions
 function pause() {
     paused = true;
@@ -266,15 +316,20 @@ function startOver() {
     player.resetTo(maze.getStartPosition(), maze.getStartYaw());
 }
 
-function quit() {
+// Save where Gray is (level, exact position, facing). After reaching the door,
+// save right next to it, facing it.
+function saveSpot() {
     if (escaped) {
-        // Quit after reaching the door: come back standing right next to it, facing it
         const { position, yaw } = maze.getDoorApproach();
         saveProgress({ level: levelIndex, x: position.x, z: position.z, yaw, pitch: 0 });
     } else {
         const facing = player.facing();
         saveProgress({ level: levelIndex, x: player.position.x, z: player.position.z, yaw: facing.yaw, pitch: facing.pitch });
     }
+}
+
+function quit() {
+    saveSpot();
     quitDone = true;
     sound.stopMusic();
     document.body.classList.add('done');
