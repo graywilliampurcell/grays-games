@@ -17,6 +17,10 @@ let levelIndex = 0;
 let menu;
 let sound;
 // The bot always plays with the default controls and a fresh start
+// Which build this is (vite.config.js): e.g. Mazle 0.13.0 (build 765a327)
+export const VERSION = { version: __APP_VERSION__, build: __APP_BUILD__ };
+window.MAZLE_VERSION = VERSION;
+
 const settings = TEST_MODE ? { ...DEFAULT_SETTINGS } : loadSettings();
 let messageTimer = null;
 let testHooks = null; // only set with ?test=1
