@@ -9,22 +9,27 @@ import { TOUCH_SETUPS, KEYBOARD_SETUPS } from './settings.js';
 
 export class Menu {
     // game: { canPause(), pause(), resume(), startOver(), quit(), nextLevel(),
-    //         hasSave(), continueGame(), newGame(), toMainMenu(),
+    //         hasSave(), continueGame(), newGame(), toMainMenu(), reloadForUpdate(),
     //         settings, changeSettings(changes) }
     constructor(game) {
         this.game = game;
-        this.state = 'closed'; // closed | title | erase | main | settings | quit | finish | thanks
+        this.state = 'closed'; // closed | title | erase | main | settings | quit | finish | update | thanks
         this.quitFrom = 'main'; // the panel Quit → No goes back to
         this.root = document.getElementById('menu');
         this.panels = {
             title: document.getElementById('menu-title'),
             erase: document.getElementById('menu-erase'),
+            update: document.getElementById('menu-update'),
             main: document.getElementById('menu-main'),
             settings: document.getElementById('menu-settings'),
             quit: document.getElementById('menu-quit'),
             finish: document.getElementById('menu-finish'),
         };
         this.glowIndex = 0;
+        this.updateWaiting = false; // a newer build is live and Gray hasn't reloaded yet
+        this.updateLater = false; // Gray picked Later: from then on ask only on the main menu or an end screen
+        this.updateFrom = null; // where Later goes back to: closed | title | finish
+        this.finishGlow = 'next-level';
 
         document.getElementById('pause-btn').addEventListener('click', () => this.open());
         this.root.addEventListener('click', (e) => {
@@ -90,7 +95,9 @@ export class Menu {
         const next = this.panels.finish.querySelector('[data-act=next-level]');
         next.hidden = !nextLevelName;
         if (nextLevelName) next.textContent = `Start ${nextLevelName}`;
-        this.show('finish', nextLevelName ? 'next-level' : 'finish-quit');
+        this.finishGlow = nextLevelName ? 'next-level' : 'finish-quit';
+        this.show('finish', this.finishGlow);
+        this.offerUpdate();
     }
 
     // Main menu: Continue (only with a saved spot, and then it glows first) / New game
@@ -99,6 +106,27 @@ export class Menu {
         const hasSave = this.game.hasSave();
         this.panels.title.querySelector('[data-act=continue]').hidden = !hasSave;
         this.show('title', hasSave ? 'continue' : 'new-game');
+        this.offerUpdate();
+    }
+
+    // A newer build is live (updates.js). Ask now if Gray is playing, on the
+    // main menu or on an end screen; otherwise ask at the next of those.
+    updateFound() {
+        this.updateWaiting = true;
+        this.offerUpdate();
+    }
+
+    // "A new version of Mazle is ready!" with Reload now (glowing) / Later
+    offerUpdate() {
+        if (!this.updateWaiting || !['closed', 'title', 'finish'].includes(this.state)) return;
+        if (this.state === 'closed') {
+            if (this.updateLater) return;
+            if (!this.game.canPause()) return;
+            this.game.pause(); // freezes the game like the pause menu
+        }
+        this.updateFrom = this.state;
+        this.root.hidden = false;
+        this.show('update', 'update-reload');
     }
 
     // Take the menu away without resuming (a new level is starting)
@@ -165,6 +193,14 @@ export class Menu {
             // Saves the spot like Quit does, so no "Are you sure?"
             this.game.toMainMenu();
             this.showTitle();
+        } else if (act === 'update-reload') {
+            this.game.reloadForUpdate(this.updateFrom);
+        } else if (act === 'update-later') {
+            // Keep going; asked again at the next main menu or end screen
+            this.updateLater = true;
+            if (this.updateFrom === 'closed') this.close();
+            else if (this.updateFrom === 'title') this.show('title', this.game.hasSave() ? 'continue' : 'new-game');
+            else this.show('finish', this.finishGlow);
         } else if (act === 'settings') {
             this.show('settings', 'setup');
         } else if (act === 'quit' || act === 'finish-quit') {

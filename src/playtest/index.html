@@ -244,6 +244,13 @@
             height: 44px;
         }
 
+        /* Settings: the loaded version, at the bottom */
+        #version-line {
+            font-size: 16px;
+            color: #bbb;
+            margin-top: 4px;
+        }
+
         .slider-row .value {
             width: 32px;
             font-weight: bold;
@@ -477,11 +484,17 @@
             <div class="item toggle" data-act="toggle" data-setting="music">Music</div>
             <div class="item toggle" data-act="toggle" data-setting="sfx">Sound effects</div>
             <div class="item" data-act="back">Back</div>
+            <div id="version-line"></div>
         </div>
         <div id="menu-finish" class="panel" hidden>
             <h1 id="finish-title">You did it!</h1>
             <div class="item" data-act="next-level">Start Level 2</div>
             <div class="item" data-act="finish-quit">Quit</div>
+        </div>
+        <div id="menu-update" class="panel" hidden>
+            <h2>A new version of Mazle is ready!</h2>
+            <div class="item" data-act="update-reload">Reload now</div>
+            <div class="item" data-act="update-later">Later</div>
         </div>
         <div id="menu-quit" class="panel" hidden>
             <h2>Are you sure you want to quit?</h2>
