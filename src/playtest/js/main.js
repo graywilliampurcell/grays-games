@@ -98,6 +98,7 @@ function init() {
 
     // Music and sound effects; the music starts with the first key press or tap
     sound = new Sound(settings, (name) => testHooks?.emit('sound', { name }));
+    sound.setTune(LEVELS[levelIndex]?.music);
     sound.startMusic();
     if (TEST_MODE) window.__sound = sound; // lets browser tests measure the sound
 
@@ -141,6 +142,7 @@ function loadLevel(level, index) {
     sun.shadow.camera.updateProjectionMatrix();
 
     document.getElementById('level').textContent = level.name;
+    sound?.setTune(level.music || LEVELS[index]?.music);
 }
 
 function onWindowResize() {
