@@ -7,6 +7,7 @@
 //   node tools/find-level.mjs level4     # Level 4 rules (Level 3's, new start row)
 //   node tools/find-level.mjs level5     # Level 5 rules (path spike + a dead end blocked by a spike row)
 //   node tools/find-level.mjs level6     # Level 6 rules (Level 5's, new layout and start row)
+//   node tools/find-level.mjs level7     # Level 7 rules (Level 6's with 3 dead ends 3 cells deep)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -43,18 +44,19 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 
 const COLS = 5;
 const ROWS = 5;
 const LEVEL2 = process.argv[2] === 'level2';
-const LEVEL3 = ['level3', 'level4', 'level5', 'level6'].includes(process.argv[2]); // spike on the path
+const LEVEL3 = ['level3', 'level4', 'level5', 'level6', 'level7'].includes(process.argv[2]); // spike on the path
 const LEVEL4 = process.argv[2] === 'level4';
-const LEVEL5 = ['level5', 'level6'].includes(process.argv[2]); // plus a spike row in a dead end
+const LEVEL5 = ['level5', 'level6', 'level7'].includes(process.argv[2]); // plus a spike row in a dead end
 const LEVEL6 = process.argv[2] === 'level6';
-const SHORT_DEAD_ENDS = LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
-const SHORT_DEPTH = LEVEL2 || LEVEL3 ? 2 : 1; // how deep each of those dead ends is
+const LEVEL7 = process.argv[2] === 'level7'; // longer wrong ways: 3 dead ends 3 cells deep
+const SHORT_DEAD_ENDS = LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
+const SHORT_DEPTH = LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 2 : 1; // how deep each of those dead ends is
 const SPIKE_DEPTH = LEVEL3 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
 const SPIKE_BRANCH_WITHIN = 3; // the spike dead end leaves the path in its first 3 cells
 const PATH_LENGTH = COLS * ROWS - SHORT_DEAD_ENDS * SHORT_DEPTH - SPIKE_DEPTH;
@@ -64,6 +66,7 @@ const LEVEL2_START_ROW = 2;
 const LEVEL3_START_ROW = 4;
 const LEVEL4_START_ROW = 0;
 const LEVEL5_START_ROW = 4;
+const LEVEL6_START_ROW = 0;
 const SEEDS = 2000;
 const STEPS_PER_SEED = 200000;
 
@@ -117,6 +120,7 @@ function layPath(random) {
 // a chain whose first cell touches the path. Returns a list of chains, or null.
 function splitIntoDeadEnds(cells, onPath, random) {
     if (SHORT_DEPTH === 1) return cells.every((c) => neighbours(c).some((n) => onPath.has(key(n)))) ? cells.map((c) => [c]) : null;
+    if (SHORT_DEPTH > 2) return splitIntoLongDeadEnds(cells, onPath, random);
     // Pairs only (SHORT_DEPTH 2): backtrack over the cells in order
     const left = new Set(cells.map(key));
     const byKey = new Map(cells.map((c) => [key(c), c]));
@@ -140,6 +144,49 @@ function splitIntoDeadEnds(cells, onPath, random) {
         return false;
     }
     return pair() ? chains : null;
+}
+
+// Dead ends 3 or more cells deep (Level 7 on): backtrack, each time covering the
+// first cell left with some chain of SHORT_DEPTH cells whose first cell touches the path
+function splitIntoLongDeadEnds(cells, onPath, random) {
+    const left = new Set(cells.map(key));
+    const byKey = new Map(cells.map((c) => [key(c), c]));
+    const touchesPath = (c) => neighbours(c).some((n) => onPath.has(key(n)));
+    // Every chain of SHORT_DEPTH free cells that runs from `start` without crossing itself
+    function chainsFrom(start) {
+        const out = [];
+        const walk = (chain) => {
+            if (chain.length === SHORT_DEPTH) return out.push(chain.slice());
+            for (const n of neighbours(chain[chain.length - 1])) {
+                if (left.has(key(n)) && !chain.some((c) => key(c) === key(n))) {
+                    chain.push(byKey.get(key(n)));
+                    walk(chain);
+                    chain.pop();
+                }
+            }
+        };
+        walk([start]);
+        return out;
+    }
+    const chains = [];
+    function cover() {
+        if (left.size === 0) return true;
+        const first = left.values().next().value;
+        const options = [];
+        for (const k of left) {
+            if (!touchesPath(byKey.get(k))) continue;
+            for (const chain of chainsFrom(byKey.get(k))) if (chain.some((c) => key(c) === first)) options.push(chain);
+        }
+        for (const chain of shuffle(options, random)) {
+            for (const c of chain) left.delete(key(c));
+            chains.push(chain);
+            if (cover()) return true;
+            chains.pop();
+            for (const c of chain) left.add(key(c));
+        }
+        return false;
+    }
+    return cover() ? chains : null;
 }
 
 // Hang the leftover cells off the path: one 3-cell spike dead end with one
@@ -224,7 +271,7 @@ function hangPathSpike(path, random) {
         let blocker = null;
         if (LEVEL5) {
             const straight = chains.map((chain, c) => ({ chain, from: roots[c] }))
-                .filter(({ chain, from }) => step(from, chain[0]) === step(chain[0], chain[1]));
+                .filter(({ chain, from }) => chain.every((c, n) => step(n === 0 ? from : chain[n - 1], c) === step(from, chain[0])));
             if (straight.length === 0) continue;
             blocker = straight[Math.floor(random() * straight.length)];
         }
@@ -257,6 +304,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL4 && path[0].j === LEVEL3_START_ROW) continue;
     if (LEVEL5 && !LEVEL6 && path[0].j === LEVEL4_START_ROW) continue; // a new layout; only Level 4's start is ruled out
     if (LEVEL6 && path[0].j === LEVEL5_START_ROW) continue;
+    if (LEVEL7 && path[0].j === LEVEL6_START_ROW) continue;
     const hung = LEVEL3 ? hangPathSpike(path, random) : hangDeadEnds(path, random);
     if (!hung) continue;
 

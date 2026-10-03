@@ -211,4 +211,39 @@ export const LEVELS = [
             '#####################',
         ],
     },
+    {
+        name: 'Level 7',
+        // Longer wrong ways. `node tools/find-level.mjs level7`, seed 64.
+        // 5 x 5 corridors. Correct path 16 cells; 3 dead ends each 3 cells
+        // deep. X: the spike on the path, in a straight corridor (path cell
+        // 10 of 16); plate 0.67 (Level 6: 0.64), so the room to walk past is
+        // about 15% narrower again. Y: a row of spikes across the opening of
+        // the straight 3-cell dead end along the top.
+        theme: COTTON_CANDY,
+        music: 'shuffle',
+        spikeRadius: 0.67,
+        layout: [
+            '#####################',
+            '#                   #',
+            '#          Y        #',
+            '#                   #',
+            '#############   #   #',
+            '#               #   #',
+            '#         X     #   #',
+            '#               #   #',
+            '#   #########   #   #',
+            '#   #           #   #',
+            '#   #           #   #',
+            '#   #           #   #',
+            '#   #############   #',
+            '#               #   #',
+            '#               #   D',
+            '#               #   #',
+            '#########   #   #####',
+            '#           #       #',
+            '# S         #       #',
+            '#           #       #',
+            '#####################',
+        ],
+    },
 ];

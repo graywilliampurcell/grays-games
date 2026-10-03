@@ -160,6 +160,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.17, length: 0.14, brightness: 900 },
     },
+    // Level 7: a bouncy shuffle (A major), a tiny bit sneakier than Level 6.
+    // It opens by falling from a high note, then long-short "dum ... da-dum
+    // ... da" steps on a plucky marimba-like lead,
+    // chords on the beat and the bass on the off-beats, with one sneaky
+    // F major bar.
+    shuffle: {
+        tempo: 126,
+        bars: [[45, 'maj'], [45, 'maj'], [38, 'maj'], [45, 'maj'], [41, 'maj'], [38, 'maj'], [40, 'maj'], [45, 'maj']],
+        bass: [null, 0, null, 7, null, 0, null, 7],
+        bassLength: 0.14,
+        stabs: [0, 4],
+        stabLevel: 0.04,
+        ticks: false,
+        melody: [
+            81, null, null, 76, 73, null, null, 76,
+            81, null, null, 78, 76, null, null, null,
+            74, null, null, 78, 81, null, null, 78,
+            76, null, null, 73, 69, null, null, null,
+            72, null, null, 77, 81, null, null, 77,
+            78, null, null, 74, 69, null, null, null,
+            71, null, null, 74, 76, null, null, 80,
+            81, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.36, length: 0.16, brightness: 3000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
