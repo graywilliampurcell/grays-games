@@ -136,6 +136,30 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.13, length: 0.22, brightness: 1500 },
     },
+    // Level 6: a creeping tune (G major), a tiny bit sneakier than Level 5.
+    // The melody is low and muffled and creeps up by half-steps ("da-dum,
+    // da-da-dum"), each bar answered by a short fall, with bright little
+    // chords on top to keep it happy, slow half-note bass and soft ticking.
+    creep: {
+        tempo: 112,
+        bars: [[43, 'maj'], [43, 'maj'], [36, 'maj'], [36, 'maj'], [40, 'min'], [36, 'maj'], [38, 'maj'], [43, 'maj']],
+        bass: [0, null, null, null, 0, null, null, null],
+        bassLength: 0.3,
+        stabs: [2, 6],
+        stabLevel: 0.045,
+        ticks: true,
+        melody: [
+            54, 55, null, 57, 58, 59, null, null,
+            62, null, 59, null, 55, null, null, null,
+            54, 55, null, 57, 58, 59, null, null,
+            64, null, 60, null, 57, null, null, null,
+            59, 60, null, 62, 63, 64, null, null,
+            67, null, 64, null, 60, null, null, null,
+            61, 62, null, 64, 65, 66, null, null,
+            67, null, null, null, 55, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.17, length: 0.14, brightness: 900 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

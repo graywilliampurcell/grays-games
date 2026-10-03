@@ -6,6 +6,7 @@
 //   node tools/find-level.mjs level3     # Level 3 rules
 //   node tools/find-level.mjs level4     # Level 4 rules (Level 3's, new start row)
 //   node tools/find-level.mjs level5     # Level 5 rules (path spike + a dead end blocked by a spike row)
+//   node tools/find-level.mjs level6     # Level 6 rules (Level 5's, new layout and start row)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -41,14 +42,17 @@ import { LEVELS } from '../js/levels.js';
 
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
-const EXISTING = new Set(LEVELS.map((l) => shape(l.layout)));
+// (every level except the one being made, so re-running a level's command finds it again)
+const TARGET = { level5: 'Level 5', level6: 'Level 6' }[process.argv[2]];
+const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 
 const COLS = 5;
 const ROWS = 5;
 const LEVEL2 = process.argv[2] === 'level2';
-const LEVEL3 = ['level3', 'level4', 'level5'].includes(process.argv[2]); // spike on the path
+const LEVEL3 = ['level3', 'level4', 'level5', 'level6'].includes(process.argv[2]); // spike on the path
 const LEVEL4 = process.argv[2] === 'level4';
-const LEVEL5 = process.argv[2] === 'level5';
+const LEVEL5 = ['level5', 'level6'].includes(process.argv[2]); // plus a spike row in a dead end
+const LEVEL6 = process.argv[2] === 'level6';
 const SHORT_DEAD_ENDS = LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
 const SHORT_DEPTH = LEVEL2 || LEVEL3 ? 2 : 1; // how deep each of those dead ends is
 const SPIKE_DEPTH = LEVEL3 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
@@ -59,6 +63,7 @@ const LEVEL1_START_ROW = 3;
 const LEVEL2_START_ROW = 2;
 const LEVEL3_START_ROW = 4;
 const LEVEL4_START_ROW = 0;
+const LEVEL5_START_ROW = 4;
 const SEEDS = 2000;
 const STEPS_PER_SEED = 200000;
 
@@ -250,7 +255,8 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL2 && path[0].j === LEVEL1_START_ROW) continue; // start somewhere new
     if (LEVEL3 && (path[0].j === LEVEL1_START_ROW || path[0].j === LEVEL2_START_ROW)) continue;
     if (LEVEL4 && path[0].j === LEVEL3_START_ROW) continue;
-    if (LEVEL5 && path[0].j === LEVEL4_START_ROW) continue; // a new layout; only Level 4's start is ruled out
+    if (LEVEL5 && !LEVEL6 && path[0].j === LEVEL4_START_ROW) continue; // a new layout; only Level 4's start is ruled out
+    if (LEVEL6 && path[0].j === LEVEL5_START_ROW) continue;
     const hung = LEVEL3 ? hangPathSpike(path, random) : hangDeadEnds(path, random);
     if (!hung) continue;
 

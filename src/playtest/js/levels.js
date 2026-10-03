@@ -176,4 +176,39 @@ export const LEVELS = [
             '#####################',
         ],
     },
+    {
+        name: 'Level 6',
+        // Two spikes, a tighter squeeze. `node tools/find-level.mjs level6`,
+        // seed 45. 5 x 5 corridors. Correct path 17 cells; 4 dead ends each 2
+        // cells deep. X: the spike on the path, in the long straight bottom
+        // corridor (path cell 12 of 17); plate 0.64 (Level 5: 0.6), so the
+        // room to walk past is about 15% narrower again. Y: a row of spikes
+        // across the dead end that drops straight down from the start.
+        theme: COTTON_CANDY,
+        music: 'creep',
+        spikeRadius: 0.64,
+        layout: [
+            '#####################',
+            '#           #   #   #',
+            '# S         #   #   D',
+            '#           #   #   #',
+            '#   #####   #   #   #',
+            '# Y #           #   #',
+            '#   #           #   #',
+            '#   #           #   #',
+            '#   #   #   #####   #',
+            '#   #   #       #   #',
+            '#   #   #       #   #',
+            '#   #   #       #   #',
+            '#############   #   #',
+            '#   #           #   #',
+            '#   #           #   #',
+            '#   #           #   #',
+            '#   #   #########   #',
+            '#                   #',
+            '#             X     #',
+            '#                   #',
+            '#####################',
+        ],
+    },
 ];
