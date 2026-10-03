@@ -8,6 +8,7 @@ import { installTestHooks, TEST_MODE } from './testHooks.js';
 import { DEFAULT_SETTINGS, loadSettings, saveSettings, loadProgress, saveProgress, clearProgress } from './settings.js';
 import { Menu } from './menu.js';
 import { Sound } from './sound.js';
+import { startUpdateChecks, reloadInto } from './updates.js';
 
 let scene, camera, renderer, player, maze, inputManager, collisionManager, sun;
 let escaped = false;
@@ -16,6 +17,7 @@ let quitDone = false; // "Thanks for playing!" is showing
 let levelIndex = 0;
 let menu;
 let sound;
+let liveBuild = null; // the newer build updates.js found, if any
 // The bot always plays with the default controls and a fresh start
 // Which build this is (vite.config.js): e.g. Mazle 0.13.0 (build 765a327)
 export const VERSION = { version: __APP_VERSION__, build: __APP_BUILD__ };
@@ -98,6 +100,7 @@ function init() {
         continueGame,
         newGame,
         toMainMenu,
+        reloadForUpdate,
         changeSettings,
     });
     applySettings();
@@ -107,6 +110,14 @@ function init() {
     // with the level (and, in test mode, with the first key press or tap).
     sound = new Sound(settings, (name) => testHooks?.emit('sound', { name }));
     sound.setTune(LEVELS[levelIndex]?.music);
+
+    // Settings shows which version is loaded (plan Section 7)
+    document.getElementById('version-line').textContent = `Mazle ${VERSION.version} (build ${VERSION.build})`;
+    // Newer build live? Reload into it at once, or ask with the "new version" box
+    startUpdateChecks(VERSION, (live) => {
+        liveBuild = live.build;
+        menu.updateFound();
+    }, { enabled: !TEST_MODE });
 
     // The game opens on the main menu (plan Section 6). Test mode skips it so
     // the play bot starts straight in Level 1.
@@ -292,6 +303,14 @@ function continueGame() {
 function newGame() {
     clearProgress();
     startPlaying(0);
+}
+
+// "A new version of Mazle is ready!" → Reload now: save the spot the same way
+// Main menu does (unless it came up on the main menu), then load the new build
+function reloadForUpdate(from) {
+    if (from !== 'title') saveSpot();
+    sound.stopMusic();
+    reloadInto(liveBuild);
 }
 
 // Pause menu → Main menu: save the spot the same way Quit does, music stops
