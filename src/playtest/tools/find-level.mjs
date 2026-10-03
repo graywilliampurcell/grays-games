@@ -4,6 +4,7 @@
 //   node tools/find-level.mjs [5]        # Level 1 rules, 5 (or 4) short dead ends
 //   node tools/find-level.mjs level2     # Level 2 rules
 //   node tools/find-level.mjs level3     # Level 3 rules
+//   node tools/find-level.mjs level4     # Level 4 rules (Level 3's, new start row)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -21,6 +22,10 @@
 // near the middle of the path, so you see it coming and walk round it. Start
 // row different from Levels 1 and 2.
 //
+// Level 4 rules (Iteration 16): the same as Level 3, starting in a row none of
+// Levels 1-3 start in, so the layout is new. (Its narrower gap is the spike's
+// size in js/levels.js, not the layout.)
+//
 // Every cell not on the path belongs to a dead end, so for Level 1 the path
 // covers 25 - 5 - 3 = 17 cells (Level 2: 25 - 8 - 3 = 14). The search lays a
 // random path of that length and keeps it if the cells it leaves over can be
@@ -30,7 +35,8 @@ import { mulberry32, analyzeMaze, toLayout } from '../js/mazeCarver.js';
 const COLS = 5;
 const ROWS = 5;
 const LEVEL2 = process.argv[2] === 'level2';
-const LEVEL3 = process.argv[2] === 'level3';
+const LEVEL3 = process.argv[2] === 'level3' || process.argv[2] === 'level4'; // spike on the path
+const LEVEL4 = process.argv[2] === 'level4';
 const SHORT_DEAD_ENDS = LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
 const SHORT_DEPTH = LEVEL2 || LEVEL3 ? 2 : 1; // how deep each of those dead ends is
 const SPIKE_DEPTH = LEVEL3 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
@@ -39,6 +45,7 @@ const PATH_LENGTH = COLS * ROWS - SHORT_DEAD_ENDS * SHORT_DEPTH - SPIKE_DEPTH;
 // Earlier levels' start rows; each new level starts somewhere new
 const LEVEL1_START_ROW = 3;
 const LEVEL2_START_ROW = 2;
+const LEVEL3_START_ROW = 4;
 const SEEDS = 2000;
 const STEPS_PER_SEED = 200000;
 
@@ -221,6 +228,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (!path) continue;
     if (LEVEL2 && path[0].j === LEVEL1_START_ROW) continue; // start somewhere new
     if (LEVEL3 && (path[0].j === LEVEL1_START_ROW || path[0].j === LEVEL2_START_ROW)) continue;
+    if (LEVEL4 && path[0].j === LEVEL3_START_ROW) continue;
     const hung = LEVEL3 ? hangPathSpike(path, random) : hangDeadEnds(path, random);
     if (!hung) continue;
 

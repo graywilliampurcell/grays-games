@@ -105,4 +105,39 @@ export const LEVELS = [
             '#####################',
         ],
     },
+    {
+        name: 'Level 4',
+        // A narrower squeeze. `node tools/find-level.mjs level4`, seed 19.
+        // 5 x 5 corridors. Correct path 17 cells; 4 dead ends each 2 cells
+        // deep. The spike is on the path, in a straight stretch down the
+        // middle (path cell 11 of 17). Its plate is a little bigger than
+        // Level 3's (0.55 vs 0.5), so the room to walk past it without
+        // touching is about 15% narrower.
+        theme: COTTON_CANDY,
+        music: 'tiptoe',
+        spikeRadius: 0.55,
+        layout: [
+            '#####################',
+            '#               #   #',
+            '# S             #   #',
+            '#               #   #',
+            '#####   #########   #',
+            '#       #           #',
+            '#       #           #',
+            '#       #           #',
+            '#   #####   #   #####',
+            '#       #   #   #   #',
+            '#       # X #   #   D',
+            '#       #   #   #   #',
+            '#####   #   #   #   #',
+            '#   #   #   #       #',
+            '#   #   #   #       #',
+            '#   #   #   #       #',
+            '#   #   #   #####   #',
+            '#           #       #',
+            '#           #       #',
+            '#           #       #',
+            '#####################',
+        ],
+    },
 ];
