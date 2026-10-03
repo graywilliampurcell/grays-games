@@ -282,4 +282,41 @@ export const LEVELS = [
             '#####################',
         ],
     },
+    {
+        name: 'Level 9',
+        // The sneaky big spike. `node tools/find-level.mjs level9`, seed 464.
+        // 5 x 5 corridors. Correct path 16 cells; 3 dead ends each 3 cells
+        // deep. X: the spike on the path, in the long straight corridor near
+        // the top; plate 0.7, the same room to walk past as Level 8. Y: the
+        // row of spikes hidden round a corner: the dead end that leaves the
+        // path one cell from the start runs east two cells, then turns north,
+        // and the row is in the middle of the cell just round that corner. A
+        // program checked it can't be seen from the path or the opening.
+        theme: COTTON_CANDY,
+        music: 'echo',
+        spikeRadius: 0.7,
+        layout: [
+            '#####################',
+            '#                   #',
+            '#                   #',
+            '#                   #',
+            '#   #############   #',
+            '#               #   #',
+            '#     X         #   D',
+            '#               #   #',
+            '#############   #####',
+            '#       #           #',
+            '#       #           #',
+            '#       #           #',
+            '#   #   #   #####   #',
+            '#   #       #   #   #',
+            '#   #       # Y #   #',
+            '#   #       #   #   #',
+            '#####   #####   #   #',
+            '#               #   #',
+            '# S             #   #',
+            '#               #   #',
+            '#####################',
+        ],
+    },
 ];

@@ -208,6 +208,30 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.18, length: 0.09, brightness: 4000 },
     },
+    // Level 9: call and echo (G major), a tiny bit sneakier than Level 8.
+    // Each bar calls two high notes and a soft echo answers them an octave
+    // lower, like someone sneaking up behind you, on a round ocarina-like
+    // lead; slow, sparse bass and a couple of minor chords.
+    echo: {
+        tempo: 104,
+        bars: [[43, 'maj'], [40, 'min'], [36, 'maj'], [38, 'maj'], [43, 'maj'], [40, 'min'], [45, 'min'], [38, 'maj']],
+        bass: [0, null, null, null, null, null, 7, null],
+        bassLength: 0.3,
+        stabs: [4],
+        stabLevel: 0.04,
+        ticks: true,
+        melody: [
+            79, null, 74, null, 67, null, 62, null,
+            76, null, 71, null, 64, null, 59, null,
+            76, null, 72, null, 64, null, 60, null,
+            78, null, 81, null, 66, null, 69, null,
+            83, null, 79, null, 71, null, 67, null,
+            79, null, 76, null, 67, null, 64, null,
+            76, null, 72, null, 64, null, 60, null,
+            74, null, 78, null, 81, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.3, length: 0.25, brightness: 8000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
