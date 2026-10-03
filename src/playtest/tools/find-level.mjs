@@ -3,6 +3,7 @@
 //
 //   node tools/find-level.mjs [5]        # Level 1 rules, 5 (or 4) short dead ends
 //   node tools/find-level.mjs level2     # Level 2 rules
+//   node tools/find-level.mjs level3     # Level 3 rules
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -14,6 +15,12 @@
 // Level 2 rules (plan Section 2): the same, except about 4 dead ends that are
 // each 2 cells deep, and a different layout from Level 1.
 //
+// Level 3 rules (plan Section 2, Iteration 11): about 4 dead ends each 2 cells
+// deep and no spike dead end. The spike is ON the path instead, in the middle
+// of a plain corridor cell (no dead end branching off it) in a straight stretch
+// near the middle of the path, so you see it coming and walk round it. Start
+// row different from Levels 1 and 2.
+//
 // Every cell not on the path belongs to a dead end, so for Level 1 the path
 // covers 25 - 5 - 3 = 17 cells (Level 2: 25 - 8 - 3 = 14). The search lays a
 // random path of that length and keeps it if the cells it leaves over can be
@@ -23,13 +30,15 @@ import { mulberry32, analyzeMaze, toLayout } from '../js/mazeCarver.js';
 const COLS = 5;
 const ROWS = 5;
 const LEVEL2 = process.argv[2] === 'level2';
-const SHORT_DEAD_ENDS = LEVEL2 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
-const SHORT_DEPTH = LEVEL2 ? 2 : 1; // how deep each of those dead ends is
-const SPIKE_DEPTH = 3;
+const LEVEL3 = process.argv[2] === 'level3';
+const SHORT_DEAD_ENDS = LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
+const SHORT_DEPTH = LEVEL2 || LEVEL3 ? 2 : 1; // how deep each of those dead ends is
+const SPIKE_DEPTH = LEVEL3 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
 const SPIKE_BRANCH_WITHIN = 3; // the spike dead end leaves the path in its first 3 cells
 const PATH_LENGTH = COLS * ROWS - SHORT_DEAD_ENDS * SHORT_DEPTH - SPIKE_DEPTH;
-// Level 1's start row and turns; Level 2 must be a different layout
+// Earlier levels' start rows; each new level starts somewhere new
 const LEVEL1_START_ROW = 3;
+const LEVEL2_START_ROW = 2;
 const SEEDS = 2000;
 const STEPS_PER_SEED = 200000;
 
@@ -163,19 +172,71 @@ function hangDeadEnds(path, random) {
     return { links, spikeCell: s };
 }
 
+// Level 3: hang every leftover cell off the path as a 2-cell dead end and put
+// the spike on the path: a plain corridor cell (only the path goes through it)
+// with at least two cells of straight path leading in and one straight out,
+// in the middle part of the path
+function hangPathSpike(path, random) {
+    const onPath = new Set(path.map(key));
+    const leftover = [];
+    for (let i = 0; i < COLS; i++) {
+        for (let j = 0; j < ROWS; j++) if (!onPath.has(`${i},${j}`)) leftover.push({ i, j });
+    }
+    const chains = splitIntoDeadEnds(leftover, onPath, random);
+    if (!chains) return null;
+    const step = (p, q) => `${q.i - p.i},${q.j - p.j}`;
+    const candidates = [];
+    for (let k = Math.ceil(path.length * 0.3); k <= Math.floor(path.length * 0.7); k++) {
+        const d = step(path[k - 1], path[k]);
+        if (step(path[k - 2], path[k - 1]) === d && step(path[k], path[k + 1]) === d) candidates.push(k);
+    }
+    for (const k of shuffle(candidates, random)) {
+        const spike = path[k];
+        // Each dead end must branch off a path cell other than the spike's
+        const roots = chains.map((chain) => shuffle(neighbours(chain[0]).filter((n) => onPath.has(key(n)) && key(n) !== key(spike)), random)[0]);
+        if (roots.some((r) => !r)) continue;
+        const links = [];
+        for (let i = 0; i < COLS; i++) {
+            links[i] = [];
+            for (let j = 0; j < ROWS; j++) links[i][j] = [];
+        }
+        const link = (p, q) => {
+            links[p.i][p.j].push(q);
+            links[q.i][q.j].push(p);
+        };
+        for (let n = 1; n < path.length; n++) link(path[n - 1], path[n]);
+        chains.forEach((chain, c) => {
+            link(chain[0], roots[c]);
+            for (let n = 1; n < chain.length; n++) link(chain[n - 1], chain[n]);
+        });
+        return { links, spikeCell: spike, spikeIndex: k };
+    }
+    return null;
+}
+
 let best = null;
 for (let seed = 1; seed <= SEEDS && !best; seed++) {
     const random = mulberry32(seed);
     const path = layPath(random);
     if (!path) continue;
     if (LEVEL2 && path[0].j === LEVEL1_START_ROW) continue; // start somewhere new
-    const hung = hangDeadEnds(path, random);
+    if (LEVEL3 && (path[0].j === LEVEL1_START_ROW || path[0].j === LEVEL2_START_ROW)) continue;
+    const hung = LEVEL3 ? hangPathSpike(path, random) : hangDeadEnds(path, random);
     if (!hung) continue;
 
     // Double-check the finished maze with the same analysis the old levels used
     const startCell = path[0];
     const exitCell = path[path.length - 1];
     const { solution, deadEnds, maxBranchDepth } = analyzeMaze(hung.links, startCell, exitCell);
+    if (LEVEL3) {
+        const ok = solution.length === PATH_LENGTH &&
+            deadEnds.length === SHORT_DEAD_ENDS &&
+            deadEnds.every((d) => d.depth === SHORT_DEPTH) &&
+            maxBranchDepth === SHORT_DEPTH &&
+            solution.some((c) => c.i === hung.spikeCell.i && c.j === hung.spikeCell.j);
+        if (ok) best = { seed, links: hung.links, startCell, exitCell, spikeCell: hung.spikeCell, solution, deadEnds, spike: { fromStart: hung.spikeIndex } };
+        continue;
+    }
     const spike = deadEnds.find((d) => d.i === hung.spikeCell.i && d.j === hung.spikeCell.j);
     const short = deadEnds.filter((d) => d !== spike);
     const ok = solution.length === PATH_LENGTH &&

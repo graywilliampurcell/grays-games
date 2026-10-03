@@ -2,6 +2,7 @@
 //   '#' wall, ' ' floor, 'S' start, 'X' spike, 'D' exit door (in the outer wall)
 // Found with tools/find-level.mjs. theme: colors and the fluffy look, see Maze.js.
 // music: the level's tune (see sound.js), a little sneakier each level.
+// spikeRadius: size of the spike's plate (default 0.75; see Maze.js).
 
 // Levels 1-10 share the cotton candy look: fluffy pink walls on blue ground.
 const COTTON_CANDY = { wall: 0xff9fcf, floor: 0x6fb8ff, sky: 0xe6d6ff, fluffy: true };
@@ -67,6 +68,40 @@ export const LEVELS = [
             '#           #       #',
             '#           #       #',
             '#           #       #',
+            '#####################',
+        ],
+    },
+    {
+        name: 'Level 3',
+        // The spike on the path. `node tools/find-level.mjs level3`, seed 4.
+        // 5 x 5 corridors. Correct path 17 cells; 4 dead ends each 2 cells
+        // deep, no spike dead end. The spike sits in the middle of a straight
+        // 5-cell hallway (path cell 6 of 17): it covers the middle third of the
+        // corridor, leaving a one-block gap on each side to walk round it.
+        theme: COTTON_CANDY,
+        music: 'happySneakier',
+        spikeRadius: 0.5,
+        layout: [
+            '#####################',
+            '#   #               #',
+            '#   #               D',
+            '#   #               #',
+            '#   #   #############',
+            '#   #               #',
+            '#   #               #',
+            '#   #               #',
+            '#   #############   #',
+            '#                   #',
+            '#         X         #',
+            '#                   #',
+            '#   #############   #',
+            '#               #   #',
+            '#               #   #',
+            '#               #   #',
+            '#####   #########   #',
+            '#               #   #',
+            '# S             #   #',
+            '#               #   #',
             '#####################',
         ],
     },

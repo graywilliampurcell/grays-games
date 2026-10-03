@@ -63,6 +63,28 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.15, length: 0.11, brightness: 1800 },
     },
+    // Level 3: happy (F major) but sneakier than Level 2: shorter tiptoe notes,
+    // more creeping half-steps, a lead-in on every bar, and one darker bar
+    happySneakier: {
+        tempo: 112,
+        bars: [[41, 'maj'], [41, 'maj'], [46, 'maj'], [36, 'maj'], [41, 'maj'], [38, 'min'], [37, 'maj'], [36, 'maj']],
+        bass: [0, null, 0, null, 7, null, 0, 'lead-in'],
+        bassLength: 0.12,
+        stabs: [2, 6],
+        stabLevel: 0.04,
+        ticks: true,
+        melody: [
+            65, null, 69, null, 72, null, 71, 72,
+            77, null, 76, null, 72, null, null, null,
+            74, null, 70, null, 74, 73, 74, null,
+            76, null, 72, null, 67, null, 66, 67,
+            65, null, 69, null, 72, null, 77, null,
+            74, null, 77, null, 81, null, 79, null,
+            77, null, 73, null, 68, null, 77, 76,
+            72, null, 71, null, 72, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.15, length: 0.1, brightness: 1600 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

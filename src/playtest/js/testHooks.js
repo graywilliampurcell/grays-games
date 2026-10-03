@@ -77,7 +77,7 @@ export function installTestHooks(game) {
 
     // Replace the maze with a new layout (same format as levels.js)
     function loadLayout(rows, name = 'Custom', index = -1) {
-        game.loadLevel({ name, layout: rows, theme: LEVELS[index]?.theme }, index);
+        game.loadLevel({ name, layout: rows, theme: LEVELS[index]?.theme, spikeRadius: LEVELS[index]?.spikeRadius }, index);
         layout = rows.slice();
         document.getElementById('level').textContent = name;
         restore();
