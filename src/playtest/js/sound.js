@@ -7,7 +7,7 @@
 
 const SFX_LEVEL = 0.8;
 const MUSIC_LEVEL = SFX_LEVEL / 2; // music about half as loud as the sound effects
-const CHEER_LEVEL = 1.4; // inside the sound-effects level
+const CHEER_LEVEL = 1.4; // the no-voice fallback shouts, inside the sound-effects level
 
 // Note number -> frequency (69 = A4)
 const hz = (n) => 440 * 2 ** ((n - 69) / 12);
@@ -63,27 +63,28 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.15, length: 0.11, brightness: 1800 },
     },
-    // Level 3: happy (F major) but sneakier than Level 2: shorter tiptoe notes,
-    // more creeping half-steps, a lead-in on every bar, and one darker bar
+    // Level 3 (Iteration 13): a different tune you can tell from Level 2's
+    // straight away. Faster, a xylophone-like lead instead of a buzzy one, a
+    // rocking bass, and a hook of bouncy repeated notes ("da-da, da-da, da")
+    // that keeps coming back. D major with a sneaky flat-seven chord (C).
     happySneakier: {
-        tempo: 112,
-        bars: [[41, 'maj'], [41, 'maj'], [46, 'maj'], [36, 'maj'], [41, 'maj'], [38, 'min'], [37, 'maj'], [36, 'maj']],
-        bass: [0, null, 0, null, 7, null, 0, 'lead-in'],
-        bassLength: 0.12,
-        stabs: [2, 6],
-        stabLevel: 0.04,
+        tempo: 132,
+        bars: [[38, 'maj'], [38, 'maj'], [36, 'maj'], [38, 'maj'], [43, 'maj'], [43, 'maj'], [45, 'maj'], [38, 'maj']],
+        bass: [0, null, 7, null, 12, null, 7, null],
+        bassLength: 0.14,
+        stabs: [],
         ticks: true,
         melody: [
-            65, null, 69, null, 72, null, 71, 72,
-            77, null, 76, null, 72, null, null, null,
-            74, null, 70, null, 74, 73, 74, null,
-            76, null, 72, null, 67, null, 66, 67,
-            65, null, 69, null, 72, null, 77, null,
-            74, null, 77, null, 81, null, 79, null,
-            77, null, 73, null, 68, null, 77, 76,
-            72, null, 71, null, 72, null, null, null,
+            69, 69, null, 67, 69, null, 66, null,
+            62, null, null, null, 66, null, 69, null,
+            72, 72, null, 71, 72, null, 67, null,
+            69, null, 66, null, 62, null, null, null,
+            71, 71, null, 69, 71, null, 74, null,
+            76, null, 74, null, 71, null, 67, null,
+            73, null, 76, null, 73, null, 69, null,
+            74, null, null, null, null, null, null, null,
         ],
-        lead: { wave: 'square', level: 0.15, length: 0.1, brightness: 1600 },
+        lead: { wave: 'triangle', level: 0.3, length: 0.12, brightness: 5000 },
     },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
@@ -309,84 +310,35 @@ export class Sound {
         osc.stop(t + 0.55);
     }
 
-    // A crowd clapping and cheering "yay!" and "woo!" (reaching the door).
-    // Iteration 8: no steady noise underneath (it sounded like a waterfall).
-    // A handful of people clap, each clap a short separate slap, and short
-    // shouts pop up here and there. The device's own voice (if it has one)
-    // shouts real words on top.
+    // Reaching the door: a voice says "Woo hoo!" and "Yay!", like the voice that
+    // says "Ouch!" (Iteration 13: no clapping or crowd). Devices with no
+    // speaking voice get two short voice-like shouts instead.
     cheer() {
-        if (!this.settings.sfx || !this.ctx) return;
+        if (!this.settings.sfx) return;
         this.onEvent('cheer');
-        const ctx = this.ctx;
-        const t0 = ctx.currentTime + 0.02;
-        const length = 3.5;
-        const rand = (a, b) => a + Math.random() * (b - a);
-
-        const crowd = ctx.createGain();
-        crowd.gain.setValueAtTime(CHEER_LEVEL, t0);
-        crowd.gain.setValueAtTime(CHEER_LEVEL, t0 + length - 0.3);
-        crowd.gain.exponentialRampToValueAtTime(0.0001, t0 + length);
-        crowd.connect(this.sfxBus);
-        const place = (node, pan) => {
-            if (!ctx.createStereoPanner) return node.connect(crowd);
-            const panner = ctx.createStereoPanner();
-            panner.pan.value = pan;
-            node.connect(panner).connect(crowd);
-        };
-
-        // Clapping: 7 people spread left to right, each at their own speed,
-        // starting together and stopping one by one
-        for (let p = 0; p < 7; p++) {
-            const gap = rand(0.24, 0.34);
-            const tone = rand(1000, 2000);
-            const pan = rand(-0.8, 0.8);
-            const stop = t0 + rand(2.9, 3.4);
-            for (let t = t0 + rand(0, 0.25); t < stop; t += gap * rand(0.92, 1.08)) {
-                this.clap(t, tone, rand(1.4, 2.4), pan, place);
-            }
-        }
-
-        // Shouts: short "yay!"s and "woo!"s, a few at the start and more later
-        for (let v = 0; v < 8; v++) {
-            const start = t0 + (v < 3 ? rand(0, 0.4) : rand(0.4, 2.9));
-            this.shout(start, Math.random() < 0.55 ? 'yay' : 'woo', rand(170, 400), rand(-0.9, 0.9), place);
-        }
-
-        // Real words from the device's voice
         const speech = window.speechSynthesis;
         const voices = speech?.getVoices() || [];
         if (speech && voices.length > 0) {
             const english = voices.filter((v) => v.lang?.startsWith('en'));
             const voice = english.find((v) => v.default) || english[0] || voices[0];
             speech.cancel();
-            for (const [words, pitch] of [['Yay!', 1.7], ['Woo hoo!', 1.4]]) {
+            for (const [words, pitch] of [['Woo hoo!', 1.4], ['Yay!', 1.7]]) {
                 const say = new SpeechSynthesisUtterance(words);
                 say.voice = voice;
-                say.rate = 1.2;
+                say.rate = 1.15;
                 say.pitch = pitch;
                 say.volume = SFX_LEVEL;
                 speech.speak(say);
             }
+        } else if (this.ctx) {
+            const t = this.ctx.currentTime + 0.02;
+            const out = this.ctx.createGain();
+            out.gain.value = CHEER_LEVEL;
+            out.connect(this.sfxBus);
+            const place = (node) => node.connect(out);
+            this.shout(t, 'woo', 300, 0, place);
+            this.shout(t + 0.7, 'yay', 320, 0, place);
         }
-    }
-
-    // One clap: a sharp slap of noise that dies away in a few hundredths of a
-    // second, with a tiny second slap right after (the other hand)
-    clap(t, tone, level, pan, place) {
-        const ctx = this.ctx;
-        const src = this.noiseSource(t, 0.06);
-        const filter = ctx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.value = tone;
-        filter.Q.value = 1.8;
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(level, t + 0.001);
-        g.gain.exponentialRampToValueAtTime(level * 0.15, t + 0.004);
-        g.gain.exponentialRampToValueAtTime(level * 0.7, t + 0.006);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.022 + Math.random() * 0.01);
-        src.connect(filter).connect(g);
-        place(g, pan);
     }
 
     // One shouted "yay!" or "woo!": a voice-like buzz through vowel filters
