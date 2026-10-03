@@ -54,8 +54,10 @@ const SPIKE_ROW_DEPTH = 0.9;
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
-    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS } = {}) {
+    // golden: the finale's door (Level 10) is gold instead of brown
+    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS, golden = false } = {}) {
         this.spikeRadius = spikeRadius;
+        this.golden = golden;
         this.scene = scene;
         this.theme = theme;
         // Everything this maze adds to the scene, so it can be taken away again
@@ -203,14 +205,16 @@ export class Maze {
 
         const frame = new THREE.Mesh(
             new THREE.BoxGeometry(doorWidth + 0.3, doorHeight + 0.15, 0.1),
-            new THREE.MeshStandardMaterial({ color: 0x3b2410 })
+            new THREE.MeshStandardMaterial(this.golden ? { color: 0xd9a520, metalness: 0.2, roughness: 0.4, emissive: 0x7a5200, emissiveIntensity: 0.4 } : { color: 0x3b2410 })
         );
         frame.position.set(0, (doorHeight + 0.15) / 2, 0.02);
         door.add(frame);
 
         const panel = new THREE.Mesh(
             new THREE.BoxGeometry(doorWidth, doorHeight, 0.12),
-            new THREE.MeshStandardMaterial({ color: 0x7a4a22, roughness: 0.8 })
+            new THREE.MeshStandardMaterial(this.golden
+                ? { color: 0xffd23f, metalness: 0.25, roughness: 0.3, emissive: 0xb88a00, emissiveIntensity: 0.55 }
+                : { color: 0x7a4a22, roughness: 0.8 })
         );
         panel.position.set(0, doorHeight / 2, 0.06);
         door.add(panel);

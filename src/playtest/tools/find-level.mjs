@@ -10,6 +10,7 @@
 //   node tools/find-level.mjs level7     # Level 7 rules (Level 6's with 3 dead ends 3 cells deep)
 //   node tools/find-level.mjs level8     # Level 8 rules (Level 7's, new layout and start row)
 //   node tools/find-level.mjs level9     # Level 9 rules (the spike row hidden round a dead end's corner)
+//   node tools/find-level.mjs level10    # Level 10 rules (Level 8's again: a visible spike row, new layout)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -46,7 +47,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -58,13 +59,14 @@ const differentEnough = (layoutShape) => OTHERS.every((o) => [...o].filter((ch, 
 const COLS = 5;
 const ROWS = 5;
 const LEVEL2 = process.argv[2] === 'level2';
-const LEVEL3 = ['level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9'].includes(process.argv[2]); // spike on the path
+const LEVEL3 = ['level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9', 'level10'].includes(process.argv[2]); // spike on the path
 const LEVEL4 = process.argv[2] === 'level4';
-const LEVEL5 = ['level5', 'level6', 'level7', 'level8', 'level9'].includes(process.argv[2]); // plus a spike row in a dead end
+const LEVEL5 = ['level5', 'level6', 'level7', 'level8', 'level9', 'level10'].includes(process.argv[2]); // plus a spike row in a dead end
 const LEVEL6 = process.argv[2] === 'level6';
-const LEVEL7 = ['level7', 'level8', 'level9'].includes(process.argv[2]); // longer wrong ways: 3 dead ends 3 cells deep
-const LEVEL8 = ['level8', 'level9'].includes(process.argv[2]); // clearly new layout and spike-row spot
+const LEVEL7 = ['level7', 'level8', 'level9', 'level10'].includes(process.argv[2]); // longer wrong ways: 3 dead ends 3 cells deep
+const LEVEL8 = ['level8', 'level9', 'level10'].includes(process.argv[2]); // clearly new layout and spike-row spot
 const LEVEL9 = process.argv[2] === 'level9'; // the spike row hidden just round a dead end's corner
+const LEVEL10 = process.argv[2] === 'level10'; // the finale: a visible spike row again
 const SHORT_DEAD_ENDS = LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
 const SHORT_DEPTH = LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 2 : 1; // how deep each of those dead ends is
 const SPIKE_DEPTH = LEVEL3 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
@@ -79,6 +81,7 @@ const LEVEL5_START_ROW = 4;
 const LEVEL6_START_ROW = 0;
 const LEVEL7_START_ROW = 4;
 const LEVEL8_START_ROW = 1;
+const LEVEL9_START_ROW = 4;
 const SEEDS = 2000;
 const STEPS_PER_SEED = 200000;
 
@@ -371,7 +374,8 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL5 && !LEVEL6 && path[0].j === LEVEL4_START_ROW) continue; // a new layout; only Level 4's start is ruled out
     if (LEVEL6 && path[0].j === LEVEL5_START_ROW) continue;
     if (LEVEL7 && !LEVEL8 && path[0].j === LEVEL6_START_ROW) continue;
-    if (LEVEL8 && !LEVEL9 && path[0].j === LEVEL7_START_ROW) continue;
+    if (LEVEL8 && !LEVEL9 && !LEVEL10 && path[0].j === LEVEL7_START_ROW) continue;
+    if (LEVEL10 && path[0].j === LEVEL9_START_ROW) continue;
     if (LEVEL9 && path[0].j === LEVEL8_START_ROW) continue;
     const hung = LEVEL3 ? hangPathSpike(path, random) : hangDeadEnds(path, random);
     if (!hung) continue;

@@ -289,6 +289,32 @@
             margin-bottom: 8px;
         }
 
+        /* Confetti for the finale: falls over everything, can't be tapped */
+        #confetti {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        #confetti i {
+            position: absolute;
+            top: -20px;
+            width: 10px;
+            height: 16px;
+            border-radius: 2px;
+            animation-name: confetti-fall;
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translate(var(--drift), 110vh) rotate(var(--spin));
+            }
+        }
+
         [hidden] {
             display: none !important;
         }
@@ -503,6 +529,7 @@
         </div>
     </div>
     <div id="thanks" hidden><h1>Thanks for playing!</h1></div>
+    <div id="confetti" hidden></div>
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@
 // Found with tools/find-level.mjs. theme: colors and the fluffy look, see Maze.js.
 // music: the level's tune (see sound.js), a little sneakier each level.
 // spikeRadius: size of the spike's plate (default 0.75; see Maze.js).
+// finale: the last level of a world: golden door, confetti, its own end title.
 
 // Levels 1-10 share the cotton candy look: fluffy pink walls on blue ground.
 const COTTON_CANDY = { wall: 0xff9fcf, floor: 0x6fb8ff, sky: 0xe6d6ff, fluffy: true };
@@ -316,6 +317,43 @@ export const LEVELS = [
             '#               #   #',
             '# S             #   #',
             '#               #   #',
+            '#####################',
+        ],
+    },
+    {
+        name: 'Level 10',
+        // The cotton candy finale. `node tools/find-level.mjs level10`, seed
+        // 132. 5 x 5 corridors. Correct path 16 cells; 3 dead ends each 3
+        // cells deep. X: the spike on the path, in the straight corridor down
+        // the east side; plate 0.72 (Level 9: 0.7), the tightest squeeze yet.
+        // Y: a row of spikes across the long straight dead end that drops
+        // down from the start. The door is golden, and finishing it sets off
+        // confetti, an extra-long cheer and this end screen.
+        theme: COTTON_CANDY,
+        music: 'finale',
+        spikeRadius: 0.72,
+        finale: 'You beat Cotton Candy World!',
+        layout: [
+            '#####################',
+            '#           #       #',
+            '#           #       #',
+            '#           #       #',
+            '#   #########   #   #',
+            '#               #   #',
+            '# S             #   #',
+            '#               #   #',
+            '#   #############   #',
+            '# Y #   #       #   #',
+            '#   #   #       # X #',
+            '#   #   #       #   #',
+            '#   #   #   #   #   #',
+            '#   #   #   #       #',
+            '#   #   #   #       #',
+            '#   #   #   #       #',
+            '#   #   #   #########',
+            '#   #               #',
+            '#   #               D',
+            '#   #               #',
             '#####################',
         ],
     },

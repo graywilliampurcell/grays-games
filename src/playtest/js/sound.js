@@ -232,6 +232,30 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.3, length: 0.25, brightness: 8000 },
     },
+    // Level 10, the cotton candy finale: happy but sneaky (A minor, lifting
+    // to happy major chords). A sneaky wiggle ("E-F . E-C . A") and creeping
+    // half-step climbs, answered by big bright happy arpeggios, on a bright
+    // buzzy lead with a bouncy bass and lead-ins.
+    finale: {
+        tempo: 120,
+        bars: [[45, 'min'], [45, 'min'], [41, 'maj'], [43, 'maj'], [36, 'maj'], [45, 'min'], [38, 'maj'], [40, 'maj']],
+        bass: [0, null, 7, null, 0, null, 7, 'lead-in'],
+        bassLength: 0.14,
+        stabs: [2, 6],
+        stabLevel: 0.04,
+        ticks: true,
+        melody: [
+            76, 77, null, 76, 72, null, 69, null,
+            71, 72, 73, 74, 76, null, null, null,
+            77, null, 81, null, 84, null, 81, null,
+            79, null, 83, null, 86, null, null, null,
+            84, 83, null, 84, 79, null, 76, null,
+            72, 73, 74, 75, 76, null, null, null,
+            78, null, 81, null, 78, null, 74, null,
+            80, null, 83, null, 80, null, 76, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.1, length: 0.12, brightness: 2500 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -494,7 +518,8 @@ export class Sound {
     // Reaching the door: a voice says "Woo hoo!" and "Yay!", like the voice that
     // says "Ouch!" (Iteration 13: no clapping or crowd). Devices with no
     // speaking voice get two short voice-like shouts instead.
-    cheer() {
+    // long: the finale (Level 10) gets an extra-long cheer
+    cheer({ long = false } = {}) {
         if (!this.settings.sfx) return;
         this.onEvent('cheer');
         const speech = window.speechSynthesis;
@@ -503,10 +528,13 @@ export class Sound {
             const english = voices.filter((v) => v.lang?.startsWith('en'));
             const voice = english.find((v) => v.default) || english[0] || voices[0];
             speech.cancel();
-            for (const [words, pitch] of [['Woo hoo!', 1.4], ['Yay!', 1.7]]) {
+            const lines = long
+                ? [['Woo hoo!', 1.4], ['Yay!', 1.7], ['Woo hoo!', 1.5], ['Yaaay!', 1.8], ['Woo hoo! Yay!', 1.6]]
+                : [['Woo hoo!', 1.4], ['Yay!', 1.7]];
+            for (const [words, pitch] of lines) {
                 const say = new SpeechSynthesisUtterance(words);
                 say.voice = voice;
-                say.rate = 1.15;
+                say.rate = long ? 1.0 : 1.15;
                 say.pitch = pitch;
                 say.volume = SFX_LEVEL;
                 speech.speak(say);
@@ -517,8 +545,8 @@ export class Sound {
             out.gain.value = CHEER_LEVEL;
             out.connect(this.sfxBus);
             const place = (node) => node.connect(out);
-            this.shout(t, 'woo', 300, 0, place);
-            this.shout(t + 0.7, 'yay', 320, 0, place);
+            const words = long ? ['woo', 'yay', 'woo', 'yay', 'woo', 'yay'] : ['woo', 'yay'];
+            words.forEach((word, n) => this.shout(t + n * 0.7, word, word === 'woo' ? 300 : 320, 0, place));
         }
     }
 

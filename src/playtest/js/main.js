@@ -155,7 +155,10 @@ function loadLevel(level, index) {
     levelIndex = index;
     maze?.dispose();
     const theme = level.theme || LEVELS[0].theme;
-    maze = new Maze(scene, level.layout, theme, { spikeRadius: level.spikeRadius ?? LEVELS[index]?.spikeRadius });
+    maze = new Maze(scene, level.layout, theme, {
+        spikeRadius: level.spikeRadius ?? LEVELS[index]?.spikeRadius,
+        golden: !!(level.finale ?? LEVELS[index]?.finale),
+    });
     maze.build();
     collisionManager = new CollisionManager(maze.getMazeData());
     scene.background.set(theme.sky);
@@ -242,11 +245,38 @@ function checkSpikeAndDoor() {
         player.frozen = true;
         player.releaseAll();
         document.body.classList.add('escaped');
-        sound.cheer();
-        // "You did it!" (Start the next level / Quit), or after the last level "More levels coming soon!"
-        menu.showFinish(LEVELS[levelIndex + 1]?.name);
+        // The finale (Level 10): confetti, an extra-long cheer and its own end screen
+        const finale = LEVELS[levelIndex]?.finale;
+        sound.cheer({ long: !!finale });
+        if (finale) showConfetti();
+        // "You did it!" (Start the next level / Quit), the finale's screen, or "More levels coming soon!"
+        menu.showFinish(LEVELS[levelIndex + 1]?.name, finale);
         testHooks?.emit('escape');
     }
+}
+
+// Confetti falling over the whole screen for a few seconds (the finale)
+function showConfetti() {
+    const layer = document.getElementById('confetti');
+    layer.innerHTML = '';
+    const colors = ['#ff6fb5', '#6fc3ff', '#ffd84a', '#9cff7a', '#c79bff', '#ffffff', '#ff9f4a'];
+    for (let k = 0; k < 160; k++) {
+        const piece = document.createElement('i');
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[k % colors.length];
+        piece.style.animationDelay = `${Math.random() * 1.2}s`;
+        piece.style.animationDuration = `${2.6 + Math.random() * 2}s`;
+        piece.style.setProperty('--drift', `${(Math.random() - 0.5) * 160}px`);
+        piece.style.setProperty('--spin', `${(Math.random() < 0.5 ? -1 : 1) * (360 + Math.random() * 720)}deg`);
+        layer.appendChild(piece);
+    }
+    layer.hidden = false;
+    testHooks?.emit('confetti');
+    clearTimeout(showConfetti.timer);
+    showConfetti.timer = setTimeout(() => {
+        layer.hidden = true;
+        layer.innerHTML = '';
+    }, 6500);
 }
 
 function showMessage(text) {
