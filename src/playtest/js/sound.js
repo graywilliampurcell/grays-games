@@ -7,6 +7,7 @@
 
 const SFX_LEVEL = 0.8;
 const MUSIC_LEVEL = SFX_LEVEL / 2; // music about half as loud as the sound effects
+const MUSIC_LOOKAHEAD = 0.4; // seconds of music booked ahead
 const CHEER_LEVEL = 1.4; // the no-voice fallback shouts, inside the sound-effects level
 
 // Note number -> frequency (69 = A4)
@@ -151,6 +152,16 @@ export class Sound {
             this.musicBus.connect(this.limiter);
             this.noise = this.makeNoise();
             this.applySettings();
+            // iPad: a sound has to start during the tap that switches sound on.
+            // Since the main menu (which is quiet) that first tap plays nothing,
+            // so play one silent sample now.
+            const blip = this.ctx.createBufferSource();
+            blip.buffer = this.ctx.createBuffer(1, 1, this.ctx.sampleRate);
+            blip.connect(this.ctx.destination);
+            blip.start();
+            // iPad: if the speaking voice ("Ouch!", the cheer) or another app
+            // interrupts the music, start it again as soon as it's allowed
+            this.ctx.addEventListener('statechange', () => this.wake());
             // iPad: speech must first be used during a tap, so say nothing now
             if (window.speechSynthesis) {
                 const hush = new SpeechSynthesisUtterance(' ');
@@ -158,8 +169,16 @@ export class Sound {
                 window.speechSynthesis.speak(hush);
             }
         }
-        if (this.ctx.state === 'suspended' && !document.hidden) this.ctx.resume();
+        this.wake();
         if (this.musicWanted && !this.timer) this.startScheduler();
+    }
+
+    // Get sound going again if it stopped: 'suspended', or iPad's 'interrupted'
+    // (the speaking voice or another app took over). Not while in the background.
+    wake() {
+        if (this.ctx && this.ctx.state !== 'running' && this.ctx.state !== 'closed' && !document.hidden) {
+            this.ctx.resume().catch(() => {});
+        }
     }
 
     applySettings() {
@@ -171,10 +190,14 @@ export class Sound {
 
     // ---- Music ----
 
+    // Called from the tap or key press that starts a level, so the first notes
+    // are booked right away, inside that tap (the iPad needs that)
     startMusic() {
         if (!this.timer) this.musicStep = 0; // a level's tune starts from its beginning
         this.musicWanted = true;
-        if (this.ctx) this.startScheduler();
+        if (!this.ctx) return;
+        this.wake();
+        this.startScheduler();
     }
 
     // Switch to a level's tune (starts from its beginning)
@@ -195,17 +218,30 @@ export class Sound {
 
     startScheduler() {
         if (this.timer) return;
-        this.nextNoteTime = this.ctx.currentTime + 0.1;
+        this.nextNoteTime = this.ctx.currentTime + 0.05;
         this.onEvent('music');
-        // Look a little ahead and book the notes that fall inside that window
-        this.timer = setInterval(() => {
-            while (this.nextNoteTime < this.ctx.currentTime + 0.2) {
-                const tune = this.tune;
-                this.playStep(tune, this.musicStep % (tune.bars.length * 8), this.nextNoteTime);
-                this.musicStep = (this.musicStep + 1) % (tune.bars.length * 8);
-                this.nextNoteTime += 60 / tune.tempo / 2;
-            }
-        }, 25);
+        this.bookNotes();
+        this.timer = setInterval(() => this.bookNotes(), 25);
+    }
+
+    // Look ahead and book the notes that fall inside that window. The window is
+    // generous (0.4 s) so a busy moment, like a level loading, doesn't leave gaps.
+    // Notes that are already late are skipped, not played silently.
+    bookNotes() {
+        const now = this.ctx.currentTime;
+        if (this.ctx.state !== 'running') this.wake();
+        const tune = this.tune;
+        const steps = tune.bars.length * 8;
+        const stepLength = 60 / tune.tempo / 2;
+        while (this.nextNoteTime < now) {
+            this.musicStep = (this.musicStep + 1) % steps;
+            this.nextNoteTime += stepLength;
+        }
+        while (this.nextNoteTime < now + MUSIC_LOOKAHEAD) {
+            this.playStep(tune, this.musicStep % steps, this.nextNoteTime);
+            this.musicStep = (this.musicStep + 1) % steps;
+            this.nextNoteTime += stepLength;
+        }
     }
 
     playStep(tune, step, t) {
