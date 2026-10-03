@@ -87,6 +87,31 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.3, length: 0.12, brightness: 5000 },
     },
+    // Level 4: a whistled tiptoe tune (F major), a little sneakier than Level 3.
+    // Every phrase starts after a little pause with a "wobble" (up, down a
+    // half-step, back up), over a sparse "boom ... ba" bass with soft
+    // off-beat chords. Pure, whistle-like lead and a slower 108 bpm, so it
+    // sounds unlike Levels 1-3 from the first notes.
+    tiptoe: {
+        tempo: 108,
+        bars: [[41, 'maj'], [41, 'maj'], [38, 'min'], [38, 'min'], [46, 'maj'], [36, 'maj'], [41, 'maj'], [36, 'maj']],
+        bass: [0, null, null, null, 7, null, null, 'lead-in'],
+        bassLength: 0.18,
+        stabs: [3, 7],
+        stabLevel: 0.04,
+        ticks: true,
+        melody: [
+            null, null, 81, 80, 81, null, 77, null,
+            72, null, null, null, 74, null, 76, null,
+            null, null, 77, 76, 77, null, 74, null,
+            69, null, null, null, null, null, null, null,
+            null, null, 77, 76, 77, null, 82, null,
+            79, null, 76, null, 72, null, 76, null,
+            null, null, 81, 80, 81, null, 84, null,
+            79, null, null, null, 76, null, 72, null,
+        ],
+        lead: { wave: 'sine', level: 0.4, length: 0.2, brightness: 8000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
