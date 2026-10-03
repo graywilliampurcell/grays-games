@@ -246,4 +246,40 @@ export const LEVELS = [
             '#####################',
         ],
     },
+    {
+        name: 'Level 8',
+        // A tighter squeeze, long wrong ways. `node tools/find-level.mjs
+        // level8`, seed 117. 5 x 5 corridors. Correct path 16 cells; 3 dead
+        // ends each 3 cells deep. X: the spike on the path, in the long
+        // straight corridor near the bottom (path cell 9 of 16); plate 0.7
+        // (Level 7: 0.67), so the room to walk past is about 15% narrower
+        // again. Y: a row of spikes across the straight 3-cell dead end in
+        // the middle of the maze.
+        theme: COTTON_CANDY,
+        music: 'ding',
+        spikeRadius: 0.7,
+        layout: [
+            '#####################',
+            '#           #       #',
+            '#           #       #',
+            '#           #       #',
+            '#########   #   #   #',
+            '#               #   #',
+            '# S             #   #',
+            '#               #   #',
+            '#############   #####',
+            '#                   #',
+            '#          Y        #',
+            '#                   #',
+            '#################   #',
+            '#                   #',
+            '#         X         #',
+            '#                   #',
+            '#   #################',
+            '#                   #',
+            '#                   D',
+            '#                   #',
+            '#####################',
+        ],
+    },
 ];

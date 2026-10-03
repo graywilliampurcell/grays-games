@@ -185,6 +185,29 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.36, length: 0.16, brightness: 3000 },
     },
+    // Level 8: "ding ... ding ... ding" (D major), a tiny bit sneakier than
+    // Level 7. Every bar is in a 3-3-2 rhythm: high repeated notes on a bright
+    // blip, answered by a fall, a rocking 3-3-2 bass, soft ticking and one
+    // sneaky G minor bar.
+    ding: {
+        tempo: 118,
+        bars: [[38, 'maj'], [38, 'maj'], [43, 'maj'], [43, 'min'], [38, 'maj'], [47, 'min'], [40, 'maj'], [45, 'maj']],
+        bass: [0, null, null, 7, null, null, 12, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: true,
+        melody: [
+            81, null, null, 81, null, null, 81, null,
+            79, null, null, 78, null, null, 76, 74,
+            79, null, null, 79, null, null, 79, null,
+            77, null, null, 74, null, null, 70, null,
+            81, null, null, 81, null, null, 81, null,
+            83, null, null, 81, null, null, 78, 74,
+            80, null, null, 76, null, null, 71, null,
+            73, null, null, 76, null, null, 81, null,
+        ],
+        lead: { wave: 'square', level: 0.18, length: 0.09, brightness: 4000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

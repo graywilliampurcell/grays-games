@@ -8,6 +8,7 @@
 //   node tools/find-level.mjs level5     # Level 5 rules (path spike + a dead end blocked by a spike row)
 //   node tools/find-level.mjs level6     # Level 6 rules (Level 5's, new layout and start row)
 //   node tools/find-level.mjs level7     # Level 7 rules (Level 6's with 3 dead ends 3 cells deep)
+//   node tools/find-level.mjs level8     # Level 8 rules (Level 7's, new layout and start row)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -44,17 +45,24 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
+// Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
+// changed against every earlier level) and the spike row somewhere new
+const MIN_DIFFERENT = 24;
+const OTHERS = LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout));
+const OTHER_ROWS = new Set(LEVELS.filter((l) => l.name !== TARGET).flatMap((l) => l.layout.flatMap((r, z) => [...r].map((ch, x) => (ch === 'Y' ? `${x},${z}` : null)).filter(Boolean))));
+const differentEnough = (layoutShape) => OTHERS.every((o) => [...o].filter((ch, k) => ch !== layoutShape[k]).length >= MIN_DIFFERENT);
 
 const COLS = 5;
 const ROWS = 5;
 const LEVEL2 = process.argv[2] === 'level2';
-const LEVEL3 = ['level3', 'level4', 'level5', 'level6', 'level7'].includes(process.argv[2]); // spike on the path
+const LEVEL3 = ['level3', 'level4', 'level5', 'level6', 'level7', 'level8'].includes(process.argv[2]); // spike on the path
 const LEVEL4 = process.argv[2] === 'level4';
-const LEVEL5 = ['level5', 'level6', 'level7'].includes(process.argv[2]); // plus a spike row in a dead end
+const LEVEL5 = ['level5', 'level6', 'level7', 'level8'].includes(process.argv[2]); // plus a spike row in a dead end
 const LEVEL6 = process.argv[2] === 'level6';
-const LEVEL7 = process.argv[2] === 'level7'; // longer wrong ways: 3 dead ends 3 cells deep
+const LEVEL7 = ['level7', 'level8'].includes(process.argv[2]); // longer wrong ways: 3 dead ends 3 cells deep
+const LEVEL8 = process.argv[2] === 'level8';
 const SHORT_DEAD_ENDS = LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
 const SHORT_DEPTH = LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 2 : 1; // how deep each of those dead ends is
 const SPIKE_DEPTH = LEVEL3 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
@@ -67,6 +75,7 @@ const LEVEL3_START_ROW = 4;
 const LEVEL4_START_ROW = 0;
 const LEVEL5_START_ROW = 4;
 const LEVEL6_START_ROW = 0;
+const LEVEL7_START_ROW = 4;
 const SEEDS = 2000;
 const STEPS_PER_SEED = 200000;
 
@@ -294,6 +303,18 @@ function hangPathSpike(path, random) {
     return null;
 }
 
+// The spike row's block: the dead end's first block in from the opening, across its middle
+function rowBlock(blocker) {
+    if (!blocker) return null;
+    const { chain, from } = blocker;
+    const cell = chain[0];
+    const di = cell.i - from.i;
+    const dj = cell.j - from.j;
+    const x = di === 0 ? 4 * cell.i + 2 : 4 * cell.i + (di > 0 ? 1 : 3);
+    const z = dj === 0 ? 4 * cell.j + 2 : 4 * cell.j + (dj > 0 ? 1 : 3);
+    return `${x},${z}`;
+}
+
 let best = null;
 for (let seed = 1; seed <= SEEDS && !best; seed++) {
     const random = mulberry32(seed);
@@ -304,7 +325,8 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL4 && path[0].j === LEVEL3_START_ROW) continue;
     if (LEVEL5 && !LEVEL6 && path[0].j === LEVEL4_START_ROW) continue; // a new layout; only Level 4's start is ruled out
     if (LEVEL6 && path[0].j === LEVEL5_START_ROW) continue;
-    if (LEVEL7 && path[0].j === LEVEL6_START_ROW) continue;
+    if (LEVEL7 && !LEVEL8 && path[0].j === LEVEL6_START_ROW) continue;
+    if (LEVEL8 && path[0].j === LEVEL7_START_ROW) continue;
     const hung = LEVEL3 ? hangPathSpike(path, random) : hangDeadEnds(path, random);
     if (!hung) continue;
 
@@ -318,7 +340,8 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
             deadEnds.every((d) => d.depth === SHORT_DEPTH) &&
             maxBranchDepth === SHORT_DEPTH &&
             solution.some((c) => c.i === hung.spikeCell.i && c.j === hung.spikeCell.j);
-        const isNew = !EXISTING.has(shape(toLayout(hung.links, { startCell, exitCell, spikeCell: hung.spikeCell })));
+        const candidateShape = shape(toLayout(hung.links, { startCell, exitCell, spikeCell: hung.spikeCell }));
+        const isNew = !EXISTING.has(candidateShape) && (!LEVEL8 || (differentEnough(candidateShape) && !OTHER_ROWS.has(rowBlock(hung.blocker))));
         if (ok && (isNew || !LEVEL5)) best = { seed, links: hung.links, startCell, exitCell, spikeCell: hung.spikeCell, solution, deadEnds, spike: { fromStart: hung.spikeIndex }, blocker: hung.blocker };
         continue;
     }
@@ -346,13 +369,7 @@ if (LEVEL5 && EXISTING.has(shape(layout))) {
     process.exit(1);
 }
 if (best.blocker) {
-    // The spike row: the dead end's first block in from the opening, across its middle
-    const { chain, from } = best.blocker;
-    const cell = chain[0];
-    const di = cell.i - from.i;
-    const dj = cell.j - from.j;
-    const x = di === 0 ? 4 * cell.i + 2 : 4 * cell.i + (di > 0 ? 1 : 3);
-    const z = dj === 0 ? 4 * cell.j + 2 : 4 * cell.j + (dj > 0 ? 1 : 3);
+    const [x, z] = rowBlock(best.blocker).split(',').map(Number);
     const row = layout[z].split('');
     row[x] = 'Y';
     layout[z] = row.join('');
