@@ -8,28 +8,83 @@
 const SFX_LEVEL = 0.8;
 const MUSIC_LEVEL = SFX_LEVEL / 2; // music about half as loud as the sound effects
 const CHEER_LEVEL = 1.4; // inside the sound-effects level
-const TEMPO = 104; // beats per minute
-const EIGHTH = 60 / TEMPO / 2;
 
 // Note number -> frequency (69 = A4)
 const hz = (n) => 440 * 2 ** ((n - 69) / 12);
 
-// The music: 8 bars of steady eighth notes ("dun dun dun dun"), D minor,
-// with a tiptoeing melody on top. null = rest.
-const D2 = 38, C2 = 36, Bb1 = 34, A1 = 33;
-const BASS_BARS = [D2, D2, Bb1, A1, D2, D2, Bb1, C2];
-const MELODY = [
-    // bar 1-4
-    62, null, 65, null, 64, null, 61, null,
-    62, null, null, null, 57, null, null, null,
-    58, null, 62, null, 61, null, 64, null,
-    62, null, null, null, null, null, null, null,
-    // bar 5-8: same sneaky idea, a little higher
-    69, null, 70, null, 69, null, 68, null,
-    69, null, null, null, 65, null, null, null,
-    67, null, 65, null, 64, null, 61, null,
-    62, null, null, null, null, null, null, null,
-];
+// Each level has its own tune (plan Section 5, Iteration 8): happy on Level 1,
+// a little sneakier each level after. A tune is 8 bars of eighth notes:
+//   bars:   each bar's bass note and whether its chord is major or minor
+//   bass:   what the bass plays on each eighth of a bar, as steps above the bar's
+//           note (null = rest, 'lead-in' = one step below the next bar's note)
+//   stabs:  eighths with a short chord on top (the bouncy "oom-PAH")
+//   melody: one note per eighth (null = rest)
+const TUNES = {
+    // Level 1: cheerful and bouncy, C major
+    happy: {
+        tempo: 128,
+        bars: [[36, 'maj'], [41, 'maj'], [43, 'maj'], [36, 'maj'], [45, 'min'], [41, 'maj'], [43, 'maj'], [36, 'maj']],
+        bass: [0, null, 7, null, 0, null, 7, null],
+        bassLength: 0.2,
+        stabs: [2, 6],
+        stabLevel: 0.07,
+        ticks: false,
+        melody: [
+            72, null, 67, null, 64, 67, 72, null,
+            77, null, 76, null, 74, null, 72, null,
+            71, null, 74, null, 79, null, 77, 74,
+            76, null, 72, null, 72, null, null, null,
+            69, null, 72, null, 76, null, 74, 72,
+            77, null, 76, 74, 72, null, 69, null,
+            71, 72, 74, null, 79, null, 74, null,
+            72, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.15, length: 0.15, brightness: 2600 },
+    },
+    // Level 2: still happy (G major), with a tiny bit of sneaky: tiptoeing
+    // short notes, little creeping half-steps, and one darker bar
+    happySneaky: {
+        tempo: 116,
+        bars: [[43, 'maj'], [43, 'maj'], [36, 'maj'], [38, 'maj'], [43, 'maj'], [40, 'min'], [36, 'min'], [38, 'maj']],
+        bass: [0, null, 12, null, 0, null, 12, 'lead-in'],
+        bassLength: 0.14,
+        stabs: [2, 6],
+        stabLevel: 0.045,
+        ticks: true,
+        melody: [
+            67, null, 71, null, 74, null, 73, 74,
+            79, null, 78, null, 74, null, null, null,
+            76, null, 72, null, 76, 75, 76, null,
+            78, null, 74, null, 69, null, null, null,
+            67, null, 71, null, 74, null, 79, null,
+            76, null, 79, null, 83, null, 81, null,
+            75, null, 72, null, 67, null, 75, 74,
+            74, null, 73, null, 74, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.15, length: 0.11, brightness: 1800 },
+    },
+    // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
+    // yet; kept for Levels 31-40.
+    sneaky: {
+        tempo: 104,
+        bars: [[38, 'min'], [38, 'min'], [34, 'maj'], [33, 'maj'], [38, 'min'], [38, 'min'], [34, 'maj'], [36, 'maj']],
+        bass: [0, 0, 0, 0, 0, 0, 0, 0],
+        bassLength: 0.22,
+        stabs: [],
+        ticks: true,
+        melody: [
+            62, null, 65, null, 64, null, 61, null,
+            62, null, null, null, 57, null, null, null,
+            58, null, 62, null, 61, null, 64, null,
+            62, null, null, null, null, null, null, null,
+            69, null, 70, null, 69, null, 68, null,
+            69, null, null, null, 65, null, null, null,
+            67, null, 65, null, 64, null, 61, null,
+            62, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.16, length: 0.16, brightness: 1400 },
+    },
+};
 
 export class Sound {
     // settings: { music: bool, sfx: bool }; onEvent(name) is told every time a sound starts
@@ -39,6 +94,8 @@ export class Sound {
         this.ctx = null;
         this.musicWanted = false;
         this.musicStep = 0;
+        this.tune = TUNES.happy;
+        this.tuneName = 'happy';
         this.nextNoteTime = 0;
         this.timer = null;
 
@@ -96,6 +153,16 @@ export class Sound {
         if (this.ctx) this.startScheduler();
     }
 
+    // Switch to a level's tune (starts from its beginning)
+    setTune(name) {
+        const tune = TUNES[name] || TUNES.happy;
+        if (tune === this.tune) return;
+        this.tune = tune;
+        this.tuneName = TUNES[name] ? name : 'happy';
+        this.musicStep = 0;
+        if (this.timer) this.onEvent('music');
+    }
+
     stopMusic() {
         this.musicWanted = false;
         clearInterval(this.timer);
@@ -109,23 +176,34 @@ export class Sound {
         // Look a little ahead and book the notes that fall inside that window
         this.timer = setInterval(() => {
             while (this.nextNoteTime < this.ctx.currentTime + 0.2) {
-                this.playStep(this.musicStep, this.nextNoteTime);
-                this.musicStep = (this.musicStep + 1) % (BASS_BARS.length * 8);
-                this.nextNoteTime += EIGHTH;
+                const tune = this.tune;
+                this.playStep(tune, this.musicStep % (tune.bars.length * 8), this.nextNoteTime);
+                this.musicStep = (this.musicStep + 1) % (tune.bars.length * 8);
+                this.nextNoteTime += 60 / tune.tempo / 2;
             }
         }, 25);
     }
 
-    playStep(step, t) {
+    playStep(tune, step, t) {
         const bar = Math.floor(step / 8);
         const beat = step % 8;
-        // Steady bass: every eighth note, a little stronger on the beat
-        this.pluck(hz(BASS_BARS[bar]), t, beat % 2 === 0 ? 0.55 : 0.4, 0.22, 'triangle', 500);
-        // Tiptoe melody
-        const m = MELODY[step % MELODY.length];
-        if (m !== null) this.pluck(hz(m), t, 0.16, 0.16, 'square', 1400);
-        // Soft tick on the off-beats
-        if (beat % 2 === 1) this.tick(t);
+        const [root, chord] = tune.bars[bar];
+        // Bass, a little stronger on the beat
+        const b = tune.bass[beat];
+        if (b !== null) {
+            const note = b === 'lead-in' ? tune.bars[(bar + 1) % tune.bars.length][0] - 1 : root + b;
+            this.pluck(hz(note), t, beat % 2 === 0 ? 0.55 : 0.4, tune.bassLength, 'triangle', 500);
+        }
+        // Chord stabs: three short soft notes together
+        if (tune.stabs.includes(beat)) {
+            for (const n of [0, chord === 'maj' ? 4 : 3, 7]) this.pluck(hz(root + 24 + n), t, tune.stabLevel, 0.1, 'triangle', 2400);
+        }
+        // Melody
+        const m = tune.melody[step];
+        const lead = tune.lead;
+        if (m !== null) this.pluck(hz(m), t, lead.level, lead.length, lead.wave, lead.brightness);
+        // Soft tick on the off-beats (tiptoeing)
+        if (tune.ticks && beat % 2 === 1) this.tick(t);
     }
 
     pluck(freq, t, level, length, wave, brightness) {
