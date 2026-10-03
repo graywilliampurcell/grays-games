@@ -7,6 +7,7 @@
 
 const SFX_LEVEL = 0.8;
 const MUSIC_LEVEL = SFX_LEVEL / 2; // music about half as loud as the sound effects
+const CHEER_LEVEL = 1.4; // inside the sound-effects level
 const TEMPO = 104; // beats per minute
 const EIGHTH = 60 / TEMPO / 2;
 
@@ -207,7 +208,11 @@ export class Sound {
         osc.stop(t + 0.55);
     }
 
-    // Lots of people clapping and shouting "yay!" (reaching the door)
+    // A crowd clapping and cheering "yay!" and "woo!" (reaching the door).
+    // Iteration 8: no steady noise underneath (it sounded like a waterfall).
+    // A handful of people clap, each clap a short separate slap, and short
+    // shouts pop up here and there. The device's own voice (if it has one)
+    // shouts real words on top.
     cheer() {
         if (!this.settings.sfx || !this.ctx) return;
         this.onEvent('cheer');
@@ -217,73 +222,120 @@ export class Sound {
         const rand = (a, b) => a + Math.random() * (b - a);
 
         const crowd = ctx.createGain();
-        crowd.gain.setValueAtTime(0.0001, t0);
-        crowd.gain.exponentialRampToValueAtTime(1.7, t0 + 0.25);
-        crowd.gain.setValueAtTime(1.7, t0 + length - 1.2);
+        crowd.gain.setValueAtTime(CHEER_LEVEL, t0);
+        crowd.gain.setValueAtTime(CHEER_LEVEL, t0 + length - 0.3);
         crowd.gain.exponentialRampToValueAtTime(0.0001, t0 + length);
         crowd.connect(this.sfxBus);
+        const place = (node, pan) => {
+            if (!ctx.createStereoPanner) return node.connect(crowd);
+            const panner = ctx.createStereoPanner();
+            panner.pan.value = pan;
+            node.connect(panner).connect(crowd);
+        };
 
-        // Crowd roar: noise shaped like a room full of voices
-        const roar = this.noiseSource(t0, length);
-        const roarFilter = ctx.createBiquadFilter();
-        roarFilter.type = 'bandpass';
-        roarFilter.frequency.value = 900;
-        roarFilter.Q.value = 0.8;
-        const roarGain = ctx.createGain();
-        roarGain.gain.value = 0.35;
-        roar.connect(roarFilter).connect(roarGain).connect(crowd);
-
-        // Shouting voices: each one a "yaaay" that slides up then down
-        for (let v = 0; v < 16; v++) {
-            const start = t0 + rand(0, 0.6);
-            const dur = rand(0.8, 2.2);
-            const base = rand(170, 420);
-            const osc = ctx.createOscillator();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(base, start);
-            osc.frequency.exponentialRampToValueAtTime(base * rand(1.3, 1.7), start + dur * 0.35);
-            osc.frequency.exponentialRampToValueAtTime(base * rand(0.9, 1.1), start + dur);
-            const wobble = ctx.createOscillator();
-            wobble.frequency.value = rand(5, 7);
-            const wobbleDepth = ctx.createGain();
-            wobbleDepth.gain.value = base * 0.03;
-            wobble.connect(wobbleDepth).connect(osc.frequency);
-            const voice = ctx.createGain();
-            voice.gain.setValueAtTime(0.0001, start);
-            voice.gain.exponentialRampToValueAtTime(0.07, start + 0.08);
-            voice.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-            for (const [from, to] of [[750, 600], [1150, 1900]]) {
-                const formant = ctx.createBiquadFilter();
-                formant.type = 'bandpass';
-                formant.Q.value = 5;
-                formant.frequency.setValueAtTime(from, start);
-                formant.frequency.linearRampToValueAtTime(to, start + dur);
-                osc.connect(formant).connect(voice);
-            }
-            voice.connect(crowd);
-            osc.start(start);
-            wobble.start(start);
-            osc.stop(start + dur + 0.05);
-            wobble.stop(start + dur + 0.05);
-        }
-
-        // Clapping: a dozen people, each clapping a little faster or slower
-        for (let p = 0; p < 12; p++) {
-            const gap = rand(0.17, 0.26);
-            const tone = rand(900, 2200);
-            for (let t = t0 + rand(0, gap); t < t0 + length - 0.4; t += gap * rand(0.9, 1.1)) {
-                const clap = this.noiseSource(t, 0.08);
-                const filter = ctx.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.frequency.value = tone;
-                filter.Q.value = 1.2;
-                const g = ctx.createGain();
-                g.gain.setValueAtTime(0.0001, t);
-                g.gain.exponentialRampToValueAtTime(rand(0.25, 0.45), t + 0.002);
-                g.gain.exponentialRampToValueAtTime(0.0001, t + rand(0.03, 0.06));
-                clap.connect(filter).connect(g).connect(crowd);
+        // Clapping: 7 people spread left to right, each at their own speed,
+        // starting together and stopping one by one
+        for (let p = 0; p < 7; p++) {
+            const gap = rand(0.24, 0.34);
+            const tone = rand(1000, 2000);
+            const pan = rand(-0.8, 0.8);
+            const stop = t0 + rand(2.9, 3.4);
+            for (let t = t0 + rand(0, 0.25); t < stop; t += gap * rand(0.92, 1.08)) {
+                this.clap(t, tone, rand(1.4, 2.4), pan, place);
             }
         }
+
+        // Shouts: short "yay!"s and "woo!"s, a few at the start and more later
+        for (let v = 0; v < 8; v++) {
+            const start = t0 + (v < 3 ? rand(0, 0.4) : rand(0.4, 2.9));
+            this.shout(start, Math.random() < 0.55 ? 'yay' : 'woo', rand(170, 400), rand(-0.9, 0.9), place);
+        }
+
+        // Real words from the device's voice
+        const speech = window.speechSynthesis;
+        const voices = speech?.getVoices() || [];
+        if (speech && voices.length > 0) {
+            const english = voices.filter((v) => v.lang?.startsWith('en'));
+            const voice = english.find((v) => v.default) || english[0] || voices[0];
+            speech.cancel();
+            for (const [words, pitch] of [['Yay!', 1.7], ['Woo hoo!', 1.4]]) {
+                const say = new SpeechSynthesisUtterance(words);
+                say.voice = voice;
+                say.rate = 1.2;
+                say.pitch = pitch;
+                say.volume = SFX_LEVEL;
+                speech.speak(say);
+            }
+        }
+    }
+
+    // One clap: a sharp slap of noise that dies away in a few hundredths of a
+    // second, with a tiny second slap right after (the other hand)
+    clap(t, tone, level, pan, place) {
+        const ctx = this.ctx;
+        const src = this.noiseSource(t, 0.06);
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = tone;
+        filter.Q.value = 1.8;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(level, t + 0.001);
+        g.gain.exponentialRampToValueAtTime(level * 0.15, t + 0.004);
+        g.gain.exponentialRampToValueAtTime(level * 0.7, t + 0.006);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.022 + Math.random() * 0.01);
+        src.connect(filter).connect(g);
+        place(g, pan);
+    }
+
+    // One shouted "yay!" or "woo!": a voice-like buzz through vowel filters
+    shout(t, word, base, pan, place) {
+        const ctx = this.ctx;
+        const yay = word === 'yay';
+        const dur = yay ? 0.38 + Math.random() * 0.2 : 0.5 + Math.random() * 0.25;
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(base, t);
+        if (yay) {
+            // "yay!" jumps up and comes down at the end
+            osc.frequency.exponentialRampToValueAtTime(base * 1.5, t + dur * 0.3);
+            osc.frequency.exponentialRampToValueAtTime(base * 1.1, t + dur);
+        } else {
+            // "woo!" swoops up
+            osc.frequency.exponentialRampToValueAtTime(base * 1.8, t + dur * 0.6);
+            osc.frequency.exponentialRampToValueAtTime(base * 1.5, t + dur);
+        }
+        const wobble = ctx.createOscillator();
+        wobble.frequency.value = 5 + Math.random() * 2;
+        const wobbleDepth = ctx.createGain();
+        wobbleDepth.gain.value = base * 0.025;
+        wobble.connect(wobbleDepth).connect(osc.frequency);
+
+        const voice = ctx.createGain();
+        voice.gain.setValueAtTime(0.0001, t);
+        voice.gain.exponentialRampToValueAtTime(0.09, t + 0.05);
+        voice.gain.setValueAtTime(0.09, t + dur * 0.6);
+        voice.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        // Vowel shapes (formants): "y-ay-ee" or "w-oo"
+        const formants = yay
+            ? [[280, 650, 480, 1], [2250, 1800, 2250, 0.6], [2900, 2600, 2900, 0.3]]
+            : [[300, 330, 360, 1], [600, 800, 850, 0.5], [2300, 2400, 2400, 0.12]];
+        for (const [from, mid, to, level] of formants) {
+            const f = ctx.createBiquadFilter();
+            f.type = 'bandpass';
+            f.Q.value = 7;
+            f.frequency.setValueAtTime(from, t);
+            f.frequency.linearRampToValueAtTime(mid, t + dur * 0.25);
+            f.frequency.linearRampToValueAtTime(to, t + dur);
+            const g = ctx.createGain();
+            g.gain.value = level * 3;
+            osc.connect(f).connect(g).connect(voice);
+        }
+        place(voice, pan);
+        osc.start(t);
+        wobble.start(t);
+        osc.stop(t + dur + 0.05);
+        wobble.stop(t + dur + 0.05);
     }
 
     // ---- Helpers ----
