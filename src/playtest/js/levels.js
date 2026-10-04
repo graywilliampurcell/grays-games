@@ -475,4 +475,42 @@ export const LEVELS = [
             '#########################',
         ],
     },
+    {
+        name: 'Level 14',
+        // Spikes are back. `node tools/find-level.mjs level14`, seed 73. 6 x 6
+        // corridors. Correct path 24 cells; 6 dead ends each 2 cells deep. X:
+        // a space spike on the path (path cell 7, straight corridor in and
+        // out), plate 0.64 like Level 6. G: the space door (between path cells
+        // 12 and 13), 5 cells on from the spike. No slippery spots.
+        theme: SPACE,
+        music: 'robot',
+        spikeRadius: 0.64,
+        layout: [
+            '#########################',
+            '#                       #',
+            '#                       D',
+            '#                       #',
+            '#   #   #################',
+            '#   #   #       G       #',
+            '#   #   #       G       #',
+            '#   #   #       G       #',
+            '#####   #   #########   #',
+            '#   #   #   #           #',
+            '#   #   #   #           #',
+            '#   #   #   #           #',
+            '#   #   #   #   #####   #',
+            '#           #   #       #',
+            '#           # X #       #',
+            '#           #   #       #',
+            '#############   #########',
+            '#           #           #',
+            '# S         #           #',
+            '#           #           #',
+            '#   #####   #   #########',
+            '#       #               #',
+            '#       #               #',
+            '#       #               #',
+            '#########################',
+        ],
+    },
 ];

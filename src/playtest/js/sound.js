@@ -326,6 +326,30 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.34, length: 0.35, brightness: 7000 },
     },
+    // Level 14, spikes are back: a happy robot march (A major) with just a
+    // touch of sneak. Busy "bip-bip" repeated notes that step up, then a
+    // quick sneaky slide down a half step, on a buzzy, blippy lead over a
+    // steady bass and off-beat chords.
+    robot: {
+        tempo: 126,
+        bars: [[45, 'maj'], [45, 'maj'], [38, 'maj'], [40, 'maj'], [45, 'maj'], [42, 'min'], [38, 'maj'], [40, 'maj']],
+        bass: [0, null, 0, null, 7, null, 0, null],
+        bassLength: 0.12,
+        stabs: [1, 5],
+        stabLevel: 0.035,
+        ticks: true,
+        melody: [
+            69, 69, null, 73, 73, null, 76, null,
+            81, null, 80, 79, 76, null, null, null,
+            74, 74, null, 78, 78, null, 81, null,
+            83, null, 82, 81, 80, null, null, null,
+            81, 81, null, 76, 76, null, 73, null,
+            78, null, 77, 76, 73, null, null, null,
+            74, null, 78, null, 81, null, 86, null,
+            83, null, 80, null, 76, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.14, length: 0.06, brightness: 3200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
