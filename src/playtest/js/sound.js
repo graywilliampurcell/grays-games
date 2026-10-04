@@ -374,6 +374,30 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.3, length: 0.1, brightness: 6000 },
     },
+    // Level 16, four things to watch out for: a happy "blast-off" tune (C
+    // major) that climbs a rising arpeggio each bar like a rocket taking off,
+    // with a sneaky dip into a minor chord in the middle, on a bright sawtooth
+    // lead over a driving eighth-note bass.
+    rocket: {
+        tempo: 128,
+        bars: [[36, 'maj'], [41, 'maj'], [43, 'maj'], [36, 'maj'], [45, 'min'], [41, 'maj'], [43, 'maj'], [43, 'maj']],
+        bass: [0, 0, 12, 0, 0, 0, 12, 0],
+        bassLength: 0.1,
+        stabs: [4],
+        stabLevel: 0.03,
+        ticks: false,
+        melody: [
+            60, 64, 67, 72, null, 76, 79, null,
+            65, 69, 72, 77, null, 81, null, null,
+            67, 71, 74, 79, null, 83, 86, null,
+            84, null, 79, null, 76, null, 72, null,
+            69, 72, 76, 81, null, 76, 72, null,
+            77, null, 76, null, 74, null, 72, null,
+            71, 74, 79, 83, 86, null, 83, null,
+            79, null, 74, null, 71, 74, 79, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.1, length: 0.1, brightness: 3500 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

@@ -553,4 +553,44 @@ export const LEVELS = [
             '#########################',
         ],
     },
+    {
+        name: 'Level 16',
+        // Four things to watch out for. `node tools/find-level.mjs level16`,
+        // seed 74. 6 x 6 corridors. Correct path 24 cells; 6 dead ends each 2
+        // cells deep. I: two slippery spots (path cells 3 and 6). G: the space
+        // door (between path cells 10 and 11), with 2+ dead ends opening off
+        // the path after it. X: a spike on the path (path cell 14), plate 0.64
+        // like Levels 14-15. Y: a spike row just inside the straight dead end
+        // off path cell 19. At least 2 path cells between any two of them.
+        theme: SPACE,
+        music: 'rocket',
+        spikeRadius: 0.64,
+        layout: [
+            '#########################',
+            '#         I     #   #   #',
+            '# S       I     #   #   D',
+            '#         I     #   #   #',
+            '#############   #   #   #',
+            '#         I     #       #',
+            '#         I     #       #',
+            '#         I     #       #',
+            '#   #   #############   #',
+            '#   #       #           #',
+            '#   #       #           #',
+            '#   #       #           #',
+            '#####   #   #   #########',
+            '#       #   #           #',
+            '#       #   #    Y      #',
+            '#       #   #           #',
+            '#########GGG#   #########',
+            '#           #           #',
+            '#           #           #',
+            '#           #           #',
+            '#########   #########   #',
+            '#                       #',
+            '#                 X     #',
+            '#                       #',
+            '#########################',
+        ],
+    },
 ];
