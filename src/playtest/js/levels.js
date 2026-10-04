@@ -513,4 +513,44 @@ export const LEVELS = [
             '#########################',
         ],
     },
+    {
+        name: 'Level 15',
+        // Slippery spots are back. `node tools/find-level.mjs level15`, seed
+        // 10. 6 x 6 corridors. Correct path 24 cells; 6 dead ends each 2 cells
+        // deep. Y: a row of spikes just inside the straight dead end that goes
+        // up from the start cell, in plain view. I: the slippery spot (path
+        // cell 4). X: a spike on the path (path cell 15), plate 0.64 like
+        // Levels 6 and 14. At least 2 path cells between any two of them. No
+        // space door.
+        theme: SPACE,
+        music: 'bounce',
+        spikeRadius: 0.64,
+        layout: [
+            '#########################',
+            '#               #       #',
+            '#               #       #',
+            '#               #       #',
+            '#########   #   #   #   #',
+            '#   #   #   #       #   #',
+            '#   #   #   #       #   D',
+            '#   #   #   #       #   #',
+            '#   #   #   #############',
+            '#   #                   #',
+            '#   #         X         #',
+            '# Y #                   #',
+            '#   #################   #',
+            '#           #           #',
+            '# S         #           #',
+            '#           #           #',
+            '#   #   #   #   #########',
+            '#   #   #   #       #   #',
+            '#   #   #III#       #   #',
+            '#   #   #   #       #   #',
+            '#   #   #   #####   #   #',
+            '#   #   #               #',
+            '#   #   #               #',
+            '#   #   #               #',
+            '#########################',
+        ],
+    },
 ];

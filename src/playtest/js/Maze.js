@@ -527,10 +527,13 @@ export class Maze {
         );
         base.position.y = 0.04;
         group.add(base);
-        const coneGeometry = new THREE.ConeGeometry(0.12, 0.6, 10);
+        // Space World: a row of pointy glowing crystals, like the round space spike
+        const space = this.theme.space;
+        const crystal = new THREE.MeshStandardMaterial({ color: 0x9a7bff, emissive: 0x5a2fd6, emissiveIntensity: 0.6, roughness: 0.2, metalness: 0.1 });
+        const coneGeometry = space ? new THREE.OctahedronGeometry(0.17, 0).scale(0.8, 2.4, 0.8) : new THREE.ConeGeometry(0.12, 0.6, 10);
         for (let k = 0; k < 7; k++) {
             for (const dz of [-0.22, 0.22]) {
-                const cone = new THREE.Mesh(coneGeometry, metal);
+                const cone = new THREE.Mesh(coneGeometry, space ? crystal : metal);
                 cone.position.set(-1.29 + k * 0.43 + (dz > 0 ? 0.2 : 0), 0.38, dz);
                 cone.castShadow = true;
                 group.add(cone);

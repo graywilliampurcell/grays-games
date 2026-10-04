@@ -350,6 +350,30 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.14, length: 0.06, brightness: 3200 },
     },
+    // Level 15, slippery spots are back: a happy, bouncy tune (B-flat major)
+    // with a "boing-boing" hook that bounces down and springs back up, and
+    // a little sneaky chromatic wiggle, on a bright plucky lead over a
+    // jumpy octave bass.
+    bounce: {
+        tempo: 120,
+        bars: [[46, 'maj'], [43, 'min'], [39, 'maj'], [41, 'maj'], [46, 'maj'], [43, 'min'], [39, 'maj'], [41, 'maj']],
+        bass: [0, 12, null, 0, 12, null, 7, null],
+        bassLength: 0.12,
+        stabs: [2, 6],
+        stabLevel: 0.035,
+        ticks: true,
+        melody: [
+            82, null, 77, null, 74, 77, 82, null,
+            79, null, 74, null, 70, 74, 79, null,
+            75, 76, 77, null, 79, null, 82, null,
+            81, null, 77, null, 72, null, null, null,
+            82, null, 77, null, 74, 77, 82, null,
+            86, null, 82, null, 79, 82, 86, null,
+            87, null, 86, 84, 82, null, 79, null,
+            81, null, 84, null, 82, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.3, length: 0.1, brightness: 6000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
