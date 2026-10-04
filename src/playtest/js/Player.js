@@ -24,6 +24,9 @@ export class Player {
         this.friction = 0.9;
         this.turnSpeed = Math.PI / 2; // radians per second for held turns (90°/s)
 
+        // Sliding on a slippery spot: { dir, speed, left } while it lasts
+        this.slide = null;
+
         // Collision
         this.radius = 0.4;
         this.height = 1.8;
@@ -92,6 +95,7 @@ export class Player {
     resetTo(position, yaw, pitch = 0) {
         this.position.copy(position);
         this.velocity.set(0, 0, 0);
+        this.slide = null;
         this.euler.set(pitch, yaw, 0);
         this.camera.quaternion.setFromEuler(this.euler);
         this.camera.position.set(this.position.x, this.position.y + 1.6, this.position.z);
@@ -333,13 +337,20 @@ export class Player {
             this.direction.normalize();
         }
 
-        // Apply acceleration
-        this.velocity.x += this.direction.x * this.acceleration * deltaTime;
-        this.velocity.z += this.direction.z * this.acceleration * deltaTime;
+        if (this.slide) {
+            // Sliding: keep going the same way at the same speed, whatever is pressed
+            this.velocity.x = this.slide.dir.x * this.slide.speed;
+            this.velocity.z = this.slide.dir.z * this.slide.speed;
+        } else {
+            // Apply acceleration
+            this.velocity.x += this.direction.x * this.acceleration * deltaTime;
+            this.velocity.z += this.direction.z * this.acceleration * deltaTime;
 
-        // Apply friction
-        this.velocity.x *= this.friction;
-        this.velocity.z *= this.friction;
+            // Apply friction
+            this.velocity.x *= this.friction;
+            this.velocity.z *= this.friction;
+        }
+        const before = this.position.clone();
 
         // Limit max speed
         const horizontalSpeed = Math.sqrt(this.velocity.x ** 2 + this.velocity.z ** 2);
@@ -376,7 +387,23 @@ export class Player {
             }
         }
 
+        // The slide ends after its distance, or at once if a wall stops it
+        if (this.slide) {
+            const moved = Math.hypot(this.position.x - before.x, this.position.z - before.z);
+            this.slide.left -= moved;
+            if (this.slide.left <= 0 || moved < this.slide.speed * deltaTime * 0.5) this.slide = null;
+        }
+
         // Update camera position
         this.camera.position.set(this.position.x, this.position.y + 1.6, this.position.z);
+    }
+
+    // Slide `distance` further the way you're moving now (a slippery spot)
+    startSlide(distance, minSpeed) {
+        const speed = Math.hypot(this.velocity.x, this.velocity.z);
+        if (speed < 0.5) return false;
+        const dir = new THREE.Vector3(this.velocity.x / speed, 0, this.velocity.z / speed);
+        this.slide = { dir, speed: Math.max(speed, minSpeed), left: distance };
+        return true;
     }
 }

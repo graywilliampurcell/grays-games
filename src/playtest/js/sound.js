@@ -302,6 +302,30 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.32, length: 0.2, brightness: 4500 },
     },
+    // Level 13, learning slippery spots: a happy gliding waltz (G major, 3
+    // beats to a bar played as 6 eighths + a held note). Long notes that swoop
+    // up and slide back down, like skating on ice, on a smooth whistle lead
+    // over an "oom-pah-pah" bass.
+    skate: {
+        tempo: 150,
+        bars: [[43, 'maj'], [43, 'maj'], [36, 'maj'], [38, 'maj'], [43, 'maj'], [40, 'min'], [36, 'maj'], [38, 'maj']],
+        bass: [0, null, null, 7, null, 12, null, null],
+        bassLength: 0.25,
+        stabs: [3, 5],
+        stabLevel: 0.03,
+        ticks: false,
+        melody: [
+            71, null, null, 74, 79, null, null, null,
+            78, 76, 74, null, 71, null, null, null,
+            72, null, null, 76, 79, null, 84, null,
+            83, 81, 78, null, 74, null, null, null,
+            71, null, null, 74, 79, null, 83, null,
+            84, 83, 79, null, 76, null, null, null,
+            76, 79, 84, null, 81, 79, 76, null,
+            74, null, 78, null, 81, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.34, length: 0.35, brightness: 7000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

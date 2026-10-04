@@ -141,6 +141,28 @@ const SPACE_DOOR_SLIDE_TIME = 0.7;
 const SPACE_DOOR_SOLID_FROM = 0.25;
 const SPACE_DOOR_LIGHTS = { open: 0x3dff6e, moving: 0xffc83d, closed: 0xff3d3d };
 
+// A shiny, icy strip for slippery spots (Level 13 on)
+function iceTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const g = canvas.getContext('2d');
+    const base = g.createLinearGradient(0, 0, 128, 128);
+    base.addColorStop(0, '#bff4ff');
+    base.addColorStop(0.5, '#7fdcff');
+    base.addColorStop(1, '#c9f7ff');
+    g.fillStyle = base;
+    g.fillRect(0, 0, 128, 128);
+    g.strokeStyle = 'rgba(255,255,255,0.85)';
+    g.lineWidth = 3;
+    for (const [x, z, len] of [[14, 30, 40], [60, 18, 50], [30, 80, 46], [80, 70, 36], [20, 112, 30], [92, 108, 28]]) {
+        g.beginPath();
+        g.moveTo(x, z);
+        g.lineTo(x + len, z - len * 0.45);
+        g.stroke();
+    }
+    return new THREE.CanvasTexture(canvas);
+}
+
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
@@ -162,6 +184,8 @@ export class Maze {
         this.spikeRows = [];
         // Blocks of the space door ('G'), if the level has one
         const doorBlocks = [];
+        // Blocks of slippery floor ('I'), keyed "x,z"
+        this.slipperyBlocks = new Set();
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -173,6 +197,7 @@ export class Maze {
                 if (ch === 'Y') this.spikeRows.push({ position: center, x, z });
                 if (ch === 'D') this.doorBlock = { x, z };
                 if (ch === 'G') doorBlocks.push({ x, z });
+                if (ch === 'I') this.slipperyBlocks.add(`${x},${z}`);
             }
         }
         if (doorBlocks.length) {
@@ -195,6 +220,7 @@ export class Maze {
         this.createDoor();
         if (this.spikePosition) this.createSpike();
         if (this.spaceDoor) this.createSpaceDoor();
+        if (this.slipperyBlocks.size) this.createSlipperySpots();
         for (const row of this.spikeRows) this.createSpikeRow(row);
         this.scene.add(this.root);
     }
@@ -566,6 +592,26 @@ export class Maze {
 
         Object.assign(door, { slider, light, minX, minZ, maxX: Math.max(...xs) + 1, maxZ: Math.max(...zs) + 1 });
         this.showSpaceDoor();
+    }
+
+    // Slippery spots: a shiny, glowing icy patch on each slippery block
+    createSlipperySpots() {
+        const material = new THREE.MeshStandardMaterial({
+            map: iceTexture(), metalness: 0.3, roughness: 0.05, emissive: 0x2a9fd0, emissiveIntensity: 0.45,
+        });
+        const geometry = new THREE.BoxGeometry(1.002, 0.03, 1.002);
+        for (const k of this.slipperyBlocks) {
+            const [x, z] = k.split(',').map(Number);
+            const patch = new THREE.Mesh(geometry, material);
+            patch.position.set(x + 0.5, 0.015, z + 0.5);
+            patch.receiveShadow = true;
+            this.root.add(patch);
+        }
+    }
+
+    // Is this point on slippery floor?
+    onSlipperySpot(point) {
+        return this.slipperyBlocks.has(`${Math.floor(point.x)},${Math.floor(point.z)}`);
     }
 
     // Is a player of this radius overlapping the space door's gap?

@@ -13,6 +13,7 @@
 //   node tools/find-level.mjs level10    # Level 10 rules (Level 8's again: a visible spike row, new layout)
 //   node tools/find-level.mjs level11    # Level 11 rules (Space World: 6 x 6, Level 2's dead ends, Level 1's hidden spike)
 //   node tools/find-level.mjs level12    # Level 12 rules (6 x 6, 2-cell dead ends, no spikes, a space door on the path)
+//   node tools/find-level.mjs level13    # Level 13 rules (Level 12's plus a slippery spot on the path, away from the door)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -44,6 +45,11 @@
 // straight stretch near the middle of the path, so you see it coming. Starts in
 // a different row from Level 11.
 //
+// Level 13 rules (Iteration 25): Level 12's, plus one slippery spot ('I', a
+// one-block strip right across the corridor) in the middle of a plain, straight
+// path cell, with at least 2 path cells between it and the door. Starts in a
+// row neither Level 11 nor Level 12 starts in.
+//
 // Every cell not on the path belongs to a dead end, so for Level 1 the path
 // covers 25 - 5 - 3 = 17 cells (Level 2: 25 - 8 - 3 = 14). The search lays a
 // random path of that length and keeps it if the cells it leaves over can be
@@ -54,7 +60,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -67,7 +73,8 @@ const differentEnough = (layoutShape) => OTHERS.every((o) => [...o].filter((ch, 
 // hidden spike trail like Level 1 (3 cells, one turn, out of sight of the path)
 const LEVEL11 = process.argv[2] === 'level11';
 // Level 12: 6 x 6 with 2-cell dead ends again, no spikes, a space door on the path
-const LEVEL12 = process.argv[2] === 'level12';
+const LEVEL13 = process.argv[2] === 'level13'; // Level 12's plus a slippery spot
+const LEVEL12 = process.argv[2] === 'level12' || LEVEL13;
 const COLS = LEVEL11 || LEVEL12 ? 6 : 5;
 const ROWS = LEVEL11 || LEVEL12 ? 6 : 5;
 const LEVEL2 = process.argv[2] === 'level2';
@@ -95,6 +102,7 @@ const LEVEL7_START_ROW = 4;
 const LEVEL8_START_ROW = 1;
 const LEVEL9_START_ROW = 4;
 const LEVEL11_START_ROW = 3;
+const LEVEL12_START_ROW = 1;
 const SEEDS = 2000;
 const STEPS_PER_SEED = 200000;
 
@@ -370,6 +378,29 @@ function hangDoor(path, random) {
     return { links, doorIndex };
 }
 
+// Level 13: a path cell for the slippery spot: straight through (no turn, no
+// dead end off it) and at least 2 path cells away from the door between path
+// cells doorIndex and doorIndex + 1. Returns its index on the path, or -1.
+function slipperyIndex(path, links, doorIndex, random) {
+    const step = (p, q) => `${q.i - p.i},${q.j - p.j}`;
+    const options = [];
+    for (let k = 1; k < path.length - 1; k++) {
+        const between = k <= doorIndex ? doorIndex - k : k - doorIndex - 2;
+        if (between < 2) continue;
+        if (step(path[k - 1], path[k]) !== step(path[k], path[k + 1])) continue;
+        if (links[path[k].i][path[k].j].length !== 2) continue;
+        options.push(k);
+    }
+    return options.length ? options[Math.floor(random() * options.length)] : -1;
+}
+
+// The slippery strip's three blocks: across the middle of its cell, at right
+// angles to the way the path runs through it
+function slipperyBlocks(cell, next) {
+    if (cell.i !== next.i) return [1, 2, 3].map((d) => [4 * cell.i + 2, 4 * cell.j + d]);
+    return [1, 2, 3].map((d) => [4 * cell.i + d, 4 * cell.j + 2]);
+}
+
 // The space door's three blocks: the wall gap between path cells a and b
 function doorBlocks(a, b) {
     if (a.i !== b.i) {
@@ -454,9 +485,11 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL10 && path[0].j === LEVEL9_START_ROW) continue;
     if (LEVEL9 && path[0].j === LEVEL8_START_ROW) continue;
     if (LEVEL12) {
-        if (path[0].j === LEVEL11_START_ROW) continue;
+        if (path[0].j === LEVEL11_START_ROW || (LEVEL13 && path[0].j === LEVEL12_START_ROW)) continue;
         const hung = hangDoor(path, random);
         if (!hung) continue;
+        const slippery = LEVEL13 ? slipperyIndex(path, hung.links, hung.doorIndex, random) : -1;
+        if (LEVEL13 && slippery < 0) continue;
         const startCell = path[0];
         const exitCell = path[path.length - 1];
         const { solution, deadEnds, maxBranchDepth } = analyzeMaze(hung.links, startCell, exitCell);
@@ -466,7 +499,8 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
             maxBranchDepth === SHORT_DEPTH;
         const candidateShape = shape(toLayout(hung.links, { startCell, exitCell }));
         if (ok && !EXISTING.has(candidateShape) && differentEnough(candidateShape)) {
-            best = { seed, links: hung.links, startCell, exitCell, solution, deadEnds, door: [path[hung.doorIndex], path[hung.doorIndex + 1]], doorIndex: hung.doorIndex };
+            best = { seed, links: hung.links, startCell, exitCell, solution, deadEnds, door: [path[hung.doorIndex], path[hung.doorIndex + 1]], doorIndex: hung.doorIndex,
+                slippery: LEVEL13 ? [path[slippery], path[slippery + 1]] : null, slipperyIndex: slippery };
         }
         continue;
     }
@@ -524,6 +558,13 @@ if (best.blocker) {
     row[x] = 'Y';
     layout[z] = row.join('');
 }
+if (best.slippery) {
+    for (const [x, z] of slipperyBlocks(...best.slippery)) {
+        const row = layout[z].split('');
+        row[x] = 'I';
+        layout[z] = row.join('');
+    }
+}
 if (best.door) {
     for (const [x, z] of doorBlocks(...best.door)) {
         const row = layout[z].split('');
@@ -534,5 +575,6 @@ if (best.door) {
 console.log(layout.map((row) => `        '${row}',`).join('\n'));
 console.log(`\nseed ${best.seed}: ${COLS}x${ROWS}, path ${best.solution.length} cells, ` +
     `${best.deadEnds.length} dead ends (depths ${best.deadEnds.map((d) => d.depth).join(',')}), ` +
+    (best.slippery ? `slippery spot in path cell ${best.slipperyIndex + 1}, ` : '') +
     (best.door ? `space door between path cells ${best.doorIndex + 1} and ${best.doorIndex + 2}` : `spike ${best.spike.fromStart} cells from start`) +
     (best.blocker ? `, spike row in the dead end at ${best.blocker.rowCell.i},${best.blocker.rowCell.j}` : ''));

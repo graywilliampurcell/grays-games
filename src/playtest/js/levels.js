@@ -1,7 +1,8 @@
 // Fixed level layouts. One string per row, one character per block:
 //   '#' wall, ' ' floor, 'S' start, 'X' spike, 'Y' row of spikes right across
 //   a corridor, 'D' exit door (in the outer wall), 'G' a space door that slides
-//   open and shut by itself (three blocks across a gap; see Maze.js)
+//   open and shut by itself (three blocks across a gap; see Maze.js), 'I' a
+//   slippery spot on the floor (a strip right across a corridor)
 // Found with tools/find-level.mjs. theme: colors and the fluffy look, see Maze.js.
 // music: the level's tune (see sound.js), a little sneakier each level.
 // spikeRadius: size of the spike's plate (default 0.75; see Maze.js).
@@ -434,6 +435,43 @@ export const LEVELS = [
             '#   #   #   #   #       #',
             '#   #   #   #   #       #',
             '#   #   #   #   #       #',
+            '#########################',
+        ],
+    },
+    {
+        name: 'Level 13',
+        // Learning slippery spots. `node tools/find-level.mjs level13`, seed
+        // 30. 6 x 6 corridors. Correct path 24 cells; 6 dead ends each 2 cells
+        // deep. I: the slippery spot, right across a straight corridor (path
+        // cell 7), well away from G, the space door (between path cells 12 and
+        // 13). No spikes.
+        theme: SPACE,
+        music: 'skate',
+        layout: [
+            '#########################',
+            '#                       #',
+            '#                       #',
+            '#                       #',
+            '#   #################   #',
+            '#   #       G       #   #',
+            '#   #       G       #   D',
+            '#   #       G       #   #',
+            '#   #   #####   #   #####',
+            '#       #       #       #',
+            '#       #       #       #',
+            '#       #       #       #',
+            '#   #################   #',
+            '#   #   #         I     #',
+            '#   #   #         I     #',
+            '#   #   #         I     #',
+            '#   #   #   #########   #',
+            '#   #   #           #   #',
+            '#   #   #           #   #',
+            '#   #   #           #   #',
+            '#####   #   #########   #',
+            '#                   #   #',
+            '# S                 #   #',
+            '#                   #   #',
             '#########################',
         ],
     },

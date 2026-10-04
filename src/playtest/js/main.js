@@ -30,6 +30,10 @@ let testHooks = null; // only set with ?test=1
 // You touch the spike when you're this close to the edge of its plate
 const SPIKE_TOUCH_MARGIN = 0.25; // normal spike: 0.75 + 0.25 = 1.0
 const DOOR_TOUCH_DISTANCE = 1.3;
+// Stepping onto a slippery spot carries you about one extra step on
+const SLIDE_DISTANCE = 1.5;
+const SLIDE_MIN_SPEED = 4;
+let wasOnSlippery = false;
 let frameCount = 0;
 let lastTime = performance.now();
 let fps = 0;
@@ -216,6 +220,10 @@ function step(deltaTime) {
     player.update(inputManager, collisionManager, deltaTime);
     // Space doors (Level 12 on) slide open and shut by themselves
     maze.updateSpaceDoor(deltaTime, player.position, player.radius);
+    // Slippery spots (Level 13 on): stepping onto one starts a slide
+    const onSlippery = maze.onSlipperySpot(player.position);
+    if (onSlippery && !wasOnSlippery && player.startSlide(SLIDE_DISTANCE, SLIDE_MIN_SPEED)) testHooks?.emit('slide');
+    wasOnSlippery = onSlippery;
     checkSpikeAndDoor();
 
     // Update camera to follow player
