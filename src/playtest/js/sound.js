@@ -279,6 +279,29 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.1, length: 0.08, brightness: 6000 },
     },
+    // Level 12, learning space doors: a happy, bouncy "boing" tune (F major).
+    // Every bar starts with a jump up an octave and back ("low-HIGH . mid-HIGH"),
+    // like hopping in low gravity, on a soft round lead over a skipping bass.
+    orbit: {
+        tempo: 112,
+        bars: [[41, 'maj'], [38, 'min'], [46, 'maj'], [48, 'maj'], [41, 'maj'], [45, 'min'], [46, 'maj'], [48, 'maj']],
+        bass: [0, null, null, 7, null, 12, null, null],
+        bassLength: 0.2,
+        stabs: [2, 6],
+        stabLevel: 0.035,
+        ticks: false,
+        melody: [
+            65, 77, null, 72, 77, null, 69, null,
+            62, 74, null, 69, 74, null, 65, null,
+            70, 82, null, 77, 74, null, 70, null,
+            72, null, 76, null, 79, null, 84, null,
+            65, 77, null, 72, 77, null, 81, null,
+            69, 81, null, 76, 72, null, 69, null,
+            70, 74, 77, 82, 77, 74, null, null,
+            79, null, 76, null, 72, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.32, length: 0.2, brightness: 4500 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

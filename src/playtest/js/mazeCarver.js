@@ -145,8 +145,10 @@ export function toLayout(links, { corridor = 3, startCell, exitCell, spikeCell }
 
     const s = middle(startCell);
     grid[s.z][s.x] = 'S';
-    const x = middle(spikeCell);
-    grid[x.z][x.x] = 'X';
+    if (spikeCell) {
+        const x = middle(spikeCell);
+        grid[x.z][x.x] = 'X';
+    }
     // Door goes in the outer wall next to the exit cell, on the east edge
     const d = middle(exitCell);
     grid[d.z][width - 1] = 'D';

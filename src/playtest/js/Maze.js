@@ -133,6 +133,14 @@ export const SPIKE_RADIUS = 0.75; // the normal spike plate's radius
 const SPIKE_ROW_WIDTH = 3; // a spike row covers the whole 3-block corridor
 const SPIKE_ROW_DEPTH = 0.9;
 
+// Space doors (Level 12 on): open about 3 s, closed about 3 s, sliding takes a moment
+const SPACE_DOOR_OPEN_TIME = 3;
+const SPACE_DOOR_CLOSED_TIME = 3;
+const SPACE_DOOR_SLIDE_TIME = 0.7;
+// Solid like a wall once it's this far shut (or more)
+const SPACE_DOOR_SOLID_FROM = 0.25;
+const SPACE_DOOR_LIGHTS = { open: 0x3dff6e, moving: 0xffc83d, closed: 0xff3d3d };
+
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
@@ -152,6 +160,8 @@ export class Maze {
         this.grid = [];
         // Rows of spikes right across a corridor ('Y', Level 5 on): no way past
         this.spikeRows = [];
+        // Blocks of the space door ('G'), if the level has one
+        const doorBlocks = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -162,7 +172,12 @@ export class Maze {
                 if (ch === 'X') this.spikePosition = center;
                 if (ch === 'Y') this.spikeRows.push({ position: center, x, z });
                 if (ch === 'D') this.doorBlock = { x, z };
+                if (ch === 'G') doorBlocks.push({ x, z });
             }
+        }
+        if (doorBlocks.length) {
+            // shut: 0 = all the way open, 1 = all the way closed. It starts open.
+            this.spaceDoor = { blocks: doorBlocks, shut: 0, phase: 'open', timer: SPACE_DOOR_OPEN_TIME, solid: false };
         }
 
         // A row spans the corridor it sits in: across x when the corridor runs
@@ -178,7 +193,8 @@ export class Maze {
     build() {
         this.renderMaze();
         this.createDoor();
-        this.createSpike();
+        if (this.spikePosition) this.createSpike();
+        if (this.spaceDoor) this.createSpaceDoor();
         for (const row of this.spikeRows) this.createSpikeRow(row);
         this.scene.add(this.root);
     }
@@ -497,6 +513,110 @@ export class Maze {
         if (!row.spansX) group.rotation.y = Math.PI / 2;
         group.position.copy(row.position);
         this.root.add(group);
+    }
+
+    // A space door: a metal panel with a glowing stripe that slides down into
+    // the floor to open and back up to close, a glowing frame round the gap,
+    // and a light on top: green open, yellow moving, red closed
+    createSpaceDoor() {
+        const door = this.spaceDoor;
+        const xs = door.blocks.map((b) => b.x);
+        const zs = door.blocks.map((b) => b.z);
+        const spansX = new Set(xs).size > 1; // the gap runs along x (the door faces z)
+        const minX = Math.min(...xs);
+        const minZ = Math.min(...zs);
+        const across = door.blocks.length; // 3 blocks wide
+        const cx = spansX ? minX + across / 2 : minX + 0.5;
+        const cz = spansX ? minZ + 0.5 : minZ + across / 2;
+        const group = new THREE.Group();
+        group.position.set(cx, 0, cz);
+        if (!spansX) group.rotation.y = Math.PI / 2;
+        this.root.add(group);
+
+        // Panel (and its stripes) in a group that slides down into the floor
+        const slider = new THREE.Group();
+        const panel = new THREE.Mesh(
+            new THREE.BoxGeometry(across, this.height, 0.3),
+            new THREE.MeshStandardMaterial({ color: 0xaeb6c2, metalness: 0.6, roughness: 0.35, emissive: 0x3a4454, emissiveIntensity: 0.6 })
+        );
+        panel.position.y = this.height / 2;
+        panel.castShadow = true;
+        slider.add(panel);
+        const glow = new THREE.MeshStandardMaterial({ color: 0x5ff2ff, emissive: 0x2fd8ff, emissiveIntensity: 0.9 });
+        for (const y of [0.9, 1.9]) {
+            const stripe = new THREE.Mesh(new THREE.BoxGeometry(across - 0.3, 0.12, 0.34), glow);
+            stripe.position.y = y;
+            slider.add(stripe);
+        }
+        group.add(slider);
+
+        // Glowing frame on the wall ends either side, and a bar across the top
+        const frameMaterial = new THREE.MeshStandardMaterial({ color: 0x5ff2ff, emissive: 0x2fd8ff, emissiveIntensity: 0.7 });
+        for (const side of [-1, 1]) {
+            const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, this.height, 0.5), frameMaterial);
+            post.position.set(side * (across / 2 + 0.03), this.height / 2, 0);
+            group.add(post);
+        }
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(across + 0.2, 0.25, 0.5), new THREE.MeshStandardMaterial({ color: 0x5d636b, metalness: 0.6, roughness: 0.4 }));
+        bar.position.y = this.height + 0.1;
+        group.add(bar);
+        const light = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12), new THREE.MeshBasicMaterial({ color: SPACE_DOOR_LIGHTS.open }));
+        light.position.y = this.height + 0.35;
+        group.add(light);
+
+        Object.assign(door, { slider, light, minX, minZ, maxX: Math.max(...xs) + 1, maxZ: Math.max(...zs) + 1 });
+        this.showSpaceDoor();
+    }
+
+    // Is a player of this radius overlapping the space door's gap?
+    inSpaceDoorway(point, radius) {
+        const d = this.spaceDoor;
+        return point.x + radius > d.minX && point.x - radius < d.maxX && point.z + radius > d.minZ && point.z - radius < d.maxZ;
+    }
+
+    // Run the space door's open / shut cycle (called every game step, so it
+    // stops while paused). It never shuts on the player: while they're in the
+    // doorway it stays open, and if they step in as it closes it opens again.
+    updateSpaceDoor(dt, playerPosition, playerRadius) {
+        const door = this.spaceDoor;
+        if (!door) return;
+        // Same reach as the wall check, so standing right up against the shut door
+        // doesn't count as being in the doorway
+        const inDoorway = this.inSpaceDoorway(playerPosition, playerRadius);
+        const slide = dt / SPACE_DOOR_SLIDE_TIME;
+        if (door.phase === 'open') {
+            door.timer -= dt;
+            if (door.timer <= 0 && !inDoorway) door.phase = 'closing';
+        } else if (door.phase === 'closing') {
+            if (inDoorway) {
+                door.phase = 'opening';
+            } else {
+                door.shut = Math.min(1, door.shut + slide);
+                if (door.shut === 1) Object.assign(door, { phase: 'closed', timer: SPACE_DOOR_CLOSED_TIME });
+            }
+        } else if (door.phase === 'closed') {
+            door.timer -= dt;
+            if (door.timer <= 0) door.phase = 'opening';
+        } else {
+            door.shut = Math.max(0, door.shut - slide);
+            if (door.shut === 0) Object.assign(door, { phase: 'open', timer: SPACE_DOOR_OPEN_TIME });
+        }
+        // Solid while mostly shut, but never while the player is in the gap
+        const solid = door.shut >= SPACE_DOOR_SOLID_FROM && !inDoorway;
+        if (solid !== door.solid) {
+            door.solid = solid;
+            for (const { x, z } of door.blocks) this.mazeData[x][z].fill(solid ? 1 : 0);
+        }
+        this.showSpaceDoor();
+    }
+
+    showSpaceDoor() {
+        const door = this.spaceDoor;
+        if (!door.slider) return;
+        door.slider.position.y = -(1 - door.shut) * (this.height + 0.05);
+        door.slider.visible = door.shut > 0;
+        const color = door.phase === 'open' ? 'open' : door.phase === 'closed' ? 'closed' : 'moving';
+        door.light.material.color.setHex(SPACE_DOOR_LIGHTS[color]);
     }
 
     // Is a point within `margin` of any spike? (The round spike counts from the

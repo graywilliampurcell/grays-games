@@ -214,6 +214,8 @@ function animate() {
 function step(deltaTime) {
     // Update player movement
     player.update(inputManager, collisionManager, deltaTime);
+    // Space doors (Level 12 on) slide open and shut by themselves
+    maze.updateSpaceDoor(deltaTime, player.position, player.radius);
     checkSpikeAndDoor();
 
     // Update camera to follow player
