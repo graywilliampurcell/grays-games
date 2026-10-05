@@ -20,6 +20,7 @@
 //   node tools/find-level.mjs level17    # Level 17 rules (a moving-platform gap, a space door, a slippery spot, a path spike)
 //   node tools/find-level.mjs level18    # Level 18 rules (Level 17's plus a spike row in a straight dead end)
 //   node tools/find-level.mjs level19    # Level 19 rules (Level 18's with the spike row hidden round a corner, like Level 9's)
+//   node tools/find-level.mjs level20    # Level 20 rules (Level 18's with a second path spike instead of the door)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -95,6 +96,12 @@
 // first 3 path cells. The other 5 dead ends are 2 cells deep. Starts in a row
 // Level 18 doesn't.
 //
+// Level 20 rules (Iteration 32): Level 18's, but no space door; instead a
+// second spike on the path ('Z', the tighter squeeze) in a plain straight path
+// cell like the first. The spacing rule covers all five: the gap, the slippery
+// spot, both path spikes and the blocked dead end's opening. Starts in a row
+// Level 19 doesn't.
+//
 // Every cell not on the path belongs to a dead end, so for Level 1 the path
 // covers 25 - 5 - 3 = 17 cells (Level 2: 25 - 8 - 3 = 14). The search lays a
 // random path of that length and keeps it if the cells it leaves over can be
@@ -105,7 +112,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -122,7 +129,8 @@ const LEVEL13 = process.argv[2] === 'level13'; // Level 12's plus a slippery spo
 const LEVEL14 = process.argv[2] === 'level14'; // Level 12's plus a spike on the path
 const LEVEL16 = process.argv[2] === 'level16'; // Level 15's plus a second slippery spot and a space door
 const LEVEL19 = process.argv[2] === 'level19'; // Level 18's with the spike row hidden round a corner
-const LEVEL18 = process.argv[2] === 'level18'; // Level 17's plus a spike row in a straight dead end
+const LEVEL20 = process.argv[2] === 'level20'; // Level 18's with a second path spike instead of the door
+const LEVEL18 = process.argv[2] === 'level18' || LEVEL20; // Level 17's plus a spike row in a straight dead end
 const LEVEL17 = process.argv[2] === 'level17' || LEVEL18 || LEVEL19; // a moving-platform gap, a space door, a slippery spot, a path spike
 const LEVEL15 = process.argv[2] === 'level15' || LEVEL16; // slippery spot, path spike, spike row in a dead end
 const LEVEL12 = process.argv[2] === 'level12' || LEVEL13 || LEVEL14;
@@ -160,6 +168,7 @@ const LEVEL15_START_ROW = 3;
 const LEVEL16_START_ROW = 0;
 const LEVEL17_START_ROW = 3;
 const LEVEL18_START_ROW = 4;
+const LEVEL19_START_ROW = 1;
 const SEEDS = LEVEL19 ? 40000 : 2000; // Level 19 has many more rules to meet
 const STEPS_PER_SEED = 200000;
 
@@ -594,8 +603,9 @@ function hangLevel17(path, random) {
         : hidden ? [hidden] : [null];
     const gaps = [];
     for (let g = 2; g < path.length - 3; g++) if (plain(g) && plain(g + 1) && g >= path.length * 0.25 && g + 1 <= path.length * 0.8) gaps.push(g);
-    const doors = [];
-    for (let d = 1; d < path.length - 2; d++) {
+    // Level 20 has no door (null: nothing to keep away from)
+    const doors = LEVEL20 ? [null] : [];
+    for (let d = 1; d < path.length - 2 && !LEVEL20; d++) {
         const dir = step(path[d], path[d + 1]);
         // Levels 18-19: not right by the start or the exit
         if ((LEVEL18 || LEVEL19) && (d < path.length * 0.25 || d > path.length * 0.8)) continue;
@@ -608,7 +618,7 @@ function hangLevel17(path, random) {
     const slips = [];
     for (let k = 1; k < path.length - 1; k++) if (plain(k)) slips.push(k);
     const apart = (a, b) => Math.abs(a - b) >= 3; // at least 2 path cells between
-    const fromDoor = (c, d) => (c <= d ? d - c : c - d - 1) >= 3;
+    const fromDoor = (c, d) => d === null || (c <= d ? d - c : c - d - 1) >= 3;
     const fromGap = (c, g) => apart(c, g) && apart(c, g + 1);
     const options = [];
     for (const g of gaps) for (const d of doors) {
@@ -619,7 +629,11 @@ function hangLevel17(path, random) {
                 if (!fromDoor(p, d) || !fromGap(p, g) || !apart(p, s)) continue;
                 for (const b of blockers) {
                     if (b && (!fromDoor(b.at, d) || !fromGap(b.at, g) || !apart(b.at, s) || !apart(b.at, p))) continue;
-                    options.push({ gapIndex: g, doorIndex: d, spikeIndex: s, slipperyIndex: p, blocker: b });
+                    // Level 20: the second path spike, after the first, kept away from all the rest
+                    for (const s2 of LEVEL20 ? spikes : [null]) {
+                        if (s2 !== null && (s2 <= s || !apart(s2, s) || !fromGap(s2, g) || !apart(s2, p) || (b && !apart(s2, b.at)))) continue;
+                        options.push({ gapIndex: g, doorIndex: d, spikeIndex: s, slipperyIndex: p, blocker: b, spikeIndex2: s2 });
+                    }
                 }
             }
         }
@@ -730,7 +744,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL10 && path[0].j === LEVEL9_START_ROW) continue;
     if (LEVEL9 && path[0].j === LEVEL8_START_ROW) continue;
     if (LEVEL17) {
-        if (path[0].j === (LEVEL19 ? LEVEL18_START_ROW : LEVEL18 ? LEVEL17_START_ROW : LEVEL16_START_ROW)) continue;
+        if (path[0].j === (LEVEL20 ? LEVEL19_START_ROW : LEVEL19 ? LEVEL18_START_ROW : LEVEL18 ? LEVEL17_START_ROW : LEVEL16_START_ROW)) continue;
         const hung = hangLevel17(path, random);
         if (!hung) continue;
         const startCell = path[0];
@@ -748,8 +762,9 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
         if (ok && !EXISTING.has(candidateShape) && differentEnough(candidateShape)) {
             best = { seed, links: hung.links, startCell, exitCell, spikeCell: path[hung.spikeIndex], solution, deadEnds, spikeIndex: hung.spikeIndex,
                 slippery: [path[hung.slipperyIndex], path[hung.slipperyIndex + 1]], slipperyIndex: hung.slipperyIndex,
-                door: [path[hung.doorIndex], path[hung.doorIndex + 1]], doorIndex: hung.doorIndex,
-                gap: [path[hung.gapIndex], path[hung.gapIndex + 1]], gapIndex: hung.gapIndex, blocker: hung.blocker };
+                door: hung.doorIndex === null ? null : [path[hung.doorIndex], path[hung.doorIndex + 1]], doorIndex: hung.doorIndex,
+                gap: [path[hung.gapIndex], path[hung.gapIndex + 1]], gapIndex: hung.gapIndex, blocker: hung.blocker,
+                spikeCell2: hung.spikeIndex2 === null ? null : path[hung.spikeIndex2], spikeIndex2: hung.spikeIndex2 };
         }
         continue;
     }
@@ -865,6 +880,12 @@ for (const strip of [best.slippery, best.slippery2].filter(Boolean)) {
         layout[z] = row.join('');
     }
 }
+if (best.spikeCell2) {
+    // The second path spike ('Z') in the middle of its cell, like toLayout's 'X'
+    const row = layout[4 * best.spikeCell2.j + 2].split('');
+    row[4 * best.spikeCell2.i + 2] = 'Z';
+    layout[4 * best.spikeCell2.j + 2] = row.join('');
+}
 if (best.gap) {
     for (const [x, z] of gapBlocks(...best.gap)) {
         const row = layout[z].split('');
@@ -885,6 +906,7 @@ console.log(`\nseed ${best.seed}: ${COLS}x${ROWS}, path ${best.solution.length} 
     (best.slippery ? `slippery spot in path cell ${best.slipperyIndex + 1}, ` : '') +
     (best.slippery2 ? `second slippery spot in path cell ${best.slipperyIndex2 + 1}, ` : '') +
     (best.spikeIndex !== undefined ? `spike in path cell ${best.spikeIndex + 1}, ` : '') +
+    (best.spikeCell2 ? `second spike in path cell ${best.spikeIndex2 + 1}, ` : '') +
     (best.gap ? `platform gap over path cells ${best.gapIndex + 1}-${best.gapIndex + 2}, ` : '') +
     (best.door ? `space door between path cells ${best.doorIndex + 1} and ${best.doorIndex + 2}` : best.spike ? `spike ${best.spike.fromStart} cells from start` : '') +
     (best.blocker ? `, spike row in the dead end at ${best.blocker.rowCell.i},${best.blocker.rowCell.j}` : '') +

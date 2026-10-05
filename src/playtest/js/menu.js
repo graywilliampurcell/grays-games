@@ -95,6 +95,8 @@ export class Menu {
     showFinish(nextLevelName, finaleTitle, nextLabel) {
         this.root.hidden = false;
         document.getElementById('finish-title').textContent = finaleTitle || (nextLevelName ? 'You did it!' : 'More levels coming soon!');
+        // A world's finale with nothing after it yet (Level 20): "More levels coming soon!" underneath
+        document.getElementById('finish-note').hidden = !(finaleTitle && !nextLevelName);
         const next = this.panels.finish.querySelector('[data-act=next-level]');
         next.hidden = !nextLevelName;
         if (nextLevelName) next.textContent = nextLabel || `Start ${nextLevelName}`;

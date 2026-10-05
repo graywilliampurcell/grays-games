@@ -70,6 +70,7 @@ export function installTestHooks(game) {
             grid: (game.getLevelIndex() >= 0 ? LEVELS[game.getLevelIndex()].layout : layout).slice(),
             cellSize: 1,
             spike: maze.spikePosition ? { x: maze.spikePosition.x, z: maze.spikePosition.z } : null,
+            spike2: maze.spike2Position ? { x: maze.spike2Position.x, z: maze.spike2Position.z } : null,
             sliding: !!player.slide,
             spaceDoor: maze.spaceDoor ? { phase: maze.spaceDoor.phase, shut: round(maze.spaceDoor.shut), solid: maze.spaceDoor.solid } : null,
             platform: maze.platform ? { at: round(maze.platform.at), target: round(maze.platform.target), riding: maze.platform.riding, alongX: maze.platform.alongX, gap: { ...maze.platform.gap } } : null,
@@ -81,7 +82,7 @@ export function installTestHooks(game) {
 
     // Replace the maze with a new layout (same format as levels.js)
     function loadLayout(rows, name = 'Custom', index = -1) {
-        game.loadLevel({ name, layout: rows, theme: LEVELS[index]?.theme, spikeRadius: LEVELS[index]?.spikeRadius }, index);
+        game.loadLevel({ name, layout: rows, theme: LEVELS[index]?.theme, spikeRadius: LEVELS[index]?.spikeRadius, spike2Radius: LEVELS[index]?.spike2Radius }, index);
         layout = rows.slice();
         document.getElementById('level').textContent = name;
         restore();

@@ -175,8 +175,10 @@ export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
     // golden: the finale's door (Level 10) is gold instead of brown
-    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS, golden = false } = {}) {
+    // spike2Radius: the second path spike's ('Z', Level 20) plate, the tighter squeeze
+    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS, spike2Radius = spikeRadius, golden = false } = {}) {
         this.spikeRadius = spikeRadius;
+        this.spike2Radius = spike2Radius;
         this.golden = golden;
         this.scene = scene;
         this.theme = theme;
@@ -204,6 +206,7 @@ export class Maze {
                 const center = new THREE.Vector3(x + 0.5, 0, z + 0.5);
                 if (ch === 'S') this.startPosition = center;
                 if (ch === 'X') this.spikePosition = center;
+                if (ch === 'Z') this.spike2Position = center;
                 if (ch === 'Y') this.spikeRows.push({ position: center, x, z });
                 if (ch === 'D') this.doorBlock = { x, z };
                 if (ch === 'G') doorBlocks.push({ x, z });
@@ -230,7 +233,8 @@ export class Maze {
     build() {
         this.renderMaze();
         this.createDoor();
-        if (this.spikePosition) this.createSpike();
+        if (this.spikePosition) this.createSpike(this.spikePosition, this.spikeRadius);
+        if (this.spike2Position) this.createSpike(this.spike2Position, this.spike2Radius);
         if (this.spaceDoor) this.createSpaceDoor();
         if (this.slipperyBlocks.size) this.createSlipperySpots();
         if (this.platform) this.createPlatform();
@@ -552,8 +556,8 @@ export class Maze {
         this.root.add(door);
     }
 
-    // A small cluster of metal spikes on the floor
-    createSpike() {
+    // A small cluster of metal spikes on the floor, its plate `radius` across from the middle
+    createSpike(position, radius) {
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -577,8 +581,8 @@ export class Maze {
         }
 
         // Shrink (or grow) the whole cluster sideways to the level's spike size
-        spike.scale.set(this.spikeRadius / SPIKE_RADIUS, 1, this.spikeRadius / SPIKE_RADIUS);
-        spike.position.copy(this.spikePosition);
+        spike.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
+        spike.position.copy(position);
         this.root.add(spike);
     }
 
@@ -949,6 +953,7 @@ export class Maze {
     // edge of its plate; a row counts across its whole width.)
     touchesSpike(point, margin) {
         if (this.spikePosition && Math.hypot(point.x - this.spikePosition.x, point.z - this.spikePosition.z) < this.spikeRadius + margin) return true;
+        if (this.spike2Position && Math.hypot(point.x - this.spike2Position.x, point.z - this.spike2Position.z) < this.spike2Radius + margin) return true;
         return this.spikeRows.some((row) => {
             const across = row.spansX ? point.x - row.position.x : point.z - row.position.z;
             const along = row.spansX ? point.z - row.position.z : point.x - row.position.x;

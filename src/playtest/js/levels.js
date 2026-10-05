@@ -3,10 +3,12 @@
 //   a corridor, 'D' exit door (in the outer wall), 'G' a space door that slides
 //   open and shut by itself (three blocks across a gap; see Maze.js), 'I' a
 //   slippery spot on the floor (a strip right across a corridor), 'O' a gap
-//   with no floor, crossed on a moving platform (Level 17 on)
+//   with no floor, crossed on a moving platform (Level 17 on), 'Z' a second
+//   spike on the path with its own size (spike2Radius)
 // Found with tools/find-level.mjs. theme: colors and the fluffy look, see Maze.js.
 // music: the level's tune (see sound.js), a little sneakier each level.
 // spikeRadius: size of the spike's plate (default 0.75; see Maze.js).
+// spike2Radius: the second path spike's ('Z') plate, Level 20's tighter squeeze.
 // finale: the last level of a world: golden door, confetti, its own end title.
 
 // Levels 1-10 share the cotton candy look: fluffy pink walls on blue ground.
@@ -712,6 +714,49 @@ export const LEVELS = [
             '#           G           #',
             '#           G           #',
             '#           G           #',
+            '#########################',
+        ],
+    },    {
+        name: 'Level 20',
+        // The Space World finale. `node tools/find-level.mjs level20`, seed 25.
+        // 6 x 6 corridors. Correct path 24 cells; 6 dead ends each 2 cells
+        // deep. Y: a spike row just inside the straight dead end that goes
+        // down from the start cell, in plain view. X: a spike on the path
+        // (path cell 7), plate 0.7 like Level 18. Z: a second spike on the
+        // path (path cell 12), plate 0.72 like Level 10, the tightest squeeze.
+        // O: the platform gap over path cells 16-17 (straight from 15 to 18).
+        // I: the slippery spot (path cell 21). No space door. At least 2 path
+        // cells between any two of them. Golden door, confetti, long cheer.
+        theme: SPACE,
+        music: 'galaxy',
+        spikeRadius: 0.7,
+        spike2Radius: 0.72,
+        finale: 'You beat Space World!',
+        layout: [
+            '#########################',
+            '#   #         I         #',
+            '#   #         I         #',
+            '#   #         I         #',
+            '#   #   #############   #',
+            '#        OOOOOOO    #   #',
+            '#        OOOOOOO    #   D',
+            '#        OOOOOOO    #   #',
+            '#################   #####',
+            '#       #       #       #',
+            '#       #       #       #',
+            '#       #       #       #',
+            '#####   #   #   #####   #',
+            '#           #   #   #   #',
+            '# S         #   #   # Z #',
+            '#           #   #   #   #',
+            '#   #   #####   #   #   #',
+            '# Y #       #   #       #',
+            '#   #       # X #       #',
+            '#   #       #   #       #',
+            '#   #########   #####   #',
+            '#   #                   #',
+            '#   #                   #',
+            '#   #                   #',
             '#########################',
         ],
     },

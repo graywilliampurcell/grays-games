@@ -161,6 +161,7 @@ function loadLevel(level, index) {
     const theme = level.theme || LEVELS[0].theme;
     maze = new Maze(scene, level.layout, theme, {
         spikeRadius: level.spikeRadius ?? LEVELS[index]?.spikeRadius,
+        spike2Radius: level.spike2Radius ?? LEVELS[index]?.spike2Radius,
         golden: !!(level.finale ?? LEVELS[index]?.finale),
     });
     maze.build();

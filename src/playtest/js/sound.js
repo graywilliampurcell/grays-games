@@ -471,6 +471,30 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.32, length: 0.18, brightness: 6000 },
     },
+    // Level 20, the Space World finale: a big, happy space fanfare (D-flat
+    // major) that leaps up in bright calls like a trumpet, climbs to a high
+    // finish, with one sneaky note before the last climb, on a bright square
+    // lead over a marching octave bass.
+    galaxy: {
+        tempo: 140,
+        bars: [[37, 'maj'], [42, 'maj'], [44, 'maj'], [37, 'maj'], [46, 'min'], [42, 'maj'], [44, 'maj'], [37, 'maj']],
+        bass: [0, null, 12, null, 7, null, 12, null],
+        bassLength: 0.15,
+        stabs: [2, 6],
+        stabLevel: 0.035,
+        ticks: true,
+        melody: [
+            68, null, 68, 73, null, 77, 80, null,
+            78, null, 78, 82, null, 85, 82, null,
+            80, 82, 80, 77, 75, null, 72, null,
+            73, null, 77, null, 80, null, 85, null,
+            82, null, 81, 82, 85, null, 82, null,
+            78, null, 82, null, 85, null, 90, null,
+            87, null, 84, null, 80, 84, 87, null,
+            85, null, null, null, 73, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.14, brightness: 4500 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
