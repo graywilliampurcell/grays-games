@@ -408,14 +408,51 @@ export class Maze {
         flyer.object.rotateY(-Math.PI / 2); // models point along +x
     }
 
-    // Move the things flying through the sky (called every frame)
+    // Move the things flying through the sky, and under the platform gap (called every frame)
     update(dt) {
-        if (!this.flyers) return;
-        for (const flyer of this.flyers) {
+        for (const flyer of this.flyers || []) {
             flyer.object.position.addScaledVector(flyer.velocity, dt);
             flyer.life -= dt;
             if (flyer.life <= 0) this.launchFlyer(flyer);
         }
+        for (const flyer of this.gapFlyers || []) {
+            flyer.object.position.addScaledVector(flyer.velocity, dt);
+            flyer.life -= dt;
+            if (flyer.life <= 0) this.launchGapFlyer(flyer);
+        }
+    }
+
+    // Space World: smaller meteors, comets and rocket ships flying by in the open
+    // space under the platform gap, mostly along it so they stay in view a while.
+    // Just to look at: no dangers.
+    addGapFlyers() {
+        this.gapFlyers = [];
+        const kinds = ['rocket', 'comet', 'meteor', 'rocket', 'comet'];
+        kinds.forEach((kind, k) => {
+            const flyer = this.makeFlyer(kind);
+            flyer.object.scale.setScalar(0.4);
+            this.root.add(flyer.object);
+            this.gapFlyers.push(flyer);
+            this.launchGapFlyer(flyer, k / kinds.length);
+        });
+    }
+
+    // Send a gap flyer on a new path under the gap, `ahead` of the way along it (0-1)
+    launchGapFlyer(flyer, ahead = 0) {
+        const p = this.platform;
+        const g = p.gap;
+        const centre = new THREE.Vector3((g.minX + g.maxX) / 2, -4 - Math.random() * 10, (g.minZ + g.maxZ) / 2);
+        const angle = (p.alongX ? 0 : Math.PI / 2) + (Math.random() - 0.5) * 0.7 + (Math.random() < 0.5 ? Math.PI : 0);
+        const dir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
+        const side = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar((Math.random() - 0.5) * 2);
+        const span = 50;
+        const speed = flyer.kind === 'rocket' ? 5 : flyer.kind === 'comet' ? 6.5 : 8;
+        flyer.velocity.copy(dir).multiplyScalar(speed);
+        flyer.life = span / speed;
+        flyer.object.position.copy(centre).addScaledVector(dir, -span / 2).add(side).addScaledVector(flyer.velocity, flyer.life * ahead);
+        flyer.life *= 1 - ahead;
+        flyer.object.lookAt(flyer.object.position.clone().add(flyer.velocity));
+        flyer.object.rotateY(-Math.PI / 2); // models point along +x
     }
 
     // Cotton-candy puffs: soft balls along the tops of the walls and at their feet
@@ -795,6 +832,7 @@ export class Maze {
         const starGeometry = new THREE.BufferGeometry();
         starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(stars, 3));
         this.root.add(new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, fog: false })));
+        if (this.theme.space) this.addGapFlyers();
 
         const edgeMaterial = new THREE.MeshStandardMaterial({ color: 0x5ff2ff, emissive: 0x2fd8ff, emissiveIntensity: 0.8 });
         for (const end of [0, p.span]) {

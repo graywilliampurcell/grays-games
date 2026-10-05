@@ -673,5 +673,46 @@ export const LEVELS = [
             '#       #       #       #',
             '#########################',
         ],
+    },    {
+        name: 'Level 19',
+        // The sneaky big spike in space. `node tools/find-level.mjs level19`,
+        // seed 117. 6 x 6 corridors. Correct path 23 cells; 5 dead ends 2
+        // cells deep, plus the hidden one: off path cell 3 it runs straight
+        // for two cells, then turns, and Y (the spike row) sits in the middle
+        // of the cell round the corner, out of sight like Level 9's. I: the
+        // slippery spot (path cell 7). X: a spike on the path (path cell 11),
+        // plate 0.7 like Level 18. O: the platform gap over path cells 15-16
+        // (straight from 14 to 17). G: the space door (between path cells 19
+        // and 20). At least 2 path cells between any two of them.
+        theme: SPACE,
+        music: 'peekaboo',
+        spikeRadius: 0.7,
+        layout: [
+            '#########################',
+            '#       #       #       #',
+            '#       #       #       #',
+            '#       #       #       #',
+            '#   #####   #####   #   #',
+            '#               #   #   #',
+            '# S             #III#   #',
+            '#               #   #   #',
+            '#   #####   #   #   #   #',
+            '#   #   #   #       #   #',
+            '#   #   #   #       # X #',
+            '#   #   #   #       #   #',
+            '#   #   #   #########   #',
+            '#   #   #       #       #',
+            '#   #   #     Y #       #',
+            '#   #   #       #       #',
+            '#####   #########   #####',
+            '#   #    OOOOOOO    #   #',
+            '#   #    OOOOOOO    #   D',
+            '#   #    OOOOOOO    #   #',
+            '#   #   #############   #',
+            '#           G           #',
+            '#           G           #',
+            '#           G           #',
+            '#########################',
+        ],
     },
 ];

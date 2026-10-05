@@ -19,6 +19,7 @@
 //   node tools/find-level.mjs level16    # Level 16 rules (Level 15's with two slippery spots and a space door)
 //   node tools/find-level.mjs level17    # Level 17 rules (a moving-platform gap, a space door, a slippery spot, a path spike)
 //   node tools/find-level.mjs level18    # Level 18 rules (Level 17's plus a spike row in a straight dead end)
+//   node tools/find-level.mjs level19    # Level 19 rules (Level 18's with the spike row hidden round a corner, like Level 9's)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -87,6 +88,13 @@
 // opens off). The door is not right by the start or the exit (path cells 25-80%
 // of the way). Starts in a row Level 17 doesn't.
 //
+// Level 19 rules (Iteration 31): Level 18's, except the spike row hides like
+// Level 9's: in a dead end 3 cells deep that runs straight for two cells and
+// then turns, with the row in the middle of the cell right after the turn, out of sight of
+// the path and the dead end's opening. That dead end opens off one of the
+// first 3 path cells. The other 5 dead ends are 2 cells deep. Starts in a row
+// Level 18 doesn't.
+//
 // Every cell not on the path belongs to a dead end, so for Level 1 the path
 // covers 25 - 5 - 3 = 17 cells (Level 2: 25 - 8 - 3 = 14). The search lays a
 // random path of that length and keeps it if the cells it leaves over can be
@@ -97,7 +105,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -113,8 +121,9 @@ const LEVEL11 = process.argv[2] === 'level11';
 const LEVEL13 = process.argv[2] === 'level13'; // Level 12's plus a slippery spot
 const LEVEL14 = process.argv[2] === 'level14'; // Level 12's plus a spike on the path
 const LEVEL16 = process.argv[2] === 'level16'; // Level 15's plus a second slippery spot and a space door
+const LEVEL19 = process.argv[2] === 'level19'; // Level 18's with the spike row hidden round a corner
 const LEVEL18 = process.argv[2] === 'level18'; // Level 17's plus a spike row in a straight dead end
-const LEVEL17 = process.argv[2] === 'level17' || LEVEL18; // a moving-platform gap, a space door, a slippery spot, a path spike
+const LEVEL17 = process.argv[2] === 'level17' || LEVEL18 || LEVEL19; // a moving-platform gap, a space door, a slippery spot, a path spike
 const LEVEL15 = process.argv[2] === 'level15' || LEVEL16; // slippery spot, path spike, spike row in a dead end
 const LEVEL12 = process.argv[2] === 'level12' || LEVEL13 || LEVEL14;
 const COLS = LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
@@ -128,9 +137,9 @@ const LEVEL7 = ['level7', 'level8', 'level9', 'level10'].includes(process.argv[2
 const LEVEL8 = ['level8', 'level9', 'level10'].includes(process.argv[2]); // clearly new layout and spike-row spot
 const LEVEL9 = process.argv[2] === 'level9'; // the spike row hidden just round a dead end's corner
 const LEVEL10 = process.argv[2] === 'level10'; // the finale: a visible spike row again
-const SHORT_DEAD_ENDS = LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
+const SHORT_DEAD_ENDS = LEVEL19 ? 5 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
 const SHORT_DEPTH = LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 || (!LEVEL7 && (LEVEL2 || LEVEL3)) ? 2 : LEVEL7 ? 3 : 1; // how deep each of those dead ends is
-const SPIKE_DEPTH = LEVEL3 || LEVEL12 || LEVEL15 || LEVEL17 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
+const SPIKE_DEPTH = LEVEL19 ? 3 : LEVEL3 || LEVEL12 || LEVEL15 || LEVEL17 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
 const SPIKE_BRANCH_WITHIN = 3; // the spike dead end leaves the path in its first 3 cells
 const PATH_LENGTH = COLS * ROWS - SHORT_DEAD_ENDS * SHORT_DEPTH - SPIKE_DEPTH;
 // Earlier levels' start rows; each new level starts somewhere new
@@ -150,7 +159,8 @@ const LEVEL14_START_ROW = 4;
 const LEVEL15_START_ROW = 3;
 const LEVEL16_START_ROW = 0;
 const LEVEL17_START_ROW = 3;
-const SEEDS = 2000;
+const LEVEL18_START_ROW = 4;
+const SEEDS = LEVEL19 ? 40000 : 2000; // Level 19 has many more rules to meet
 const STEPS_PER_SEED = 200000;
 
 const DIRECTIONS = [
@@ -526,8 +536,35 @@ function hangLevel17(path, random) {
     for (let i = 0; i < COLS; i++) {
         for (let j = 0; j < ROWS; j++) if (!onPath.has(`${i},${j}`)) leftover.push({ i, j });
     }
-    const chains = splitIntoDeadEnds(leftover, onPath, random);
-    if (!chains) return null;
+    const step = (p, q) => `${q.i - p.i},${q.j - p.j}`;
+    // Level 19: the hidden spike-row dead end, root (path cell 0-2) -> a -> b -> c,
+    // straight from the root to b and turning once at b, the same shape as Level
+    // 9's (turning at a leaves c in sight of the opening); every other leftover
+    // cell in 2-cell dead ends
+    let hidden = null;
+    let chains;
+    if (LEVEL19) {
+        const isLeftover = new Set(leftover.map(key));
+        const choices = [];
+        for (let k = 0; k < 3; k++) {
+            for (const a of neighbours(path[k]).filter((n) => isLeftover.has(key(n)))) {
+                const b = { i: 2 * a.i - path[k].i, j: 2 * a.j - path[k].j };
+                if (!isLeftover.has(key(b))) continue;
+                for (const c of neighbours(b).filter((n) => isLeftover.has(key(n)) && step(a, b) !== step(b, n))) {
+                    const used = new Set([key(a), key(b), key(c)]);
+                    const rest = splitIntoDeadEnds(leftover.filter((x) => !used.has(key(x))), onPath, random);
+                    if (rest) choices.push({ k, a, b, c, rest });
+                }
+            }
+        }
+        if (choices.length === 0) return null;
+        const pick = choices[Math.floor(random() * choices.length)];
+        hidden = { chain: [pick.a, pick.b, pick.c], from: path[pick.k], rowFrom: pick.b, rowCell: pick.c, middle: true, at: pick.k };
+        chains = pick.rest;
+    } else {
+        chains = splitIntoDeadEnds(leftover, onPath, random);
+        if (!chains) return null;
+    }
     const links = [];
     for (let i = 0; i < COLS; i++) {
         links[i] = [];
@@ -538,26 +575,30 @@ function hangLevel17(path, random) {
         links[q.i][q.j].push(p);
     };
     for (let n = 1; n < path.length; n++) link(path[n - 1], path[n]);
+    if (hidden) {
+        link(hidden.from, hidden.chain[0]);
+        link(hidden.chain[0], hidden.chain[1]);
+        link(hidden.chain[1], hidden.chain[2]);
+    }
     const roots = chains.map((chain) => shuffle(neighbours(chain[0]).filter((n) => onPath.has(key(n))), random)[0]);
     chains.forEach((chain, c) => {
         link(chain[0], roots[c]);
         for (let n = 1; n < chain.length; n++) link(chain[n - 1], chain[n]);
     });
-    const step = (p, q) => `${q.i - p.i},${q.j - p.j}`;
     const plain = (k) => k > 0 && k < path.length - 1 && links[path[k].i][path[k].j].length === 2 && step(path[k - 1], path[k]) === step(path[k], path[k + 1]);
     // Level 18: straight dead ends (path cell -> first -> last in a line) for the spike row
     const index = new Map(path.map((c, k) => [key(c), k]));
     const blockers = LEVEL18
         ? chains.map((chain, c) => ({ chain, from: roots[c], rowFrom: roots[c], rowCell: chain[0], at: index.get(key(roots[c])) }))
             .filter(({ chain, from }) => chain.every((cell, n) => step(n === 0 ? from : chain[n - 1], cell) === step(from, chain[0])))
-        : [null];
+        : hidden ? [hidden] : [null];
     const gaps = [];
     for (let g = 2; g < path.length - 3; g++) if (plain(g) && plain(g + 1) && g >= path.length * 0.25 && g + 1 <= path.length * 0.8) gaps.push(g);
     const doors = [];
     for (let d = 1; d < path.length - 2; d++) {
         const dir = step(path[d], path[d + 1]);
-        // Level 18: not right by the start or the exit
-        if (LEVEL18 && (d < path.length * 0.25 || d > path.length * 0.8)) continue;
+        // Levels 18-19: not right by the start or the exit
+        if ((LEVEL18 || LEVEL19) && (d < path.length * 0.25 || d > path.length * 0.8)) continue;
         if (step(path[d - 1], path[d]) === dir && step(path[d + 1], path[d + 2]) === dir) doors.push(d);
     }
     const spikes = [];
@@ -689,16 +730,20 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL10 && path[0].j === LEVEL9_START_ROW) continue;
     if (LEVEL9 && path[0].j === LEVEL8_START_ROW) continue;
     if (LEVEL17) {
-        if (path[0].j === (LEVEL18 ? LEVEL17_START_ROW : LEVEL16_START_ROW)) continue;
+        if (path[0].j === (LEVEL19 ? LEVEL18_START_ROW : LEVEL18 ? LEVEL17_START_ROW : LEVEL16_START_ROW)) continue;
         const hung = hangLevel17(path, random);
         if (!hung) continue;
         const startCell = path[0];
         const exitCell = path[path.length - 1];
         const { solution, deadEnds, maxBranchDepth } = analyzeMaze(hung.links, startCell, exitCell);
+        // Level 19: one more dead end, the hidden one, 3 cells deep
         const ok = solution.length === PATH_LENGTH &&
-            deadEnds.length === SHORT_DEAD_ENDS &&
-            deadEnds.every((d) => d.depth === SHORT_DEPTH) &&
-            maxBranchDepth === SHORT_DEPTH;
+            deadEnds.length === SHORT_DEAD_ENDS + (LEVEL19 ? 1 : 0) &&
+            deadEnds.filter((d) => d.depth !== SHORT_DEPTH).every((d) => LEVEL19 && d.depth === SPIKE_DEPTH) &&
+            deadEnds.filter((d) => d.depth === SPIKE_DEPTH && LEVEL19).length === (LEVEL19 ? 1 : 0) &&
+            maxBranchDepth === (LEVEL19 ? SPIKE_DEPTH : SHORT_DEPTH);
+        // Level 19: the row must be out of sight from the whole path and the dead end's opening
+        if (ok && LEVEL19 && rowVisible(toLayout(hung.links, { startCell, exitCell }), hung.blocker, solution)) continue;
         const candidateShape = shape(toLayout(hung.links, { startCell, exitCell }));
         if (ok && !EXISTING.has(candidateShape) && differentEnough(candidateShape)) {
             best = { seed, links: hung.links, startCell, exitCell, spikeCell: path[hung.spikeIndex], solution, deadEnds, spikeIndex: hung.spikeIndex,

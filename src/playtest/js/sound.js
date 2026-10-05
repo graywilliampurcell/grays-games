@@ -447,6 +447,30 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.13, length: 0.09, brightness: 2800 },
     },
+    // Level 19, the sneaky big spike in space: a happy hide-and-seek tune
+    // (F-sharp major) whose hook goes "peek-a-BOO", three quick notes up and
+    // a hush, then a little answer, with one sneaky note in the middle, on a
+    // soft round lead over a rocking bass.
+    peekaboo: {
+        tempo: 124,
+        bars: [[42, 'maj'], [35, 'maj'], [37, 'maj'], [42, 'maj'], [39, 'min'], [35, 'maj'], [37, 'maj'], [42, 'maj']],
+        bass: [0, null, 7, null, 0, null, 7, 12],
+        bassLength: 0.15,
+        stabs: [2, 6],
+        stabLevel: 0.03,
+        ticks: false,
+        melody: [
+            73, 75, 78, null, null, null, 78, 75,
+            71, 75, 78, null, null, null, 83, null,
+            73, 77, 80, null, 85, null, 80, null,
+            78, null, 73, null, 70, null, null, null,
+            75, 78, 82, null, null, null, 81, 82,
+            83, null, 78, null, 75, null, 71, null,
+            73, 77, 80, null, 85, null, 87, null,
+            90, null, 85, null, 78, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.32, length: 0.18, brightness: 6000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
