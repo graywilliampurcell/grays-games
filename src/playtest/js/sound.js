@@ -513,6 +513,30 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.12, length: 0.14, brightness: 4500 },
     },
+    // Level 21, welcome to Jungle World: a happy, bouncy marimba-style tune
+    // (B major) with a jungle-call hook that hops up and tumbles down, one
+    // sneaky note in the middle, on a short wooden-sounding lead over a
+    // drum-like bass.
+    jungle: {
+        tempo: 122,
+        bars: [[35, 'maj'], [40, 'maj'], [42, 'maj'], [35, 'maj'], [44, 'min'], [40, 'maj'], [42, 'maj'], [35, 'maj']],
+        bass: [0, null, 7, 0, null, 7, 12, null],
+        bassLength: 0.12,
+        stabs: [2, 6],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            71, 75, 78, 75, 83, null, 78, null,
+            76, 80, 83, 80, 88, null, 83, null,
+            78, 82, 85, null, 83, 82, 78, null,
+            83, null, 78, null, 75, null, null, null,
+            80, 83, 87, 83, 86, 87, null, null,
+            88, null, 83, null, 80, null, 76, null,
+            78, 82, 85, 82, 90, null, 85, null,
+            83, null, 78, 75, 71, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.32, length: 0.12, brightness: 3800 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

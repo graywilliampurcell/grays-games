@@ -16,6 +16,9 @@ const COTTON_CANDY = { wall: 0xff9fcf, floor: 0x6fb8ff, sky: 0xe6d6ff, fluffy: t
 // Levels 11-20, Space World: star walls, metal floor, a dark sky with Earth,
 // the Moon and things flying by (see Maze.js)
 const SPACE = { wall: 0x1c2153, floor: 0x8c939c, sky: 0x04060f, space: true };
+// Levels 21-30, Jungle World: thick green leaf-and-vine walls, a brown dirt
+// path, a bright sky with parrots, toucans and butterflies (see Maze.js)
+const JUNGLE = { wall: 0x2e7d32, floor: 0x8b5a2b, sky: 0x9fdcff, jungle: true };
 
 export const LEVELS = [
     {
@@ -732,6 +735,7 @@ export const LEVELS = [
         spikeRadius: 0.7,
         spike2Radius: 0.72,
         finale: 'You beat Space World!',
+        nextLabel: 'Start Jungle World',
         layout: [
             '#########################',
             '#   #         I         #',
@@ -758,6 +762,47 @@ export const LEVELS = [
             '#   #                   #',
             '#   #                   #',
             '#########################',
+        ],
+    },    {
+        name: 'Level 21',
+        // Welcome to Jungle World. `node tools/find-level.mjs level21 8`, seed 1.
+        // 7 x 7 corridors. Correct path 30 cells; 8 dead ends 2 cells deep,
+        // plus the thorny bush's: off path cell 2 it goes 2 cells, turns once,
+        // and the bush (X) sits in its last cell, out of sight of the path like
+        // Level 11's spike. O: the river gap for the leaf over path cells 19-20
+        // (straight from 18 to 21). No doors, no slippery spots.
+        theme: JUNGLE,
+        music: 'jungle',
+        layout: [
+            '#############################',
+            '#           #               #',
+            '#           #               #',
+            '#           #               #',
+            '#   #####   #   #####   #   #',
+            '#       #           #   #   #',
+            '#       #           #   #   #',
+            '#       #           #   #   #',
+            '#####   #####   #   #   #   #',
+            '#       #       #   #   #OOO#',
+            '#       #       #   #   #OOO#',
+            '#       #       #   #   #OOO#',
+            '#   #####################OOO#',
+            '#       #       #       #OOO#',
+            '#       #       #       #OOO#',
+            '#       #       #       #OOO#',
+            '#####   #   #########   #   #',
+            '#       #                   #',
+            '# S     #                   #',
+            '#       #                   #',
+            '#   #   #   #################',
+            '#   #   #                   #',
+            '#   #   #                   D',
+            '#   #   #                   #',
+            '#   #   #####   #########   #',
+            '#   #       #       #       #',
+            '#   #     X #       #       #',
+            '#   #       #       #       #',
+            '#############################',
         ],
     },
 ];

@@ -107,6 +107,105 @@ function metalTexture(size) {
     return texture;
 }
 
+// Jungle World walls: thick green leaves of many shades, with vines hanging down
+function leafTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#1d4f21';
+    g.fillRect(0, 0, width, height);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    const greens = ['#2e7d32', '#388e3c', '#43a047', '#1b5e20', '#66bb6a', '#558b2f'];
+    for (let i = 0; i < (width * height) / 110; i++) {
+        const x = random() * width;
+        const y = random() * height;
+        const len = 9 + random() * 14;
+        const angle = random() * Math.PI * 2;
+        g.save();
+        g.translate(x, y);
+        g.rotate(angle);
+        g.fillStyle = greens[Math.floor(random() * greens.length)];
+        g.beginPath();
+        g.ellipse(0, 0, len, len * 0.42, 0, 0, Math.PI * 2);
+        g.fill();
+        g.strokeStyle = 'rgba(200,240,170,0.45)';
+        g.lineWidth = 1;
+        g.beginPath();
+        g.moveTo(-len * 0.9, 0);
+        g.lineTo(len * 0.9, 0);
+        g.stroke();
+        g.restore();
+    }
+    // Vines: wavy brownish-green lines from top to bottom
+    for (let v = 0; v < 5; v++) {
+        let x = random() * width;
+        g.strokeStyle = v % 2 ? '#5d4a1f' : '#4f6b1f';
+        g.lineWidth = 3;
+        g.beginPath();
+        g.moveTo(x, 0);
+        for (let y = 0; y <= height; y += 16) {
+            x += (random() - 0.5) * 8;
+            g.lineTo(x, y);
+        }
+        g.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Jungle World floor: a brown dirt path with darker and lighter specks and pebbles
+function dirtTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#8b5a2b';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    const browns = ['#7a4e24', '#9c6a38', '#6b4220', '#a77845', '#5e3a1c'];
+    for (let i = 0; i < size * size / 20; i++) {
+        g.fillStyle = browns[Math.floor(random() * browns.length)];
+        const d = 1 + random() * 3;
+        g.fillRect(random() * size, random() * size, d, d);
+    }
+    for (let i = 0; i < 14; i++) {
+        g.fillStyle = random() < 0.5 ? '#9e9a92' : '#7d776d';
+        g.beginPath();
+        g.ellipse(random() * size, random() * size, 2 + random() * 3, 1.5 + random() * 2, random() * Math.PI, 0, Math.PI * 2);
+        g.fill();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Rushing river water: blue with white streaks that run across the texture's v
+function waterTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const g = canvas.getContext('2d');
+    const base = g.createLinearGradient(0, 0, 128, 0);
+    base.addColorStop(0, '#1565c0');
+    base.addColorStop(0.5, '#1e88e5');
+    base.addColorStop(1, '#1565c0');
+    g.fillStyle = base;
+    g.fillRect(0, 0, 128, 128);
+    g.strokeStyle = 'rgba(255,255,255,0.6)';
+    g.lineWidth = 2;
+    for (const [x, y, len] of [[10, 10, 30], [70, 30, 26], [30, 60, 34], [90, 80, 22], [15, 100, 28], [60, 115, 30], [100, 5, 18]]) {
+        g.beginPath();
+        g.moveTo(x, y);
+        g.quadraticCurveTo(x + 4, y + len / 2, x, y + len);
+        g.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
 // A planet or moon for the sky: a base color with blobs (land, craters)
 function planetTexture(base, blobs, seed) {
     const canvas = document.createElement('canvas');
@@ -264,8 +363,11 @@ export class Maze {
 
         const fluffy = this.theme.fluffy;
         const space = this.theme.space;
+        const jungle = this.theme.jungle;
         let wallMaterial;
-        if (space) {
+        if (jungle) {
+            wallMaterial = new THREE.MeshStandardMaterial({ map: leafTexture(128, 512, 13), roughness: 0.95 });
+        } else if (space) {
             const stars = starTexture(128, 512, 5);
             wallMaterial = new THREE.MeshStandardMaterial({ map: stars, emissiveMap: stars, emissive: 0xffffff, emissiveIntensity: 0.55, roughness: 0.9 });
         } else if (fluffy) {
@@ -293,7 +395,11 @@ export class Maze {
 
         // Floor
         let floorMaterial;
-        if (space) {
+        if (jungle) {
+            const map = dirtTexture(128, 17);
+            map.repeat.set(this.width / 2, this.depth / 2);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
+        } else if (space) {
             const map = metalTexture(128);
             map.repeat.set(this.width / 2, this.depth / 2);
             floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 0.45, metalness: 0.35 });
@@ -316,7 +422,7 @@ export class Maze {
             geometry.rotateX(Math.PI / 2);
             floorMaterial.map?.repeat.set(0.5, 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -326,6 +432,20 @@ export class Maze {
         this.root.add(floor);
 
         if (space) this.addSpaceSky();
+        if (jungle) this.addJungleSky();
+    }
+
+    // Jungle World sky: parrots, toucans and big bright butterflies flying by
+    // overhead. Just to look at: no dangers.
+    addJungleSky() {
+        this.flyers = [];
+        const kinds = ['parrot', 'butterfly', 'toucan', 'butterfly', 'parrot', 'butterfly', 'toucan'];
+        kinds.forEach((kind, k) => {
+            const flyer = this.makeFlyer(kind);
+            this.root.add(flyer.object);
+            this.flyers.push(flyer);
+            this.launchFlyer(flyer, k / kinds.length);
+        });
     }
 
     // Space World sky: Earth and the Moon far away (they stay put, so which
@@ -372,6 +492,64 @@ export class Maze {
             tail.rotation.z = Math.PI / 2;
             tail.position.x = -8.5;
             group.add(head, tail);
+        } else if (kind === 'parrot' || kind === 'toucan') {
+            // A bird flying along +x, wings out to the sides (they flap in update)
+            const parrot = kind === 'parrot';
+            const body = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), basic(parrot ? 0xe53935 : 0x212121));
+            body.scale.set(1.4, 0.7, 0.7);
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.55, 14, 10), basic(parrot ? 0xe53935 : 0x212121));
+            head.position.set(1.4, 0.3, 0);
+            const beak = new THREE.Mesh(new THREE.ConeGeometry(parrot ? 0.25 : 0.4, parrot ? 0.6 : 1.6, 10), basic(parrot ? 0xfff176 : 0xff9800));
+            beak.rotation.z = -Math.PI / 2;
+            beak.position.set(parrot ? 2.1 : 2.6, 0.25, 0);
+            const tail = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.12, 0.6), basic(parrot ? 0x1e88e5 : 0x212121));
+            tail.position.set(-1.9, -0.1, 0);
+            group.add(body, head, beak, tail);
+            if (!parrot) {
+                const chest = new THREE.Mesh(new THREE.SphereGeometry(0.5, 12, 8), basic(0xfff59d));
+                chest.position.set(1.0, 0.0, 0);
+                group.add(chest);
+            }
+            const wings = [];
+            for (const side of [-1, 1]) {
+                const pivot = new THREE.Group();
+                const wing = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.1, 2.2), basic(parrot ? 0x1e88e5 : 0x212121));
+                wing.position.z = side * 1.1;
+                const tip = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.11, 0.8), basic(parrot ? 0xfdd835 : 0xfafafa));
+                tip.position.set(-0.1, 0, side * 1.9);
+                pivot.add(wing, tip);
+                pivot.userData.side = side;
+                group.add(pivot);
+                wings.push(pivot);
+            }
+            group.scale.setScalar(1.1);
+            const object = new THREE.Group();
+            object.add(group);
+            return { kind, object, velocity: new THREE.Vector3(), life: 0, wings, flap: Math.random() * 6 };
+        } else if (kind === 'butterfly') {
+            const colors = [[0xff9800, 0x212121], [0x29b6f6, 0x0d47a1], [0xf06292, 0xffeb3b], [0xffeb3b, 0xff5722]];
+            const [main, edge] = colors[Math.floor(Math.random() * colors.length)];
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.2, 8), basic(0x212121));
+            body.rotation.z = Math.PI / 2;
+            group.add(body);
+            const wings = [];
+            for (const side of [-1, 1]) {
+                const pivot = new THREE.Group();
+                const upper = new THREE.Mesh(new THREE.CircleGeometry(0.75, 20), basic(main, { side: THREE.DoubleSide }));
+                upper.rotation.x = -Math.PI / 2;
+                upper.position.set(0.25, 0, side * 0.75);
+                const lower = new THREE.Mesh(new THREE.CircleGeometry(0.5, 16), basic(edge, { side: THREE.DoubleSide }));
+                lower.rotation.x = -Math.PI / 2;
+                lower.position.set(-0.35, 0.01, side * 0.55);
+                pivot.add(upper, lower);
+                pivot.userData.side = side;
+                group.add(pivot);
+                wings.push(pivot);
+            }
+            group.scale.setScalar(1.3);
+            const object = new THREE.Group();
+            object.add(group);
+            return { kind, object, velocity: new THREE.Vector3(), life: 0, wings, flap: Math.random() * 6 };
         } else {
             const body = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 5, 14), basic(0xf2f2f2));
             const nose = new THREE.Mesh(new THREE.ConeGeometry(0.9, 2, 14), basic(0xe23b3b));
@@ -398,13 +576,18 @@ export class Maze {
         const cx = this.width / 2;
         const cz = this.depth / 2;
         const angle = Math.random() * Math.PI * 2;
-        const speed = flyer.kind === 'rocket' ? 14 : flyer.kind === 'comet' ? 18 : 26;
-        const span = 260;
+        // Birds and butterflies fly lower and slower than things in space
+        const speeds = { rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, butterfly: 4 };
+        const speed = speeds[flyer.kind];
+        const bird = flyer.kind === 'parrot' || flyer.kind === 'toucan';
+        const butterfly = flyer.kind === 'butterfly';
+        const span = butterfly ? 70 : bird ? 160 : 260;
         const dir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
-        const side = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar((Math.random() - 0.5) * 120);
-        const start = new THREE.Vector3(cx, 30 + Math.random() * 45, cz).addScaledVector(dir, -span / 2).add(side);
+        const side = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar((Math.random() - 0.5) * (butterfly ? 30 : bird ? 60 : 120));
+        const height = butterfly ? 6 + Math.random() * 5 : bird ? 12 + Math.random() * 14 : 30 + Math.random() * 45;
+        const start = new THREE.Vector3(cx, height, cz).addScaledVector(dir, -span / 2).add(side);
         flyer.velocity.copy(dir).multiplyScalar(speed);
-        flyer.velocity.y = flyer.kind === 'meteor' ? -2 : (Math.random() - 0.5) * 2;
+        flyer.velocity.y = flyer.kind === 'meteor' ? -2 : bird || butterfly ? 0 : (Math.random() - 0.5) * 2;
         flyer.life = span / speed;
         flyer.object.position.copy(start).addScaledVector(flyer.velocity, flyer.life * ahead);
         flyer.life *= 1 - ahead;
@@ -416,8 +599,21 @@ export class Maze {
     update(dt) {
         for (const flyer of this.flyers || []) {
             flyer.object.position.addScaledVector(flyer.velocity, dt);
+            // Birds and butterflies flap their wings (butterflies quicker, with a flutter)
+            if (flyer.wings) {
+                const butterfly = flyer.kind === 'butterfly';
+                flyer.flap += dt * (butterfly ? 14 : 7);
+                for (const wing of flyer.wings) wing.rotation.x = wing.userData.side * Math.sin(flyer.flap) * (butterfly ? 0.9 : 0.6);
+                if (butterfly) flyer.object.position.y += Math.sin(flyer.flap * 0.5) * dt * 1.2;
+            }
             flyer.life -= dt;
             if (flyer.life <= 0) this.launchFlyer(flyer);
+        }
+        if (this.river) {
+            // The river rushes along, and fish jump now and then
+            const r = this.river;
+            r.map.offset[r.flowAxis] -= dt * 0.9;
+            for (const fish of r.fish) this.updateFish(fish, dt);
         }
         for (const flyer of this.gapFlyers || []) {
             flyer.object.position.addScaledVector(flyer.velocity, dt);
@@ -558,6 +754,7 @@ export class Maze {
 
     // A small cluster of metal spikes on the floor, its plate `radius` across from the middle
     createSpike(position, radius) {
+        if (this.theme.jungle) return this.createBush(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -584,6 +781,41 @@ export class Maze {
         spike.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
         spike.position.copy(position);
         this.root.add(spike);
+    }
+
+    // Jungle World's spike: a thorny bush with red berries, as wide as a spike's
+    // plate. Touching the bush or its berries works the same as a spike.
+    createBush(position, radius) {
+        const bush = new THREE.Group();
+        const leaves = [new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.9 }), new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 0.9 })];
+        const thorn = new THREE.MeshStandardMaterial({ color: 0x6d4c41, roughness: 0.8 });
+        const berry = new THREE.MeshStandardMaterial({ color: 0xe53935, roughness: 0.3, emissive: 0x7f0000, emissiveIntensity: 0.4 });
+        let r = 31;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const clumps = [[0, 0.45, 0, 0.42], [0.32, 0.32, 0.18, 0.32], [-0.3, 0.3, 0.2, 0.32], [0.18, 0.3, -0.32, 0.3], [-0.2, 0.32, -0.3, 0.3]];
+        for (const [x, y, z, size] of clumps) {
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(size, 14, 10), leaves[Math.round(random())]);
+            ball.position.set(x, y, z);
+            ball.castShadow = true;
+            bush.add(ball);
+            // Thorns poking out all over, and a few red berries
+            for (let k = 0; k < 6; k++) {
+                const dir = new THREE.Vector3(random() - 0.5, random() * 0.8, random() - 0.5).normalize();
+                const spikeTip = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.2, 6), thorn);
+                spikeTip.position.set(x, y, z).addScaledVector(dir, size + 0.06);
+                spikeTip.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+                bush.add(spikeTip);
+            }
+            for (let k = 0; k < 3; k++) {
+                const dir = new THREE.Vector3(random() - 0.5, random() * 0.6 + 0.1, random() - 0.5).normalize();
+                const b = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), berry);
+                b.position.set(x, y, z).addScaledVector(dir, size);
+                bush.add(b);
+            }
+        }
+        bush.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
+        bush.position.copy(position);
+        this.root.add(bush);
     }
 
     // A row of spikes right across a 3-block corridor, one block deep
@@ -823,6 +1055,12 @@ export class Maze {
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
     createPlatform() {
+        if (this.theme.jungle) {
+            this.createRiver();
+            this.createLeaf();
+            this.showPlatform();
+            return;
+        }
         const p = this.platform;
         const g = p.gap;
         const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
@@ -882,6 +1120,152 @@ export class Maze {
         this.root.add(group);
         p.object = group;
         this.showPlatform();
+    }
+
+    // Jungle World: a river of rushing blue water below the gap, flowing across
+    // the path, with muddy banks down to it and fish that jump now and then
+    createRiver() {
+        const p = this.platform;
+        const g = p.gap;
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        const waterY = -1.2;
+        const map = waterTexture();
+        // The plane reaches well past the gap so its edges never show
+        const sizeX = g.maxX - g.minX + 6;
+        const sizeZ = g.maxZ - g.minZ + 6;
+        map.repeat.set(sizeX / 3, sizeZ / 3);
+        const water = new THREE.Mesh(new THREE.PlaneGeometry(sizeX, sizeZ), new THREE.MeshBasicMaterial({ map }));
+        water.rotation.x = -Math.PI / 2;
+        water.position.set(cx, waterY, cz);
+        this.root.add(water);
+        // The streaks run along v; turn the texture so the water flows across the path
+        if (!p.alongX) {
+            map.center.set(0.5, 0.5);
+            map.rotation = Math.PI / 2;
+        }
+        // Muddy banks round the gap, from the floor down to the water
+        const mud = new THREE.MeshStandardMaterial({ color: 0x4e3020, roughness: 1 });
+        const depth = -waterY - 0.2;
+        for (const [w, d, x, z] of [
+            [g.maxX - g.minX, 0.05, cx, g.minZ], [g.maxX - g.minX, 0.05, cx, g.maxZ],
+            [0.05, g.maxZ - g.minZ, g.minX, cz], [0.05, g.maxZ - g.minZ, g.maxX, cz],
+        ]) {
+            // Only the two banks along the path's sides would show the river ending; keep them all for a tidy trench
+            const bank = new THREE.Mesh(new THREE.BoxGeometry(w, depth, d), mud);
+            bank.position.set(x, -0.2 - depth / 2, z);
+            this.root.add(bank);
+        }
+        // Mossy edges where the path drops away
+        const moss = new THREE.MeshStandardMaterial({ color: 0x33691e, roughness: 1 });
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        for (const end of [0, p.span]) {
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(width, 0.05, 0.14), moss);
+            if (p.alongX) {
+                strip.rotation.y = Math.PI / 2;
+                strip.position.set(g.minX + end + (end ? 0.07 : -0.07), 0.02, cz);
+            } else {
+                strip.position.set(cx, 0.02, g.minZ + end + (end ? 0.07 : -0.07));
+            }
+            this.root.add(strip);
+        }
+        const fish = [0xff7043, 0xffca28, 0xb0bec5].map((color) => this.makeFish(color));
+        // The streaks run along the texture's v whichever way it's turned, so it always scrolls along v
+        this.river = { map, flowAxis: 'y', waterY, fish };
+    }
+
+    makeFish(color) {
+        const group = new THREE.Group();
+        const material = new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.2 });
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.25, 14, 10), material);
+        body.scale.set(1.6, 0.8, 0.6);
+        const tail = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.3, 8), material);
+        tail.rotation.z = Math.PI / 2;
+        tail.position.x = -0.48;
+        group.add(body, tail);
+        group.visible = false;
+        this.root.add(group);
+        return { object: group, wait: 0.5 + Math.random() * 3, t: 0, dur: 0, from: new THREE.Vector3(), to: new THREE.Vector3(), peak: 0 };
+    }
+
+    // A fish waits in the water, then jumps in an arc across the river and
+    // splashes back down. It stays clear of the leaf. Just to look at.
+    updateFish(fish, dt) {
+        const p = this.platform;
+        const g = p.gap;
+        if (fish.dur === 0) {
+            fish.wait -= dt;
+            if (fish.wait > 0) return;
+            // Somewhere along the gap that the leaf isn't over
+            let along;
+            for (let tries = 0; tries < 6; tries++) {
+                along = 0.5 + Math.random() * (p.span - 1);
+                if (along < p.at - 0.4 || along > p.at + PLATFORM_LENGTH + 0.4) break;
+                along = null;
+            }
+            if (along === null) {
+                fish.wait = 0.5;
+                return;
+            }
+            const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+            const across = 0.3 + Math.random() * (width - 0.6);
+            const dir = Math.random() < 0.5 ? -1 : 1;
+            const at = (a, c) => (p.alongX ? new THREE.Vector3(g.minX + a, this.river.waterY, g.minZ + c) : new THREE.Vector3(g.minX + c, this.river.waterY, g.minZ + a));
+            fish.from.copy(at(along, across - dir * 0.7));
+            fish.to.copy(at(along, across + dir * 0.7));
+            fish.dur = 0.9 + Math.random() * 0.4;
+            fish.t = 0;
+            fish.peak = 0.9 + Math.random() * 0.8;
+            fish.object.visible = true;
+        }
+        fish.t += dt;
+        const k = Math.min(1, fish.t / fish.dur);
+        const pos = fish.from.clone().lerp(fish.to, k);
+        pos.y += Math.sin(k * Math.PI) * fish.peak;
+        fish.object.position.copy(pos);
+        // Point along the arc: nose up on the way out, down on the way back in
+        const heading = fish.to.clone().sub(fish.from).normalize();
+        fish.object.rotation.set(0, Math.atan2(-heading.z, heading.x), Math.cos(k * Math.PI) * 0.9);
+        if (k >= 1) {
+            fish.dur = 0;
+            fish.wait = 1 + Math.random() * 3;
+            fish.object.visible = false;
+        }
+    }
+
+    // Jungle World's platform: a giant green leaf with a pale middle vein and side veins
+    createLeaf() {
+        const p = this.platform;
+        const g = p.gap;
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        const group = new THREE.Group();
+        const outline = new THREE.Shape();
+        outline.absellipse(0, 0, (width - 0.05) / 2, PLATFORM_LENGTH / 2 + 0.15, 0, Math.PI * 2, false, 0);
+        const geometry = new THREE.ExtrudeGeometry(outline, { depth: 0.12, bevelEnabled: false });
+        geometry.rotateX(Math.PI / 2);
+        const leaf = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x43a047, roughness: 0.6, emissive: 0x1b5e20, emissiveIntensity: 0.35 }));
+        leaf.position.y = 0.02;
+        leaf.receiveShadow = true;
+        group.add(leaf);
+        const vein = new THREE.MeshStandardMaterial({ color: 0xc5e1a5, roughness: 0.7 });
+        const mid = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.03, PLATFORM_LENGTH + 0.1), vein);
+        mid.position.y = 0.035;
+        group.add(mid);
+        for (const z of [-0.8, -0.3, 0.2, 0.7]) {
+            for (const side of [-1, 1]) {
+                const v = new THREE.Mesh(new THREE.BoxGeometry(width * 0.38, 0.025, 0.05), vein);
+                v.position.set(side * width * 0.19, 0.035, z + 0.15);
+                v.rotation.y = side * 0.5;
+                group.add(v);
+            }
+        }
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.5, 8), new THREE.MeshStandardMaterial({ color: 0x558b2f }));
+        stem.rotation.x = Math.PI / 2;
+        stem.position.set(0, 0.02, PLATFORM_LENGTH / 2 + 0.35);
+        group.add(stem);
+        if (p.alongX) group.rotation.y = Math.PI / 2;
+        this.root.add(group);
+        p.object = group;
     }
 
     showPlatform() {
