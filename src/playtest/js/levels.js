@@ -633,5 +633,45 @@ export const LEVELS = [
             '#   #   #       #       #',
             '#########################',
         ],
+    },    {
+        name: 'Level 18',
+        // The platform and the big spike. `node tools/find-level.mjs level18`,
+        // seed 150. 6 x 6 corridors. Correct path 24 cells; 6 dead ends each 2
+        // cells deep. Y: a spike row just inside the straight dead end that
+        // goes up from the start cell, in plain view. G: the space door
+        // (between path cells 8 and 9). X: a spike on the path (path cell 12),
+        // plate 0.7 like Level 8. O: the platform gap over path cells 17-18
+        // (straight from 16 to 19). I: the slippery spot (path cell 21). At
+        // least 2 path cells between any two of them.
+        theme: SPACE,
+        music: 'hopscotch',
+        spikeRadius: 0.7,
+        layout: [
+            '#########################',
+            '#        OOOOOOO        #',
+            '#        OOOOOOO        #',
+            '#        OOOOOOO        #',
+            '#   #################   #',
+            '#                   #   #',
+            '#         X         #III#',
+            '#                   #   #',
+            '#####   #########   #   #',
+            '#   #       #       #   #',
+            '#   #       #       #   #',
+            '#   #       #       #   #',
+            '#   #########   #GGG#   #',
+            '#   #       #   #   #   #',
+            '#   #       #   #   #   #',
+            '# Y #       #   #   #   #',
+            '#   #####   #####   #   #',
+            '#           #       #   #',
+            '# S         #       #   D',
+            '#           #       #   #',
+            '#   #####   #   #####   #',
+            '#       #       #       #',
+            '#       #       #       #',
+            '#       #       #       #',
+            '#########################',
+        ],
     },
 ];

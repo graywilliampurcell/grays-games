@@ -423,6 +423,30 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.3, length: 0.25, brightness: 5500 },
     },
+    // Level 18, the platform and the big spike: a happy hopscotch tune
+    // (A-flat major, quick) whose hook skips in on the off-beats, hop-hop-
+    // jump, with one sneaky chromatic step in the middle, on a short square
+    // lead over a bouncing bass.
+    hopscotch: {
+        tempo: 138,
+        bars: [[44, 'maj'], [37, 'maj'], [39, 'maj'], [44, 'maj'], [41, 'min'], [37, 'maj'], [39, 'maj'], [44, 'maj']],
+        bass: [0, null, null, 12, 0, null, 7, null],
+        bassLength: 0.12,
+        stabs: [3, 7],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            null, 72, null, 75, 80, null, 75, null,
+            null, 73, null, 77, 80, null, 77, null,
+            null, 75, null, 79, 82, null, 87, null,
+            84, null, 80, null, 75, null, null, null,
+            null, 77, null, 80, 84, null, 83, 84,
+            85, null, 80, null, 77, null, 73, null,
+            75, 79, 82, null, 87, null, 82, null,
+            80, null, 75, null, 68, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.13, length: 0.09, brightness: 2800 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
