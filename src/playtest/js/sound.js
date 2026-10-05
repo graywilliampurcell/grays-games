@@ -398,6 +398,31 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.1, length: 0.1, brightness: 3500 },
     },
+    // Level 17, the first moving platform: a happy, floaty tune (E-flat
+    // major) whose hook leaps up an octave and hovers there with a little
+    // dip, like riding a floating platform, with one sneaky chromatic
+    // neighbour note in the middle, on a soft triangle lead over a gently
+    // rocking bass.
+    float: {
+        tempo: 112,
+        bars: [[39, 'maj'], [44, 'maj'], [46, 'maj'], [39, 'maj'], [36, 'min'], [44, 'maj'], [46, 'maj'], [39, 'maj']],
+        bass: [0, null, 7, null, 12, null, 7, null],
+        bassLength: 0.2,
+        stabs: [2, 6],
+        stabLevel: 0.03,
+        ticks: false,
+        melody: [
+            63, 75, null, 74, 75, null, 70, null,
+            68, 80, null, 79, 80, null, 75, null,
+            70, 82, null, 81, 82, null, 77, 74,
+            75, null, null, null, 70, null, 67, null,
+            72, 84, null, 83, 84, null, 79, null,
+            80, null, 79, null, 77, null, 75, null,
+            74, 77, 82, null, 86, null, 82, null,
+            87, null, null, null, 75, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.3, length: 0.25, brightness: 5500 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

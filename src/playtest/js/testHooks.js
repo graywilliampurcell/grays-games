@@ -72,6 +72,7 @@ export function installTestHooks(game) {
             spike: maze.spikePosition ? { x: maze.spikePosition.x, z: maze.spikePosition.z } : null,
             sliding: !!player.slide,
             spaceDoor: maze.spaceDoor ? { phase: maze.spaceDoor.phase, shut: round(maze.spaceDoor.shut), solid: maze.spaceDoor.solid } : null,
+            platform: maze.platform ? { at: round(maze.platform.at), target: round(maze.platform.target), riding: maze.platform.riding, alongX: maze.platform.alongX, gap: { ...maze.platform.gap } } : null,
             spikeRows: maze.spikeRows.map((r) => ({ x: r.position.x, z: r.position.z, spansX: r.spansX })),
             door: { x: maze.doorPosition.x, z: maze.doorPosition.z },
             start: { x: start.x, z: start.z, yaw: round(maze.getStartYaw()) },

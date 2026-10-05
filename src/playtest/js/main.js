@@ -224,6 +224,9 @@ function step(deltaTime) {
     const onSlippery = maze.onSlipperySpot(player.position);
     if (onSlippery && !wasOnSlippery && player.startSlide(SLIDE_DISTANCE, SLIDE_MIN_SPEED)) testHooks?.emit('slide');
     wasOnSlippery = onSlippery;
+    // Moving platform (Level 17 on): carries the player across the gap
+    const platformEvent = maze.updatePlatform(deltaTime, player.position, player.velocity, player.radius);
+    if (platformEvent) testHooks?.emit('platform', { what: platformEvent });
     checkSpikeAndDoor();
 
     // Update camera to follow player
@@ -247,10 +250,18 @@ function checkSpikeAndDoor() {
     if (escaped) return;
 
     if (maze.touchesSpike(player.position, SPIKE_TOUCH_MARGIN)) {
-        player.resetTo(maze.getStartPosition(), maze.getStartYaw());
+        backToStart();
         testHooks?.emit('spike');
         sound.ouch();
         showMessage('Ouch! A spike sent you back to the start.');
+    }
+
+    // Walking into the gap (no platform under you) works like a spike
+    if (maze.fallsIntoGap(player.position)) {
+        backToStart();
+        testHooks?.emit('fall');
+        sound.ouch();
+        showMessage('Whoops! You fell off. Back to the start.');
     }
 
     if (horizontalDistance(player.position, maze.doorPosition) < DOOR_TOUCH_DISTANCE) {
@@ -301,12 +312,18 @@ function showMessage(text) {
     messageTimer = setTimeout(() => { el.hidden = true; }, 2500);
 }
 
+// Back to the start of the level; the moving platform goes back to the start's side too
+function backToStart() {
+    player.resetTo(maze.getStartPosition(), maze.getStartYaw());
+    maze.resetPlatform();
+}
+
 // Back to the start of the current level (also used by the test bot)
 function playAgain() {
     escaped = false;
     player.frozen = false;
     player.releaseAll();
-    player.resetTo(maze.getStartPosition(), maze.getStartYaw());
+    backToStart();
     menu.dismiss();
     document.body.classList.remove('escaped');
 }
@@ -379,7 +396,7 @@ function resume() {
 }
 
 function startOver() {
-    player.resetTo(maze.getStartPosition(), maze.getStartYaw());
+    backToStart();
 }
 
 // Save where Gray is (level, exact position, facing). After reaching the door,
@@ -387,6 +404,10 @@ function startOver() {
 function saveSpot() {
     if (escaped) {
         const { position, yaw } = maze.getDoorApproach();
+        saveProgress({ level: levelIndex, x: position.x, z: position.z, yaw, pitch: 0 });
+    } else if (maze.overGap(player.position)) {
+        // On the moving platform: save the spot just before the gap on the start's side
+        const { position, yaw } = maze.platformStartEdge();
         saveProgress({ level: levelIndex, x: position.x, z: position.z, yaw, pitch: 0 });
     } else {
         const facing = player.facing();

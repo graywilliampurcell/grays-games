@@ -17,6 +17,7 @@
 //   node tools/find-level.mjs level14    # Level 14 rules (Level 12's plus a spike on the path, away from the door)
 //   node tools/find-level.mjs level15    # Level 15 rules (no door; slippery spot + path spike + a spike row in a straight dead end)
 //   node tools/find-level.mjs level16    # Level 16 rules (Level 15's with two slippery spots and a space door)
+//   node tools/find-level.mjs level17    # Level 17 rules (a moving-platform gap, a space door, a slippery spot, a path spike)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -71,6 +72,14 @@
 // spacing rule covers all five: both slippery spots, the path spike, the
 // blocked dead end's opening and the door. Starts in a row Level 15 doesn't.
 //
+// Level 17 rules (Iteration 29): 6 x 6, 6 dead ends each 2 cells deep, no
+// spike row. A gap for the moving platform ('O', no floor) right across two
+// plain path cells g and g + 1 and the opening between them, with the path
+// running straight from g - 1 to g + 2 so the far side shows from the near
+// edge. Plus a space door ('G') in a straight stretch, one slippery spot ('I')
+// and one spike ('X') on the path like Level 14's. The spacing rule covers all
+// four (both gap cells count). Starts in a row Level 16 doesn't.
+//
 // Every cell not on the path belongs to a dead end, so for Level 1 the path
 // covers 25 - 5 - 3 = 17 cells (Level 2: 25 - 8 - 3 = 14). The search lays a
 // random path of that length and keeps it if the cells it leaves over can be
@@ -81,7 +90,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -97,10 +106,11 @@ const LEVEL11 = process.argv[2] === 'level11';
 const LEVEL13 = process.argv[2] === 'level13'; // Level 12's plus a slippery spot
 const LEVEL14 = process.argv[2] === 'level14'; // Level 12's plus a spike on the path
 const LEVEL16 = process.argv[2] === 'level16'; // Level 15's plus a second slippery spot and a space door
+const LEVEL17 = process.argv[2] === 'level17'; // a moving-platform gap, a space door, a slippery spot, a path spike
 const LEVEL15 = process.argv[2] === 'level15' || LEVEL16; // slippery spot, path spike, spike row in a dead end
 const LEVEL12 = process.argv[2] === 'level12' || LEVEL13 || LEVEL14;
-const COLS = LEVEL11 || LEVEL12 || LEVEL15 ? 6 : 5;
-const ROWS = LEVEL11 || LEVEL12 || LEVEL15 ? 6 : 5;
+const COLS = LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
+const ROWS = LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
 const LEVEL2 = process.argv[2] === 'level2';
 const LEVEL3 = ['level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9', 'level10'].includes(process.argv[2]); // spike on the path
 const LEVEL4 = process.argv[2] === 'level4';
@@ -110,9 +120,9 @@ const LEVEL7 = ['level7', 'level8', 'level9', 'level10'].includes(process.argv[2
 const LEVEL8 = ['level8', 'level9', 'level10'].includes(process.argv[2]); // clearly new layout and spike-row spot
 const LEVEL9 = process.argv[2] === 'level9'; // the spike row hidden just round a dead end's corner
 const LEVEL10 = process.argv[2] === 'level10'; // the finale: a visible spike row again
-const SHORT_DEAD_ENDS = LEVEL11 || LEVEL12 || LEVEL15 ? 6 : LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
-const SHORT_DEPTH = LEVEL11 || LEVEL12 || LEVEL15 || (!LEVEL7 && (LEVEL2 || LEVEL3)) ? 2 : LEVEL7 ? 3 : 1; // how deep each of those dead ends is
-const SPIKE_DEPTH = LEVEL3 || LEVEL12 || LEVEL15 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
+const SHORT_DEAD_ENDS = LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
+const SHORT_DEPTH = LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 || (!LEVEL7 && (LEVEL2 || LEVEL3)) ? 2 : LEVEL7 ? 3 : 1; // how deep each of those dead ends is
+const SPIKE_DEPTH = LEVEL3 || LEVEL12 || LEVEL15 || LEVEL17 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
 const SPIKE_BRANCH_WITHIN = 3; // the spike dead end leaves the path in its first 3 cells
 const PATH_LENGTH = COLS * ROWS - SHORT_DEAD_ENDS * SHORT_DEPTH - SPIKE_DEPTH;
 // Earlier levels' start rows; each new level starts somewhere new
@@ -130,6 +140,7 @@ const LEVEL12_START_ROW = 1;
 const LEVEL13_START_ROW = 5;
 const LEVEL14_START_ROW = 4;
 const LEVEL15_START_ROW = 3;
+const LEVEL16_START_ROW = 0;
 const SEEDS = 2000;
 const STEPS_PER_SEED = 200000;
 
@@ -496,6 +507,75 @@ function hangLevel15(path, random) {
     return { links, ...options[Math.floor(random() * options.length)] };
 }
 
+// Level 17: hang the dead ends, then place the platform gap (path cells g and
+// g + 1, straight from g - 1 to g + 2, neither with a dead end off it), the
+// space door (between d and d + 1, in a straight stretch), the slippery spot
+// and the path spike, with at least 2 path cells between any two of them.
+function hangLevel17(path, random) {
+    const onPath = new Set(path.map(key));
+    const leftover = [];
+    for (let i = 0; i < COLS; i++) {
+        for (let j = 0; j < ROWS; j++) if (!onPath.has(`${i},${j}`)) leftover.push({ i, j });
+    }
+    const chains = splitIntoDeadEnds(leftover, onPath, random);
+    if (!chains) return null;
+    const links = [];
+    for (let i = 0; i < COLS; i++) {
+        links[i] = [];
+        for (let j = 0; j < ROWS; j++) links[i][j] = [];
+    }
+    const link = (p, q) => {
+        links[p.i][p.j].push(q);
+        links[q.i][q.j].push(p);
+    };
+    for (let n = 1; n < path.length; n++) link(path[n - 1], path[n]);
+    for (const chain of chains) {
+        link(chain[0], shuffle(neighbours(chain[0]).filter((n) => onPath.has(key(n))), random)[0]);
+        for (let n = 1; n < chain.length; n++) link(chain[n - 1], chain[n]);
+    }
+    const step = (p, q) => `${q.i - p.i},${q.j - p.j}`;
+    const plain = (k) => k > 0 && k < path.length - 1 && links[path[k].i][path[k].j].length === 2 && step(path[k - 1], path[k]) === step(path[k], path[k + 1]);
+    const gaps = [];
+    for (let g = 2; g < path.length - 3; g++) if (plain(g) && plain(g + 1) && g >= path.length * 0.25 && g + 1 <= path.length * 0.8) gaps.push(g);
+    const doors = [];
+    for (let d = 1; d < path.length - 2; d++) {
+        const dir = step(path[d], path[d + 1]);
+        if (step(path[d - 1], path[d]) === dir && step(path[d + 1], path[d + 2]) === dir) doors.push(d);
+    }
+    const spikes = [];
+    for (let k = 2; k < path.length - 1; k++) {
+        if (plain(k) && step(path[k - 2], path[k - 1]) === step(path[k - 1], path[k]) && k >= path.length * 0.25 && k <= path.length * 0.75) spikes.push(k);
+    }
+    const slips = [];
+    for (let k = 1; k < path.length - 1; k++) if (plain(k)) slips.push(k);
+    const apart = (a, b) => Math.abs(a - b) >= 3; // at least 2 path cells between
+    const fromDoor = (c, d) => (c <= d ? d - c : c - d - 1) >= 3;
+    const fromGap = (c, g) => apart(c, g) && apart(c, g + 1);
+    const options = [];
+    for (const g of gaps) for (const d of doors) {
+        if (!fromDoor(g, d) || !fromDoor(g + 1, d)) continue;
+        for (const s of spikes) {
+            if (!fromDoor(s, d) || !fromGap(s, g)) continue;
+            for (const p of slips) {
+                if (fromDoor(p, d) && fromGap(p, g) && apart(p, s)) options.push({ gapIndex: g, doorIndex: d, spikeIndex: s, slipperyIndex: p });
+            }
+        }
+    }
+    if (options.length === 0) return null;
+    return { links, ...options[Math.floor(random() * options.length)] };
+}
+
+// The platform gap's blocks: all of path cells a and b and the opening between them
+function gapBlocks(a, b) {
+    const out = [];
+    const x0 = 4 * Math.min(a.i, b.i) + 1;
+    const z0 = 4 * Math.min(a.j, b.j) + 1;
+    const x1 = 4 * Math.max(a.i, b.i) + 3;
+    const z1 = 4 * Math.max(a.j, b.j) + 3;
+    for (let x = x0; x <= x1; x++) for (let z = z0; z <= z1; z++) out.push([x, z]);
+    return out;
+}
+
 // The slippery strip's three blocks: across the middle of its cell, at right
 // angles to the way the path runs through it
 function slipperyBlocks(cell, next) {
@@ -586,6 +666,26 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL8 && !LEVEL9 && !LEVEL10 && path[0].j === LEVEL7_START_ROW) continue;
     if (LEVEL10 && path[0].j === LEVEL9_START_ROW) continue;
     if (LEVEL9 && path[0].j === LEVEL8_START_ROW) continue;
+    if (LEVEL17) {
+        if (path[0].j === LEVEL16_START_ROW) continue;
+        const hung = hangLevel17(path, random);
+        if (!hung) continue;
+        const startCell = path[0];
+        const exitCell = path[path.length - 1];
+        const { solution, deadEnds, maxBranchDepth } = analyzeMaze(hung.links, startCell, exitCell);
+        const ok = solution.length === PATH_LENGTH &&
+            deadEnds.length === SHORT_DEAD_ENDS &&
+            deadEnds.every((d) => d.depth === SHORT_DEPTH) &&
+            maxBranchDepth === SHORT_DEPTH;
+        const candidateShape = shape(toLayout(hung.links, { startCell, exitCell }));
+        if (ok && !EXISTING.has(candidateShape) && differentEnough(candidateShape)) {
+            best = { seed, links: hung.links, startCell, exitCell, spikeCell: path[hung.spikeIndex], solution, deadEnds, spikeIndex: hung.spikeIndex,
+                slippery: [path[hung.slipperyIndex], path[hung.slipperyIndex + 1]], slipperyIndex: hung.slipperyIndex,
+                door: [path[hung.doorIndex], path[hung.doorIndex + 1]], doorIndex: hung.doorIndex,
+                gap: [path[hung.gapIndex], path[hung.gapIndex + 1]], gapIndex: hung.gapIndex };
+        }
+        continue;
+    }
     if (LEVEL15) {
         if (path[0].j === (LEVEL16 ? LEVEL15_START_ROW : LEVEL14_START_ROW)) continue;
         const hung = hangLevel15(path, random);
@@ -698,6 +798,13 @@ for (const strip of [best.slippery, best.slippery2].filter(Boolean)) {
         layout[z] = row.join('');
     }
 }
+if (best.gap) {
+    for (const [x, z] of gapBlocks(...best.gap)) {
+        const row = layout[z].split('');
+        row[x] = 'O';
+        layout[z] = row.join('');
+    }
+}
 if (best.door) {
     for (const [x, z] of doorBlocks(...best.door)) {
         const row = layout[z].split('');
@@ -711,6 +818,7 @@ console.log(`\nseed ${best.seed}: ${COLS}x${ROWS}, path ${best.solution.length} 
     (best.slippery ? `slippery spot in path cell ${best.slipperyIndex + 1}, ` : '') +
     (best.slippery2 ? `second slippery spot in path cell ${best.slipperyIndex2 + 1}, ` : '') +
     (best.spikeIndex !== undefined ? `spike in path cell ${best.spikeIndex + 1}, ` : '') +
+    (best.gap ? `platform gap over path cells ${best.gapIndex + 1}-${best.gapIndex + 2}, ` : '') +
     (best.door ? `space door between path cells ${best.doorIndex + 1} and ${best.doorIndex + 2}` : best.spike ? `spike ${best.spike.fromStart} cells from start` : '') +
     (best.blocker ? `, spike row in the dead end at ${best.blocker.rowCell.i},${best.blocker.rowCell.j}` : '') +
     (best.blocker?.at !== undefined ? ` (opening off path cell ${best.blocker.at + 1})` : ''));

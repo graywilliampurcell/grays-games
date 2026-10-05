@@ -141,6 +141,14 @@ const SPACE_DOOR_SLIDE_TIME = 0.7;
 const SPACE_DOOR_SOLID_FROM = 0.25;
 const SPACE_DOOR_LIGHTS = { open: 0x3dff6e, moving: 0xffc83d, closed: 0xff3d3d };
 
+// Moving platforms (Level 17 on): a shiny metal platform that carries the
+// player across a gap with no floor. It's the gap's full width and this long.
+const PLATFORM_LENGTH = 2.4;
+const PLATFORM_SPEED = 6; // about walking speed (walking tops out near 7.5)
+const PLATFORM_WAIT = 0.3; // a moment after the player is fully on before it sets off
+// How close to an edge (from the floor side) counts as coming to it
+const PLATFORM_CALL_DISTANCE = 2.5;
+
 // A shiny, icy strip for slippery spots (Level 13 on)
 function iceTexture() {
     const canvas = document.createElement('canvas');
@@ -186,6 +194,8 @@ export class Maze {
         const doorBlocks = [];
         // Blocks of slippery floor ('I'), keyed "x,z"
         this.slipperyBlocks = new Set();
+        // Blocks with no floor ('O'), crossed on the moving platform
+        const gapBlocks = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -198,8 +208,10 @@ export class Maze {
                 if (ch === 'D') this.doorBlock = { x, z };
                 if (ch === 'G') doorBlocks.push({ x, z });
                 if (ch === 'I') this.slipperyBlocks.add(`${x},${z}`);
+                if (ch === 'O') gapBlocks.push({ x, z });
             }
         }
+        if (gapBlocks.length) this.setUpPlatform(gapBlocks);
         if (doorBlocks.length) {
             // shut: 0 = all the way open, 1 = all the way closed. It starts open.
             this.spaceDoor = { blocks: doorBlocks, shut: 0, phase: 'open', timer: SPACE_DOOR_OPEN_TIME, solid: false };
@@ -221,6 +233,7 @@ export class Maze {
         if (this.spikePosition) this.createSpike();
         if (this.spaceDoor) this.createSpaceDoor();
         if (this.slipperyBlocks.size) this.createSlipperySpots();
+        if (this.platform) this.createPlatform();
         for (const row of this.spikeRows) this.createSpikeRow(row);
         this.scene.add(this.root);
     }
@@ -287,9 +300,24 @@ export class Maze {
         } else {
             floorMaterial = new THREE.MeshStandardMaterial({ color: this.theme.floor });
         }
-        const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
-        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-        floor.position.set(this.width / 2, -0.1, this.depth / 2);
+        let floor;
+        if (this.platform) {
+            // A floor with a hole where the gap is: the shape's (x, y) is the
+            // world's (x, z), and its UVs are world units, so the texture lines
+            // up the same as on the plain floor
+            const g = this.platform.gap;
+            const outline = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(this.width, 0), new THREE.Vector2(this.width, this.depth), new THREE.Vector2(0, this.depth)]);
+            outline.holes.push(new THREE.Path([new THREE.Vector2(g.minX, g.minZ), new THREE.Vector2(g.minX, g.maxZ), new THREE.Vector2(g.maxX, g.maxZ), new THREE.Vector2(g.maxX, g.minZ)]));
+            const geometry = new THREE.ExtrudeGeometry(outline, { depth: 0.2, bevelEnabled: false });
+            geometry.rotateX(Math.PI / 2);
+            floorMaterial.map?.repeat.set(0.5, 0.5);
+            // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: 0x0b0e18 })]);
+        } else {
+            const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
+            floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.position.set(this.width / 2, -0.1, this.depth / 2);
+        }
         floor.receiveShadow = true;
         this.root.add(floor);
 
@@ -610,6 +638,217 @@ export class Maze {
             patch.receiveShadow = true;
             this.root.add(patch);
         }
+    }
+
+    // The gap ('O' blocks, a rectangle right across a straight corridor) and
+    // its platform. The platform slides along the gap's long side between its
+    // two ends; `at` is how far its near end is from the gap's low end.
+    setUpPlatform(blocks) {
+        const xs = blocks.map((b) => b.x);
+        const zs = blocks.map((b) => b.z);
+        const gap = { minX: Math.min(...xs), maxX: Math.max(...xs) + 1, minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1 };
+        const alongX = gap.maxX - gap.minX > gap.maxZ - gap.minZ;
+        const span = alongX ? gap.maxX - gap.minX : gap.maxZ - gap.minZ;
+        const low = 0;
+        const high = span - PLATFORM_LENGTH;
+        // Which end is on the start's side: walk the floor from the start without crossing the gap
+        const inGap = (x, z) => x >= gap.minX && x < gap.maxX && z >= gap.minZ && z < gap.maxZ;
+        const seen = new Set();
+        const todo = [[Math.floor(this.startPosition.x), Math.floor(this.startPosition.z)]];
+        while (todo.length) {
+            const [x, z] = todo.pop();
+            if (seen.has(`${x},${z}`) || this.grid[x]?.[z] !== 0 || inGap(x, z)) continue;
+            seen.add(`${x},${z}`);
+            todo.push([x + 1, z], [x - 1, z], [x, z + 1], [x, z - 1]);
+        }
+        const midX = Math.floor((gap.minX + gap.maxX) / 2);
+        const midZ = Math.floor((gap.minZ + gap.maxZ) / 2);
+        const lowSideReached = alongX ? seen.has(`${gap.minX - 1},${midZ}`) : seen.has(`${midX},${gap.minZ - 1}`);
+        const startAt = lowSideReached ? low : high;
+        this.platform = {
+            gap, alongX, span, low, high, startAt,
+            at: startAt, target: startAt,
+            riding: false, // the player is on board (and can't step off till it stops)
+            wait: 0, // time left before it sets off with the player
+            mustLeave: false, // just arrived: the player has to step off before it will carry them again
+        };
+    }
+
+    // Back to the start's side, empty (any reset to the start)
+    resetPlatform() {
+        const p = this.platform;
+        if (!p) return;
+        Object.assign(p, { at: p.startAt, target: p.startAt, riding: false, wait: 0, mustLeave: false });
+        this.showPlatform();
+    }
+
+    // Position along the gap's long side, and across it, measured from the gap's low corner
+    gapCoords(point) {
+        const g = this.platform.gap;
+        return this.platform.alongX
+            ? { along: point.x - g.minX, across: point.z - g.minZ, width: g.maxZ - g.minZ }
+            : { along: point.z - g.minZ, across: point.x - g.minX, width: g.maxX - g.minX };
+    }
+
+    // Is this point over the gap (whether or not the platform is under it)?
+    overGap(point) {
+        if (!this.platform) return false;
+        const { along, across, width } = this.gapCoords(point);
+        return along >= 0 && along < this.platform.span && across >= 0 && across < width;
+    }
+
+    // Would a player standing here fall? (Over the gap with no platform under them)
+    fallsIntoGap(point) {
+        if (!this.overGap(point)) return false;
+        const { along } = this.gapCoords(point);
+        const p = this.platform;
+        return along < p.at || along > p.at + PLATFORM_LENGTH;
+    }
+
+    // Where to stand on the start's side, just before the gap, facing across
+    // it (used to save the spot while on the platform)
+    platformStartEdge() {
+        const p = this.platform;
+        const g = p.gap;
+        const before = p.startAt === p.low ? -1 : p.span + 1;
+        const dir = p.startAt === p.low ? 1 : -1;
+        const position = p.alongX
+            ? new THREE.Vector3(g.minX + before, 0, (g.minZ + g.maxZ) / 2)
+            : new THREE.Vector3((g.minX + g.maxX) / 2, 0, g.minZ + before);
+        // yaw 0 faces -z, PI/2 faces -x (see EDGES)
+        const yaw = p.alongX ? (dir > 0 ? -Math.PI / 2 : Math.PI / 2) : dir > 0 ? Math.PI : 0;
+        return { position, yaw };
+    }
+
+    // Run the platform (called every game step, after the player has moved).
+    // It waits at an edge; once the player is fully on it sets off and carries
+    // them to the other edge, keeping them on board until it stops. When it's
+    // empty and the player comes to the edge it isn't at, it floats over to
+    // them. Returns 'depart' or 'arrive' when that happens.
+    updatePlatform(dt, position, velocity, radius) {
+        const p = this.platform;
+        if (!p) return null;
+        const { along, across, width } = this.gapCoords(position);
+        const inRange = across >= 0 && across < width;
+        const fullyOn = inRange && along - radius >= p.at && along + radius <= p.at + PLATFORM_LENGTH;
+        const touching = inRange && along + radius > p.at && along - radius < p.at + PLATFORM_LENGTH;
+        let event = null;
+        if (p.mustLeave && !touching) p.mustLeave = false;
+        if (!p.riding && p.at === p.target && fullyOn && !p.mustLeave) {
+            Object.assign(p, { riding: true, wait: PLATFORM_WAIT, target: p.at === p.low ? p.high : p.low });
+        }
+        if (p.riding) {
+            if (p.wait > 0) {
+                p.wait -= dt;
+            } else {
+                if (p.at === (p.target === p.high ? p.low : p.high)) event = 'depart';
+                const before = p.at;
+                p.at = p.target > p.at ? Math.min(p.target, p.at + PLATFORM_SPEED * dt) : Math.max(p.target, p.at - PLATFORM_SPEED * dt);
+                if (p.alongX) position.x += p.at - before;
+                else position.z += p.at - before;
+                if (p.at === p.target) {
+                    Object.assign(p, { riding: false, mustLeave: true });
+                    event = 'arrive';
+                }
+            }
+            // Keep the player on board while it's carrying them (or about to)
+            const now = this.gapCoords(position).along;
+            const lo = p.at + radius;
+            const hi = p.at + PLATFORM_LENGTH - radius;
+            if (p.riding || event === 'arrive') {
+                const clamped = Math.max(lo, Math.min(hi, now));
+                if (clamped !== now) {
+                    if (p.alongX) {
+                        position.x += clamped - now;
+                        velocity.x = 0;
+                    } else {
+                        position.z += clamped - now;
+                        velocity.z = 0;
+                    }
+                }
+            }
+        } else if (!touching && p.at === p.target && inRange) {
+            // Empty: float over to whichever edge the player comes to
+            if (p.at !== p.low && along < 0 && along > -PLATFORM_CALL_DISTANCE) p.target = p.low;
+            if (p.at !== p.high && along > p.span && along < p.span + PLATFORM_CALL_DISTANCE) p.target = p.high;
+        } else if (!p.riding && p.at !== p.target) {
+            p.at = p.target > p.at ? Math.min(p.target, p.at + PLATFORM_SPEED * dt) : Math.max(p.target, p.at - PLATFORM_SPEED * dt);
+        }
+        this.showPlatform();
+        return event;
+    }
+
+    // The gap's look: dark sky below (with a few far stars), a glowing strip
+    // along each edge, and the shiny metal platform with glowing trim and
+    // little thruster lights underneath
+    createPlatform() {
+        const p = this.platform;
+        const g = p.gap;
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+
+        const stars = [];
+        let r = 23;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        for (let k = 0; k < 220; k++) {
+            stars.push(g.minX + random() * (g.maxX - g.minX), -4 - random() * 30, g.minZ + random() * (g.maxZ - g.minZ));
+        }
+        const starGeometry = new THREE.BufferGeometry();
+        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(stars, 3));
+        this.root.add(new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, fog: false })));
+
+        const edgeMaterial = new THREE.MeshStandardMaterial({ color: 0x5ff2ff, emissive: 0x2fd8ff, emissiveIntensity: 0.8 });
+        for (const end of [0, p.span]) {
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(width, 0.04, 0.12), edgeMaterial);
+            if (p.alongX) {
+                strip.rotation.y = Math.PI / 2;
+                strip.position.set(g.minX + end + (end ? 0.06 : -0.06), 0.02, (g.minZ + g.maxZ) / 2);
+            } else {
+                strip.position.set((g.minX + g.maxX) / 2, 0.02, g.minZ + end + (end ? 0.06 : -0.06));
+            }
+            this.root.add(strip);
+        }
+
+        const group = new THREE.Group();
+        const deck = new THREE.Mesh(
+            new THREE.BoxGeometry(width - 0.1, 0.25, PLATFORM_LENGTH),
+            new THREE.MeshStandardMaterial({ color: 0xf2f6ff, metalness: 0.5, roughness: 0.15, emissive: 0x8a9ab8, emissiveIntensity: 0.75 })
+        );
+        deck.position.y = -0.12;
+        deck.receiveShadow = true;
+        group.add(deck);
+        const trim = new THREE.MeshStandardMaterial({ color: 0x5ff2ff, emissive: 0x2fd8ff, emissiveIntensity: 0.9 });
+        // Glowing trim right round the edge, and a glowing stripe down the middle
+        for (const side of [-1, 1]) {
+            const end = new THREE.Mesh(new THREE.BoxGeometry(width - 0.1, 0.06, 0.1), trim);
+            end.position.set(0, 0.01, side * (PLATFORM_LENGTH / 2 - 0.05));
+            group.add(end);
+            const edge = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.06, PLATFORM_LENGTH), trim);
+            edge.position.set(side * (width / 2 - 0.1), 0.01, 0);
+            group.add(edge);
+        }
+        const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, PLATFORM_LENGTH - 0.5), trim);
+        stripe.position.y = 0.01;
+        group.add(stripe);
+        const thrust = new THREE.MeshBasicMaterial({ color: 0x8fe8ff, fog: false });
+        for (const sx of [-0.8, 0.8]) for (const sz of [-0.7, 0.7]) {
+            const jet = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.05, 0.3, 12), thrust);
+            jet.position.set(sx, -0.38, sz);
+            group.add(jet);
+        }
+        // The group's z is the platform's long side; turn it when the gap runs along x
+        if (p.alongX) group.rotation.y = Math.PI / 2;
+        this.root.add(group);
+        p.object = group;
+        this.showPlatform();
+    }
+
+    showPlatform() {
+        const p = this.platform;
+        if (!p?.object) return;
+        const g = p.gap;
+        const middle = p.at + PLATFORM_LENGTH / 2;
+        if (p.alongX) p.object.position.set(g.minX + middle, 0, (g.minZ + g.maxZ) / 2);
+        else p.object.position.set((g.minX + g.maxX) / 2, 0, g.minZ + middle);
     }
 
     // Is this point on slippery floor?
