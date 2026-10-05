@@ -1,6 +1,11 @@
 // Music and sound effects (plan Section 5). Everything is made in the browser:
-// the music and the crowd cheer are synthesized with Web Audio, and "Ouch!" is
-// spoken by the device's own voice (with a synthesized "ow" if it has none).
+// the music is synthesized with Web Audio, and "Ouch!" and the "Woo hoo! Yay!"
+// cheer are spoken by the device's own voice on computers with a keyboard and
+// mouse. On touch screens (iPads, and computers played by touch, the ones that
+// show the touch circles) the game makes those voice sounds itself with Web
+// Audio, like the music (Iteration 33): there the device voice stayed silent.
+// If the device voice doesn't start, or reports an error, the game's own voice
+// sound plays instead, so there's always something to hear.
 //
 // Browsers only allow sound after the player touches or presses something, so
 // nothing plays until the first key press or tap.
@@ -9,6 +14,19 @@ const SFX_LEVEL = 0.8;
 const MUSIC_LEVEL = SFX_LEVEL / 2; // music about half as loud as the sound effects
 const MUSIC_LOOKAHEAD = 0.4; // seconds of music booked ahead
 const CHEER_LEVEL = 1.4; // the no-voice fallback shouts, inside the sound-effects level
+// How long the device voice gets to start before the game's own voice sound plays instead
+const SPEECH_START_TIMEOUT = 700;
+
+// iPad, iPhone (iPads also call themselves a Mac, but with a touch screen)
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+// ?voice=game forces the game's own voice sounds, for testing on a computer
+const FORCE_GAME_VOICE = new URLSearchParams(window.location.search).get('voice') === 'game';
+// Use the device's speaking voice? Not on touch screens (see the top of this
+// file): the same check that shows the touch circles (main.js), or an iPad.
+function useSpeech() {
+    if (!window.speechSynthesis || IS_IOS || FORCE_GAME_VOICE) return false;
+    return !window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+}
 
 // Note number -> frequency (69 = A4)
 const hz = (n) => 440 * 2 ** ((n - 69) / 12);
@@ -570,8 +588,9 @@ export class Sound {
             // iPad: if the speaking voice ("Ouch!", the cheer) or another app
             // interrupts the music, start it again as soon as it's allowed
             this.ctx.addEventListener('statechange', () => this.wake());
-            // iPad: speech must first be used during a tap, so say nothing now
-            if (window.speechSynthesis) {
+            // Speech must first be used during a tap, so say nothing now
+            // (not on touch screens, which use the game's own voice sounds)
+            if (useSpeech()) {
                 const hush = new SpeechSynthesisUtterance(' ');
                 hush.volume = 0;
                 window.speechSynthesis.speak(hush);
@@ -705,28 +724,75 @@ export class Sound {
 
     // ---- Sound effects ----
 
+    // Say lines with the device's speaking voice. Returns false if it can't
+    // (a touch screen, or no voices). If the voice reports an error or hasn't
+    // started after a moment, fallback() plays the game's own voice sound
+    // instead, so there's always something to hear.
+    speak(lines, rate, fallback) {
+        const speech = window.speechSynthesis;
+        const voices = useSpeech() ? speech.getVoices() : [];
+        if (voices.length === 0) return false;
+        const english = voices.filter((v) => v.lang?.startsWith('en'));
+        const voice = english.find((v) => v.default) || english[0] || voices[0];
+        // A voice that's stuck mid-sentence would hold up the new words
+        if (speech.speaking || speech.pending) speech.cancel();
+        let settled = false;
+        const giveUp = () => {
+            if (settled) return;
+            settled = true;
+            speech.cancel();
+            fallback();
+        };
+        lines.forEach(([words, pitch], n) => {
+            const say = new SpeechSynthesisUtterance(words);
+            say.voice = voice;
+            say.rate = rate;
+            say.pitch = pitch;
+            say.volume = SFX_LEVEL;
+            if (n === 0) {
+                say.onstart = () => { settled = true; };
+                // Cut off by newer words (another spike, the door): nothing to make up for
+                say.onerror = (e) => {
+                    if (e.error === 'interrupted' || e.error === 'canceled') settled = true;
+                    else giveUp();
+                };
+            }
+            speech.speak(say);
+        });
+        setTimeout(giveUp, SPEECH_START_TIMEOUT);
+        return true;
+    }
+
+    // The game's own voice sounds play through Web Audio, which may need waking first
+    playOwnVoice(play) {
+        if (!this.ctx) return;
+        this.wake();
+        play(this.ctx.currentTime + 0.02);
+    }
+
     // A voice says "Ouch!" (the spike)
     ouch() {
         if (!this.settings.sfx) return;
         this.onEvent('ouch');
-        const speech = window.speechSynthesis;
-        const voices = speech?.getVoices() || [];
-        if (speech && voices.length > 0) {
-            speech.cancel();
-            const say = new SpeechSynthesisUtterance('Ouch!');
-            const english = voices.filter((v) => v.lang?.startsWith('en'));
-            say.voice = english.find((v) => v.default) || english[0] || voices[0];
-            say.rate = 1.1;
-            say.pitch = 1.3;
-            say.volume = SFX_LEVEL;
-            speech.speak(say);
-        } else if (this.ctx) {
-            this.syntheticOw(this.ctx.currentTime + 0.01);
-        }
+        const own = () => this.playOwnVoice((t) => this.syntheticOuch(t));
+        if (!this.speak([['Ouch!', 1.3]], 1.1, own)) own();
     }
 
-    // A voice-like "ow" for devices with no speaking voice: a buzzy tone
-    // through vowel filters sliding from "ah" to "oo"
+    // The game's own "Ouch!": a voice-like "ow" and a soft "ch" at the end
+    syntheticOuch(t) {
+        this.syntheticOw(t);
+        const ch = this.ctx.createBiquadFilter();
+        ch.type = 'bandpass';
+        ch.frequency.value = 3800;
+        ch.Q.value = 1.2;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t + 0.4);
+        g.gain.exponentialRampToValueAtTime(0.35, t + 0.45);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.62);
+        this.noiseSource(t + 0.4, 0.25).connect(ch).connect(g).connect(this.sfxBus);
+    }
+
+    // A voice-like "ow": a buzzy tone through vowel filters sliding from "ah" to "oo"
     syntheticOw(t) {
         const ctx = this.ctx;
         const osc = ctx.createOscillator();
@@ -755,37 +821,30 @@ export class Sound {
     }
 
     // Reaching the door: a voice says "Woo hoo!" and "Yay!", like the voice that
-    // says "Ouch!" (Iteration 13: no clapping or crowd). Devices with no
-    // speaking voice get two short voice-like shouts instead.
-    // long: the finale (Level 10) gets an extra-long cheer
+    // says "Ouch!" (Iteration 13: no clapping or crowd). iPads (and devices with
+    // no speaking voice) get the game's own voice-like "woo hoo" and "yay".
+    // long: a world's finale (Levels 10 and 20) gets an extra-long cheer
     cheer({ long = false } = {}) {
         if (!this.settings.sfx) return;
         this.onEvent('cheer');
-        const speech = window.speechSynthesis;
-        const voices = speech?.getVoices() || [];
-        if (speech && voices.length > 0) {
-            const english = voices.filter((v) => v.lang?.startsWith('en'));
-            const voice = english.find((v) => v.default) || english[0] || voices[0];
-            speech.cancel();
-            const lines = long
-                ? [['Woo hoo!', 1.4], ['Yay!', 1.7], ['Woo hoo!', 1.5], ['Yaaay!', 1.8], ['Woo hoo! Yay!', 1.6]]
-                : [['Woo hoo!', 1.4], ['Yay!', 1.7]];
-            for (const [words, pitch] of lines) {
-                const say = new SpeechSynthesisUtterance(words);
-                say.voice = voice;
-                say.rate = long ? 1.0 : 1.15;
-                say.pitch = pitch;
-                say.volume = SFX_LEVEL;
-                speech.speak(say);
-            }
-        } else if (this.ctx) {
-            const t = this.ctx.currentTime + 0.02;
-            const out = this.ctx.createGain();
-            out.gain.value = CHEER_LEVEL;
-            out.connect(this.sfxBus);
-            const place = (node) => node.connect(out);
-            const words = long ? ['woo', 'yay', 'woo', 'yay', 'woo', 'yay'] : ['woo', 'yay'];
-            words.forEach((word, n) => this.shout(t + n * 0.7, word, word === 'woo' ? 300 : 320, 0, place));
+        const lines = long
+            ? [['Woo hoo!', 1.4], ['Yay!', 1.7], ['Woo hoo!', 1.5], ['Yaaay!', 1.8], ['Woo hoo! Yay!', 1.6]]
+            : [['Woo hoo!', 1.4], ['Yay!', 1.7]];
+        const own = () => this.playOwnVoice((t) => this.syntheticCheer(t, long));
+        if (!this.speak(lines, long ? 1.0 : 1.15, own)) own();
+    }
+
+    // The game's own cheer: "woo hoo!" then "yay!" (the finale: three times over)
+    syntheticCheer(t, long) {
+        const out = this.ctx.createGain();
+        out.gain.value = CHEER_LEVEL;
+        out.connect(this.sfxBus);
+        const place = (node) => node.connect(out);
+        const words = long ? ['woo', 'hoo', 'yay', 'woo', 'hoo', 'yay', 'woo', 'hoo', 'yay'] : ['woo', 'hoo', 'yay'];
+        const gaps = { woo: 0.42, hoo: 0.75, yay: 0.8 };
+        for (const word of words) {
+            this.shout(t, word, word === 'yay' ? 330 : word === 'hoo' ? 320 : 300, 0, place);
+            t += gaps[word];
         }
     }
 
@@ -793,6 +852,20 @@ export class Sound {
     shout(t, word, base, pan, place) {
         const ctx = this.ctx;
         const yay = word === 'yay';
+        // "hoo": a "woo" that starts with a breathy "h"
+        if (word === 'hoo') {
+            const h = ctx.createBiquadFilter();
+            h.type = 'bandpass';
+            h.frequency.value = 1400;
+            h.Q.value = 0.8;
+            const hg = ctx.createGain();
+            hg.gain.setValueAtTime(0.0001, t);
+            hg.gain.exponentialRampToValueAtTime(0.25, t + 0.04);
+            hg.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+            this.noiseSource(t, 0.15).connect(h).connect(hg);
+            place(hg, pan);
+            t += 0.06;
+        }
         const dur = yay ? 0.38 + Math.random() * 0.2 : 0.5 + Math.random() * 0.25;
         const osc = ctx.createOscillator();
         osc.type = 'sawtooth';
