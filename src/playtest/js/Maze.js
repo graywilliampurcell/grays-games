@@ -244,6 +244,8 @@ const SPACE_DOOR_LIGHTS = { open: 0x3dff6e, moving: 0xffc83d, closed: 0xff3d3d }
 // player across a gap with no floor. It's the gap's full width and this long.
 const PLATFORM_LENGTH = 2.4;
 const PLATFORM_SPEED = 6; // about walking speed (walking tops out near 7.5)
+// A fast leaf ('F' blocks instead of 'O', Level 27 on) goes this much faster
+const FAST_PLATFORM_SPEED = PLATFORM_SPEED * 1.3;
 const PLATFORM_WAIT = 0.3; // a moment after the player is fully on before it sets off
 // How close to an edge (from the floor side) counts as coming to it
 const PLATFORM_CALL_DISTANCE = 2.5;
@@ -320,7 +322,8 @@ export class Maze {
         const doorBlocks = [];
         // Blocks of slippery floor ('I'), keyed "x,z"
         this.slipperyBlocks = new Set();
-        // Blocks with no floor ('O'), crossed on moving platforms (one per gap)
+        // Blocks with no floor ('O'), crossed on moving platforms (one per gap);
+        // 'F' is the same but its platform is a fast one (Level 27 on)
         const gapBlocks = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
@@ -335,7 +338,7 @@ export class Maze {
                 if (ch === 'D') this.doorBlock = { x, z };
                 if (ch === 'G') doorBlocks.push({ x, z });
                 if (ch === 'I') this.slipperyBlocks.add(`${x},${z}`);
-                if (ch === 'O') gapBlocks.push({ x, z });
+                if (ch === 'O' || ch === 'F') gapBlocks.push({ x, z, fast: ch === 'F' });
             }
         }
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
@@ -1007,6 +1010,7 @@ export class Maze {
         const startAt = lowSideReached ? low : high;
         return {
             gap, alongX, span, low, high, startAt,
+            speed: blocks.some((b) => b.fast) ? FAST_PLATFORM_SPEED : PLATFORM_SPEED,
             at: startAt, target: startAt,
             riding: false, // the player is on board (and can't step off till it stops)
             wait: 0, // time left before it sets off with the player
@@ -1100,7 +1104,7 @@ export class Maze {
             } else {
                 if (p.at === (p.target === p.high ? p.low : p.high)) event = 'depart';
                 const before = p.at;
-                p.at = p.target > p.at ? Math.min(p.target, p.at + PLATFORM_SPEED * dt) : Math.max(p.target, p.at - PLATFORM_SPEED * dt);
+                p.at = p.target > p.at ? Math.min(p.target, p.at + p.speed * dt) : Math.max(p.target, p.at - p.speed * dt);
                 if (p.alongX) position.x += p.at - before;
                 else position.z += p.at - before;
                 if (p.at === p.target) {
@@ -1129,7 +1133,7 @@ export class Maze {
             if (p.at !== p.low && along < 0 && along > -PLATFORM_CALL_DISTANCE) p.target = p.low;
             if (p.at !== p.high && along > p.span && along < p.span + PLATFORM_CALL_DISTANCE) p.target = p.high;
         } else if (!p.riding && p.at !== p.target) {
-            p.at = p.target > p.at ? Math.min(p.target, p.at + PLATFORM_SPEED * dt) : Math.max(p.target, p.at - PLATFORM_SPEED * dt);
+            p.at = p.target > p.at ? Math.min(p.target, p.at + p.speed * dt) : Math.max(p.target, p.at - p.speed * dt);
         }
         this.showPlatform(p);
         return event;

@@ -4,7 +4,8 @@
 //   open and shut by itself (three blocks across a gap; see Maze.js), 'I' a
 //   slippery spot on the floor (a strip right across a corridor), 'O' a gap
 //   with no floor, crossed on a moving platform (Level 17 on), 'Z' a second
-//   spike on the path with its own size (spike2Radius)
+//   spike on the path with its own size (spike2Radius), 'F' a gap like 'O'
+//   whose leaf goes about 30% faster (Level 27)
 // Found with tools/find-level.mjs. theme: colors and the fluffy look, see Maze.js.
 // music: the level's tune (see sound.js), a little sneakier each level.
 // spikeRadius: size of the spike's plate (default 0.75; see Maze.js).
@@ -1021,6 +1022,50 @@ export const LEVELS = [
             '#            OOOOOOO        #',
             '#            OOOOOOO        #',
             '#            OOOOOOO        #',
+            '#############################',
+        ],
+    },
+    {
+        name: 'Level 27',
+        // The first fast leaf. `node tools/find-level.mjs level27 7`, seed
+        // 111. 7 x 7 corridors. Correct path 35 cells; 7 dead ends, each 2
+        // cells deep. X: a small thorny bush on the path in cell 19, straight
+        // path in and out; its plate 0.7 like Level 8's spike (about 15% less
+        // room than Level 26). Three river gaps, each with its own leaf, over
+        // path cells 3-4 (O), 15-16 (F: the fast leaf, about 30% faster) and
+        // 23-24 (O). No big bush, no hidden bush, no doors, no slippery spots.
+        theme: JUNGLE,
+        music: 'zoom',
+        spikeRadius: 0.7,
+        layout: [
+            '#############################',
+            '#                           #',
+            '#                           #',
+            '#                           #',
+            '#   #################   #   #',
+            '#   #    FFFFFFF    #   #   #',
+            '#   #    FFFFFFF    #   #   #',
+            '#   #    FFFFFFF    #   #   #',
+            '#   #   #########   #   #   #',
+            '#   #   #   #       #   #   #',
+            '#   #   #   #       #   #   D',
+            '#   #   #   #       #   #   #',
+            '#   #   #   #   #   #####   #',
+            '#OOO#   #       #       #   #',
+            '#OOO# X #       #       #   #',
+            '#OOO#   #       #       #   #',
+            '#OOO#   #####   #########   #',
+            '#OOO#   #               #   #',
+            '#OOO#   #               #   #',
+            '#OOO#   #               #   #',
+            '#   #   #   #################',
+            '#       #                   #',
+            '#       #                   #',
+            '#       #                   #',
+            '#################   #########',
+            '#        OOOOOOO            #',
+            '# S      OOOOOOO            #',
+            '#        OOOOOOO            #',
             '#############################',
         ],
     },

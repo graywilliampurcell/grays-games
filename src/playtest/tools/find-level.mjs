@@ -146,7 +146,8 @@
 // covers all five: the gaps, the path bush and the hidden bush's opening.
 //
 // Level 27 rules (Iteration 42): Level 25's. One gap's blocks are written as
-// 'F' instead of 'O' (the fast leaf); the search itself is the same.
+// 'F' instead of 'O' (the fast leaf: the second one along the path), and it
+// starts in a new row (not Level 25's); otherwise the search is the same.
 //
 // Every cell not on the path belongs to a dead end, so for Level 1 the path
 // covers 25 - 5 - 3 = 17 cells (Level 2: 25 - 8 - 3 = 14). The search lays a
@@ -894,6 +895,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     }
     if (LEVEL25) {
         if (path[0].j === 3) continue; // Levels 22-24 all start in row 3
+        if (process.argv[2] === 'level27' && path[0].j === 4) continue; // and Level 25 in row 4
         const hung = hangPathSpike(path, random);
         if (!hung) continue;
         const startCell = path[0];
@@ -1064,7 +1066,7 @@ if (best.spikeCell2) {
 for (const gap of [best.gap, best.gap2, best.gap3].filter(Boolean)) {
     for (const [x, z] of gapBlocks(...gap)) {
         const row = layout[z].split('');
-        row[x] = 'O';
+        row[x] = process.argv[2] === 'level27' && gap === best.gap2 ? 'F' : 'O'; // Level 27: the middle river's leaf is the fast one
         layout[z] = row.join('');
     }
 }

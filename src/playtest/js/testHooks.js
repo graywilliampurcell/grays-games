@@ -172,7 +172,7 @@ function round(v) {
 }
 
 function platformState(p) {
-    return { at: round(p.at), target: round(p.target), riding: p.riding, alongX: p.alongX, gap: { ...p.gap } };
+    return { at: round(p.at), target: round(p.target), riding: p.riding, alongX: p.alongX, speed: p.speed, gap: { ...p.gap } };
 }
 
 function vec(v) {
