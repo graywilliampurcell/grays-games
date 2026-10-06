@@ -708,6 +708,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.12, length: 0.09, brightness: 3600 },
     },
+    // Level 29, three fast leaves: a happy but sly tune (F major leaning on
+    // D minor, quick like Level 28's), its hook a sneaky three-note pattern
+    // that climbs in steps and keeps landing somewhere unexpected, on a
+    // buzzy saw lead over a stop-start bass. A tiny bit sneakier than
+    // Level 28's.
+    scamper: {
+        tempo: 124,
+        bars: [[41, 'maj'], [38, 'min'], [46, 'maj'], [36, 'maj'], [38, 'min'], [45, 'min'], [46, 'maj'], [36, 'maj']],
+        bass: [0, null, null, 0, 7, null, 12, null],
+        bassLength: 0.1,
+        stabs: [3, 7],
+        stabLevel: 0.025,
+        ticks: true,
+        melody: [
+            72, 69, 65, 74, 70, 67, 76, null,
+            74, null, 69, null, 72, null, null, null,
+            70, 67, 62, 74, 70, 65, 77, null,
+            76, 74, 72, null, 67, null, null, null,
+            69, 65, 62, 72, 69, 65, 74, null,
+            76, null, 72, null, 69, 71, 72, null,
+            74, 70, 65, 77, 74, 70, 81, null,
+            79, null, 76, null, 77, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.1, length: 0.08, brightness: 2600 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
