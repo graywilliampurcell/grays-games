@@ -609,6 +609,30 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.3, length: 0.1, brightness: 6000 },
     },
+    // Level 25, the squeeze-past bush: a happy tune that edges sideways
+    // (G major, a little slower and more careful than Level 24's), its hook a
+    // tiptoe of repeated notes that slides round a sneaky chromatic corner,
+    // on a reedy lead over a swinging bass. A tiny bit sneakier than Level 24's.
+    vines: {
+        tempo: 110,
+        bars: [[43, 'maj'], [40, 'min'], [36, 'maj'], [38, 'maj'], [43, 'maj'], [47, 'min'], [36, 'maj'], [38, 'maj']],
+        bass: [0, null, 7, 12, null, 7, 0, null],
+        bassLength: 0.15,
+        stabs: [2, 6],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            67, 67, 67, null, 68, 69, 71, null,
+            72, null, 71, 69, 67, null, 64, null,
+            72, 72, 72, null, 73, 74, 76, null,
+            74, null, 72, null, 69, null, null, null,
+            71, 71, 71, null, 70, 71, 74, null,
+            79, null, 78, 76, 74, null, 71, null,
+            72, 74, 76, null, 79, null, 76, 72,
+            74, null, 73, null, 74, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.13, length: 0.12, brightness: 2200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

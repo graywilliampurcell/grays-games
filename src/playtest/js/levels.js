@@ -935,6 +935,50 @@ export const LEVELS = [
             '#############################',
         ],
     },
+    {
+        name: 'Level 25',
+        // The squeeze-past bush. `node tools/find-level.mjs level25 8`, seed
+        // 122. 7 x 7 corridors. Correct path 33 cells; 8 dead ends, each 2
+        // cells deep. X: a small thorny bush on the path in cell 24, with
+        // straight path in and out so you see it coming; its plate 0.64 like
+        // Level 14's spike. O: three river gaps, each with its own leaf, over
+        // path cells 6-7, 19-20 and 30-31, with turns between them. No big
+        // bush, no hidden bush, no doors, no slippery spots.
+        theme: JUNGLE,
+        music: 'vines',
+        spikeRadius: 0.64,
+        layout: [
+            '#############################',
+            '#            OOOOOOO        #',
+            '#            OOOOOOO        D',
+            '#            OOOOOOO        #',
+            '#########   #################',
+            '#           #               #',
+            '#           #     X         #',
+            '#           #               #',
+            '#########   #   #########   #',
+            '#   #           #           #',
+            '#   #           #           #',
+            '#   #           #           #',
+            '#   #   #################   #',
+            '#   #   #       #       #OOO#',
+            '#   #   #       #       #OOO#',
+            '#   #   #       #       #OOO#',
+            '#   #####   #########   #OOO#',
+            '#               #       #OOO#',
+            '# S             #       #OOO#',
+            '#               #       #OOO#',
+            '#############   #   #   #   #',
+            '#    OOOOOOO    #   #       #',
+            '#    OOOOOOO    #   #       #',
+            '#    OOOOOOO    #   #       #',
+            '#   #############   #   #####',
+            '#                   #       #',
+            '#                   #       #',
+            '#                   #       #',
+            '#############################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with
