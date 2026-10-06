@@ -891,6 +891,50 @@ export const LEVELS = [
             '#############################',
         ],
     },
+    {
+        name: 'Level 24',
+        // Three rivers and two bushes. `node tools/find-level.mjs level24 6`,
+        // seed 58. 7 x 7 corridors. Correct path 34 cells; 6 dead ends 2 cells
+        // deep, plus the hidden bush's (X): off one of the first 3 path cells
+        // it goes 2 cells, turns once, and the bush sits in its last cell, out
+        // of sight of the path. Y: the big bush right across the opening of a
+        // straight dead end off path cell 18, in plain view. O: three river
+        // gaps, each with its own leaf, over path cells 13-14, 25-26 and
+        // 31-32, with turns between them. No doors, no slippery spots.
+        theme: JUNGLE,
+        music: 'canopy',
+        layout: [
+            '#############################',
+            '#            OOOOOOO        #',
+            '#            OOOOOOO        D',
+            '#            OOOOOOO        #',
+            '#   #########################',
+            '#    OOOOOOO                #',
+            '#    OOOOOOO                #',
+            '#    OOOOOOO                #',
+            '#############   #   #####   #',
+            '#           #   #   #       #',
+            '# X         #   #   #       #',
+            '#           #   #   #       #',
+            '#########   #   #   #   #   #',
+            '#           #   #   #   #   #',
+            '# S         #   #   #   #   #',
+            '#           #   #   #   #   #',
+            '#########   #############   #',
+            '#           #   #           #',
+            '#           #   #      Y    #',
+            '#           #   #           #',
+            '#   #########   #########   #',
+            '#   #           #           #',
+            '#   #           #           #',
+            '#   #           #           #',
+            '#   #   #   #############   #',
+            '#       #    OOOOOOO        #',
+            '#       #    OOOOOOO        #',
+            '#       #    OOOOOOO        #',
+            '#############################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with

@@ -585,6 +585,30 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.14, length: 0.13, brightness: 2400 },
     },
+    // Level 24, three rivers and two bushes: a happy, adventurous tune
+    // (F major, a touch quicker than Level 23's) whose hook is a hop-hop-leap
+    // with a sneaky flattened note slipping in before the climb, on a bright
+    // bell-like lead over a galloping bass. A tiny bit sneakier than Level 23's.
+    canopy: {
+        tempo: 120,
+        bars: [[41, 'maj'], [46, 'maj'], [38, 'min'], [36, 'maj'], [41, 'maj'], [45, 'min'], [46, 'maj'], [36, 'maj']],
+        bass: [0, 0, 7, null, 0, 0, 12, 'lead-in'],
+        bassLength: 0.1,
+        stabs: [3, 7],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            72, 72, 77, null, 76, null, 72, null,
+            74, 74, 79, null, 77, null, 74, null,
+            75, null, 74, 72, 69, null, 74, 77,
+            79, null, 76, null, 72, null, null, null,
+            72, 72, 77, null, 81, null, 79, 77,
+            76, null, 72, null, 69, null, 72, null,
+            74, 77, 82, null, 81, 79, 77, null,
+            79, null, 78, 79, 84, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.3, length: 0.1, brightness: 6000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

@@ -23,7 +23,8 @@
 //   node tools/find-level.mjs level20    # Level 20 rules (Level 18's with a second path spike instead of the door)
 //   node tools/find-level.mjs level21    # Level 21 rules (Jungle World: 7 x 7, Level 11's hidden bush, a platform gap)
 //   node tools/find-level.mjs level22 7  # Level 22 rules (Level 21's plus a big bush blocking a straight dead end)
-//   node tools/find-level.mjs level23 6  # Level 23 rules (Level 21's with two river gaps)
+//   node tools/find-level.mjs level23 7  # Level 23 rules (Level 21's with two river gaps)
+//   node tools/find-level.mjs level24 6  # Level 24 rules (three river gaps, the big bush and the hidden bush)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -125,6 +126,11 @@
 // and between each gap and the hidden bush's dead-end opening. A clearly
 // different layout from every other level.
 //
+// Level 24 rules (Iteration 39): Level 23's with three gaps instead of two,
+// plus Level 22's big bush ('Y') just inside the opening of a straight 2-cell
+// dead end, visible from the path. The spacing rule covers all five: the
+// three gaps and both bush dead ends' openings.
+//
 // Every cell not on the path belongs to a dead end, so for Level 1 the path
 // covers 25 - 5 - 3 = 17 cells (Level 2: 25 - 8 - 3 = 14). The search lays a
 // random path of that length and keeps it if the cells it leaves over can be
@@ -135,7 +141,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -147,7 +153,9 @@ const differentEnough = (layoutShape) => OTHERS.every((o) => [...o].filter((ch, 
 // Level 11 (Space World): 6 x 6, dead ends 2 cells deep like Level 2 and a
 // hidden spike trail like Level 1 (3 cells, one turn, out of sight of the path)
 const LEVEL22 = process.argv[2] === 'level22'; // Level 21's plus a big bush blocking a straight dead end
-const LEVEL23 = process.argv[2] === 'level23'; // Level 21's with two river gaps
+const LEVEL24 = process.argv[2] === 'level24'; // three river gaps, the big bush and the hidden bush
+const LEVEL23 = process.argv[2] === 'level23' || LEVEL24; // Level 21's with two (Level 24: three) river gaps
+const GAP_COUNT = LEVEL24 ? 3 : 2;
 const LEVEL21 = process.argv[2] === 'level21' || LEVEL22 || LEVEL23; // Jungle World: 7 x 7, Level 11's hidden bush plus a platform gap
 const LEVEL11 = process.argv[2] === 'level11' || LEVEL21;
 // Level 12: 6 x 6 with 2-cell dead ends again, no spikes, a space door on the path
@@ -920,26 +928,48 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
         gapIndex = pick.g;
     }
 
-    // Level 23: two gaps, each over two plain path cells g and g + 1 with the
-    // path straight from g - 1 to g + 2, a turn somewhere between them, and at
-    // least 2 path cells between them and from the hidden bush's opening
+    // Level 23: GAP_COUNT gaps, each over two plain path cells g and g + 1
+    // with the path straight from g - 1 to g + 2, a turn somewhere between
+    // each two, and at least 2 path cells between them and from the hidden
+    // bush's opening. Level 24: plus the big bush in a straight 2-cell dead
+    // end, its opening at least 2 path cells from all of them.
     let gapIndex2 = null;
+    let gapIndex3 = null;
     if (LEVEL23) {
         if (!differentEnough(shape(toLayout(hung.links, { startCell, exitCell })))) continue;
         const step = (p, q) => `${q.i - p.i},${q.j - p.j}`;
+        const indexOf = (c) => path.findIndex((p) => key(p) === key(c));
         const plain = (k) => k > 0 && k < path.length - 1 && hung.links[path[k].i][path[k].j].length === 2 && step(path[k - 1], path[k]) === step(path[k], path[k + 1]);
         const turnBetween = (a, b) => { for (let k = a; k < b; k++) if (step(path[k - 1], path[k]) !== step(path[k], path[k + 1])) return true; return false; };
         const singles = [];
         for (let g = hung.junctionIndex + 3; g < path.length - 3; g++) if (plain(g) && plain(g + 1)) singles.push(g);
-        const pairs = [];
-        for (const g1 of singles) for (const g2 of singles) if (g2 >= g1 + 4 && turnBetween(g1 + 2, g2 - 1)) pairs.push([g1, g2]);
-        if (pairs.length === 0) continue;
-        [gapIndex, gapIndex2] = pairs[Math.floor(random() * pairs.length)];
+        const sets = [];
+        const grow = (set) => {
+            if (set.length === GAP_COUNT) return sets.push(set);
+            const last = set[set.length - 1];
+            for (const g of singles) if (last === undefined || (g >= last + 4 && turnBetween(last + 2, g - 1))) grow([...set, g]);
+        };
+        grow([]);
+        // Opening at path cell a is at least 2 path cells from the gap over g, g + 1, and from the hidden bush's opening
+        const fromGap = (a, g) => a <= g - 3 || a >= g + 4;
+        const options = [];
+        if (LEVEL24) {
+            const blockers = hung.chains.map((chain, c) => ({ chain, from: hung.roots[c], rowFrom: hung.roots[c], rowCell: chain[0], at: indexOf(hung.roots[c]) }))
+                .filter(({ chain, from, at }) => chain.length === 2 && step(from, chain[0]) === step(chain[0], chain[1]) && Math.abs(at - hung.junctionIndex) - 1 >= 2);
+            for (const set of sets) for (const b of blockers) if (set.every((g) => fromGap(b.at, g))) options.push({ set, b });
+        } else {
+            for (const set of sets) options.push({ set, b: null });
+        }
+        if (options.length === 0) continue;
+        const pick = options[Math.floor(random() * options.length)];
+        [gapIndex, gapIndex2, gapIndex3 = null] = pick.set;
+        blocker = pick.b;
     }
 
     best = { seed, links: hung.links, startCell, exitCell, spikeCell: hung.spikeCell, solution, deadEnds, spike };
     if (LEVEL21) Object.assign(best, { gap: [path[gapIndex], path[gapIndex + 1]], gapIndex });
     if (gapIndex2 !== null) Object.assign(best, { gap2: [path[gapIndex2], path[gapIndex2 + 1]], gapIndex2 });
+    if (gapIndex3 !== null) Object.assign(best, { gap3: [path[gapIndex3], path[gapIndex3 + 1]], gapIndex3 });
     if (blocker) best.blocker = blocker;
 }
 
@@ -972,7 +1002,7 @@ if (best.spikeCell2) {
     row[4 * best.spikeCell2.i + 2] = 'Z';
     layout[4 * best.spikeCell2.j + 2] = row.join('');
 }
-for (const gap of [best.gap, best.gap2].filter(Boolean)) {
+for (const gap of [best.gap, best.gap2, best.gap3].filter(Boolean)) {
     for (const [x, z] of gapBlocks(...gap)) {
         const row = layout[z].split('');
         row[x] = 'O';
@@ -995,6 +1025,7 @@ console.log(`\nseed ${best.seed}: ${COLS}x${ROWS}, path ${best.solution.length} 
     (best.spikeCell2 ? `second spike in path cell ${best.spikeIndex2 + 1}, ` : '') +
     (best.gap ? `platform gap over path cells ${best.gapIndex + 1}-${best.gapIndex + 2}, ` : '') +
     (best.gap2 ? `second platform gap over path cells ${best.gapIndex2 + 1}-${best.gapIndex2 + 2}, ` : '') +
+    (best.gap3 ? `third platform gap over path cells ${best.gapIndex3 + 1}-${best.gapIndex3 + 2}, ` : '') +
     (best.door ? `space door between path cells ${best.doorIndex + 1} and ${best.doorIndex + 2}` : best.spike ? `spike ${best.spike.fromStart} cells from start` : '') +
     (best.blocker ? `, spike row in the dead end at ${best.blocker.rowCell.i},${best.blocker.rowCell.j}` : '') +
     (best.blocker?.at !== undefined ? ` (opening off path cell ${best.blocker.at + 1})` : ''));
