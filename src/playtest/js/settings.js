@@ -2,6 +2,7 @@
 
 const SETTINGS_KEY = 'mazle.settings';
 const PROGRESS_KEY = 'mazle.progress';
+const FURTHEST_KEY = 'mazle.furthest';
 
 // The three control setups on each kind of device (plan Section 4)
 export const TOUCH_SETUPS = [
@@ -72,4 +73,15 @@ export function saveProgress(progress) {
 
 export function clearProgress() {
     write(PROGRESS_KEY, null);
+}
+
+// The furthest level reached (a LEVELS index), for Pick a level. null if
+// it was never saved (main.js then starts it from the saved spot's level).
+export function loadFurthest() {
+    const n = read(FURTHEST_KEY);
+    return Number.isInteger(n) && n >= 0 ? n : null;
+}
+
+export function saveFurthest(index) {
+    write(FURTHEST_KEY, index);
 }

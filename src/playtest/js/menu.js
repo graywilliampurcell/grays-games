@@ -3,22 +3,31 @@
 // Computer: the spacebar pauses; ↑/↓ move the glow and the spacebar picks.
 // iPad: the ⏸ button pauses; tap an option to pick it.
 // The same menu shows the "You did it!" screen when a level is finished, and
-// the main menu (Mazle: Continue / New game) when the game opens.
+// the main menu (Mazle: Continue / New game / Pick a level) when the game opens.
+//
+// Pick a level (plan Section 8) is two screens: the worlds (one button per
+// world, showing its first level's number in its look), then that world's
+// levels. Levels after the furthest one reached are plain gray locks.
 
 import { TOUCH_SETUPS, KEYBOARD_SETUPS } from './settings.js';
+import { WORLDS } from './levels.js';
 
 export class Menu {
     // game: { canPause(), pause(), resume(), startOver(), quit(), nextLevel(),
-    //         hasSave(), continueGame(), newGame(), toMainMenu(), reloadForUpdate(),
+    //         hasSave(), continueGame(), newGame(lockLevels), furthestLevel(), pickLevel(index),
+    //         toMainMenu(), reloadForUpdate(),
     //         settings, changeSettings(changes) }
     constructor(game) {
         this.game = game;
-        this.state = 'closed'; // closed | title | erase | main | settings | quit | finish | update | thanks
+        this.state = 'closed'; // closed | title | erase | worlds | levels | replace | main | settings | quit | finish | update | thanks
         this.quitFrom = 'main'; // the panel Quit → No goes back to
         this.root = document.getElementById('menu');
         this.panels = {
             title: document.getElementById('menu-title'),
             erase: document.getElementById('menu-erase'),
+            worlds: document.getElementById('menu-worlds'),
+            levels: document.getElementById('menu-levels'),
+            replace: document.getElementById('menu-replace'),
             update: document.getElementById('menu-update'),
             main: document.getElementById('menu-main'),
             settings: document.getElementById('menu-settings'),
@@ -30,6 +39,9 @@ export class Menu {
         this.updateLater = false; // Gray picked Later: from then on ask only on the main menu or an end screen
         this.updateFrom = null; // where Later goes back to: closed | title | finish
         this.finishGlow = 'next-level';
+        this.pickWorld = 0; // the world whose levels are showing
+        this.pickIndex = 0; // the level Pick a level is asking about
+        this.noteTimer = null;
 
         document.getElementById('pause-btn').addEventListener('click', () => this.open());
         this.root.addEventListener('click', (e) => {
@@ -67,10 +79,10 @@ export class Menu {
         // holding ↑ when he walks into the door)
         if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
             e.preventDefault();
-            if (!e.repeat) this.moveGlow(-1);
+            if (!e.repeat) this.moveGlow(-1, e.key === 'ArrowUp');
         } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
             e.preventDefault();
-            if (!e.repeat) this.moveGlow(1);
+            if (!e.repeat) this.moveGlow(1, e.key === 'ArrowDown');
         } else if (e.key === ' ') {
             e.preventDefault();
             if (!e.repeat) {
@@ -150,6 +162,7 @@ export class Menu {
     show(panel, glowAct) {
         this.state = panel;
         for (const [name, el] of Object.entries(this.panels)) el.hidden = name !== panel;
+        this.root.querySelectorAll('.pick-note').forEach((n) => { n.hidden = true; });
         if (panel === 'settings') this.fillSettings();
         const items = this.items();
         this.glowIndex = Math.max(0, items.findIndex((i) => i.dataset.act === glowAct));
@@ -163,9 +176,30 @@ export class Menu {
         return [...panel.querySelectorAll('.item')].filter((i) => !i.hidden && !i.closest('[hidden]'));
     }
 
-    moveGlow(delta) {
+    // vertical: ↑/↓ in a grid of buttons (Pick a level) go a whole row up or
+    // down; ↓ from the bottom row goes to the buttons below the grid
+    moveGlow(delta, vertical = false) {
         const items = this.items();
         if (items.length === 0) return;
+        const current = items[this.glowIndex];
+        const grid = current?.closest('.pick-grid');
+        if (vertical && grid) {
+            const cells = items.filter((i) => grid.contains(i));
+            const cols = Number(grid.dataset.cols) || 1;
+            const at = cells.indexOf(current);
+            const to = at + delta * cols;
+            if (to >= 0 && to < cells.length) {
+                this.glowIndex = items.indexOf(cells[to]);
+                this.paintGlow();
+                return;
+            }
+            if (delta > 0) {
+                const below = items.indexOf(cells[cells.length - 1]) + 1;
+                this.glowIndex = below < items.length ? below : 0;
+                this.paintGlow();
+                return;
+            }
+        }
         this.glowIndex = (this.glowIndex + delta + items.length) % items.length;
         this.paintGlow();
     }
@@ -191,9 +225,34 @@ export class Menu {
             if (this.game.hasSave()) this.show('erase', 'erase-no');
             else this.startNewGame();
         } else if (act === 'erase-yes') {
-            this.startNewGame();
+            this.startNewGame(true);
         } else if (act === 'erase-no') {
             this.show('title', 'new-game');
+        } else if (act === 'pick-level') {
+            this.showWorlds(0);
+        } else if (act === 'pick-world') {
+            const w = Number(item.dataset.world);
+            if (item.classList.contains('locked')) this.note('Reach this world first!');
+            else this.showLevels(w);
+        } else if (act === 'pick-one') {
+            const index = Number(item.dataset.level);
+            if (item.classList.contains('locked')) {
+                this.note('Reach this level first!');
+            } else if (this.game.hasSave()) {
+                // The saved spot would be replaced, so ask first (No glows first)
+                this.pickIndex = index;
+                this.show('replace', 'replace-no');
+            } else {
+                this.startPicked(index);
+            }
+        } else if (act === 'replace-yes') {
+            this.startPicked(this.pickIndex);
+        } else if (act === 'replace-no') {
+            this.showLevels(this.pickWorld, this.pickIndex);
+        } else if (act === 'to-worlds') {
+            this.showWorlds(this.pickWorld);
+        } else if (act === 'to-title') {
+            this.showTitle();
         } else if (act === 'main-menu') {
             // Saves the spot like Quit does, so no "Are you sure?"
             this.game.toMainMenu();
@@ -235,8 +294,86 @@ export class Menu {
         }
     }
 
-    startNewGame() {
-        this.game.newGame();
+    startNewGame(lockLevels = false) {
+        this.game.newGame(lockLevels);
+        this.close();
+    }
+
+    // Pick a level, step 1: one button per world that has a built level. A
+    // world whose first level hasn't been reached is a plain gray lock.
+    // The glow starts on glowWorld if it's open, else on the first open one.
+    showWorlds(glowWorld = 0) {
+        const furthest = this.game.furthestLevel();
+        const grid = document.getElementById('world-grid');
+        grid.innerHTML = '';
+        grid.dataset.cols = String(Math.min(WORLDS.length, 5));
+        grid.style.setProperty('--cols', grid.dataset.cols);
+        WORLDS.forEach((world, w) => {
+            const open = world.first <= furthest;
+            grid.appendChild(this.pickButton('pick-world', open ? String(world.first + 1) : '', open ? world.look : null, { world: w }));
+        });
+        this.show('worlds', null);
+        const want = WORLDS[glowWorld]?.first <= furthest ? glowWorld : 0;
+        this.glowOn(grid.children[want]);
+    }
+
+    // Pick a level, step 2: the world's built levels, then Worlds / Main menu
+    showLevels(w, glowLevel = null) {
+        const world = WORLDS[w];
+        const furthest = this.game.furthestLevel();
+        this.pickWorld = w;
+        const grid = document.getElementById('level-grid');
+        grid.innerHTML = '';
+        const count = world.last - world.first + 1;
+        grid.dataset.cols = String(Math.min(count, 5));
+        grid.style.setProperty('--cols', grid.dataset.cols);
+        for (let index = world.first; index <= world.last; index++) {
+            const open = index <= furthest;
+            grid.appendChild(this.pickButton('pick-one', open ? String(index + 1) : '', open ? world.look : null, { level: index }));
+        }
+        this.show('levels', null);
+        const glow = glowLevel !== null && glowLevel <= furthest ? glowLevel : world.first;
+        this.glowOn(grid.children[glow - world.first]);
+    }
+
+    // A world or level button: its number in the world's look, or (locked)
+    // a plain gray lock that gives nothing away
+    pickButton(act, label, look, data) {
+        const item = document.createElement('div');
+        item.className = 'item pick';
+        item.dataset.act = act;
+        for (const [k, v] of Object.entries(data)) item.dataset[k] = String(v);
+        if (look) {
+            item.classList.add(`look-${look}`);
+            item.textContent = label;
+        } else {
+            item.classList.add('locked');
+            item.textContent = '🔒';
+            item.setAttribute('aria-label', 'Locked');
+        }
+        return item;
+    }
+
+    glowOn(item) {
+        const i = this.items().indexOf(item);
+        if (i >= 0) {
+            this.glowIndex = i;
+            this.paintGlow();
+        }
+    }
+
+    // "Reach this level first!" under the buttons for a moment
+    note(text) {
+        const el = this.panels[this.state]?.querySelector('.pick-note');
+        if (!el) return;
+        el.textContent = text;
+        el.hidden = false;
+        clearTimeout(this.noteTimer);
+        this.noteTimer = setTimeout(() => { el.hidden = true; }, 2500);
+    }
+
+    startPicked(index) {
+        this.game.pickLevel(index);
         this.close();
     }
 

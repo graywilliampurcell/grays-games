@@ -806,3 +806,16 @@ export const LEVELS = [
         ],
     },
 ];
+
+// The worlds, for Pick a level: each run of levels with the same theme, with
+// the index of its first and last built level and its look.
+export const WORLDS = [];
+LEVELS.forEach((level, index) => {
+    const last = WORLDS[WORLDS.length - 1];
+    if (last && last.theme === level.theme) {
+        last.last = index;
+    } else {
+        const look = level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
+        WORLDS.push({ theme: level.theme, first: index, last: index, look });
+    }
+});

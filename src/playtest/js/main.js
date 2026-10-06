@@ -5,7 +5,7 @@ import { LEVELS } from './levels.js';
 import { InputManager } from './InputManager.js';
 import { CollisionManager } from './CollisionManager.js';
 import { installTestHooks, TEST_MODE } from './testHooks.js';
-import { DEFAULT_SETTINGS, loadSettings, saveSettings, loadProgress, saveProgress, clearProgress } from './settings.js';
+import { DEFAULT_SETTINGS, loadSettings, saveSettings, loadProgress, saveProgress, clearProgress, loadFurthest, saveFurthest } from './settings.js';
 import { Menu } from './menu.js';
 import { Sound } from './sound.js';
 import { startUpdateChecks, reloadInto } from './updates.js';
@@ -18,6 +18,7 @@ let levelIndex = 0;
 let menu;
 let sound;
 let liveBuild = null; // the newer build updates.js found, if any
+let furthest = 0; // furthest level reached (a LEVELS index), for Pick a level
 // The bot always plays with the default controls and a fresh start
 // Which build this is (vite.config.js): e.g. Mazle 0.13.0 (build 765a327)
 export const VERSION = { version: __APP_VERSION__, build: __APP_BUILD__ };
@@ -81,6 +82,11 @@ function init() {
     // The saved spot's level sits behind the main menu (test mode: Level 1, straight into play)
     const progress = savedSpot();
     if (progress) levelIndex = progress.level;
+    // Pick a level: the furthest level reached. The first time, the saved
+    // spot's level counts as reached. Test mode starts fresh and saves nothing.
+    const savedFurthest = TEST_MODE ? null : loadFurthest();
+    furthest = Math.min(savedFurthest ?? progress?.level ?? 0, LEVELS.length - 1);
+    if (!TEST_MODE && savedFurthest === null) saveFurthest(furthest);
     loadLevel(LEVELS[levelIndex], levelIndex);
 
     // Player setup
@@ -103,6 +109,8 @@ function init() {
         hasSave: () => !!savedSpot(),
         continueGame,
         newGame,
+        furthestLevel: () => furthest,
+        pickLevel,
         toMainMenu,
         reloadForUpdate,
         changeSettings,
@@ -329,8 +337,17 @@ function playAgain() {
     document.body.classList.remove('escaped');
 }
 
+// A level counts as reached once it starts. It never goes down, except
+// through New game → Yes.
+function reachLevel(index) {
+    if (index <= furthest) return;
+    furthest = index;
+    if (!TEST_MODE) saveFurthest(furthest);
+}
+
 function nextLevel() {
     loadLevel(LEVELS[levelIndex + 1], levelIndex + 1);
+    reachLevel(levelIndex);
     playAgain();
     testHooks?.emit('level', { index: levelIndex });
 }
@@ -345,6 +362,7 @@ function savedSpot() {
 // Leave the main menu and start playing (the menu resumes the game)
 function startPlaying(index) {
     if (index !== levelIndex) loadLevel(LEVELS[index], index);
+    reachLevel(index);
     playAgain();
     quitDone = false;
     document.body.classList.remove('title', 'done');
@@ -360,10 +378,24 @@ function continueGame() {
     player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
 }
 
-// Main menu → New game: erase the saved spot and start Level 1 from its start
-function newGame() {
+// Main menu → New game: erase the saved spot and start Level 1 from its start.
+// After "Are you sure?" → Yes the levels lock again too (a fresh start).
+function newGame(lockLevels) {
     clearProgress();
+    if (lockLevels) {
+        furthest = 0;
+        if (!TEST_MODE) saveFurthest(0);
+    }
     startPlaying(0);
+}
+
+// Main menu → Pick a level: start a reached level at its start. That spot
+// replaces the saved spot (if there was one).
+function pickLevel(index) {
+    if (!LEVELS[index] || index > furthest) return;
+    const hadSave = !!savedSpot();
+    startPlaying(index);
+    if (hadSave) saveSpot();
 }
 
 // "A new version of Mazle is ready!" → Reload now: save the spot the same way

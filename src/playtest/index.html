@@ -207,8 +207,76 @@
         }
 
         .item.glow {
-            background: #6a5a1a;
+            background-color: #6a5a1a;
             box-shadow: 0 0 0 4px #ffd84a, 0 0 22px 4px #ffd84a;
+        }
+
+        /* Pick a level: rows of world or level buttons */
+        .pick-grid {
+            display: grid;
+            grid-template-columns: repeat(var(--cols, 5), 96px);
+            gap: 14px;
+            justify-content: center;
+            padding: 6px;
+        }
+
+        .item.pick {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 96px;
+            padding: 0;
+            font-size: 40px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Each world's look: cotton candy puffs, starry space, jungle leaves */
+        .item.look-candy {
+            background-color: #ff9fcf;
+            background-image:
+                radial-gradient(circle at 22% 30%, rgba(255, 255, 255, 0.85) 0 12%, transparent 13%),
+                radial-gradient(circle at 70% 72%, rgba(255, 255, 255, 0.75) 0 14%, transparent 15%),
+                radial-gradient(circle at 80% 22%, rgba(230, 214, 255, 0.9) 0 10%, transparent 11%),
+                linear-gradient(160deg, #ffb3dd, #b9a3ff);
+        }
+
+        .item.look-space {
+            background-color: #1c2153;
+            background-image:
+                radial-gradient(circle at 18% 24%, #fff 0 2px, transparent 3px),
+                radial-gradient(circle at 76% 18%, #fff 0 1.5px, transparent 2.5px),
+                radial-gradient(circle at 62% 64%, #ffe9a0 0 2px, transparent 3px),
+                radial-gradient(circle at 30% 80%, #fff 0 1.5px, transparent 2.5px),
+                radial-gradient(circle at 88% 84%, #fff 0 1px, transparent 2px),
+                radial-gradient(circle at 80% 30%, #6f8cff 0 14%, transparent 15%),
+                linear-gradient(160deg, #04060f, #1c2153);
+        }
+
+        .item.look-jungle {
+            background-color: #2e7d32;
+            background-image:
+                radial-gradient(ellipse 30% 16% at 20% 22%, #66bb6a 0 90%, transparent 100%),
+                radial-gradient(ellipse 26% 14% at 78% 34%, #81c784 0 90%, transparent 100%),
+                radial-gradient(circle at 74% 70%, #e53935 0 5%, transparent 6%),
+                linear-gradient(180deg, #2e7d32 0 72%, #8b5a2b 72%);
+        }
+
+        /* Locked: plain gray with only a lock, nothing about what's inside */
+        .item.locked {
+            background-image: none;
+            background-color: #555;
+            text-shadow: none;
+            font-size: 36px;
+        }
+
+        .item.locked.glow {
+            background-color: #6a5a1a;
+        }
+
+        .pick-note {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd84a;
         }
 
         .panel-list,
@@ -488,6 +556,25 @@
             <h1 class="title">Mazle</h1>
             <div class="item" data-act="continue">Continue</div>
             <div class="item" data-act="new-game">New game</div>
+            <div class="item" data-act="pick-level">Pick a level</div>
+        </div>
+        <div id="menu-worlds" class="panel" hidden>
+            <h2>Pick a world</h2>
+            <div id="world-grid" class="pick-grid"></div>
+            <p class="pick-note" hidden></p>
+            <div class="item" data-act="to-title">Main menu</div>
+        </div>
+        <div id="menu-levels" class="panel" hidden>
+            <h2>Pick a level</h2>
+            <div id="level-grid" class="pick-grid"></div>
+            <p class="pick-note" hidden></p>
+            <div class="item" data-act="to-worlds">Worlds</div>
+            <div class="item" data-act="to-title">Main menu</div>
+        </div>
+        <div id="menu-replace" class="panel" hidden>
+            <h2>Are you sure? This replaces your saved spot.</h2>
+            <div class="item" data-act="replace-yes">Yes</div>
+            <div class="item" data-act="replace-no">No</div>
         </div>
         <div id="menu-erase" class="panel" hidden>
             <h2>Are you sure? This erases your saved spot.</h2>
