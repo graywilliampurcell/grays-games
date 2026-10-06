@@ -820,6 +820,7 @@ export class Maze {
 
     // A row of spikes right across a 3-block corridor, one block deep
     createSpikeRow(row) {
+        if (this.theme.jungle) return this.createBigBush(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -838,6 +839,44 @@ export class Maze {
                 cone.position.set(-1.29 + k * 0.43 + (dz > 0 ? 0.2 : 0), 0.38, dz);
                 cone.castShadow = true;
                 group.add(cone);
+            }
+        }
+        if (!row.spansX) group.rotation.y = Math.PI / 2;
+        group.position.copy(row.position);
+        this.root.add(group);
+    }
+
+    // Jungle World's spike row (Level 22): a big thorny bush right across the
+    // corridor, as wide as the corridor and as deep as a spike row, taller
+    // than the little bush, with thorns and red berries all over
+    createBigBush(row) {
+        const group = new THREE.Group();
+        const leaves = [new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.9 }), new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 0.9 })];
+        const thorn = new THREE.MeshStandardMaterial({ color: 0x6d4c41, roughness: 0.8 });
+        const berry = new THREE.MeshStandardMaterial({ color: 0xe53935, roughness: 0.3, emissive: 0x7f0000, emissiveIntensity: 0.4 });
+        let r = 57;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const clumps = [];
+        // A bottom layer of five clumps across the corridor, then three on top
+        for (let k = 0; k < 5; k++) clumps.push([-1.15 + k * 0.575, 0.42, (random() - 0.5) * 0.08, 0.42]);
+        for (let k = 0; k < 3; k++) clumps.push([-0.75 + k * 0.75, 0.95, (random() - 0.5) * 0.08, 0.38]);
+        for (const [x, y, z, size] of clumps) {
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(size, 14, 10), leaves[Math.round(random())]);
+            ball.position.set(x, y, z);
+            ball.castShadow = true;
+            group.add(ball);
+            for (let k = 0; k < 7; k++) {
+                const dir = new THREE.Vector3(random() - 0.5, random() * 0.8, random() - 0.5).normalize();
+                const spikeTip = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.24, 6), thorn);
+                spikeTip.position.set(x, y, z).addScaledVector(dir, size + 0.07);
+                spikeTip.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+                group.add(spikeTip);
+            }
+            for (let k = 0; k < 3; k++) {
+                const dir = new THREE.Vector3(random() - 0.5, random() * 0.6 + 0.1, random() - 0.5).normalize();
+                const b = new THREE.Mesh(new THREE.SphereGeometry(0.08, 10, 8), berry);
+                b.position.set(x, y, z).addScaledVector(dir, size);
+                group.add(b);
             }
         }
         if (!row.spansX) group.rotation.y = Math.PI / 2;

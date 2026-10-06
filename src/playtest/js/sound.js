@@ -537,6 +537,30 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.32, length: 0.12, brightness: 3800 },
     },
+    // Level 22, the big bush: a happy tune that tiptoes through the leaves
+    // (E major, a little slower than Level 21's), its hook a quick rustle
+    // (step down and back) before a hop up, on a soft round lead over an
+    // off-beat creeping bass. A tiny bit sneakier than Level 21's.
+    thicket: {
+        tempo: 114,
+        bars: [[40, 'maj'], [44, 'min'], [45, 'maj'], [47, 'maj'], [40, 'maj'], [37, 'min'], [42, 'min'], [47, 'maj']],
+        bass: [0, null, null, 7, null, 0, 7, null],
+        bassLength: 0.14,
+        stabs: [3, 7],
+        stabLevel: 0.03,
+        ticks: false,
+        melody: [
+            76, null, 75, 76, null, 80, null, null,
+            80, null, 79, 80, null, 83, null, null,
+            81, null, 80, 81, 85, null, 83, 81,
+            78, null, 75, null, 71, null, null, null,
+            76, null, 75, 76, null, 80, null, 83,
+            85, null, 83, null, 80, null, 76, null,
+            78, 81, 85, null, 83, null, 78, null,
+            80, null, 75, null, 76, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.34, length: 0.14, brightness: 4200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
