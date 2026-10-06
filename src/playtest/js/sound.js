@@ -683,6 +683,31 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.32, length: 0.07, brightness: 7000 },
     },
+    // Level 28, two fast leaves: a happy, jumpy tune (B-flat major, about as
+    // quick as Level 27's), its hook big leaps up and down like hopping from
+    // leaf to leaf, then a sneaky tiptoe down through a minor chord, on a
+    // bright square lead over a bouncing octave bass. A tiny bit sneakier
+    // than Level 27's.
+    leap: {
+        tempo: 126,
+        bars: [[46, 'maj'], [43, 'min'], [39, 'maj'], [41, 'maj'], [46, 'maj'], [38, 'min'], [39, 'min'], [41, 'maj']],
+        bass: [0, 12, 0, 12, 0, 12, 7, 'lead-in'],
+        bassLength: 0.07,
+        stabs: [2, 6],
+        stabLevel: 0.025,
+        ticks: true,
+        melody: [
+            70, null, 82, null, 77, null, 70, 74,
+            79, null, 70, null, 74, 72, 70, null,
+            67, null, 79, null, 75, null, 67, 70,
+            72, 70, 69, null, 65, null, null, null,
+            70, null, 82, null, 77, null, 81, 82,
+            77, null, 74, null, 69, 70, 74, null,
+            75, null, 74, 72, 70, null, 66, 67,
+            69, null, 72, null, 77, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.09, brightness: 3600 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
