@@ -733,6 +733,30 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.1, length: 0.08, brightness: 2600 },
     },
+    // Level 30, the Jungle World finale: happy but sneaky (E minor, lifting
+    // to big bright major chords). A sneaky jungle-call creep ("E-G . F#-E .
+    // B") answered by a joyful climbing fanfare that ends high, on a bright
+    // reedy lead over a drum-like bouncing bass.
+    junglefinale: {
+        tempo: 132,
+        bars: [[40, 'min'], [40, 'min'], [36, 'maj'], [38, 'maj'], [43, 'maj'], [38, 'maj'], [36, 'maj'], [35, 'maj']],
+        bass: [0, null, 7, 0, null, 7, 12, 'lead-in'],
+        bassLength: 0.12,
+        stabs: [2, 6],
+        stabLevel: 0.04,
+        ticks: true,
+        melody: [
+            64, 67, null, 66, 64, null, 59, null,
+            64, 67, null, 66, 64, null, 71, null,
+            72, null, 76, null, 79, null, 84, null,
+            81, 79, 78, null, 74, null, null, 71,
+            79, null, 83, 86, 91, null, 86, null,
+            90, null, 86, null, 81, 83, 86, null,
+            84, null, 79, null, 76, 79, 84, null,
+            83, null, 87, null, 88, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.13, brightness: 4200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

@@ -1158,6 +1158,53 @@ export const LEVELS = [
             '#############################',
         ],
     },
+    {
+        name: 'Level 30',
+        // The Jungle World finale. `node tools/find-level.mjs level30 6`, seed
+        // 1226. 7 x 7 corridors. Correct path 28 cells; 6 dead ends 3 cells
+        // deep and the hidden bush's dead end, also 3 cells deep with one
+        // turn. Z: the small thorny bush on the path in cell 18, plate 0.72
+        // like Level 29. Y: the big bush just inside the straight dead end off
+        // path cell 24, in plain view. X: the hidden bush round the corner of
+        // a dead end near the start. F: three river gaps, every leaf fast,
+        // over path cells 6-7, 10-11 and 14-15. At least 2 path cells between
+        // any two of the six. Golden door, confetti, long cheer.
+        theme: JUNGLE,
+        music: 'junglefinale',
+        spike2Radius: 0.72,
+        finale: 'You beat Jungle World!',
+        layout: [
+            '#############################',
+            '#                FFFFFFF    #',
+            '#                FFFFFFF    #',
+            '#                FFFFFFF    #',
+            '#############   #########   #',
+            '#    FFFFFFF            #   #',
+            '#    FFFFFFF            #   #',
+            '#    FFFFFFF            #   #',
+            '#   #################   #   #',
+            '#    FFFFFFF        #   #   #',
+            '#    FFFFFFF        #   # Z #',
+            '#    FFFFFFF        #   #   #',
+            '#############   #   #####   #',
+            '#               #   #       #',
+            '# S             #   #       #',
+            '#               #   #       #',
+            '#   #   #########   #   #####',
+            '#   #   #       #   #   #   #',
+            '#   #   #       #   #   #   D',
+            '#   #   #       #   #   #   #',
+            '#   #   #####   #####   #   #',
+            '#   #       #           #   #',
+            '#   #     X #           #   #',
+            '#   #       #           #   #',
+            '#   #############   #####   #',
+            '#   #                       #',
+            '#   #          Y            #',
+            '#   #                       #',
+            '#############################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with
