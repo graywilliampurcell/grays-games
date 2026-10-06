@@ -26,6 +26,8 @@
 //   node tools/find-level.mjs level23 7  # Level 23 rules (Level 21's with two river gaps)
 //   node tools/find-level.mjs level24 6  # Level 24 rules (three river gaps, the big bush and the hidden bush)
 //   node tools/find-level.mjs level25 7  # Level 25 rules (three river gaps and a bush on the path)
+//   node tools/find-level.mjs level26 6  # Level 26 rules (three river gaps, a bush on the path and the hidden bush)
+//   node tools/find-level.mjs level27 8  # Level 27 rules (Level 25's; the game makes one leaf fast)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -138,6 +140,14 @@
 // middle part of the path), plus three gaps like Level 24's. The spacing rule
 // covers all four: at least 2 path cells between any two of them.
 //
+// Level 26 rules (Iteration 41): Level 24's three gaps and hidden bush, no big
+// bush, plus a small bush on the path ('Z', with its own plate size) in a
+// plain cell with two straight path cells in and one out. The spacing rule
+// covers all five: the gaps, the path bush and the hidden bush's opening.
+//
+// Level 27 rules (Iteration 42): Level 25's. One gap's blocks are written as
+// 'F' instead of 'O' (the fast leaf); the search itself is the same.
+//
 // Every cell not on the path belongs to a dead end, so for Level 1 the path
 // covers 25 - 5 - 3 = 17 cells (Level 2: 25 - 8 - 3 = 14). The search lays a
 // random path of that length and keeps it if the cells it leaves over can be
@@ -148,7 +158,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -161,9 +171,10 @@ const differentEnough = (layoutShape) => OTHERS.every((o) => [...o].filter((ch, 
 // hidden spike trail like Level 1 (3 cells, one turn, out of sight of the path)
 const LEVEL22 = process.argv[2] === 'level22'; // Level 21's plus a big bush blocking a straight dead end
 const LEVEL24 = process.argv[2] === 'level24'; // three river gaps, the big bush and the hidden bush
-const LEVEL23 = process.argv[2] === 'level23' || LEVEL24; // Level 21's with two (Level 24: three) river gaps
-const LEVEL25 = process.argv[2] === 'level25'; // three river gaps and a bush on the path
-const GAP_COUNT = LEVEL24 || LEVEL25 ? 3 : 2;
+const LEVEL26 = process.argv[2] === 'level26'; // three river gaps, a bush on the path and the hidden bush
+const LEVEL23 = process.argv[2] === 'level23' || LEVEL24 || LEVEL26; // Level 21's with two (Level 24: three) river gaps
+const LEVEL25 = process.argv[2] === 'level25' || process.argv[2] === 'level27'; // three river gaps and a bush on the path
+const GAP_COUNT = LEVEL24 || LEVEL25 || LEVEL26 ? 3 : 2;
 const LEVEL21 = process.argv[2] === 'level21' || LEVEL22 || LEVEL23; // Jungle World: 7 x 7, Level 11's hidden bush plus a platform gap
 const LEVEL11 = process.argv[2] === 'level11' || LEVEL21;
 // Level 12: 6 x 6 with 2-cell dead ends again, no spikes, a space door on the path
@@ -994,6 +1005,15 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
             const blockers = hung.chains.map((chain, c) => ({ chain, from: hung.roots[c], rowFrom: hung.roots[c], rowCell: chain[0], at: indexOf(hung.roots[c]) }))
                 .filter(({ chain, from, at }) => chain.length === 2 && step(from, chain[0]) === step(chain[0], chain[1]) && Math.abs(at - hung.junctionIndex) - 1 >= 2);
             for (const set of sets) for (const b of blockers) if (set.every((g) => fromGap(b.at, g))) options.push({ set, b });
+        } else if (LEVEL26) {
+            // The path bush in plain path cell k, the path straight from k - 2 to k + 1
+            const plain = (k) => hung.links[path[k].i][path[k].j].length === 2;
+            const bushes = [];
+            for (let k = 2; k < path.length - 2; k++) {
+                const d = step(path[k - 1], path[k]);
+                if (plain(k) && step(path[k - 2], path[k - 1]) === d && step(path[k], path[k + 1]) === d && Math.abs(k - hung.junctionIndex) - 1 >= 2) bushes.push(k);
+            }
+            for (const set of sets) for (const k of bushes) if (set.every((g) => k <= g - 3 || k >= g + 4)) options.push({ set, b: null, k });
         } else {
             for (const set of sets) options.push({ set, b: null });
         }
@@ -1001,6 +1021,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
         const pick = options[Math.floor(random() * options.length)];
         [gapIndex, gapIndex2, gapIndex3 = null] = pick.set;
         blocker = pick.b;
+        if (pick.k !== undefined) Object.assign(hung, { spikeCell2: path[pick.k], spikeIndex2: pick.k });
     }
 
     best = { seed, links: hung.links, startCell, exitCell, spikeCell: hung.spikeCell, solution, deadEnds, spike };
@@ -1008,6 +1029,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (gapIndex2 !== null) Object.assign(best, { gap2: [path[gapIndex2], path[gapIndex2 + 1]], gapIndex2 });
     if (gapIndex3 !== null) Object.assign(best, { gap3: [path[gapIndex3], path[gapIndex3 + 1]], gapIndex3 });
     if (blocker) best.blocker = blocker;
+    if (hung.spikeCell2) Object.assign(best, { spikeCell2: hung.spikeCell2, spikeIndex2: hung.spikeIndex2 });
 }
 
 if (!best) {

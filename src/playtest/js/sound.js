@@ -633,6 +633,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.13, length: 0.12, brightness: 2200 },
     },
+    // Level 26, a tighter squeeze: a happy tune that creeps on its toes (A
+    // major with a sly borrowed F major chord, a touch slower than Level 25's),
+    // its hook two quick pickup notes that land on a held high note and then
+    // sneak down by half steps, on a round sine-ish lead over a walking bass.
+    // A tiny bit sneakier than Level 25's.
+    bramble: {
+        tempo: 106,
+        bars: [[45, 'maj'], [41, 'maj'], [45, 'maj'], [40, 'maj'], [42, 'min'], [41, 'maj'], [38, 'maj'], [40, 'maj']],
+        bass: [0, null, 4, null, 7, null, 4, 'lead-in'],
+        bassLength: 0.18,
+        stabs: [1, 5],
+        stabLevel: 0.025,
+        ticks: true,
+        melody: [
+            null, 73, 76, 81, null, 80, 79, null,
+            77, null, null, 76, 72, null, 69, null,
+            null, 73, 76, 81, null, 83, 81, null,
+            80, null, 76, null, 71, null, null, null,
+            78, 78, null, 81, 78, null, 73, null,
+            77, null, 76, 74, 72, null, 69, 72,
+            74, null, 78, 81, 86, null, 85, 83,
+            80, null, 76, null, 81, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.34, length: 0.16, brightness: 3000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
