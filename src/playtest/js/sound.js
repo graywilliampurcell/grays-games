@@ -561,6 +561,30 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.34, length: 0.14, brightness: 4200 },
     },
+    // Level 23, two rivers: a happy, flowing tune (A major, between Levels 21
+    // and 22 in speed) whose hook ripples up like water before a sneaky
+    // chromatic step back, on a mellow plucked lead over a rolling bass. A
+    // tiny bit sneakier than Level 22's.
+    rapids: {
+        tempo: 118,
+        bars: [[45, 'maj'], [42, 'min'], [38, 'maj'], [40, 'maj'], [45, 'maj'], [37, 'min'], [35, 'min'], [40, 'maj']],
+        bass: [0, 7, 12, 7, 0, null, 7, 'lead-in'],
+        bassLength: 0.11,
+        stabs: [2, 6],
+        stabLevel: 0.025,
+        ticks: false,
+        melody: [
+            69, 71, 73, null, 76, null, 73, null,
+            73, null, 72, 73, 78, null, null, null,
+            74, 76, 78, null, 81, null, 78, null,
+            76, null, 75, 76, 71, null, null, null,
+            69, 71, 73, null, 76, 78, 81, null,
+            80, null, 76, null, 73, null, 68, null,
+            74, 73, 71, null, 74, null, 78, null,
+            76, null, 75, null, 76, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.14, length: 0.13, brightness: 2400 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

@@ -73,7 +73,8 @@ export function installTestHooks(game) {
             spike2: maze.spike2Position ? { x: maze.spike2Position.x, z: maze.spike2Position.z } : null,
             sliding: !!player.slide,
             spaceDoor: maze.spaceDoor ? { phase: maze.spaceDoor.phase, shut: round(maze.spaceDoor.shut), solid: maze.spaceDoor.solid } : null,
-            platform: maze.platform ? { at: round(maze.platform.at), target: round(maze.platform.target), riding: maze.platform.riding, alongX: maze.platform.alongX, gap: { ...maze.platform.gap } } : null,
+            platform: maze.platform ? platformState(maze.platform) : null,
+            platforms: maze.platforms.map(platformState),
             spikeRows: maze.spikeRows.map((r) => ({ x: r.position.x, z: r.position.z, spansX: r.spansX })),
             door: { x: maze.doorPosition.x, z: maze.doorPosition.z },
             start: { x: start.x, z: start.z, yaw: round(maze.getStartYaw()) },
@@ -168,6 +169,10 @@ export function installTestHooks(game) {
 
 function round(v) {
     return Math.round(v * 1e6) / 1e6;
+}
+
+function platformState(p) {
+    return { at: round(p.at), target: round(p.target), riding: p.riding, alongX: p.alongX, gap: { ...p.gap } };
 }
 
 function vec(v) {

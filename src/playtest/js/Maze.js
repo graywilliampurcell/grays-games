@@ -270,6 +270,31 @@ function iceTexture() {
     return new THREE.CanvasTexture(canvas);
 }
 
+// Split blocks into groups that touch each other (side by side)
+function groupBlocks(blocks) {
+    const left = new Map(blocks.map((b) => [`${b.x},${b.z}`, b]));
+    const groups = [];
+    for (const first of blocks) {
+        if (!left.has(`${first.x},${first.z}`)) continue;
+        const group = [];
+        const todo = [first];
+        left.delete(`${first.x},${first.z}`);
+        while (todo.length) {
+            const b = todo.pop();
+            group.push(b);
+            for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+                const k = `${b.x + dx},${b.z + dz}`;
+                if (left.has(k)) {
+                    todo.push(left.get(k));
+                    left.delete(k);
+                }
+            }
+        }
+        groups.push(group);
+    }
+    return groups;
+}
+
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
@@ -295,7 +320,7 @@ export class Maze {
         const doorBlocks = [];
         // Blocks of slippery floor ('I'), keyed "x,z"
         this.slipperyBlocks = new Set();
-        // Blocks with no floor ('O'), crossed on the moving platform
+        // Blocks with no floor ('O'), crossed on moving platforms (one per gap)
         const gapBlocks = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
@@ -313,7 +338,8 @@ export class Maze {
                 if (ch === 'O') gapBlocks.push({ x, z });
             }
         }
-        if (gapBlocks.length) this.setUpPlatform(gapBlocks);
+        // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
+        this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
         if (doorBlocks.length) {
             // shut: 0 = all the way open, 1 = all the way closed. It starts open.
             this.spaceDoor = { blocks: doorBlocks, shut: 0, phase: 'open', timer: SPACE_DOOR_OPEN_TIME, solid: false };
@@ -336,7 +362,7 @@ export class Maze {
         if (this.spike2Position) this.createSpike(this.spike2Position, this.spike2Radius);
         if (this.spaceDoor) this.createSpaceDoor();
         if (this.slipperyBlocks.size) this.createSlipperySpots();
-        if (this.platform) this.createPlatform();
+        for (const p of this.platforms) this.createPlatform(p);
         for (const row of this.spikeRows) this.createSpikeRow(row);
         this.scene.add(this.root);
     }
@@ -411,13 +437,14 @@ export class Maze {
             floorMaterial = new THREE.MeshStandardMaterial({ color: this.theme.floor });
         }
         let floor;
-        if (this.platform) {
-            // A floor with a hole where the gap is: the shape's (x, y) is the
+        if (this.platforms.length) {
+            // A floor with a hole where each gap is: the shape's (x, y) is the
             // world's (x, z), and its UVs are world units, so the texture lines
             // up the same as on the plain floor
-            const g = this.platform.gap;
             const outline = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(this.width, 0), new THREE.Vector2(this.width, this.depth), new THREE.Vector2(0, this.depth)]);
-            outline.holes.push(new THREE.Path([new THREE.Vector2(g.minX, g.minZ), new THREE.Vector2(g.minX, g.maxZ), new THREE.Vector2(g.maxX, g.maxZ), new THREE.Vector2(g.maxX, g.minZ)]));
+            for (const { gap: g } of this.platforms) {
+                outline.holes.push(new THREE.Path([new THREE.Vector2(g.minX, g.minZ), new THREE.Vector2(g.minX, g.maxZ), new THREE.Vector2(g.maxX, g.maxZ), new THREE.Vector2(g.maxX, g.minZ)]));
+            }
             const geometry = new THREE.ExtrudeGeometry(outline, { depth: 0.2, bevelEnabled: false });
             geometry.rotateX(Math.PI / 2);
             floorMaterial.map?.repeat.set(0.5, 0.5);
@@ -609,11 +636,12 @@ export class Maze {
             flyer.life -= dt;
             if (flyer.life <= 0) this.launchFlyer(flyer);
         }
-        if (this.river) {
-            // The river rushes along, and fish jump now and then
-            const r = this.river;
+        for (const p of this.platforms) {
+            if (!p.river) continue;
+            // Each river rushes along, and fish jump now and then
+            const r = p.river;
             r.map.offset[r.flowAxis] -= dt * 0.9;
-            for (const fish of r.fish) this.updateFish(fish, dt);
+            for (const fish of r.fish) this.updateFish(fish, p, dt);
         }
         for (const flyer of this.gapFlyers || []) {
             flyer.object.position.addScaledVector(flyer.velocity, dt);
@@ -977,7 +1005,7 @@ export class Maze {
         const midZ = Math.floor((gap.minZ + gap.maxZ) / 2);
         const lowSideReached = alongX ? seen.has(`${gap.minX - 1},${midZ}`) : seen.has(`${midX},${gap.minZ - 1}`);
         const startAt = lowSideReached ? low : high;
-        this.platform = {
+        return {
             gap, alongX, span, low, high, startAt,
             at: startAt, target: startAt,
             riding: false, // the player is on board (and can't step off till it stops)
@@ -986,41 +1014,52 @@ export class Maze {
         };
     }
 
-    // Back to the start's side, empty (any reset to the start)
+    // The first platform (Levels 17-22 have just one)
+    get platform() {
+        return this.platforms[0] ?? null;
+    }
+
+    // Every platform back to its start's side, empty (any reset to the start)
     resetPlatform() {
-        const p = this.platform;
-        if (!p) return;
-        Object.assign(p, { at: p.startAt, target: p.startAt, riding: false, wait: 0, mustLeave: false });
-        this.showPlatform();
+        for (const p of this.platforms) {
+            Object.assign(p, { at: p.startAt, target: p.startAt, riding: false, wait: 0, mustLeave: false });
+            this.showPlatform(p);
+        }
     }
 
     // Position along the gap's long side, and across it, measured from the gap's low corner
-    gapCoords(point) {
-        const g = this.platform.gap;
-        return this.platform.alongX
+    gapCoords(point, p) {
+        const g = p.gap;
+        return p.alongX
             ? { along: point.x - g.minX, across: point.z - g.minZ, width: g.maxZ - g.minZ }
             : { along: point.z - g.minZ, across: point.x - g.minX, width: g.maxX - g.minX };
     }
 
-    // Is this point over the gap (whether or not the platform is under it)?
-    overGap(point) {
-        if (!this.platform) return false;
-        const { along, across, width } = this.gapCoords(point);
-        return along >= 0 && along < this.platform.span && across >= 0 && across < width;
+    // The platform whose gap this point is over (whether or not the platform is under it), if any
+    gapAt(point) {
+        return this.platforms.find((p) => {
+            const { along, across, width } = this.gapCoords(point, p);
+            return along >= 0 && along < p.span && across >= 0 && across < width;
+        }) ?? null;
     }
 
-    // Would a player standing here fall? (Over the gap with no platform under them)
+    // Is this point over a gap (whether or not its platform is under it)?
+    overGap(point) {
+        return this.gapAt(point) !== null;
+    }
+
+    // Would a player standing here fall? (Over a gap with no platform under them)
     fallsIntoGap(point) {
-        if (!this.overGap(point)) return false;
-        const { along } = this.gapCoords(point);
-        const p = this.platform;
+        const p = this.gapAt(point);
+        if (!p) return false;
+        const { along } = this.gapCoords(point, p);
         return along < p.at || along > p.at + PLATFORM_LENGTH;
     }
 
-    // Where to stand on the start's side, just before the gap, facing across
-    // it (used to save the spot while on the platform)
-    platformStartEdge() {
-        const p = this.platform;
+    // Where to stand on the start's side, just before the gap this point is
+    // over, facing across it (used to save the spot while on a platform)
+    platformStartEdge(point) {
+        const p = (point && this.gapAt(point)) || this.platform;
         const g = p.gap;
         const before = p.startAt === p.low ? -1 : p.span + 1;
         const dir = p.startAt === p.low ? 1 : -1;
@@ -1032,15 +1071,21 @@ export class Maze {
         return { position, yaw };
     }
 
-    // Run the platform (called every game step, after the player has moved).
+    // Run every platform (called every game step, after the player has moved).
+    // Returns 'depart' or 'arrive' when that happens on any of them.
+    updatePlatform(dt, position, velocity, radius) {
+        let event = null;
+        for (const p of this.platforms) event = this.updateOnePlatform(p, dt, position, velocity, radius) ?? event;
+        return event;
+    }
+
+    // Run one platform.
     // It waits at an edge; once the player is fully on it sets off and carries
     // them to the other edge, keeping them on board until it stops. When it's
     // empty and the player comes to the edge it isn't at, it floats over to
     // them. Returns 'depart' or 'arrive' when that happens.
-    updatePlatform(dt, position, velocity, radius) {
-        const p = this.platform;
-        if (!p) return null;
-        const { along, across, width } = this.gapCoords(position);
+    updateOnePlatform(p, dt, position, velocity, radius) {
+        const { along, across, width } = this.gapCoords(position, p);
         const inRange = across >= 0 && across < width;
         const fullyOn = inRange && along - radius >= p.at && along + radius <= p.at + PLATFORM_LENGTH;
         const touching = inRange && along + radius > p.at && along - radius < p.at + PLATFORM_LENGTH;
@@ -1064,7 +1109,7 @@ export class Maze {
                 }
             }
             // Keep the player on board while it's carrying them (or about to)
-            const now = this.gapCoords(position).along;
+            const now = this.gapCoords(position, p).along;
             const lo = p.at + radius;
             const hi = p.at + PLATFORM_LENGTH - radius;
             if (p.riding || event === 'arrive') {
@@ -1086,21 +1131,20 @@ export class Maze {
         } else if (!p.riding && p.at !== p.target) {
             p.at = p.target > p.at ? Math.min(p.target, p.at + PLATFORM_SPEED * dt) : Math.max(p.target, p.at - PLATFORM_SPEED * dt);
         }
-        this.showPlatform();
+        this.showPlatform(p);
         return event;
     }
 
     // The gap's look: dark sky below (with a few far stars), a glowing strip
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
-    createPlatform() {
+    createPlatform(p) {
         if (this.theme.jungle) {
-            this.createRiver();
-            this.createLeaf();
-            this.showPlatform();
+            this.createRiver(p);
+            this.createLeaf(p);
+            this.showPlatform(p);
             return;
         }
-        const p = this.platform;
         const g = p.gap;
         const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
 
@@ -1158,13 +1202,12 @@ export class Maze {
         if (p.alongX) group.rotation.y = Math.PI / 2;
         this.root.add(group);
         p.object = group;
-        this.showPlatform();
+        this.showPlatform(p);
     }
 
     // Jungle World: a river of rushing blue water below the gap, flowing across
     // the path, with muddy banks down to it and fish that jump now and then
-    createRiver() {
-        const p = this.platform;
+    createRiver(p) {
         const g = p.gap;
         const cx = (g.minX + g.maxX) / 2;
         const cz = (g.minZ + g.maxZ) / 2;
@@ -1210,7 +1253,7 @@ export class Maze {
         }
         const fish = [0xff7043, 0xffca28, 0xb0bec5].map((color) => this.makeFish(color));
         // The streaks run along the texture's v whichever way it's turned, so it always scrolls along v
-        this.river = { map, flowAxis: 'y', waterY, fish };
+        p.river = { map, flowAxis: 'y', waterY, fish };
     }
 
     makeFish(color) {
@@ -1229,8 +1272,7 @@ export class Maze {
 
     // A fish waits in the water, then jumps in an arc across the river and
     // splashes back down. It stays clear of the leaf. Just to look at.
-    updateFish(fish, dt) {
-        const p = this.platform;
+    updateFish(fish, p, dt) {
         const g = p.gap;
         if (fish.dur === 0) {
             fish.wait -= dt;
@@ -1249,7 +1291,7 @@ export class Maze {
             const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
             const across = 0.3 + Math.random() * (width - 0.6);
             const dir = Math.random() < 0.5 ? -1 : 1;
-            const at = (a, c) => (p.alongX ? new THREE.Vector3(g.minX + a, this.river.waterY, g.minZ + c) : new THREE.Vector3(g.minX + c, this.river.waterY, g.minZ + a));
+            const at = (a, c) => (p.alongX ? new THREE.Vector3(g.minX + a, p.river.waterY, g.minZ + c) : new THREE.Vector3(g.minX + c, p.river.waterY, g.minZ + a));
             fish.from.copy(at(along, across - dir * 0.7));
             fish.to.copy(at(along, across + dir * 0.7));
             fish.dur = 0.9 + Math.random() * 0.4;
@@ -1273,8 +1315,7 @@ export class Maze {
     }
 
     // Jungle World's platform: a giant green leaf with a pale middle vein and side veins
-    createLeaf() {
-        const p = this.platform;
+    createLeaf(p) {
         const g = p.gap;
         const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
         const group = new THREE.Group();
@@ -1307,8 +1348,7 @@ export class Maze {
         p.object = group;
     }
 
-    showPlatform() {
-        const p = this.platform;
+    showPlatform(p) {
         if (!p?.object) return;
         const g = p.gap;
         const middle = p.at + PLATFORM_LENGTH / 2;

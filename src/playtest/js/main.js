@@ -516,8 +516,8 @@ function saveSpot() {
         const { position, yaw } = maze.getDoorApproach();
         saveProgress({ level: levelIndex, x: position.x, z: position.z, yaw, pitch: 0 });
     } else if (maze.overGap(player.position)) {
-        // On the moving platform: save the spot just before the gap on the start's side
-        const { position, yaw } = maze.platformStartEdge();
+        // On a moving platform: save the spot just before its gap on the start's side
+        const { position, yaw } = maze.platformStartEdge(player.position);
         saveProgress({ level: levelIndex, x: position.x, z: position.z, yaw, pitch: 0 });
     } else {
         const facing = player.facing();
