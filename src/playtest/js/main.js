@@ -5,7 +5,7 @@ import { LEVELS } from './levels.js';
 import { InputManager } from './InputManager.js';
 import { CollisionManager } from './CollisionManager.js';
 import { installTestHooks, TEST_MODE } from './testHooks.js';
-import { DEFAULT_SETTINGS, loadSettings, saveSettings, loadProgress, saveProgress, clearProgress, loadFurthest, saveFurthest } from './settings.js';
+import { DEFAULT_SETTINGS, loadSettings, saveSettings, loadProgress, saveProgress, clearProgress, loadFurthest, saveFurthest, loadNews, saveNews } from './settings.js';
 import { Menu } from './menu.js';
 import { Sound } from './sound.js';
 import { startUpdateChecks, reloadInto } from './updates.js';
@@ -19,6 +19,11 @@ let menu;
 let sound;
 let liveBuild = null; // the newer build updates.js found, if any
 let furthest = 0; // furthest level reached (a LEVELS index), for Pick a level
+// What's new: levels told about, the furthest level beaten (exit door reached)
+// and the levels wearing a NEW! sticker
+let news = { told: [], beaten: -1, fresh: [] };
+// The levels everyone has already been told about when What's new arrives
+const ALREADY_TOLD = 21; // Levels 1-21
 // The bot always plays with the default controls and a fresh start
 // Which build this is (vite.config.js): e.g. Mazle 0.13.0 (build 765a327)
 export const VERSION = { version: __APP_VERSION__, build: __APP_BUILD__ };
@@ -87,6 +92,19 @@ function init() {
     const savedFurthest = TEST_MODE ? null : loadFurthest();
     furthest = Math.min(savedFurthest ?? progress?.level ?? 0, LEVELS.length - 1);
     if (!TEST_MODE && savedFurthest === null) saveFurthest(furthest);
+    // What's new: the first time, Levels 1-21 count as told about, every
+    // level below the furthest reached counts as beaten, and the furthest
+    // reached too if the saved spot is right by its exit door. Test mode
+    // starts with every level told about, so nothing is announced.
+    const savedNews = TEST_MODE ? null : loadNews();
+    if (savedNews) {
+        news = savedNews;
+    } else {
+        const told = TEST_MODE ? LEVELS.length : Math.min(ALREADY_TOLD, LEVELS.length);
+        news = { told: [...Array(told).keys()], beaten: furthest - 1, fresh: [] };
+        if (progress && progress.level === furthest && byExitDoor(progress)) news.beaten = furthest;
+        if (!TEST_MODE) saveNews(news);
+    }
     loadLevel(LEVELS[levelIndex], levelIndex);
 
     // Player setup
@@ -110,6 +128,8 @@ function init() {
         continueGame,
         newGame,
         furthestLevel: () => furthest,
+        checkNews,
+        freshLevels: () => news.fresh,
         pickLevel,
         toMainMenu,
         reloadForUpdate,
@@ -280,6 +300,7 @@ function checkSpikeAndDoor() {
         document.body.classList.add('escaped');
         // The finale (Level 10): confetti, an extra-long cheer and its own end screen
         const finale = LEVELS[levelIndex]?.finale;
+        beatLevel(levelIndex);
         sound.cheer({ long: !!finale });
         if (finale) showConfetti();
         // "You did it!" (Start the next level / Quit), the finale's screen, or "More levels coming soon!"
@@ -338,11 +359,61 @@ function playAgain() {
 }
 
 // A level counts as reached once it starts. It never goes down, except
-// through New game → Yes.
+// through New game → Yes. Starting a level also takes off its NEW! sticker.
 function reachLevel(index) {
+    if (news.fresh.includes(index)) {
+        news.fresh = news.fresh.filter((n) => n !== index);
+        if (!TEST_MODE) saveNews(news);
+    }
     if (index <= furthest) return;
     furthest = index;
     if (!TEST_MODE) saveFurthest(furthest);
+}
+
+// Reaching a level's exit door: it's beaten
+function beatLevel(index) {
+    if (index <= news.beaten) return;
+    news.beaten = index;
+    if (!TEST_MODE) saveNews(news);
+}
+
+// Is a saved spot the one saved after reaching its level's exit door (right
+// in front of the door, Maze.getDoorApproach)?
+function byExitDoor(spot) {
+    const layout = LEVELS[spot.level]?.layout;
+    if (!layout) return false;
+    const z = layout.findIndex((row) => row.includes('D'));
+    if (z < 0) return false;
+    const x = layout[z].indexOf('D');
+    const w = layout[0].length;
+    const DOOR_APPROACH = 1.7; // Maze.js DOOR_APPROACH_DISTANCE
+    const [ax, az] = x === w - 1 ? [x - DOOR_APPROACH, z + 0.5] : x === 0 ? [x + 1 + DOOR_APPROACH, z + 0.5]
+        : z === 0 ? [x + 0.5, z + 1 + DOOR_APPROACH] : [x + 0.5, z - DOOR_APPROACH];
+    return Math.hypot(spot.x - ax, spot.z - az) < 0.05;
+}
+
+// What's new (plan Section 9), each time the main menu opens: every built
+// level not told about yet whose level before it is beaten unlocks, gets a
+// NEW! sticker, and is announced. One already started is just marked told.
+// Returns the newly announced levels (LEVELS indexes).
+function checkNews() {
+    const announced = [];
+    for (let index = 0; index < LEVELS.length; index++) {
+        if (news.told.includes(index)) continue;
+        if (index <= furthest) {
+            news.told.push(index);
+        } else if (index - 1 <= news.beaten) {
+            news.told.push(index);
+            news.fresh.push(index);
+            furthest = index;
+            announced.push(index);
+        }
+    }
+    if (!TEST_MODE) {
+        saveNews(news);
+        saveFurthest(furthest);
+    }
+    return announced;
 }
 
 function nextLevel() {
@@ -383,8 +454,14 @@ function continueGame() {
 function newGame(lockLevels) {
     clearProgress();
     if (lockLevels) {
+        // A fresh start: levels locked again, no NEW! stickers, nothing beaten
         furthest = 0;
-        if (!TEST_MODE) saveFurthest(0);
+        news.fresh = [];
+        news.beaten = -1;
+        if (!TEST_MODE) {
+            saveFurthest(0);
+            saveNews(news);
+        }
     }
     startPlaying(0);
 }

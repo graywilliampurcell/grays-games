@@ -273,6 +273,33 @@
             background-color: #6a5a1a;
         }
 
+        /* What's new: the NEW! sticker on Pick a level, a world or a level */
+        .item {
+            position: relative;
+        }
+
+        .new-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            padding: 3px 8px;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.2;
+            color: #fff;
+            text-shadow: none;
+            background: #e53935;
+            border: 2px solid #ffd84a;
+            border-radius: 10px;
+            transform: rotate(12deg);
+            pointer-events: none;
+        }
+
+        #news-title {
+            color: #ffd84a;
+            font-size: 34px;
+        }
+
         .pick-note {
             font-size: 24px;
             font-weight: bold;
@@ -575,6 +602,10 @@
             <h2>Are you sure? This replaces your saved spot.</h2>
             <div class="item" data-act="replace-yes">Yes</div>
             <div class="item" data-act="replace-no">No</div>
+        </div>
+        <div id="menu-news" class="panel" hidden>
+            <h2 id="news-title">New! Level 22 is ready!</h2>
+            <div class="item" data-act="news-ok">OK</div>
         </div>
         <div id="menu-erase" class="panel" hidden>
             <h2>Are you sure? This erases your saved spot.</h2>

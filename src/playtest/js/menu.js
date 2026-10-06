@@ -8,6 +8,10 @@
 // Pick a level (plan Section 8) is two screens: the worlds (one button per
 // world, showing its first level's number in its look), then that world's
 // levels. Levels after the furthest one reached are plain gray locks.
+//
+// What's new (plan Section 9): when the main menu opens with a newly added
+// level, a "New! Level N is ready!" box with OK comes first, and NEW!
+// stickers sit on Pick a level, the world and the level until it's played.
 
 import { TOUCH_SETUPS, KEYBOARD_SETUPS } from './settings.js';
 import { WORLDS } from './levels.js';
@@ -15,16 +19,18 @@ import { WORLDS } from './levels.js';
 export class Menu {
     // game: { canPause(), pause(), resume(), startOver(), quit(), nextLevel(),
     //         hasSave(), continueGame(), newGame(lockLevels), furthestLevel(), pickLevel(index),
+    //         checkNews(), freshLevels(),
     //         toMainMenu(), reloadForUpdate(),
     //         settings, changeSettings(changes) }
     constructor(game) {
         this.game = game;
-        this.state = 'closed'; // closed | title | erase | worlds | levels | replace | main | settings | quit | finish | update | thanks
+        this.state = 'closed'; // closed | title | news | erase | worlds | levels | replace | main | settings | quit | finish | update | thanks
         this.quitFrom = 'main'; // the panel Quit → No goes back to
         this.root = document.getElementById('menu');
         this.panels = {
             title: document.getElementById('menu-title'),
             erase: document.getElementById('menu-erase'),
+            news: document.getElementById('menu-news'),
             worlds: document.getElementById('menu-worlds'),
             levels: document.getElementById('menu-levels'),
             replace: document.getElementById('menu-replace'),
@@ -117,13 +123,40 @@ export class Menu {
         this.offerUpdate();
     }
 
-    // Main menu: Continue (only with a saved spot, and then it glows first) / New game
+    // Main menu: Continue (only with a saved spot, and then it glows first) /
+    // New game / Pick a level. A newly added level is announced first.
     showTitle() {
         this.root.hidden = false;
         const hasSave = this.game.hasSave();
         this.panels.title.querySelector('[data-act=continue]').hidden = !hasSave;
+        const pick = this.panels.title.querySelector('[data-act=pick-level]');
+        this.sticker(pick, this.game.freshLevels().length > 0);
+        const announced = this.game.checkNews();
+        if (announced.length) {
+            this.sticker(pick, true);
+            const first = announced[0] + 1;
+            const last = announced[announced.length - 1] + 1;
+            document.getElementById('news-title').textContent = first === last
+                ? `New! Level ${first} is ready!`
+                : `New! Levels ${first}–${last} are ready!`;
+            this.show('news', 'news-ok');
+            return;
+        }
         this.show('title', hasSave ? 'continue' : 'new-game');
         this.offerUpdate();
+    }
+
+    // The NEW! sticker on a button
+    sticker(item, on) {
+        let badge = item.querySelector('.new-badge');
+        if (on && !badge) {
+            badge = document.createElement('span');
+            badge.className = 'new-badge';
+            badge.textContent = 'NEW!';
+            item.appendChild(badge);
+        } else if (!on && badge) {
+            badge.remove();
+        }
     }
 
     // A newer build is live (updates.js). Ask now if Gray is playing, on the
@@ -228,6 +261,8 @@ export class Menu {
             this.startNewGame(true);
         } else if (act === 'erase-no') {
             this.show('title', 'new-game');
+        } else if (act === 'news-ok') {
+            this.showTitle();
         } else if (act === 'pick-level') {
             this.showWorlds(0);
         } else if (act === 'pick-world') {
@@ -310,7 +345,9 @@ export class Menu {
         grid.style.setProperty('--cols', grid.dataset.cols);
         WORLDS.forEach((world, w) => {
             const open = world.first <= furthest;
-            grid.appendChild(this.pickButton('pick-world', open ? String(world.first + 1) : '', open ? world.look : null, { world: w }));
+            const button = this.pickButton('pick-world', open ? String(world.first + 1) : '', open ? world.look : null, { world: w });
+            if (open) this.sticker(button, this.game.freshLevels().some((n) => n >= world.first && n <= world.last));
+            grid.appendChild(button);
         });
         this.show('worlds', null);
         const want = WORLDS[glowWorld]?.first <= furthest ? glowWorld : 0;
@@ -329,7 +366,9 @@ export class Menu {
         grid.style.setProperty('--cols', grid.dataset.cols);
         for (let index = world.first; index <= world.last; index++) {
             const open = index <= furthest;
-            grid.appendChild(this.pickButton('pick-one', open ? String(index + 1) : '', open ? world.look : null, { level: index }));
+            const button = this.pickButton('pick-one', open ? String(index + 1) : '', open ? world.look : null, { level: index });
+            if (open) this.sticker(button, this.game.freshLevels().includes(index));
+            grid.appendChild(button);
         }
         this.show('levels', null);
         const glow = glowLevel !== null && glowLevel <= furthest ? glowLevel : world.first;

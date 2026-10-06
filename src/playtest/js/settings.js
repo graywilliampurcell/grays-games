@@ -3,6 +3,7 @@
 const SETTINGS_KEY = 'mazle.settings';
 const PROGRESS_KEY = 'mazle.progress';
 const FURTHEST_KEY = 'mazle.furthest';
+const NEWS_KEY = 'mazle.news';
 
 // The three control setups on each kind of device (plan Section 4)
 export const TOUCH_SETUPS = [
@@ -84,4 +85,18 @@ export function loadFurthest() {
 
 export function saveFurthest(index) {
     write(FURTHEST_KEY, index);
+}
+
+// What's new (plan Section 9): { told: [LEVELS indexes the player has been
+// told about], beaten: furthest level whose exit door was reached (-1 none),
+// fresh: [levels with a NEW! sticker] }. null if never saved.
+export function loadNews() {
+    const n = read(NEWS_KEY);
+    const ints = (list) => (Array.isArray(list) ? list.filter((v) => Number.isInteger(v) && v >= 0) : null);
+    if (!n || !ints(n.told) || !Number.isInteger(n.beaten)) return null;
+    return { told: ints(n.told), beaten: n.beaten, fresh: ints(n.fresh) || [] };
+}
+
+export function saveNews(news) {
+    write(NEWS_KEY, news);
 }
