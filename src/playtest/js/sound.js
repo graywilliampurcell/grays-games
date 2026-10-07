@@ -781,6 +781,30 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.36, length: 0.22, brightness: 5000 },
     },
+    // Level 32, the squeeze-past crater: happy but sneaky, a tiny bit sneakier
+    // than Level 31 (E minor with a sneaky F). A hushed repeated-note "E E . F
+    // . E" peek, like someone checking round a crater's rim, answered by
+    // bouncy climbing hops, on a soft plucky triangle lead over a stop-start bass.
+    craterhop: {
+        tempo: 116,
+        bars: [[40, 'min'], [41, 'maj'], [40, 'min'], [43, 'maj'], [40, 'min'], [41, 'maj'], [36, 'maj'], [35, 'maj']],
+        bass: [0, null, 0, null, 7, null, null, 'lead-in'],
+        bassLength: 0.14,
+        stabs: [3, 7],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            64, 64, null, 65, null, 64, null, null,
+            65, null, 69, null, 72, null, 69, null,
+            64, 64, null, 67, null, 64, null, null,
+            71, null, 74, null, 79, null, 74, 71,
+            76, null, 76, 77, null, 76, null, 72,
+            77, null, 81, null, 84, null, 81, null,
+            79, 76, 72, null, 76, 79, 84, null,
+            83, null, 78, null, 75, null, 71, null,
+        ],
+        lead: { wave: 'triangle', level: 0.3, length: 0.12, brightness: 3200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
