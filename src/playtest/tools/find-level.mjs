@@ -174,7 +174,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39', level40: 'Level 40' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -191,13 +191,14 @@ const LEVEL30 = process.argv[2] === 'level30'; // Jungle finale: three fast gaps
 const LEVEL26 = ['level26', 'level29', 'level30'].includes(process.argv[2]); // three river gaps, a bush on the path and the hidden bush
 const LEVEL23 = process.argv[2] === 'level23' || LEVEL24 || LEVEL26; // Level 21's with two (Level 24: three) river gaps
 const LEVEL25 = ['level25', 'level27', 'level28'].includes(process.argv[2]);
-const DEEP = ['level28', 'level29', 'level30', 'level39'].includes(process.argv[2]); // dead ends 3 cells deep
+const DEEP = ['level28', 'level29', 'level30', 'level39', 'level40'].includes(process.argv[2]); // dead ends 3 cells deep
 // Which gaps get a fast leaf ('F'): 0 = first along the path, 1 = second, 2 = third
 const FAST = { level27: [1], level28: [0, 2], level29: [0, 1, 2], level30: [0, 1, 2] }[process.argv[2]] ?? []; // three river gaps and a bush on the path
 const GAP_COUNT = LEVEL24 || LEVEL25 || LEVEL26 ? 3 : 2;
 const LEVEL21 = process.argv[2] === 'level21' || LEVEL22 || LEVEL23; // Jungle World: 7 x 7, Level 11's hidden bush plus a platform gap
 const LEVEL35 = process.argv[2] === 'level35'; // Level 32's plus Level 33's big crater in a straight dead end ('Y')
-const LEVEL39 = process.argv[2] === 'level39'; // Level 37's with dead ends 3 deep and a second giant crater (two 3-cell platform gaps)
+const LEVEL40 = process.argv[2] === 'level40'; // Moon World finale: Level 39's plus Level 33's big crater in a straight 3-deep dead end ('Y')
+const LEVEL39 = process.argv[2] === 'level39' || LEVEL40; // Level 37's with dead ends 3 deep and a second giant crater (two 3-cell platform gaps)
 const LEVEL37 = process.argv[2] === 'level37' || LEVEL39; // Level 32's hidden crater + path crater plus Level 36's giant crater (a 3-cell platform gap)
 const LEVEL32 = process.argv[2] === 'level32' || LEVEL35 || LEVEL37; // Level 31's plus a small crater on the path ('Z'), a new layout
 const LEVEL31 = process.argv[2] === 'level31' || LEVEL32;
@@ -1054,7 +1055,8 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
         if (path[0].j === 3 || !differentEnough(shape(toLayout(hung.links, { startCell, exitCell })))) continue;
         if (LEVEL35 && [1, 2, 4].includes(path[0].j)) continue; // Levels 31-34 start in rows 3, 2, 1, 4
         if (LEVEL37 && !LEVEL39 && [0, 1, 2, 4, 7].includes(path[0].j)) continue; // Levels 31-36 start in rows 3, 2, 1, 4, 7, 0
-        if (LEVEL39 && path[0].j === 5) continue; // Levels 31-38 used every row; at least not Level 38's
+        if (LEVEL39 && !LEVEL40 && path[0].j === 5) continue; // Levels 31-38 used every row; at least not Level 38's
+        if (LEVEL40 && path[0].j === 2) continue; // not Level 39's start row
         const step = (p, q) => `${q.i - p.i},${q.j - p.j}`;
         const plain = (k) => hung.links[path[k].i][path[k].j].length === 2;
         const craters = [];
@@ -1096,6 +1098,23 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
                 const pairs = [];
                 for (const g1 of gaps) for (const g2 of gaps) if (g2 >= g1 + 5 && turnBetween(g1 + 3, g2 - 1)) pairs.push([g1, g2]);
                 if (pairs.length === 0) continue;
+                // Level 40: plus the big crater ('Y') just inside a straight
+                // dead end (3 deep), its opening at least 2 path cells from
+                // both gaps, the path crater and the hidden crater's opening
+                if (LEVEL40) {
+                    const indexOf = (c) => path.findIndex((p) => key(p) === key(c));
+                    const blockers = hung.chains.map((chain, c) => ({ chain, from: hung.roots[c], rowFrom: hung.roots[c], rowCell: chain[0], at: indexOf(hung.roots[c]) }))
+                        .filter(({ chain, from, at }) => chain.length === SHORT_DEPTH && chain.every((c, n) => step(n === 0 ? from : chain[n - 1], c) === step(from, chain[0])) &&
+                            Math.abs(at - k) - 1 >= 2 && Math.abs(at - j) - 1 >= 2);
+                    const options = [];
+                    for (const [g1, g2] of pairs) for (const b of blockers) {
+                        if ([g1, g2].every((g) => b.at <= g - 3 || b.at >= g + 5)) options.push({ g1, g2, b });
+                    }
+                    if (options.length === 0) continue;
+                    const pick = options[Math.floor(random() * options.length)];
+                    pairs.splice(0, pairs.length, [pick.g1, pick.g2]);
+                    hung.blocker = pick.b;
+                }
                 [hung.gapIndex, hung.gapIndex2] = pairs[Math.floor(random() * pairs.length)];
             }
         }
@@ -1191,7 +1210,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (gapIndex2 !== null) Object.assign(best, { gap2: [path[gapIndex2], path[gapIndex2 + 1]], gapIndex2 });
     if (gapIndex3 !== null) Object.assign(best, { gap3: [path[gapIndex3], path[gapIndex3 + 1]], gapIndex3 });
     if (blocker) best.blocker = blocker;
-    if (LEVEL35) best.blocker = hung.blocker;
+    if (LEVEL35 || LEVEL40) best.blocker = hung.blocker;
     if (LEVEL37) Object.assign(best, { gap: [path[hung.gapIndex], path[hung.gapIndex + 1], path[hung.gapIndex + 2]], gapIndex: hung.gapIndex });
     if (LEVEL39) Object.assign(best, { gap2: [path[hung.gapIndex2], path[hung.gapIndex2 + 1], path[hung.gapIndex2 + 2]], gapIndex2: hung.gapIndex2 });
     if (hung.spikeCell2) Object.assign(best, { spikeCell2: hung.spikeCell2, spikeIndex2: hung.spikeIndex2 });

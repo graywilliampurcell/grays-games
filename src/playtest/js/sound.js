@@ -979,6 +979,30 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.08, length: 0.08, brightness: 2200 },
     },
+    // Level 40, the Moon World finale: happy but sneaky, and big. G minor, a
+    // bright bell-like triangle lead. Opens with a sneaky octave hop "G G' .
+    // D . B-flat A" (nothing like Level 31's low tiptoe), then climbs to a
+    // triumphant high D, like a rocket lifting off from the moon base.
+    moonfinale: {
+        tempo: 138,
+        bars: [[43, 'min'], [43, 'min'], [39, 'maj'], [41, 'maj'], [43, 'min'], [39, 'maj'], [38, 'maj'], [38, 'maj']],
+        bass: [0, null, 12, 7, 0, null, 12, 'lead-in'],
+        bassLength: 0.11,
+        stabs: [2, 6],
+        stabLevel: 0.04,
+        ticks: true,
+        melody: [
+            67, 79, null, 74, null, 70, 69, null,
+            67, 79, null, 74, null, 70, 72, null,
+            70, null, 75, null, 79, null, 82, null,
+            81, 79, 77, null, 72, null, 77, null,
+            79, null, 82, null, 86, null, 82, 79,
+            82, null, 79, null, 75, 79, 82, null,
+            81, null, 78, null, 74, 78, 81, null,
+            86, null, 81, 78, 74, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.14, length: 0.14, brightness: 4600 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
