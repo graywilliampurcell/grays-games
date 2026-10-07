@@ -954,6 +954,31 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.06, length: 0.07, brightness: 2600 },
     },
+    // Level 39, longer wrong ways on the moon: happy but sneaky, a tiny bit
+    // sneakier than Level 38 (G-sharp minor, a touch faster). Opens with a
+    // slow creep up four half steps "G# A A# B . . D#", like tiptoeing down
+    // a long wrong way, then does it again a step higher, on a hollow square
+    // lead over a bass that drags behind the beat.
+    longway: {
+        tempo: 144,
+        bars: [[56, 'min'], [52, 'maj'], [59, 'maj'], [54, 'maj'], [56, 'min'], [49, 'min'], [51, 'maj'], [56, 'min']],
+        bass: [0, null, 7, null, null, 0, null, 'lead-in'],
+        bassLength: 0.09,
+        stabs: [3, 6],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            68, 69, 70, 71, null, null, 75, null,
+            76, null, 75, 76, 71, null, null, null,
+            71, 72, 73, 74, null, null, 78, null,
+            78, null, 77, 78, 73, null, null, null,
+            80, null, 75, null, 71, null, 75, 80,
+            76, null, 73, null, 68, null, 73, 76,
+            75, 74, 75, 78, 82, null, 79, null,
+            80, 79, 68, null, 68, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.08, length: 0.08, brightness: 2200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
