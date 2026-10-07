@@ -315,6 +315,27 @@ function craterTexture() {
     return new THREE.CanvasTexture(canvas);
 }
 
+// Rough gray rock for a giant crater's sides and bottom
+function rockTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#6e6e73';
+    g.fillRect(0, 0, 128, 128);
+    let r = 77;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < 160; k++) {
+        const v = 70 + Math.floor(random() * 70);
+        g.fillStyle = `rgb(${v},${v},${v + 4})`;
+        g.beginPath();
+        g.ellipse(random() * 128, random() * 128, 2 + random() * 9, 1 + random() * 5, random() * Math.PI, 0, Math.PI * 2);
+        g.fill();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
 // A planet or moon for the sky: a base color with blobs (land, craters)
 function planetTexture(base, blobs, seed) {
     const canvas = document.createElement('canvas');
@@ -568,7 +589,7 @@ export class Maze {
             geometry.rotateX(Math.PI / 2);
             floorMaterial.map?.repeat.set(0.5, 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -1403,6 +1424,12 @@ export class Maze {
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
     createPlatform(p) {
+        if (this.theme.moon) {
+            this.createGiantCrater(p);
+            this.createHoverDisc(p);
+            this.showPlatform(p);
+            return;
+        }
         if (this.theme.jungle) {
             this.createRiver(p);
             this.createLeaf(p);
@@ -1467,6 +1494,99 @@ export class Maze {
         this.root.add(group);
         p.object = group;
         this.showPlatform(p);
+    }
+
+    // Moon World (Level 36 on): a giant crater under the gap, with steep gray
+    // rock sides going down to a rocky bottom far below, and rough rims where
+    // the path drops away
+    createGiantCrater(p) {
+        const g = p.gap;
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        const sizeX = g.maxX - g.minX;
+        const sizeZ = g.maxZ - g.minZ;
+        const bottomY = -7;
+        let r = 41;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const map = rockTexture();
+        const side = new THREE.MeshStandardMaterial({ map, color: 0x9a9aa0, roughness: 1, emissive: 0x16161a, emissiveIntensity: 1 });
+        const depth = -bottomY - 0.2;
+        for (const [w, d, x, z, along] of [
+            [sizeX, 0.05, cx, g.minZ, sizeX], [sizeX, 0.05, cx, g.maxZ, sizeX],
+            [0.05, sizeZ, g.minX, cz, sizeZ], [0.05, sizeZ, g.maxX, cz, sizeZ],
+        ]) {
+            const m = side.clone();
+            m.map = map.clone();
+            m.map.needsUpdate = true;
+            m.map.repeat.set(along / 2, depth / 2);
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(w, depth, d), m);
+            wall.position.set(x, -0.2 - depth / 2, z);
+            this.root.add(wall);
+        }
+        // The bottom: dusty gray rock, darker in the middle, with boulders
+        const bottomMap = rockTexture();
+        bottomMap.repeat.set(sizeX / 2, sizeZ / 2);
+        const bottom = new THREE.Mesh(new THREE.PlaneGeometry(sizeX, sizeZ),
+            new THREE.MeshStandardMaterial({ map: bottomMap, color: 0x8a8a90, roughness: 1, emissive: 0x141418, emissiveIntensity: 1 }));
+        bottom.rotation.x = -Math.PI / 2;
+        bottom.position.set(cx, bottomY, cz);
+        this.root.add(bottom);
+        const boulder = new THREE.MeshStandardMaterial({ color: 0x77777c, roughness: 1, emissive: 0x18181c, emissiveIntensity: 1, flatShading: true });
+        for (let k = 0; k < 12; k++) {
+            const size = 0.15 + random() * 0.35;
+            const stone = new THREE.Mesh(new THREE.DodecahedronGeometry(size, 0), boulder);
+            stone.position.set(g.minX + 0.3 + random() * (sizeX - 0.6), bottomY + size * 0.5, g.minZ + 0.3 + random() * (sizeZ - 0.6));
+            stone.rotation.set(random() * 3, random() * 3, random() * 3);
+            this.root.add(stone);
+        }
+        // Rough rock rims at the two ends, where the path drops away
+        const rim = new THREE.MeshStandardMaterial({ color: 0x8c8c90, roughness: 1, flatShading: true });
+        const width = p.alongX ? sizeZ : sizeX;
+        for (const end of [0, p.span]) {
+            for (let k = 0; k < 6; k++) {
+                const size = 0.07 + random() * 0.07;
+                const lump = new THREE.Mesh(new THREE.DodecahedronGeometry(size, 0), rim);
+                const across = 0.25 + (k + random() * 0.5) * ((width - 0.5) / 6);
+                const along = end + (end ? 0.12 : -0.12);
+                if (p.alongX) lump.position.set(g.minX + along, 0.02, g.minZ + across);
+                else lump.position.set(g.minX + across, 0.02, g.minZ + along);
+                this.root.add(lump);
+            }
+        }
+    }
+
+    // Moon World's platform: a round floating metal disc with a glowing ring
+    // and a soft glow underneath. It still carries the player over the gap's
+    // full width and PLATFORM_LENGTH along it, like every other platform.
+    createHoverDisc(p) {
+        const g = p.gap;
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        const radius = Math.min(width - 0.1, PLATFORM_LENGTH + 0.3) / 2;
+        const group = new THREE.Group();
+        const disc = new THREE.Mesh(
+            new THREE.CylinderGeometry(radius, radius * 0.92, 0.22, 48),
+            new THREE.MeshStandardMaterial({ color: 0xd9dee6, metalness: 0.75, roughness: 0.2, emissive: 0x6a7686, emissiveIntensity: 0.6 })
+        );
+        disc.position.y = -0.11;
+        disc.receiveShadow = true;
+        group.add(disc);
+        const glow = new THREE.MeshStandardMaterial({ color: 0x7fe9ff, emissive: 0x2fd8ff, emissiveIntensity: 1 });
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(radius - 0.06, 0.05, 8, 64), glow);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = 0.01;
+        group.add(ring);
+        const inner = new THREE.Mesh(new THREE.TorusGeometry(radius * 0.45, 0.035, 8, 48), glow);
+        inner.rotation.x = Math.PI / 2;
+        inner.position.y = 0.01;
+        group.add(inner);
+        // The hover glow underneath
+        const under = new THREE.Mesh(new THREE.CircleGeometry(radius * 0.7, 32),
+            new THREE.MeshBasicMaterial({ color: 0x8fe8ff, transparent: true, opacity: 0.55, fog: false, side: THREE.DoubleSide }));
+        under.rotation.x = Math.PI / 2;
+        under.position.y = -0.25;
+        group.add(under);
+        this.root.add(group);
+        p.object = group;
     }
 
     // Jungle World: a river of rushing blue water below the gap, flowing across

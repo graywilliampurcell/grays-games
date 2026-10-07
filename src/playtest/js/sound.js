@@ -879,6 +879,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.09, length: 0.09, brightness: 3400 },
     },
+    // Level 36, the first hover platform: happy but sneaky, a tiny bit
+    // sneakier than Level 35 (B minor). Opens with a long held note that
+    // floats up "B . . . D F# B'", like a hover disc lifting off, then a sly
+    // slide down through the sneaky G, on a soft glassy triangle lead over a
+    // bass that hangs back on the off-beats.
+    hoverdisc: {
+        tempo: 132,
+        bars: [[47, 'min'], [43, 'maj'], [47, 'min'], [42, 'maj'], [47, 'min'], [40, 'maj'], [43, 'maj'], [42, 'maj']],
+        bass: [0, null, null, 7, null, 7, 0, 'lead-in'],
+        bassLength: 0.12,
+        stabs: [3, 7],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            71, null, null, null, 74, 78, 83, null,
+            82, null, 79, null, 78, null, null, null,
+            71, null, null, null, 74, 78, 81, null,
+            80, 78, 77, null, 78, null, null, null,
+            83, null, null, null, 81, 79, 78, null,
+            76, null, 79, 83, null, 79, 76, null,
+            79, 83, 86, null, 83, null, 79, null,
+            78, null, 73, 70, 71, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.3, length: 0.18, brightness: 5000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

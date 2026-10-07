@@ -290,7 +290,7 @@ function checkSpikeAndDoor() {
         backToStart();
         testHooks?.emit('fall');
         sound.ouch();
-        showMessage('Whoops! You fell off. Back to the start.');
+        showMessage(maze.theme.moon ? 'Ouch! You fell in a crater. Back to the start.' : 'Whoops! You fell off. Back to the start.');
     }
 
     if (horizontalDistance(player.position, maze.doorPosition) < DOOR_TOUCH_DISTANCE) {
