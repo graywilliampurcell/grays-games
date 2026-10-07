@@ -1404,6 +1404,57 @@ export const LEVELS = [
             '#################################',
         ],
     },
+    {
+        name: 'Level 35',
+        // Three craters. `node tools/find-level.mjs level35 8`, seed 308. 8 x 8
+        // corridors. Correct path 45 cells; 8 dead ends 2 cells deep, plus the
+        // hidden crater's (3 cells, one turn, branching off the start cell).
+        // Y: the big crater right across a straight dead end off path cell 5
+        // (bottom row), in plain sight of the path. Z: a small crater on the
+        // path in cell 32, in a straight stretch of the left column; its plate
+        // 0.7 like Level 8's, a little tighter than Level 34's 0.67. X: the
+        // hidden crater filling the last cell of the dead end near the start,
+        // out of sight of the path. No platform, no doors, no slippery spots.
+        theme: MOON,
+        music: 'cratertrio',
+        spikeRadius: 1.2,
+        spike2Radius: 0.7,
+        layout: [
+            '#################################',
+            '#                           #   #',
+            '#                           #   D',
+            '#                           #   #',
+            '#   #####################   #   #',
+            '#   #           #       #   #   #',
+            '#   #           #       #   #   #',
+            '#   #           #       #   #   #',
+            '#   #   #####   #   #   #   #   #',
+            '#   #       #       #   #       #',
+            '# Z #       #       #   #       #',
+            '#   #       #       #   #       #',
+            '#   #####   #   #####   #########',
+            '#   #       #       #           #',
+            '#   #       #       #           #',
+            '#   #       #       #           #',
+            '#   #   #############   #####   #',
+            '#       #   #       #       #   #',
+            '#       #   #       #       #   #',
+            '#       #   #       #       #   #',
+            '#####   #   #   #############   #',
+            '#       #                       #',
+            '#       #                       #',
+            '#       #                       #',
+            '#############   #####   #####   #',
+            '#           #       #       #   #',
+            '#         X #       #       #   #',
+            '#           #       #       #   #',
+            '#   #############   #########   #',
+            '#                           #   #',
+            '# S                  Y      #   #',
+            '#                           #   #',
+            '#################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with

@@ -854,6 +854,31 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.08, length: 0.1, brightness: 2200 },
     },
+    // Level 35, three craters: happy but sneaky, a tiny bit sneakier than
+    // Level 34 (F# minor with a sneaky G). Opens with three quick knocks
+    // "F# F# F#" then a hush and a sly half-step "G F#", like counting three
+    // craters on tiptoe, then a skipping climb, on a bright bell-like square
+    // lead over a stop-start bass.
+    cratertrio: {
+        tempo: 128,
+        bars: [[42, 'min'], [43, 'maj'], [42, 'min'], [37, 'maj'], [42, 'min'], [38, 'maj'], [40, 'maj'], [37, 'maj']],
+        bass: [0, null, null, 0, null, 7, null, 'lead-in'],
+        bassLength: 0.11,
+        stabs: [2, 6],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            66, 66, 66, null, null, 67, 66, null,
+            67, 67, 67, null, null, 71, 67, null,
+            66, 66, 66, null, 69, 73, 78, null,
+            77, null, 73, null, 68, null, null, null,
+            78, 78, 78, null, null, 79, 78, null,
+            74, null, 78, 81, null, 78, 74, null,
+            76, 80, 83, null, 80, null, 76, null,
+            77, null, 73, 70, 68, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.09, length: 0.09, brightness: 3400 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
