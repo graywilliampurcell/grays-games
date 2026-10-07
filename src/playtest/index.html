@@ -230,7 +230,7 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
         }
 
-        /* Each world's look: cotton candy puffs, starry space, jungle leaves */
+        /* Each world's look: cotton candy puffs, starry space, jungle leaves, the Moon */
         .item.look-candy {
             background-color: #ff9fcf;
             background-image:
@@ -259,6 +259,17 @@
                 radial-gradient(ellipse 26% 14% at 78% 34%, #81c784 0 90%, transparent 100%),
                 radial-gradient(circle at 74% 70%, #e53935 0 5%, transparent 6%),
                 linear-gradient(180deg, #2e7d32 0 72%, #8b5a2b 72%);
+        }
+
+        .item.look-moon {
+            background-color: #000;
+            background-image:
+                radial-gradient(circle at 16% 20%, #fff 0 1.5px, transparent 2.5px),
+                radial-gradient(circle at 52% 12%, #fff 0 1px, transparent 2px),
+                radial-gradient(circle at 40% 38%, #fff 0 1.5px, transparent 2.5px),
+                radial-gradient(circle at 76% 30%, #2f6fd6 0 15%, transparent 16%),
+                radial-gradient(ellipse 18% 8% at 30% 82%, #55555a 0 90%, transparent 100%),
+                linear-gradient(180deg, #000 0 64%, #9a9a9c 64%);
         }
 
         /* Locked: plain gray with only a lock, nothing about what's inside */

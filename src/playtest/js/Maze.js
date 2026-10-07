@@ -206,6 +206,115 @@ function waterTexture() {
     return texture;
 }
 
+// Moon World walls: shiny metal panels with seams, rivets and a glowing blue
+// light strip, like the inside of a secret high-tech base
+function moonWallTexture(width, height) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    const shine = g.createLinearGradient(0, 0, width, 0);
+    shine.addColorStop(0, '#8d97a3');
+    shine.addColorStop(0.35, '#dfe5ec');
+    shine.addColorStop(0.55, '#b6bfca');
+    shine.addColorStop(1, '#7f8893');
+    g.fillStyle = shine;
+    g.fillRect(0, 0, width, height);
+    // Fine brushed-metal streaks
+    let r = 11;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < height; i += 2) {
+        g.fillStyle = `rgba(255,255,255,${random() * 0.08})`;
+        g.fillRect(0, i, width, 1);
+    }
+    // Panels: seams and rivets
+    const panel = height / 4;
+    for (let p = 0; p < 4; p++) {
+        const y = p * panel;
+        g.strokeStyle = '#4e5660';
+        g.lineWidth = 3;
+        g.strokeRect(2, y + 2, width - 4, panel - 4);
+        g.fillStyle = '#eef2f6';
+        for (const [rx, ry] of [[9, 9], [width - 9, 9], [9, panel - 9], [width - 9, panel - 9]]) {
+            g.beginPath();
+            g.arc(rx, y + ry, 2.5, 0, Math.PI * 2);
+            g.fill();
+        }
+    }
+    // A glowing blue light strip along each panel's top
+    g.fillStyle = '#5fd0ff';
+    for (let p = 0; p < 4; p += 2) g.fillRect(14, p * panel + 16, width - 28, 4);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Moon World floor: gray moon dust, speckled, with boot footprints here and there
+function moonDustTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#7f7f82';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < size * size / 8; i++) {
+        const shade = 100 + Math.floor(random() * 60);
+        g.fillStyle = `rgba(${shade},${shade},${shade + 3},0.5)`;
+        g.fillRect(random() * size, random() * size, 1 + random() * 2, 1 + random() * 2);
+    }
+    // Footprints: a few trails of left-right boot prints
+    for (let trail = 0; trail < 3; trail++) {
+        let x = random() * size;
+        let y = random() * size;
+        const angle = random() * Math.PI * 2;
+        for (let step = 0; step < 5; step++) {
+            const side = step % 2 ? 1 : -1;
+            const px = x + Math.cos(angle + Math.PI / 2) * side * 5;
+            const py = y + Math.sin(angle + Math.PI / 2) * side * 5;
+            g.save();
+            g.translate(((px % size) + size) % size, ((py % size) + size) % size);
+            g.rotate(angle + Math.PI / 2);
+            g.fillStyle = 'rgba(70,70,74,0.55)';
+            g.beginPath();
+            g.ellipse(0, -3, 4, 6, 0, 0, Math.PI * 2);
+            g.ellipse(0, 7, 3.2, 3.5, 0, 0, Math.PI * 2);
+            g.fill();
+            g.strokeStyle = 'rgba(50,50,54,0.5)';
+            g.lineWidth = 1;
+            for (let k = -6; k <= 6; k += 3) {
+                g.beginPath();
+                g.moveTo(-3, k * 0.6 - 3);
+                g.lineTo(3, k * 0.6 - 3);
+                g.stroke();
+            }
+            g.restore();
+            x += Math.cos(angle) * 16;
+            y += Math.sin(angle) * 16;
+        }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// A crater seen from above: dark in the middle, shading out to the dust
+function craterTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const g = canvas.getContext('2d');
+    const hole = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    hole.addColorStop(0, '#0b0b0d');
+    hole.addColorStop(0.45, '#1e1e22');
+    hole.addColorStop(0.8, '#55555a');
+    hole.addColorStop(1, '#7c7c80');
+    g.fillStyle = hole;
+    g.beginPath();
+    g.arc(64, 64, 64, 0, Math.PI * 2);
+    g.fill();
+    return new THREE.CanvasTexture(canvas);
+}
+
 // A planet or moon for the sky: a base color with blobs (land, craters)
 function planetTexture(base, blobs, seed) {
     const canvas = document.createElement('canvas');
@@ -393,8 +502,11 @@ export class Maze {
         const fluffy = this.theme.fluffy;
         const space = this.theme.space;
         const jungle = this.theme.jungle;
+        const moon = this.theme.moon;
         let wallMaterial;
-        if (jungle) {
+        if (moon) {
+            wallMaterial = new THREE.MeshStandardMaterial({ map: moonWallTexture(128, 512), roughness: 0.3, metalness: 0.45, emissive: 0x1a2430, emissiveIntensity: 0.6 });
+        } else if (jungle) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: leafTexture(128, 512, 13), roughness: 0.95 });
         } else if (space) {
             const stars = starTexture(128, 512, 5);
@@ -424,7 +536,11 @@ export class Maze {
 
         // Floor
         let floorMaterial;
-        if (jungle) {
+        if (moon) {
+            const map = moonDustTexture(256, 23);
+            map.repeat.set(this.width / 6, this.depth / 6);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
+        } else if (jungle) {
             const map = dirtTexture(128, 17);
             map.repeat.set(this.width / 2, this.depth / 2);
             floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
@@ -463,6 +579,93 @@ export class Maze {
 
         if (space) this.addSpaceSky();
         if (jungle) this.addJungleSky();
+        if (moon) {
+            this.addMoonSky();
+            this.addCameras();
+        }
+    }
+
+    // Moon World sky: black, full of stars, with the Earth hanging big and blue
+    // (it stays put, so which side it's on depends on where you look)
+    addMoonSky() {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        const positions = [];
+        let r = 101;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        for (let i = 0; i < 1500; i++) {
+            // Points on the upper part of a big sphere round the maze
+            const a = random() * Math.PI * 2;
+            const y = 0.05 + random() * 0.95;
+            const flat = Math.sqrt(1 - y * y);
+            positions.push(cx + Math.cos(a) * flat * 400, y * 400, cz + Math.sin(a) * flat * 400);
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        const stars = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0xffffff, size: 1.6, sizeAttenuation: false, fog: false }));
+        this.root.add(stars);
+        const earth = new THREE.Mesh(
+            new THREE.SphereGeometry(75, 40, 24),
+            new THREE.MeshBasicMaterial({ map: planetTexture('#2f6fd6', ['#3fa34d', '#57b85f', '#e8eef5', '#2a8a3d', '#e8eef5'], 9), fog: false })
+        );
+        earth.position.set(cx - 170, 150, cz - 230);
+        this.root.add(earth);
+        // A soft blue glow round the Earth
+        const glow = new THREE.Mesh(
+            new THREE.SphereGeometry(82, 32, 20),
+            new THREE.MeshBasicMaterial({ color: 0x6fb6ff, transparent: true, opacity: 0.18, fog: false, side: THREE.BackSide })
+        );
+        glow.position.copy(earth.position);
+        this.root.add(glow);
+    }
+
+    // Moon World: security cameras high on the walls, turning slowly side to
+    // side as if they're watching the player. Decoration only, no danger.
+    addCameras() {
+        this.cameras = [];
+        const body = new THREE.MeshStandardMaterial({ color: 0xf2f4f7, metalness: 0.3, roughness: 0.35 });
+        const dark = new THREE.MeshStandardMaterial({ color: 0x2b2f36, metalness: 0.5, roughness: 0.4 });
+        const lens = new THREE.MeshStandardMaterial({ color: 0x0d1a2a, emissive: 0x2a6cff, emissiveIntensity: 0.6, roughness: 0.1 });
+        const led = new THREE.MeshBasicMaterial({ color: 0xff3030 });
+        let r = 7;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const isWall = (x, z) => this.grid[x]?.[z] !== 0;
+        // Look at the middle of each corridor cell (4 blocks apart, middle at 2)
+        // and put a camera on some of the walls right next to it
+        for (let x = 2; x < this.width - 1; x += 4) {
+            for (let z = 2; z < this.depth - 1; z += 4) {
+                if (isWall(x, z)) continue;
+                const sides = [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([dx, dz]) => isWall(x + 2 * dx, z + 2 * dz) && !isWall(x + dx, z + dz));
+                if (sides.length === 0 || random() > 0.4) continue;
+                const [dx, dz] = sides[Math.floor(random() * sides.length)];
+                const mount = new THREE.Group();
+                // On the wall's face, facing into the corridor
+                mount.position.set(x + 0.5 + dx * 1.5, this.height - 0.7, z + 0.5 + dz * 1.5);
+                mount.rotation.y = Math.atan2(-dx, -dz);
+                const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.2), dark);
+                bracket.position.z = 0.1;
+                mount.add(bracket);
+                const pivot = new THREE.Group();
+                pivot.position.z = 0.25;
+                const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.3, 8), dark);
+                arm.rotation.x = Math.PI / 2;
+                pivot.add(arm);
+                const head = new THREE.Group();
+                head.position.set(0, -0.08, 0.2);
+                head.rotation.x = 0.35; // tilted down toward the floor
+                const box = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.24, 0.55), body);
+                const eye = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.06, 16), lens);
+                eye.rotation.x = Math.PI / 2;
+                eye.position.z = 0.29;
+                const light = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 6), led);
+                light.position.set(0.09, 0.13, 0.22);
+                head.add(box, eye, light);
+                pivot.add(head);
+                mount.add(pivot);
+                this.root.add(mount);
+                this.cameras.push({ pivot, light, phase: random() * Math.PI * 2, speed: 0.5 + random() * 0.3, time: 0 });
+            }
+        }
     }
 
     // Jungle World sky: parrots, toucans and big bright butterflies flying by
@@ -627,6 +830,11 @@ export class Maze {
 
     // Move the things flying through the sky, and under the platform gap (called every frame)
     update(dt) {
+        for (const cam of this.cameras || []) {
+            cam.time += dt;
+            cam.pivot.rotation.y = Math.sin(cam.time * cam.speed + cam.phase) * 0.7;
+            cam.light.visible = (cam.time + cam.phase) % 1.2 < 0.6;
+        }
         for (const flyer of this.flyers || []) {
             flyer.object.position.addScaledVector(flyer.velocity, dt);
             // Birds and butterflies flap their wings (butterflies quicker, with a flutter)
@@ -786,6 +994,7 @@ export class Maze {
     // A small cluster of metal spikes on the floor, its plate `radius` across from the middle
     createSpike(position, radius) {
         if (this.theme.jungle) return this.createBush(position, radius);
+        if (this.theme.moon) return this.createCrater(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -812,6 +1021,25 @@ export class Maze {
         spike.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
         spike.position.copy(position);
         this.root.add(spike);
+    }
+
+    // Moon World's spike: a small crater in the moon dust, `radius` across from
+    // the middle, with a raised dusty rim. Stepping into it works like a spike.
+    createCrater(position, radius) {
+        const crater = new THREE.Group();
+        const hole = new THREE.Mesh(new THREE.CircleGeometry(radius, 40), new THREE.MeshStandardMaterial({ map: craterTexture(), roughness: 1 }));
+        hole.rotation.x = -Math.PI / 2;
+        hole.position.y = 0.012;
+        hole.receiveShadow = true;
+        crater.add(hole);
+        const rim = new THREE.Mesh(new THREE.TorusGeometry(radius, Math.min(0.14, radius * 0.18), 10, 40), new THREE.MeshStandardMaterial({ color: 0x88888c, roughness: 1 }));
+        rim.rotation.x = -Math.PI / 2;
+        rim.scale.z = 0.6; // a low rim (z is up once it's turned flat)
+        rim.castShadow = true;
+        crater.add(rim);
+        crater.position.copy(position);
+        crater.position.y = 0;
+        this.root.add(crater);
     }
 
     // Jungle World's spike: a thorny bush with red berries, as wide as a spike's

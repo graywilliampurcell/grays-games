@@ -31,6 +31,7 @@
 //   node tools/find-level.mjs level28 5  # Level 28 rules (Level 27's with 3-cell dead ends; two fast leaves)
 //   node tools/find-level.mjs level29 4  # Level 29 rules (Level 26's with 3-cell dead ends; all leaves fast)
 //   node tools/find-level.mjs level30 4  # Level 30 rules (Level 29's plus the big bush)
+//   node tools/find-level.mjs level31 8  # Level 31 rules (Moon World: 8 x 8, Level 11's hidden crater, no gap)
 //
 // Level 1 rules (from the Mazle plan, iteration 4): 5 x 5 corridors, start
 // on the west edge and door on the east edge, exactly one path to the door,
@@ -168,7 +169,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -190,7 +191,8 @@ const DEEP = ['level28', 'level29', 'level30'].includes(process.argv[2]); // dea
 const FAST = { level27: [1], level28: [0, 2], level29: [0, 1, 2], level30: [0, 1, 2] }[process.argv[2]] ?? []; // three river gaps and a bush on the path
 const GAP_COUNT = LEVEL24 || LEVEL25 || LEVEL26 ? 3 : 2;
 const LEVEL21 = process.argv[2] === 'level21' || LEVEL22 || LEVEL23; // Jungle World: 7 x 7, Level 11's hidden bush plus a platform gap
-const LEVEL11 = process.argv[2] === 'level11' || LEVEL21;
+const LEVEL31 = process.argv[2] === 'level31'; // Moon World: 8 x 8, Level 11's hidden crater, no platform gap
+const LEVEL11 = process.argv[2] === 'level11' || LEVEL21 || LEVEL31;
 // Level 12: 6 x 6 with 2-cell dead ends again, no spikes, a space door on the path
 const LEVEL13 = process.argv[2] === 'level13'; // Level 12's plus a slippery spot
 const LEVEL14 = process.argv[2] === 'level14'; // Level 12's plus a spike on the path
@@ -201,8 +203,8 @@ const LEVEL18 = process.argv[2] === 'level18' || LEVEL20; // Level 17's plus a s
 const LEVEL17 = process.argv[2] === 'level17' || LEVEL18 || LEVEL19; // a moving-platform gap, a space door, a slippery spot, a path spike
 const LEVEL15 = process.argv[2] === 'level15' || LEVEL16; // slippery spot, path spike, spike row in a dead end
 const LEVEL12 = process.argv[2] === 'level12' || LEVEL13 || LEVEL14;
-const COLS = LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
-const ROWS = LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
+const COLS = LEVEL31 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
+const ROWS = LEVEL31 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
 const LEVEL2 = process.argv[2] === 'level2';
 const LEVEL3 = ['level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9', 'level10'].includes(process.argv[2]); // spike on the path
 const LEVEL4 = process.argv[2] === 'level4';
@@ -212,7 +214,7 @@ const LEVEL7 = ['level7', 'level8', 'level9', 'level10'].includes(process.argv[2
 const LEVEL8 = ['level8', 'level9', 'level10'].includes(process.argv[2]); // clearly new layout and spike-row spot
 const LEVEL9 = process.argv[2] === 'level9'; // the spike row hidden just round a dead end's corner
 const LEVEL10 = process.argv[2] === 'level10'; // the finale: a visible spike row again
-const SHORT_DEAD_ENDS = LEVEL21 || LEVEL25 ? Number(process.argv[3] ?? 8) : LEVEL19 ? 5 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
+const SHORT_DEAD_ENDS = LEVEL21 || LEVEL25 || LEVEL31 ? Number(process.argv[3] ?? 8) : LEVEL19 ? 5 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
 const SHORT_DEPTH = DEEP ? 3 : LEVEL25 || LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 || (!LEVEL7 && (LEVEL2 || LEVEL3)) ? 2 : LEVEL7 ? 3 : 1; // how deep each of those dead ends is
 const SPIKE_DEPTH = LEVEL19 ? 3 : LEVEL25 || LEVEL3 || LEVEL12 || LEVEL15 || LEVEL17 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
 const SPIKE_BRANCH_WITHIN = 3; // the spike dead end leaves the path in its first 3 cells

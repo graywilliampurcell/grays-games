@@ -757,6 +757,30 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.12, length: 0.13, brightness: 4200 },
     },
+    // Level 31, welcome to Moon World: happy but sneaky, a little sneakier than
+    // Level 30 (A minor). A low tiptoeing creep ("A . C . B . G#") like
+    // someone sneaking through the moon base, answered by bright bleepy
+    // computer-like runs, on a soft round lead over a sparse, floaty bass.
+    moonbase: {
+        tempo: 112,
+        bars: [[45, 'min'], [45, 'min'], [41, 'maj'], [43, 'maj'], [45, 'min'], [38, 'min'], [41, 'maj'], [40, 'maj']],
+        bass: [0, null, null, 12, null, 7, null, null],
+        bassLength: 0.2,
+        stabs: [4],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            57, null, 60, null, 59, null, 56, null,
+            57, null, null, 64, null, null, 69, null,
+            72, null, 69, 72, 77, null, 76, null,
+            74, null, 71, null, 67, null, null, null,
+            57, null, 60, null, 59, null, 56, null,
+            62, null, null, 65, null, null, 69, null,
+            77, 76, 74, 72, 74, null, 76, null,
+            80, null, 76, null, 71, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.36, length: 0.22, brightness: 5000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

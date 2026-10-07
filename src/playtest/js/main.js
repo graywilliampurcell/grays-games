@@ -282,7 +282,7 @@ function checkSpikeAndDoor() {
         backToStart();
         testHooks?.emit('spike');
         sound.ouch();
-        showMessage('Ouch! A spike sent you back to the start.');
+        showMessage(maze.theme.moon ? 'Ouch! You fell in a crater. Back to the start.' : 'Ouch! A spike sent you back to the start.');
     }
 
     // Walking into the gap (no platform under you) works like a spike

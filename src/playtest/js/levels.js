@@ -20,6 +20,10 @@ const SPACE = { wall: 0x1c2153, floor: 0x8c939c, sky: 0x04060f, space: true };
 // Levels 21-30, Jungle World: thick green leaf-and-vine walls, a brown dirt
 // path, a bright sky with parrots, toucans and butterflies (see Maze.js)
 const JUNGLE = { wall: 0x2e7d32, floor: 0x8b5a2b, sky: 0x9fdcff, jungle: true };
+// Levels 31-40, Moon World: a secret high-tech base on the Moon. Shiny metal
+// walls with security cameras, gray moon dust with footprints, a black starry
+// sky with the Earth; the spikes are craters (see Maze.js)
+const MOON = { wall: 0xb6bfca, floor: 0x9a9a9c, sky: 0x000000, moon: true };
 
 export const LEVELS = [
     {
@@ -1173,6 +1177,7 @@ export const LEVELS = [
         music: 'junglefinale',
         spike2Radius: 0.72,
         finale: 'You beat Jungle World!',
+        nextLabel: 'Start Moon World',
         layout: [
             '#############################',
             '#                FFFFFFF    #',
@@ -1205,6 +1210,52 @@ export const LEVELS = [
             '#############################',
         ],
     },
+    {
+        name: 'Level 31',
+        // Welcome to Moon World. `node tools/find-level.mjs level31 8`, seed 27.
+        // 8 x 8 corridors. Correct path 45 cells; 8 dead ends 2 cells deep,
+        // plus the crater's: off path cell 3 it goes 2 cells, turns once, and
+        // the crater (X) fills its last cell, out of sight of the path like
+        // Level 21's bush. No crater on the path, no platform, no doors.
+        theme: MOON,
+        music: 'moonbase',
+        spikeRadius: 1.2,
+        layout: [
+            '#################################',
+            '#                               #',
+            '#                               #',
+            '#                               #',
+            '#   #########################   #',
+            '#                           #   #',
+            '#                           #   #',
+            '#                           #   #',
+            '#########   #############   #   #',
+            '#       #   #   #       #   #   #',
+            '#       #   #   #       #   #   #',
+            '#       #   #   #       #   #   #',
+            '#####   #   #   #   #   #   #   #',
+            '#       #   #       #   #   #   #',
+            '# S     #   #       #   #   #   #',
+            '#       #   #       #   #   #   #',
+            '#####   #########   #   #   #   #',
+            '#               #   #       #   #',
+            '#               #   #       #   #',
+            '#               #   #       #   #',
+            '#   #########   #   #########   #',
+            '#           #   #   #           #',
+            '#           # X #   #           #',
+            '#           #   #   #           #',
+            '#   #####   #####   #   #   #####',
+            '#   #               #   #   #   #',
+            '#   #               #   #   #   D',
+            '#   #               #   #   #   #',
+            '#   #   #   #####   #####   #   #',
+            '#   #   #       #       #       #',
+            '#   #   #       #       #       #',
+            '#   #   #       #       #       #',
+            '#################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with
@@ -1215,7 +1266,7 @@ LEVELS.forEach((level, index) => {
     if (last && last.theme === level.theme) {
         last.last = index;
     } else {
-        const look = level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
+        const look = level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
         WORLDS.push({ theme: level.theme, first: index, last: index, look });
     }
 });
