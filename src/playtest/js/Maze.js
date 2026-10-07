@@ -1080,6 +1080,7 @@ export class Maze {
     // A row of spikes right across a 3-block corridor, one block deep
     createSpikeRow(row) {
         if (this.theme.jungle) return this.createBigBush(row);
+        if (this.theme.moon) return this.createBigCrater(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -1140,6 +1141,37 @@ export class Maze {
         }
         if (!row.spansX) group.rotation.y = Math.PI / 2;
         group.position.copy(row.position);
+        this.root.add(group);
+    }
+
+    // Moon World's spike row (Level 33): a big crater right across the
+    // corridor, as wide as the corridor and as deep as a spike row, with a
+    // raised dusty rim and a few rocks round its edge
+    createBigCrater(row) {
+        const group = new THREE.Group();
+        const across = SPIKE_ROW_WIDTH / 2 - 0.05;
+        const along = SPIKE_ROW_DEPTH / 2 + 0.05;
+        const hole = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshStandardMaterial({ map: craterTexture(), roughness: 1 }));
+        hole.rotation.x = -Math.PI / 2;
+        hole.scale.set(across, along, 1);
+        hole.position.y = 0.012;
+        hole.receiveShadow = true;
+        group.add(hole);
+        const rim = new THREE.Mesh(new THREE.TorusGeometry(1, 0.1, 10, 56), new THREE.MeshStandardMaterial({ color: 0x88888c, roughness: 1 }));
+        rim.rotation.x = -Math.PI / 2;
+        rim.scale.set(across, along, 0.9);
+        rim.castShadow = true;
+        group.add(rim);
+        const rock = new THREE.MeshStandardMaterial({ color: 0x77777b, roughness: 1 });
+        for (const [x, z, size] of [[-1.25, 0.42, 0.09], [-0.4, -0.55, 0.07], [0.55, 0.52, 0.08], [1.3, -0.3, 0.06]]) {
+            const stone = new THREE.Mesh(new THREE.DodecahedronGeometry(size, 0), rock);
+            stone.position.set(x, size * 0.6, z);
+            stone.castShadow = true;
+            group.add(stone);
+        }
+        if (!row.spansX) group.rotation.y = Math.PI / 2;
+        group.position.copy(row.position);
+        group.position.y = 0;
         this.root.add(group);
     }
 
