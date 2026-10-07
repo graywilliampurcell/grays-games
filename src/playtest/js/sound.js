@@ -904,6 +904,31 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.3, length: 0.18, brightness: 5000 },
     },
+    // Level 37, the platform and the sneaky crater: happy but sneaky, a tiny
+    // bit sneakier than Level 36 (C# minor, a touch faster). Opens on a
+    // tiptoeing "G# . G# G G# . . C#'" that keeps slipping a half step down
+    // and back, like creeping past a crater, on a soft square lead over a
+    // bass that sneaks in late.
+    craterdive: {
+        tempo: 136,
+        bars: [[49, 'min'], [45, 'maj'], [49, 'min'], [44, 'maj'], [42, 'min'], [45, 'maj'], [44, 'maj'], [49, 'min']],
+        bass: [0, null, null, 0, null, 7, null, 'lead-in'],
+        bassLength: 0.1,
+        stabs: [3, 7],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            68, null, 68, 67, 68, null, null, 73,
+            72, null, 69, null, 68, null, null, null,
+            64, null, 64, 63, 64, null, null, 69,
+            68, 67, 66, null, 68, null, null, null,
+            66, null, 69, null, 73, null, 72, 73,
+            76, null, 73, null, 69, null, 66, null,
+            68, null, 72, null, 75, 72, 68, null,
+            67, 68, 61, null, 61, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.085, length: 0.08, brightness: 3000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
