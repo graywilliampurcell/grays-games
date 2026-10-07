@@ -1554,6 +1554,56 @@ export const LEVELS = [
             '#################################',
         ],
     },
+    {
+        name: 'Level 38',
+        // Two hover platforms. `node tools/find-level.mjs level38 8`, seed 174.
+        // 8 x 8 corridors. Correct path 48 cells; 8 dead ends, all 2 cells
+        // deep. O: two giant craters, gaps over path cells 35-37 (straight up
+        // the left column) and 44-46 (straight along the top row), each
+        // crossed on its own hover disc like Level 36's, with a turn between
+        // them. X: a small crater on the path in cell 22 (right column,
+        // straight stretch); its plate 0.7 like Level 35's. Y: the big crater
+        // just inside a straight dead end off path cell 19, seen from the
+        // path. No hidden crater, no doors, no slippery spots.
+        theme: MOON,
+        music: 'twinhover',
+        spikeRadius: 0.7,
+        layout: [
+            '#################################',
+            '#       #        OOOOOOOOOOO    #',
+            '#       #        OOOOOOOOOOO    #',
+            '#       #        OOOOOOOOOOO    #',
+            '#   #   #   #################   #',
+            '#OOO#       #               #   #',
+            '#OOO#       #               #   D',
+            '#OOO#       #               #   #',
+            '#OOO#########   #########   #####',
+            '#OOO#           #       #       #',
+            '#OOO#           #       #       #',
+            '#OOO#           #       #       #',
+            '#OOO#   #########   #   #####   #',
+            '#OOO#   #           #   #   #   #',
+            '#OOO#   #           #   #   # X #',
+            '#OOO#   #           #   #   #   #',
+            '#   #   #   #########   #   #   #',
+            '#       #       #   #   #       #',
+            '#       #       #   #   #       #',
+            '#       #       #   #   #       #',
+            '#############   #   #   #####   #',
+            '#           #   #               #',
+            '# S         #   #               #',
+            '#           #   #               #',
+            '#   #   #   #   #####   #   #   #',
+            '#   #   #   #   #   #   # Y #   #',
+            '#   #   #   #   #   #   #   #   #',
+            '#   #   #   #   #   #   #   #   #',
+            '#   #   #   #   #   #   #   #   #',
+            '#   #   #           #   #   #   #',
+            '#   #   #           #   #   #   #',
+            '#   #   #           #   #   #   #',
+            '#################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with

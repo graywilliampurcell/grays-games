@@ -929,6 +929,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.085, length: 0.08, brightness: 3000 },
     },
+    // Level 38, two hover platforms: happy but sneaky, a tiny bit sneakier
+    // than Level 37 (E-flat minor, a touch faster). Opens with two little
+    // octave hops "Bb . Bb' . Bb . Bb' A'", one for each hover disc, that
+    // slip a half step down at the end, on a thin buzzy sawtooth lead over a
+    // bass that only plays on the off-beats.
+    twinhover: {
+        tempo: 140,
+        bars: [[51, 'min'], [47, 'maj'], [51, 'min'], [46, 'maj'], [44, 'min'], [47, 'maj'], [46, 'maj'], [51, 'min']],
+        bass: [null, 0, null, null, null, 7, null, 'lead-in'],
+        bassLength: 0.09,
+        stabs: [3, 7],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            70, null, 82, null, 70, null, 82, 81,
+            78, null, 75, null, 71, null, null, null,
+            63, null, 75, null, 63, null, 75, 74,
+            74, null, 70, null, 65, null, null, null,
+            68, null, 71, null, 75, null, 74, 75,
+            78, null, 75, null, 71, null, 68, null,
+            70, null, 74, null, 77, 74, 70, null,
+            69, 70, 63, null, 63, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.06, length: 0.07, brightness: 2600 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
