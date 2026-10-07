@@ -170,7 +170,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -194,7 +194,8 @@ const GAP_COUNT = LEVEL24 || LEVEL25 || LEVEL26 ? 3 : 2;
 const LEVEL21 = process.argv[2] === 'level21' || LEVEL22 || LEVEL23; // Jungle World: 7 x 7, Level 11's hidden bush plus a platform gap
 const LEVEL32 = process.argv[2] === 'level32'; // Level 31's plus a small crater on the path ('Z'), a new layout
 const LEVEL31 = process.argv[2] === 'level31' || LEVEL32;
-const LEVEL33 = process.argv[2] === 'level33'; // Moon World 8 x 8: a crater on the path plus the big crater in a straight dead end, no hidden crater // Moon World: 8 x 8, Level 11's hidden crater, no platform gap
+const LEVEL34 = process.argv[2] === 'level34'; // Level 33's again with a new layout (and a tighter path crater in levels.js)
+const LEVEL33 = process.argv[2] === 'level33' || LEVEL34; // Moon World 8 x 8: a crater on the path plus the big crater in a straight dead end, no hidden crater // Moon World: 8 x 8, Level 11's hidden crater, no platform gap
 const LEVEL11 = process.argv[2] === 'level11' || LEVEL21 || LEVEL31;
 // Level 12: 6 x 6 with 2-cell dead ends again, no spikes, a space door on the path
 const LEVEL13 = process.argv[2] === 'level13'; // Level 12's plus a slippery spot
@@ -917,6 +918,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     // path crater; a new start row (Levels 31 and 32 start in rows 3 and 2)
     if (LEVEL33) {
         if (path[0].j === 3 || path[0].j === 2) continue;
+        if (LEVEL34 && path[0].j === 1) continue; // Level 33 starts in row 1
         const hung = hangPathSpike(path, random);
         if (!hung) continue;
         const startCell = path[0];

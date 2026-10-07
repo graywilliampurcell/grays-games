@@ -829,6 +829,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.11, length: 0.12, brightness: 2600 },
     },
+    // Level 34, a tighter squeeze on the moon: happy but sneaky, a tiny bit
+    // sneakier than Level 33 (C minor). Opens with a sudden octave jump and a
+    // quick tiptoe back down "C . C' B . G", like peeking over a crater's rim
+    // and ducking, then a sly zig-zag climb, on a thin reedy lead over a
+    // bouncy offbeat bass.
+    craterpeek: {
+        tempo: 124,
+        bars: [[36, 'min'], [36, 'min'], [41, 'min'], [43, 'maj'], [36, 'min'], [44, 'maj'], [41, 'min'], [43, 'maj']],
+        bass: [null, 0, null, 7, null, 0, 5, 'lead-in'],
+        bassLength: 0.12,
+        stabs: [1, 5],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            60, null, null, 72, 71, null, 67, null,
+            60, null, null, 72, 71, null, 67, 63,
+            65, 68, 67, 70, 68, 72, null, null,
+            71, null, 67, null, 62, null, 59, null,
+            72, null, null, 84, 83, null, 79, null,
+            80, 79, 75, 79, 80, null, 84, null,
+            77, 80, 79, 75, 72, null, 68, null,
+            67, 71, 74, null, 71, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.08, length: 0.1, brightness: 2200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
