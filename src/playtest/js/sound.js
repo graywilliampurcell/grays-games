@@ -1121,6 +1121,30 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.2, length: 0.11, brightness: 900 },
     },
+    // Level 47, two sneaky urchins: C# minor, slower still than Level 46's.
+    // A low, whispered two-note creep, then the same sour figure twice, the
+    // second time an octave down and later, like a second urchin waiting
+    // round another corner; a held tritone (G natural) at the end of each
+    // half, a dull muted triangle lead, ticking and a lone heartbeat bass.
+    twourchins: {
+        tempo: 74,
+        bars: [[37, 'min'], [37, 'min'], [38, 'maj'], [37, 'min'], [33, 'maj'], [37, 'min'], [38, 'maj'], [36, 'maj']],
+        bass: [0, null, null, null, null, 0, null, 'lead-in'],
+        bassLength: 0.35,
+        stabs: [],
+        ticks: true,
+        melody: [
+            49, null, 50, null, null, null, 49, null,
+            null, null, 48, null, 49, null, null, null,
+            61, 62, 61, null, null, null, 55, null,
+            null, null, null, null, null, null, null, null,
+            null, null, 49, 50, 49, null, null, null,
+            null, null, null, null, 43, null, null, null,
+            null, null, 49, 50, 49, null, null, null,
+            null, null, 43, null, null, null, 37, null,
+        ],
+        lead: { wave: 'triangle', level: 0.24, length: 0.13, brightness: 800 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
