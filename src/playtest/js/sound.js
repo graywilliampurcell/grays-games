@@ -1145,6 +1145,31 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.24, length: 0.13, brightness: 800 },
     },
+    // Level 48, deeper wrong ways: D minor, the slowest yet (68 bpm). It
+    // opens on a low chromatic slide sinking step by step down from D, like
+    // walking deeper and deeper into a wrong way, then a long silence; then a
+    // high sour three-note sting (with the tritone A-flat) that answers it,
+    // and the slide again, lower. A muffled sawtooth lead, ticking and a lone
+    // heartbeat bass. Sneakier than Level 47's.
+    deepwrong: {
+        tempo: 68,
+        bars: [[38, 'min'], [38, 'min'], [39, 'maj'], [38, 'min'], [34, 'maj'], [38, 'min'], [39, 'maj'], [37, 'maj']],
+        bass: [0, null, null, null, null, null, 0, 'lead-in'],
+        bassLength: 0.4,
+        stabs: [],
+        ticks: true,
+        melody: [
+            50, null, 49, null, 48, null, 47, null,
+            46, null, null, null, null, null, null, null,
+            null, null, null, null, 62, 63, 56, null,
+            null, null, null, null, null, null, null, null,
+            45, null, 44, null, 43, null, 42, null,
+            41, null, null, null, null, null, null, null,
+            null, null, 62, 63, 56, null, null, null,
+            null, null, null, null, 38, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.18, length: 0.16, brightness: 600 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
