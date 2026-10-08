@@ -1050,6 +1050,29 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.32, length: 0.12, brightness: 1600 },
     },
+    // Level 44, the tighter squeeze: C-sharp minor, slower and lower still
+    // than Level 43's. Single held notes that slide down by half steps like
+    // holding your breath to squeeze past, a low dark bass pulse, a sour
+    // flat-second (D against C-sharp) poke, and longer silences. No climb at all.
+    urchinsqueeze: {
+        tempo: 92,
+        bars: [[37, 'min'], [37, 'min'], [38, 'maj'], [37, 'min'], [33, 'maj'], [37, 'min'], [38, 'maj'], [36, 'maj']],
+        bass: [0, null, 0, null, null, null, null, 'lead-in'],
+        bassLength: 0.24,
+        stabs: [],
+        ticks: true,
+        melody: [
+            61, null, null, null, 60, null, null, null,
+            61, null, null, 62, null, null, null, null,
+            56, null, null, 55, null, 56, null, null,
+            null, null, null, null, 49, null, null, null,
+            64, null, 63, null, 62, null, 61, null,
+            null, null, 62, 61, null, null, null, null,
+            56, null, 55, null, 54, null, 53, null,
+            49, null, null, null, null, null, 50, null,
+        ],
+        lead: { wave: 'triangle', level: 0.3, length: 0.16, brightness: 1200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
