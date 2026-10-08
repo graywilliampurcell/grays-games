@@ -1097,6 +1097,30 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.3, length: 0.18, brightness: 1000 },
     },
+    // Level 46, big urchin, tighter squeeze: E minor, the slowest yet. It
+    // opens on two bars of tiptoeing low staccato pairs (no held notes), then
+    // a stuck, creeping three-note figure that keeps sliding a half step lower
+    // like squeezing sideways past spines, a sour B-flat (the tritone), a
+    // soft muffled square lead and a single low heartbeat bass. No happy at all.
+    urchintight: {
+        tempo: 80,
+        bars: [[40, 'min'], [40, 'min'], [41, 'maj'], [40, 'min'], [36, 'maj'], [40, 'min'], [41, 'maj'], [39, 'maj']],
+        bass: [0, null, null, null, 0, null, null, 'lead-in'],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            52, 52, null, null, 53, 53, null, null,
+            52, 52, null, null, 51, 51, null, null,
+            64, 65, 64, null, 63, 64, 63, null,
+            62, 63, 62, null, null, null, 58, null,
+            null, null, 52, null, 53, null, 52, null,
+            59, null, null, null, 58, null, null, null,
+            64, 65, 64, null, 63, 64, 63, null,
+            null, null, 58, null, null, null, 40, null,
+        ],
+        lead: { wave: 'square', level: 0.2, length: 0.11, brightness: 900 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

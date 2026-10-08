@@ -1982,6 +1982,59 @@ export const LEVELS = [
         '#####################################',
         ],
     },
+    {
+        name: 'Level 46',
+        // Big urchin, tighter squeeze. `node tools/find-level.mjs level46 15`,
+        // seed 810. 9 x 9 corridors. Correct path 51 cells; 15 dead ends, all
+        // 2 cells deep. Start in row 4 (west), door east in the top row. Y: the
+        // big urchin right across the corridor just inside the straight dead
+        // end off path cell 27 (bottom row, heading west), in plain sight. X:
+        // an urchin on the path in cell 30, on the straight bottom row heading
+        // east, its plate 0.7 like Level 35's path crater (the Level 8 gap, an
+        // even tighter squeeze than Level 44's 0.67). No bubble, no current.
+        theme: UNDERWATER,
+        music: 'urchintight',
+        spikeRadius: 0.7,
+        layout: [
+        '#####################################',
+        '#               #                   #',
+        '#               #                   D',
+        '#               #                   #',
+        '#########   #   #   #################',
+        '#           #   #                   #',
+        '#           #   #                   #',
+        '#           #   #                   #',
+        '#   #   #####   #################   #',
+        '#   #       #           #       #   #',
+        '#   #       #           #       #   #',
+        '#   #       #           #       #   #',
+        '#########   #########   #   #   #   #',
+        '#           #       #   #   #       #',
+        '#           #       #   #   #       #',
+        '#           #       #   #   #       #',
+        '#########   #   #   #   #   #####   #',
+        '#           #   #       #       #   #',
+        '# S         #   #       #       #   #',
+        '#           #   #       #       #   #',
+        '#   #   #####   #########   #   #   #',
+        '#   #   #       #           #   #   #',
+        '#   #   #       #           #   #   #',
+        '#   #   #       #           #   #   #',
+        '#   #   #   #   #########   #########',
+        '#   #   #   #       #   #           #',
+        '#   #   #   #       #   #           #',
+        '#   #   #   #       #   #           #',
+        '#################   #   #   #########',
+        '#                       #           #',
+        '#                       #           #',
+        '#                       #           #',
+        '#########   #############   #########',
+        '#                                   #',
+        '#      Y              X             #',
+        '#                                   #',
+        '#####################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with

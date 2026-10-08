@@ -33,6 +33,7 @@
 //   node tools/find-level.mjs level30 4  # Level 30 rules (Level 29's plus the big bush)
 //   node tools/find-level.mjs level31 8  # Level 31 rules (Moon World: 8 x 8, Level 11's hidden crater, no gap)
 //   node tools/find-level.mjs level41 11 # Level 41 rules (Underwater World: 9 x 9, hidden urchin, one water current)
+//   node tools/find-level.mjs level46 15 # Level 46 rules (Level 43's path urchin + big urchin, no bubble ride)
 //   node tools/find-level.mjs level45 10 # Level 45 rules (Level 41's plus two bubble rides: two 3-cell cracks)
 //   node tools/find-level.mjs level32 8  # Level 32 rules (Level 31's plus a crater on the path, like Level 25's bush)
 //   node tools/find-level.mjs level35 8  # Level 35 rules (Level 32's plus Level 33's big crater in a straight dead end)
@@ -176,7 +177,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39', level40: 'Level 40', level41: 'Level 41', level42: 'Level 42', level43: 'Level 43', level44: 'Level 44', level45: 'Level 45' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39', level40: 'Level 40', level41: 'Level 41', level42: 'Level 42', level43: 'Level 43', level44: 'Level 44', level45: 'Level 45', level46: 'Level 46' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -210,7 +211,9 @@ const LEVEL38 = process.argv[2] === 'level38'; // Moon World: Level 33's path cr
 // Level 43: Underwater World 9 x 9, Level 33's path urchin ('X') + big urchin ('Y') plus one bubble ride (a 3-cell crack), no current
 // Level 44: Level 43's again with a new layout (and a tighter path urchin in levels.js)
 const LEVEL44 = process.argv[2] === 'level44';
-const LEVEL43 = process.argv[2] === 'level43' || LEVEL44;
+// Level 46: Level 43's path urchin + big urchin with no bubble ride (and an even tighter path urchin in levels.js)
+const LEVEL46 = process.argv[2] === 'level46';
+const LEVEL43 = process.argv[2] === 'level43' || LEVEL44 || LEVEL46;
 const LEVEL33 = process.argv[2] === 'level33' || LEVEL34 || LEVEL36 || LEVEL38 || LEVEL43; // Moon World 8 x 8: a crater on the path plus the big crater in a straight dead end, no hidden crater // Moon World: 8 x 8, Level 11's hidden crater, no platform gap
 // Underwater World: 9 x 9, Level 21's hidden urchin plus a water current ('W')
 // on a straight bit of path where a 2-cell dead end branches off sideways
@@ -1003,6 +1006,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
         if (LEVEL38 && [0, 1, 4, 6, 7].includes(path[0].j)) continue; // Levels 31-37 start in rows 3, 2, 1, 4, 7, 0, 6
         if (LEVEL43 && path[0].j === 6) continue; // Levels 41 and 42 start in rows 3 and 6
         if (LEVEL44 && [0, 3].includes(path[0].j)) continue; // Level 43 starts in row 0 (and Level 41 in row 3)
+        if (LEVEL46 && [0, 2, 8].includes(path[0].j)) continue; // Levels 43, 44, 45 start in rows 0, 8, 2
         const hung = hangPathSpike(path, random);
         if (!hung) continue;
         const startCell = path[0];
@@ -1037,7 +1041,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
         // Level 43: one bubble ride, a crack over three plain path cells g,
         // g + 1, g + 2 with the path straight from g - 1 to g + 3, at least 2
         // path cells from the path urchin and from the big urchin's opening
-        if (LEVEL43) {
+        if (LEVEL43 && !LEVEL46) {
             const k = hung.spikeIndex;
             const plain = (n) => n > 0 && n < path.length - 1 && hung.links[path[n].i][path[n].j].length === 2 && step(path[n - 1], path[n]) === step(path[n], path[n + 1]);
             const clear = (a, g) => a <= g - 3 || a >= g + 5;
