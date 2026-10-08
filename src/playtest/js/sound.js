@@ -1170,6 +1170,31 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.18, length: 0.16, brightness: 600 },
     },
+    // Level 49, two currents, two bubbles: B minor, slower again (64 bpm).
+    // A low swaying half-step pair that rocks back and forth like being
+    // pushed by a current, then the same sway a tritone higher (F natural),
+    // like the second current further on, each followed by a long hush; a
+    // single high sour drip near the end of each half, a dark muffled square
+    // lead, ticking and a lone heartbeat bass. Sneakier than Level 48's.
+    twocurrents: {
+        tempo: 64,
+        bars: [[35, 'min'], [35, 'min'], [36, 'maj'], [35, 'min'], [31, 'maj'], [35, 'min'], [36, 'maj'], [34, 'maj']],
+        bass: [0, null, null, null, null, null, null, 'lead-in'],
+        bassLength: 0.45,
+        stabs: [],
+        ticks: true,
+        melody: [
+            47, 48, 47, 48, 47, null, null, null,
+            null, null, null, null, null, null, 66, null,
+            null, null, null, null, null, null, null, null,
+            53, 54, 53, 54, 53, null, null, null,
+            null, null, null, null, null, null, null, null,
+            47, 48, 47, null, null, null, 46, null,
+            null, null, null, null, 65, null, null, null,
+            null, null, null, null, null, null, 35, null,
+        ],
+        lead: { wave: 'square', level: 0.17, length: 0.18, brightness: 500 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

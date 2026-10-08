@@ -630,8 +630,10 @@ export class Maze {
         // Blocks with no floor ('O'), crossed on moving platforms (one per gap);
         // 'F' is the same but its platform is a fast one (Level 27 on)
         const gapBlocks = [];
-        // A water current ('W' blocks, one corridor cell; Level 41) and where its shove ends ('V')
+        // Water currents ('W' blocks, one corridor cell each; Level 41, two in
+        // Level 49) and where each one's shove ends ('V', next to its cell)
         const currentBlocks = [];
+        const currentTargets = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -647,23 +649,27 @@ export class Maze {
                 if (ch === 'I') this.slipperyBlocks.add(`${x},${z}`);
                 if (ch === 'O' || ch === 'F') gapBlocks.push({ x, z, fast: ch === 'F' });
                 if (ch === 'W') currentBlocks.push({ x, z });
-                if (ch === 'V') this.currentTarget = center;
+                if (ch === 'V') currentTargets.push(center);
             }
         }
-        if (currentBlocks.length && this.currentTarget) {
-            const xs = currentBlocks.map((b) => b.x);
-            const zs = currentBlocks.map((b) => b.z);
+        this.currents = [];
+        for (const blocks of currentTargets.length ? groupBlocks(currentBlocks) : []) {
+            const xs = blocks.map((b) => b.x);
+            const zs = blocks.map((b) => b.z);
             const c = {
                 minX: Math.min(...xs), maxX: Math.max(...xs) + 1,
                 minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
             };
             c.center = new THREE.Vector3((c.minX + c.maxX) / 2, 0, (c.minZ + c.maxZ) / 2);
+            // Its target is the nearest 'V' (the middle of the next cell over)
+            const target = currentTargets.reduce((a, b) => (b.distanceTo(c.center) < a.distanceTo(c.center) ? b : a));
             // Which way it pushes: straight from its middle toward the target
-            const d = this.currentTarget.clone().sub(c.center);
+            const d = target.clone().sub(c.center);
             c.dir = Math.abs(d.x) > Math.abs(d.z) ? new THREE.Vector3(Math.sign(d.x), 0, 0) : new THREE.Vector3(0, 0, Math.sign(d.z));
-            c.target = this.currentTarget.clone();
-            this.current = c;
+            c.target = target.clone();
+            this.currents.push(c);
         }
+        this.current = this.currents[0] ?? null;
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
         if (doorBlocks.length) {
@@ -690,7 +696,7 @@ export class Maze {
         if (this.slipperyBlocks.size) this.createSlipperySpots();
         for (const p of this.platforms) this.createPlatform(p);
         for (const row of this.spikeRows) this.createSpikeRow(row);
-        if (this.current) this.createCurrent();
+        for (const c of this.currents) this.createCurrent(c);
         this.scene.add(this.root);
     }
 
@@ -1224,7 +1230,7 @@ export class Maze {
             for (const fish of r.fish) this.updateFish(fish, p, dt);
         }
         if (this.surface) this.surface.material.map.offset.x += dt * 0.02;
-        if (this.current?.streaks) this.updateCurrent(dt);
+        for (const c of this.currents) if (c.streaks) this.updateCurrent(c, dt);
         for (const p of this.platforms) {
             // Anglerfish lights drifting far down in the crack
             for (const fish of p.anglers || []) {
@@ -1434,8 +1440,7 @@ export class Maze {
     // The water current (Level 41): swirling sand streaks rushing across its
     // cell the way it pushes, and bubbles streaming the same way. Both carry on
     // a little into the side dead end so you can see where it sends you.
-    createCurrent() {
-        const c = this.current;
+    createCurrent(c) {
         const map = currentTexture();
         const sizeX = c.maxX - c.minX;
         const sizeZ = c.maxZ - c.minZ;
@@ -1466,13 +1471,12 @@ export class Maze {
             const b = new THREE.Mesh(new THREE.SphereGeometry(0.06 + Math.random() * 0.08, 8, 6), bubbleMaterial);
             this.root.add(b);
             const bubble = { mesh: b, t: Math.random() };
-            this.placeBubble(bubble);
+            this.placeBubble(bubble, c);
             c.bubbles.push(bubble);
         }
     }
 
-    placeBubble(bubble) {
-        const c = this.current;
+    placeBubble(bubble, c) {
         const across = new THREE.Vector3(-c.dir.z, 0, c.dir.x);
         const half = (c.maxX - c.minX) / 2;
         bubble.start = c.center.clone().addScaledVector(c.dir, -half).addScaledVector(across, (Math.random() - 0.5) * 2.6);
@@ -1481,15 +1485,14 @@ export class Maze {
         bubble.wobble = Math.random() * 6;
     }
 
-    updateCurrent(dt) {
-        const c = this.current;
+    updateCurrent(c, dt) {
         c.streaks.material.map.offset.x -= dt * 1.4; // the streaks rush the way it pushes
         const reach = (c.maxX - c.minX) + 1.5; // across the cell and a bit into the dead end
         for (const b of c.bubbles) {
             b.t += (dt * b.speed) / reach;
             if (b.t >= 1) {
                 b.t -= 1;
-                this.placeBubble(b);
+                this.placeBubble(b, c);
             }
             b.wobble += dt * 5;
             const across = new THREE.Vector3(-c.dir.z, 0, c.dir.x);
@@ -1498,16 +1501,14 @@ export class Maze {
         }
     }
 
-    // Is this point inside the water current's cell?
+    // The water current whose cell this point is inside, if any
     inCurrent(point) {
-        const c = this.current;
-        return !!c && point.x > c.minX && point.x < c.maxX && point.z > c.minZ && point.z < c.maxZ;
+        return this.currents.find((c) => point.x > c.minX && point.x < c.maxX && point.z > c.minZ && point.z < c.maxZ) ?? null;
     }
 
     // Did someone walking from `from` into the current come from its dead end
     // (the side it pushes toward)? Then it lets them back out without a shove.
-    cameFromCurrentDeadEnd(from) {
-        const c = this.current;
+    cameFromCurrentDeadEnd(from, c) {
         return from.clone().sub(c.center).dot(c.dir) > (c.maxX - c.minX) / 2 - 0.01;
     }
 

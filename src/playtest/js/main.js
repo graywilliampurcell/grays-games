@@ -42,7 +42,7 @@ const SLIDE_MIN_SPEED = 4;
 let wasOnSlippery = false;
 // A water current (Level 41) shoves you into its side dead end, taking this long
 const SHOVE_TIME = 0.8;
-let wasInCurrent = false;
+let wasInCurrent = null;
 const lastOutsideCurrent = new THREE.Vector3();
 let frameCount = 0;
 let lastTime = performance.now();
@@ -200,7 +200,7 @@ function loadLevel(level, index) {
     collisionManager = new CollisionManager(maze.getMazeData());
     scene.background.set(theme.sky);
     scene.fog.color.set(theme.sky);
-    wasInCurrent = false;
+    wasInCurrent = null;
     // Under the sea the water goes hazy blue in the distance
     scene.fog.near = theme.underwater ? 40 : 200;
     scene.fog.far = theme.underwater ? 220 : 500;
@@ -265,10 +265,11 @@ function step(deltaTime) {
     // one square into its side dead end. Walking back out of that dead end
     // isn't pushed, and you can walk on either way until you leave its area
     // and come back in from the path.
-    if (maze.current && !player.shove) {
+    // Level 49 has two; each works on its own.
+    if (maze.currents.length && !player.shove) {
         const inCurrent = maze.inCurrent(player.position);
-        if (inCurrent && !wasInCurrent && !maze.cameFromCurrentDeadEnd(lastOutsideCurrent)) {
-            player.startShove(maze.current.target, SHOVE_TIME);
+        if (inCurrent && inCurrent !== wasInCurrent && !maze.cameFromCurrentDeadEnd(lastOutsideCurrent, inCurrent)) {
+            player.startShove(inCurrent.target, SHOVE_TIME);
             testHooks?.emit('current');
         }
         if (!inCurrent) lastOutsideCurrent.copy(player.position);

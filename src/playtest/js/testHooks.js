@@ -73,7 +73,8 @@ export function installTestHooks(game) {
             spike2: maze.spike2Position ? { x: maze.spike2Position.x, z: maze.spike2Position.z } : null,
             sliding: !!player.slide,
             shoved: !!player.shove,
-            current: maze.current ? { minX: maze.current.minX, maxX: maze.current.maxX, minZ: maze.current.minZ, maxZ: maze.current.maxZ, dir: vec(maze.current.dir), target: { x: maze.current.target.x, z: maze.current.target.z } } : null,
+            current: maze.current ? currentState(maze.current) : null,
+            currents: maze.currents.map(currentState),
             spaceDoor: maze.spaceDoor ? { phase: maze.spaceDoor.phase, shut: round(maze.spaceDoor.shut), solid: maze.spaceDoor.solid } : null,
             platform: maze.platform ? platformState(maze.platform) : null,
             platforms: maze.platforms.map(platformState),
@@ -175,6 +176,10 @@ function round(v) {
 
 function platformState(p) {
     return { at: round(p.at), target: round(p.target), riding: p.riding, alongX: p.alongX, speed: p.speed, gap: { ...p.gap }, bubble: p.bubble, push: round(p.push), pushing: p.pushing, startAt: p.startAt, span: p.span };
+}
+
+function currentState(c) {
+    return { minX: c.minX, maxX: c.maxX, minZ: c.minZ, maxZ: c.maxZ, dir: vec(c.dir), target: { x: c.target.x, z: c.target.z } };
 }
 
 function vec(v) {
