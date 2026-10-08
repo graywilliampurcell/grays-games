@@ -274,7 +274,8 @@ function step(deltaTime) {
         if (!inCurrent) lastOutsideCurrent.copy(player.position);
         wasInCurrent = inCurrent;
     }
-    // Moving platform (Level 17 on): carries the player across the gap
+    // Moving platform (Level 17 on): carries the player across the gap.
+    // Underwater (Level 42 on) it's a bubble you push into first.
     const platformEvent = maze.updatePlatform(deltaTime, player.position, player.velocity, player.radius);
     if (platformEvent) testHooks?.emit('platform', { what: platformEvent });
     checkSpikeAndDoor();
@@ -313,7 +314,9 @@ function checkSpikeAndDoor() {
         backToStart();
         testHooks?.emit('fall');
         sound.ouch();
-        showMessage(maze.theme.moon ? 'Ouch! You fell in a crater. Back to the start.' : 'Whoops! You fell off. Back to the start.');
+        showMessage(maze.theme.moon ? 'Ouch! You fell in a crater. Back to the start.'
+            : maze.theme.underwater ? 'Ouch! You fell in the crack. Back to the start.'
+                : 'Whoops! You fell off. Back to the start.');
     }
 
     if (horizontalDistance(player.position, maze.doorPosition) < DOOR_TOUCH_DISTANCE) {

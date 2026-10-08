@@ -1722,8 +1722,8 @@ export const LEVELS = [
         name: 'Level 41',
         // Welcome to Underwater World. `node tools/find-level.mjs level41 11`,
         // seed 361. 9 x 9 corridors. Correct path 56 cells; 11 dead ends 2
-        // cells deep, plus the sea urchin's: off path cell 3 it goes 2 cells,
-        // turns once, and the urchin (X) sits in its last cell, out of sight of
+        // cells deep, plus the sea urchin's: off path cell 3 it goes east 1
+        // cell, turns, goes south 2, and the urchin (X) sits in its last cell, out of sight of
         // the path like Level 21's bush. W: the water current over path cell 29
         // (the path runs straight through it), shoving you west into the side
         // dead end (V). No urchin on the path, no bubble ride, no crack.
@@ -1767,6 +1767,57 @@ export const LEVELS = [
             '#   #               #               #',
             '#   #               #               #',
             '#   #               #               #',
+            '#####################################',
+        ],
+    },
+    {
+        name: 'Level 42',
+        // The first bubble ride. `node tools/find-level.mjs level42 16`, seed
+        // 122. 9 x 9 corridors. Correct path 49 cells; 16 dead ends 2 cells
+        // deep, no urchins. O: the crack (zigzag ends, see Maze.js) over path
+        // cells 10-12 along the bottom row, crossed heading east in the
+        // bubble. W: the water current over path cell 36 (the path runs
+        // straight east-west through it), shoving you south into the side
+        // dead end (V). 23 path cells between the crack and the current.
+        theme: UNDERWATER,
+        music: 'bubbletrap',
+        layout: [
+            '#####################################',
+            '#                                   #',
+            '#                                   D',
+            '#                                   #',
+            '#########   #########################',
+            '#           #    WWW                #',
+            '#           #    WWW                #',
+            '#           #    WWW                #',
+            '#########   #   #   #   #########   #',
+            '#           #   #   #   #           #',
+            '#           #   # V #   #           #',
+            '#           #   #   #   #           #',
+            '#########   #   #   #   #   #########',
+            '#               #   #   #           #',
+            '#               #   #   #           #',
+            '#               #   #   #           #',
+            '#########   #   #################   #',
+            '#   #       #   #   #   #           #',
+            '#   #       #   #   #   #           #',
+            '#   #       #   #   #   #           #',
+            '#   #########   #   #   #########   #',
+            '#   #       #   #   #           #   #',
+            '#   #       #   #   #           #   #',
+            '#   #       #   #   #           #   #',
+            '#   #   #########   #####   #   #   #',
+            '#               #       #   #       #',
+            '# S             #       #   #       #',
+            '#               #       #   #       #',
+            '#############   #   #   #   #####   #',
+            '#               #   #           #   #',
+            '#               #   #           #   #',
+            '#               #   #           #   #',
+            '#   #############   #####   #   #   #',
+            '#    OOOOOOOOOOO    #       #   #   #',
+            '#    OOOOOOOOOOO    #       #   #   #',
+            '#    OOOOOOOOOOO    #       #   #   #',
             '#####################################',
         ],
     },

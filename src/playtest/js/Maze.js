@@ -545,6 +545,15 @@ const FAST_PLATFORM_SPEED = PLATFORM_SPEED * 1.3;
 const PLATFORM_WAIT = 0.3; // a moment after the player is fully on before it sets off
 // How close to an edge (from the floor side) counts as coming to it
 const PLATFORM_CALL_DISTANCE = 2.5;
+// Underwater World's ride (Level 42 on): a giant clear bubble over a zigzag
+// crack. It's solid until you get in: push into its side (hold walk toward
+// it) for this long in all, and you're inside. Stopping early keeps the time
+// pushed so far; only being sent back to the start clears it.
+const BUBBLE_PUSH_TIME = 2.0;
+const BUBBLE_RADIUS = 1.4; // about the corridor's width (3)
+// How far the crack's zigzag ends reach in from the gap's ends, so the floor
+// before and after the crack is always solid
+const CRACK_TOOTH = 0.7;
 
 // A shiny, icy strip for slippery spots (Level 13 on)
 function iceTexture() {
@@ -775,14 +784,19 @@ export class Maze {
             // world's (x, z), and its UVs are world units, so the texture lines
             // up the same as on the plain floor
             const outline = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(this.width, 0), new THREE.Vector2(this.width, this.depth), new THREE.Vector2(0, this.depth)]);
-            for (const { gap: g } of this.platforms) {
+            for (const { gap: g, crack } of this.platforms) {
+                // Underwater World's crack has zigzag ends
+                if (crack) {
+                    outline.holes.push(new THREE.Path(crack));
+                    continue;
+                }
                 outline.holes.push(new THREE.Path([new THREE.Vector2(g.minX, g.minZ), new THREE.Vector2(g.minX, g.maxZ), new THREE.Vector2(g.maxX, g.maxZ), new THREE.Vector2(g.maxX, g.minZ)]));
             }
             const geometry = new THREE.ExtrudeGeometry(outline, { depth: 0.2, bevelEnabled: false });
             geometry.rotateX(Math.PI / 2);
             floorMaterial.map?.repeat.set(0.5, 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -1211,6 +1225,14 @@ export class Maze {
         }
         if (this.surface) this.surface.material.map.offset.x += dt * 0.02;
         if (this.current?.streaks) this.updateCurrent(dt);
+        for (const p of this.platforms) {
+            // Anglerfish lights drifting far down in the crack
+            for (const fish of p.anglers || []) {
+                fish.time += dt;
+                fish.object.position.set(fish.x + Math.sin(fish.time * fish.speed) * fish.range, fish.y + Math.sin(fish.time * 0.7 + fish.phase) * 0.6, fish.z);
+                fish.glow.material.opacity = 0.35 + 0.25 * Math.sin(fish.time * 2.1 + fish.phase);
+            }
+        }
         for (const flyer of this.gapFlyers || []) {
             flyer.object.position.addScaledVector(flyer.velocity, dt);
             flyer.life -= dt;
@@ -1734,8 +1756,13 @@ export class Maze {
         const midZ = Math.floor((gap.minZ + gap.maxZ) / 2);
         const lowSideReached = alongX ? seen.has(`${gap.minX - 1},${midZ}`) : seen.has(`${midX},${gap.minZ - 1}`);
         const startAt = lowSideReached ? low : high;
+        const bubble = !!this.theme.underwater;
         return {
             gap, alongX, span, low, high, startAt,
+            bubble, // Underwater World: a bubble you push into, over a zigzag crack
+            push: 0, // bubble: seconds pushed into it so far
+            pushing: false, // bubble: being pushed into this step
+            crack: bubble ? this.crackOutline(gap, alongX, span) : null,
             speed: blocks.some((b) => b.fast) ? FAST_PLATFORM_SPEED : PLATFORM_SPEED,
             at: startAt, target: startAt,
             riding: false, // the player is on board (and can't step off till it stops)
@@ -1752,7 +1779,7 @@ export class Maze {
     // Every platform back to its start's side, empty (any reset to the start)
     resetPlatform() {
         for (const p of this.platforms) {
-            Object.assign(p, { at: p.startAt, target: p.startAt, riding: false, wait: 0, mustLeave: false });
+            Object.assign(p, { at: p.startAt, target: p.startAt, riding: false, wait: 0, mustLeave: false, push: 0, pushing: false });
             this.showPlatform(p);
         }
     }
@@ -1778,10 +1805,39 @@ export class Maze {
         return this.gapAt(point) !== null;
     }
 
+    // The crack's outline (world x, z): the gap's rectangle with zigzag,
+    // lightning-bolt ends that reach in from each end up to CRACK_TOOTH, so
+    // the floor before and after it stays whole. Its long sides run along the
+    // corridor's walls.
+    crackOutline(g, alongX, span) {
+        const width = alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        const near = [0.12, 0.66, 0.2, 0.7, 0.05, 0.58, 0.15];
+        const far = [0.6, 0.08, 0.68, 0.18, 0.62, 0.1, 0.5];
+        const point = (along, across) => (alongX ? new THREE.Vector2(g.minX + along, g.minZ + across) : new THREE.Vector2(g.minX + across, g.minZ + along));
+        const out = [];
+        near.forEach((t, k) => out.push(point(t * CRACK_TOOTH / 0.7, (k / (near.length - 1)) * width)));
+        for (let k = far.length - 1; k >= 0; k--) out.push(point(span - far[k] * CRACK_TOOTH / 0.7, (k / (far.length - 1)) * width));
+        return out;
+    }
+
+    // Is this point (world x, z) inside the crack's outline?
+    inCrack(point, p) {
+        const poly = p.crack;
+        let inside = false;
+        for (let a = 0, b = poly.length - 1; a < poly.length; b = a++) {
+            const pa = poly[a];
+            const pb = poly[b];
+            if ((pa.y > point.z) !== (pb.y > point.z) && point.x < ((pb.x - pa.x) * (point.z - pa.y)) / (pb.y - pa.y) + pa.x) inside = !inside;
+        }
+        return inside;
+    }
+
     // Would a player standing here fall? (Over a gap with no platform under them)
     fallsIntoGap(point) {
         const p = this.gapAt(point);
         if (!p) return false;
+        // The bubble: never while inside it; otherwise inside the zigzag crack
+        if (p.bubble) return !p.riding && this.inCrack(point, p);
         const { along } = this.gapCoords(point, p);
         return along < p.at || along > p.at + PLATFORM_LENGTH;
     }
@@ -1815,6 +1871,7 @@ export class Maze {
     // empty and the player comes to the edge it isn't at, it floats over to
     // them. Returns 'depart' or 'arrive' when that happens.
     updateOnePlatform(p, dt, position, velocity, radius) {
+        if (p.bubble) return this.updateBubble(p, dt, position, velocity, radius);
         const { along, across, width } = this.gapCoords(position, p);
         const inRange = across >= 0 && across < width;
         const fullyOn = inRange && along - radius >= p.at && along + radius <= p.at + PLATFORM_LENGTH;
@@ -1865,10 +1922,90 @@ export class Maze {
         return event;
     }
 
+    // Run one bubble (Underwater World, Level 42 on). It rests at one edge of
+    // the crack and is solid from that side: walking into it pushes against
+    // it, and BUBBLE_PUSH_TIME of pushing in all gets you inside (it stretches
+    // more the longer you push). Then it carries you across at the platform
+    // speed, holding you in its middle, lets you out on the far edge and
+    // rests there. It works the same from either side. If it's empty and you
+    // come to the other edge, it floats over to you (like the platforms).
+    // Returns 'enter', 'depart' or 'arrive' when that happens.
+    updateBubble(p, dt, position, velocity, radius) {
+        const g = p.gap;
+        const { along, across, width } = this.gapCoords(position, p);
+        const inRange = across > -radius && across < width + radius;
+        const setAlong = (value) => {
+            if (p.alongX) {
+                position.x = g.minX + value;
+                velocity.x = 0;
+            } else {
+                position.z = g.minZ + value;
+                velocity.z = 0;
+            }
+        };
+        let event = null;
+        p.pushing = false;
+        if (p.riding) {
+            if (p.wait > 0) {
+                p.wait -= dt;
+            } else {
+                if (p.at === (p.target === p.high ? p.low : p.high)) event = 'depart';
+                p.at = p.target > p.at ? Math.min(p.target, p.at + p.speed * dt) : Math.max(p.target, p.at - p.speed * dt);
+            }
+            // Held in the bubble's middle while it carries you
+            const middle = p.at + PLATFORM_LENGTH / 2;
+            setAlong(middle);
+            if (p.alongX) {
+                position.z = g.minZ + width / 2;
+                velocity.z = 0;
+            } else {
+                position.x = g.minX + width / 2;
+                velocity.x = 0;
+            }
+            if (p.at === p.target) {
+                // Out onto the far edge, just clear of the bubble
+                setAlong(p.at === p.high ? middle + BUBBLE_RADIUS + radius + 0.05 : middle - BUBBLE_RADIUS - radius - 0.05);
+                Object.assign(p, { riding: false, mustLeave: false });
+                event = 'arrive';
+            }
+        } else if (p.at === p.target) {
+            const middle = p.at + PLATFORM_LENGTH / 2;
+            const fromLow = p.at === p.low;
+            // The bubble's outside, from the side it rests at: you can't walk into it
+            const face = fromLow ? middle - BUBBLE_RADIUS - radius : middle + BUBBLE_RADIUS + radius;
+            const into = fromLow ? along > face + 1e-6 && along < middle : along < face - 1e-6 && along > middle;
+            if (inRange && into) {
+                setAlong(face);
+                p.pushing = true;
+                p.push = Math.min(BUBBLE_PUSH_TIME, p.push + dt);
+                if (p.push >= BUBBLE_PUSH_TIME) {
+                    // Inside! The time pushed is used up
+                    Object.assign(p, { riding: true, wait: PLATFORM_WAIT, push: 0, target: fromLow ? p.high : p.low });
+                    setAlong(middle);
+                    event = 'enter';
+                }
+            } else if (inRange) {
+                // Empty: float over to the other edge if the player comes to it
+                if (fromLow && along > p.span && along < p.span + PLATFORM_CALL_DISTANCE) p.target = p.high;
+                if (!fromLow && along < 0 && along > -PLATFORM_CALL_DISTANCE) p.target = p.low;
+            }
+        } else {
+            p.at = p.target > p.at ? Math.min(p.target, p.at + p.speed * dt) : Math.max(p.target, p.at - p.speed * dt);
+        }
+        this.showPlatform(p);
+        return event;
+    }
+
     // The gap's look: dark sky below (with a few far stars), a glowing strip
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
     createPlatform(p) {
+        if (p.bubble) {
+            this.createCrack(p);
+            this.createBubble(p);
+            this.showPlatform(p);
+            return;
+        }
         if (this.theme.moon) {
             this.createGiantCrater(p);
             this.createHoverDisc(p);
@@ -1998,6 +2135,99 @@ export class Maze {
                 this.root.add(lump);
             }
         }
+    }
+
+    // Underwater World (Level 42 on): the crack in the sea floor. Its sides
+    // follow the zigzag outline straight down into the dark, so deep that no
+    // bottom shows; only the small lights of glowing anglerfish far below.
+    createCrack(p) {
+        const poly = p.crack;
+        const depth = 60;
+        // Dark rock sides: dark brown just under the sand, going black within a
+        // few steps down, then black all the way
+        const positions = [];
+        const colors = [];
+        const bands = [[-0.2, new THREE.Color(0x2b2418)], [-3.5, new THREE.Color(0x020406)], [-depth, new THREE.Color(0x000000)]];
+        for (let k = 0; k < poly.length; k++) {
+            const a = poly[k];
+            const b = poly[(k + 1) % poly.length];
+            for (let n = 0; n < bands.length - 1; n++) {
+                const [y0, c0] = bands[n];
+                const [y1, c1] = bands[n + 1];
+                for (const [x, y, z, c] of [[a.x, y0, a.y, c0], [b.x, y0, b.y, c0], [b.x, y1, b.y, c1], [a.x, y0, a.y, c0], [b.x, y1, b.y, c1], [a.x, y1, a.y, c1]]) {
+                    positions.push(x, y, z);
+                    colors.push(c.r, c.g, c.b);
+                }
+            }
+        }
+        const sides = new THREE.BufferGeometry();
+        sides.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        sides.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        this.root.add(new THREE.Mesh(sides, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, fog: false })));
+        // A black floor far, far down, so the water's blue haze doesn't show through
+        const g = p.gap;
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(g.maxX - g.minX + 2, g.maxZ - g.minZ + 2), new THREE.MeshBasicMaterial({ color: 0x000000, fog: false }));
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.set((g.minX + g.maxX) / 2, -depth + 0.5, (g.minZ + g.maxZ) / 2);
+        this.root.add(floor);
+        // Anglerfish: a dim body with a bright little lure light and a soft glow
+        let r = 57;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        p.anglers = [];
+        for (let k = 0; k < 6; k++) {
+            const object = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 8), new THREE.MeshBasicMaterial({ color: 0x0d1a22, fog: false }));
+            body.scale.set(1.3, 0.9, 0.9);
+            object.add(body);
+            const lure = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), new THREE.MeshBasicMaterial({ color: k % 2 ? 0xfff2a0 : 0xa8fff4, fog: false }));
+            lure.position.set(0.55, 0.4, 0);
+            object.add(lure);
+            const glow = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 8), new THREE.MeshBasicMaterial({ color: k % 2 ? 0xfff2a0 : 0xa8fff4, transparent: true, opacity: 0.4, depthWrite: false, fog: false }));
+            glow.position.copy(lure.position);
+            object.add(glow);
+            const along = 1 + random() * (p.span - 2);
+            const across = 0.6 + random() * (width - 1.2);
+            const x = p.alongX ? g.minX + along : g.minX + across;
+            const z = p.alongX ? g.minZ + across : g.minZ + along;
+            const y = -14 - random() * 30;
+            object.position.set(x, y, z);
+            object.rotation.y = random() * Math.PI * 2;
+            this.root.add(object);
+            p.anglers.push({ object, glow, x, y, z, time: random() * 10, speed: 0.2 + random() * 0.3, range: 0.4 + random() * 0.4, phase: random() * 6 });
+        }
+    }
+
+    // Underwater World's ride: a giant clear bubble with a soft blue tint,
+    // shiny highlights and a thin rim. It rests at the crack's edge, its
+    // bottom at the sea floor.
+    createBubble(p) {
+        const group = new THREE.Group();
+        const ball = new THREE.Group();
+        const skin = new THREE.Mesh(new THREE.SphereGeometry(BUBBLE_RADIUS, 40, 28), new THREE.MeshPhysicalMaterial({
+            color: 0xcff4ff, transparent: true, opacity: 0.22, roughness: 0.05, metalness: 0.1, clearcoat: 1,
+            emissive: 0x4fb6d8, emissiveIntensity: 0.25, side: THREE.DoubleSide, depthWrite: false,
+        }));
+        ball.add(skin);
+        // A slightly bigger back-facing shell gives it a visible edge
+        const rim = new THREE.Mesh(new THREE.SphereGeometry(BUBBLE_RADIUS * 1.02, 40, 28), new THREE.MeshBasicMaterial({
+            color: 0xe8fbff, transparent: true, opacity: 0.18, side: THREE.BackSide, depthWrite: false,
+        }));
+        ball.add(rim);
+        const shine = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75, depthWrite: false });
+        for (const [x, y, z, size] of [[-0.55, 0.6, -0.8, 0.22], [-0.35, 0.85, -0.6, 0.1], [0.7, -0.3, 0.75, 0.12]]) {
+            const glint = new THREE.Mesh(new THREE.SphereGeometry(size, 12, 8), shine);
+            glint.scale.set(1, 0.55, 0.4);
+            glint.position.set(x, y, z);
+            ball.add(glint);
+        }
+        ball.position.y = BUBBLE_RADIUS;
+        group.add(ball);
+        // The ball's z is the gap's long side; turn it when the gap runs along x
+        if (p.alongX) group.rotation.y = Math.PI / 2;
+        this.root.add(group);
+        p.object = group;
+        p.ball = ball;
     }
 
     // Moon World's platform: a round floating metal disc with a glowing ring
@@ -2180,7 +2410,22 @@ export class Maze {
     showPlatform(p) {
         if (!p?.object) return;
         const g = p.gap;
-        const middle = p.at + PLATFORM_LENGTH / 2;
+        let middle = p.at + PLATFORM_LENGTH / 2;
+        if (p.bubble) {
+            // Pushed into, it squashes in where you push and bulges out wider
+            // and taller, more the longer you've pushed (it keeps the stretch
+            // when you stop, since the push time is kept). The pushed side
+            // stays where it is.
+            const q = p.riding || p.at !== p.target ? 0 : p.push / BUBBLE_PUSH_TIME;
+            const squash = 1 - 0.4 * q;
+            // A little wobble while you're pushing
+            const wobble = p.pushing ? 1 + 0.035 * Math.sin(performance.now() / 55) : 1;
+            const bulge = wobble / Math.sqrt(squash);
+            const shift = BUBBLE_RADIUS * (1 - squash);
+            middle += p.at === p.low ? -shift : shift;
+            p.ball.scale.set(bulge, bulge, squash); // the ball's z is the gap's long side
+            p.ball.position.y = BUBBLE_RADIUS * bulge;
+        }
         if (p.alongX) p.object.position.set(g.minX + middle, 0, (g.minZ + g.maxZ) / 2);
         else p.object.position.set((g.minX + g.maxX) / 2, 0, g.minZ + middle);
     }

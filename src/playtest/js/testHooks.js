@@ -174,7 +174,7 @@ function round(v) {
 }
 
 function platformState(p) {
-    return { at: round(p.at), target: round(p.target), riding: p.riding, alongX: p.alongX, speed: p.speed, gap: { ...p.gap } };
+    return { at: round(p.at), target: round(p.target), riding: p.riding, alongX: p.alongX, speed: p.speed, gap: { ...p.gap }, bubble: p.bubble, push: round(p.push), pushing: p.pushing, startAt: p.startAt, span: p.span };
 }
 
 function vec(v) {

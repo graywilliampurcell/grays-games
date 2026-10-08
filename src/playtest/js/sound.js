@@ -1003,6 +1003,30 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.14, length: 0.14, brightness: 4600 },
     },
+    // Level 42, the first bubble ride: way more sneaky than happy, sneakier
+    // than Level 41's. F minor, slow-ish and creeping ("F . A-flat . G G-flat
+    // F"), with a soft round sine lead and little high "bloop" notes that pop
+    // up like bubbles; one short bright bubble climb in the middle is its
+    // only bit of happy.
+    bubbletrap: {
+        tempo: 108,
+        bars: [[41, 'min'], [41, 'min'], [37, 'maj'], [36, 'maj'], [41, 'min'], [46, 'min'], [37, 'maj'], [36, 'maj']],
+        bass: [0, null, null, 7, 0, null, null, 'lead-in'],
+        bassLength: 0.16,
+        stabs: [],
+        ticks: true,
+        melody: [
+            65, null, 68, null, 67, 66, 65, null,
+            60, null, null, 72, null, 77, null, null,
+            68, null, 73, null, 72, 71, 70, null,
+            72, null, null, 64, null, 76, null, null,
+            65, null, 68, null, 67, 66, 65, null,
+            70, null, 73, null, 77, null, 82, null,
+            73, 72, 70, 68, 67, null, 64, null,
+            65, null, null, null, 77, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.3, length: 0.13, brightness: 2400 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
