@@ -26,8 +26,11 @@ export class Player {
 
         // Sliding on a slippery spot: { dir, speed, left } while it lasts
         this.slide = null;
-        // Being shoved by a water current: { from, to, time, length } while it lasts
+        // Being shoved by a water current, or bounced by a marshmallow (with a
+        // hop: how high the arc goes): { from, to, time, length, hop } while it lasts
         this.shove = null;
+        // How fast you walk compared with normal (0.5 on sticky caramel, Level 52 on)
+        this.sticky = 1;
 
         // Collision
         this.radius = 0.4;
@@ -331,7 +334,9 @@ export class Player {
             this.position.lerpVectors(sh.from, sh.to, eased);
             this.velocity.set(0, 0, 0);
             if (sh.time >= sh.length) this.shove = null;
-            this.camera.position.set(this.position.x, this.position.y + 1.6, this.position.z);
+            // A bounce goes up and down in an arc; a current's shove stays on the floor
+            const lift = sh.hop ? sh.hop * 4 * t * (1 - t) : 0;
+            this.camera.position.set(this.position.x, this.position.y + 1.6 + lift, this.position.z);
             return;
         }
 
@@ -376,10 +381,11 @@ export class Player {
             this.velocity.z = (this.velocity.z / horizontalSpeed) * this.speed;
         }
 
-        // Apply velocity
+        // Apply velocity (slowed down on sticky caramel)
+        const moveTime = deltaTime * this.sticky;
         const newPosition = this.position.clone();
-        newPosition.x += this.velocity.x * deltaTime;
-        newPosition.z += this.velocity.z * deltaTime;
+        newPosition.x += this.velocity.x * moveTime;
+        newPosition.z += this.velocity.z * moveTime;
 
         // Collision check
         if (collisionManager.isPositionValid(newPosition, this.radius)) {
@@ -387,13 +393,13 @@ export class Player {
         } else {
             // Try sliding along walls
             const slideX = this.position.clone();
-            slideX.x += this.velocity.x * deltaTime;
+            slideX.x += this.velocity.x * moveTime;
             if (collisionManager.isPositionValid(slideX, this.radius)) {
                 this.position.copy(slideX);
                 this.velocity.z = 0;
             } else {
                 const slideZ = this.position.clone();
-                slideZ.z += this.velocity.z * deltaTime;
+                slideZ.z += this.velocity.z * moveTime;
                 if (collisionManager.isPositionValid(slideZ, this.radius)) {
                     this.position.copy(slideZ);
                     this.velocity.x = 0;
@@ -408,18 +414,19 @@ export class Player {
         if (this.slide) {
             const moved = Math.hypot(this.position.x - before.x, this.position.z - before.z);
             this.slide.left -= moved;
-            if (this.slide.left <= 0 || moved < this.slide.speed * deltaTime * 0.5) this.slide = null;
+            if (this.slide.left <= 0 || moved < this.slide.speed * moveTime * 0.5) this.slide = null;
         }
 
         // Update camera position
         this.camera.position.set(this.position.x, this.position.y + 1.6, this.position.z);
     }
 
-    // Get carried to `to` over `length` seconds (a water current's shove)
-    startShove(to, length) {
+    // Get carried to `to` over `length` seconds (a water current's shove), in
+    // an arc `hop` high at its top (a marshmallow's bounce)
+    startShove(to, length, hop = 0) {
         this.slide = null;
         this.velocity.set(0, 0, 0);
-        this.shove = { from: this.position.clone(), to: new THREE.Vector3(to.x, this.position.y, to.z), time: 0, length };
+        this.shove = { from: this.position.clone(), to: new THREE.Vector3(to.x, this.position.y, to.z), time: 0, length, hop };
     }
 
     // Slide `distance` further the way you're moving now (a slippery spot)

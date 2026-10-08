@@ -43,6 +43,12 @@ let wasOnSlippery = false;
 // A water current (Level 41) shoves you into its side dead end, taking this long
 const SHOVE_TIME = 0.8;
 let wasInCurrent = null;
+// A marshmallow (Level 52 on) bounces you over the chocolate river: this long, this high
+const BOUNCE_TIME = 1.2;
+const BOUNCE_HEIGHT = 2.5;
+let wasOnMarshmallow = null;
+// Sticky caramel (Level 52 on): you walk at half speed while you're on it
+const CARAMEL_SPEED = 0.5;
 const lastOutsideCurrent = new THREE.Vector3();
 let frameCount = 0;
 let lastTime = performance.now();
@@ -275,6 +281,19 @@ function step(deltaTime) {
         if (!inCurrent) lastOutsideCurrent.copy(player.position);
         wasInCurrent = inCurrent;
     }
+    // Sticky caramel (Level 52 on): half speed while on it, normal as soon as you're off
+    player.sticky = maze.onCaramel(player.position) ? CARAMEL_SPEED : 1;
+    // Marshmallow (Level 52 on): stepping onto one bounces you over the
+    // chocolate river in one arc, landing safely on the far bank
+    if (!player.shove) {
+        const pad = maze.marshmallowAt(player.position);
+        if (pad && pad !== wasOnMarshmallow) {
+            pad.squish = 1;
+            player.startShove(pad.landing, BOUNCE_TIME, BOUNCE_HEIGHT);
+            testHooks?.emit('bounce');
+        }
+        wasOnMarshmallow = pad;
+    }
     // Moving platform (Level 17 on): carries the player across the gap.
     // Underwater (Level 42 on) it's a bubble you push into first.
     const platformEvent = maze.updatePlatform(deltaTime, player.position, player.velocity, player.radius);
@@ -311,13 +330,15 @@ function checkSpikeAndDoor() {
                 : 'Ouch! A spike sent you back to the start.');
     }
 
-    // Walking into the gap (no platform under you) works like a spike
-    if (maze.fallsIntoGap(player.position)) {
+    // Walking into the gap (no platform under you) works like a spike.
+    // Never while a marshmallow is bouncing you over the chocolate.
+    if (!player.shove?.hop && maze.fallsIntoGap(player.position)) {
         backToStart();
         testHooks?.emit('fall');
         sound.ouch();
         showMessage(maze.theme.moon ? 'Ouch! You fell in a crater. Back to the start.'
             : maze.theme.underwater ? 'Ouch! You fell in the crack. Back to the start.'
+                : maze.theme.sweets ? 'Ouch! You fell in the chocolate. Back to the start.'
                 : 'Whoops! You fell off. Back to the start.');
     }
 
@@ -373,6 +394,8 @@ function showMessage(text) {
 // Back to the start of the level; the moving platform goes back to the start's side too
 function backToStart() {
     player.resetTo(maze.getStartPosition(), maze.getStartYaw());
+    player.sticky = 1;
+    wasOnMarshmallow = null;
     maze.resetPlatform();
 }
 

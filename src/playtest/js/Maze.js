@@ -206,6 +206,58 @@ function waterTexture() {
     return texture;
 }
 
+// Candy World's river: flowing melted chocolate, darker and lighter swirls
+// that run across the texture's v (like waterTexture's streaks)
+function meltedChocolateTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const g = canvas.getContext('2d');
+    const base = g.createLinearGradient(0, 0, 128, 0);
+    base.addColorStop(0, '#4a2412');
+    base.addColorStop(0.5, '#6b3a1e');
+    base.addColorStop(1, '#4a2412');
+    g.fillStyle = base;
+    g.fillRect(0, 0, 128, 128);
+    g.lineWidth = 3;
+    for (const [x, y, len, light] of [[10, 10, 34, 1], [70, 30, 30, 0], [30, 60, 38, 1], [90, 80, 26, 0], [15, 100, 30, 0], [60, 112, 34, 1], [104, 4, 22, 1], [46, 20, 24, 0]]) {
+        g.strokeStyle = light ? 'rgba(160,100,60,0.75)' : 'rgba(40,18,8,0.7)';
+        g.beginPath();
+        g.moveTo(x, y);
+        g.bezierCurveTo(x + 6, y + len / 3, x - 6, y + (2 * len) / 3, x, y + len);
+        g.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Candy World's caramel: golden and glossy, with darker swirls and shiny highlights
+function caramelTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const g = canvas.getContext('2d');
+    const base = g.createRadialGradient(64, 64, 10, 64, 64, 90);
+    base.addColorStop(0, '#f6b73c');
+    base.addColorStop(1, '#c9821a');
+    g.fillStyle = base;
+    g.fillRect(0, 0, 128, 128);
+    g.lineWidth = 4;
+    g.strokeStyle = 'rgba(150,80,10,0.55)';
+    for (const [x, y, r] of [[30, 34, 16], [90, 40, 20], [52, 92, 22], [104, 100, 12]]) {
+        g.beginPath();
+        g.arc(x, y, r, 0.3, 4.4);
+        g.stroke();
+    }
+    g.fillStyle = 'rgba(255,240,190,0.75)';
+    for (const [x, y, rx, ry] of [[40, 22, 12, 4], [86, 70, 16, 5], [24, 84, 9, 3], [100, 18, 7, 3]]) {
+        g.beginPath();
+        g.ellipse(x, y, rx, ry, -0.5, 0, Math.PI * 2);
+        g.fill();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+}
+
 // Underwater World walls: a colorful coral reef. Lumpy blobs and branching
 // fingers of coral in pink, orange, purple and yellow over a warm base.
 function coralTexture(width, height, seed) {
@@ -669,6 +721,15 @@ const BUBBLE_RADIUS = 1.4; // about the corridor's width (3)
 // How far the crack's zigzag ends reach in from the gap's ends, so the floor
 // before and after the crack is always solid
 const CRACK_TOOTH = 0.7;
+// Candy World's crossing (Level 52 on): a chocolate river with one bouncy
+// marshmallow on each bank, right at the edge in the middle of the corridor
+// (open river edge either side of it). Stepping on one bounces you over the
+// river in one arc and lands you safely on the far bank, clear of the edge
+// and of the marshmallow there.
+const MARSHMALLOW_RADIUS = 0.7;
+const MARSHMALLOW_FROM_EDGE = 0.8; // its middle, back from the river's edge
+const MARSHMALLOW_STEP = MARSHMALLOW_RADIUS + 0.15; // your middle this close to its middle counts as stepping on
+const BOUNCE_LANDING = 2.2; // where you land, past the far edge
 
 // A shiny, icy strip for slippery spots (Level 13 on)
 function iceTexture() {
@@ -742,6 +803,8 @@ export class Maze {
         const doorBlocks = [];
         // Blocks of slippery floor ('I'), keyed "x,z"
         this.slipperyBlocks = new Set();
+        // Blocks of sticky caramel ('C', Candy World, Level 52 on), keyed "x,z"
+        this.caramelBlocks = new Set();
         // Blocks with no floor ('O'), crossed on moving platforms (one per gap);
         // 'F' is the same but its platform is a fast one (Level 27 on)
         const gapBlocks = [];
@@ -762,6 +825,7 @@ export class Maze {
                 if (ch === 'D') this.doorBlock = { x, z };
                 if (ch === 'G') doorBlocks.push({ x, z });
                 if (ch === 'I') this.slipperyBlocks.add(`${x},${z}`);
+                if (ch === 'C') this.caramelBlocks.add(`${x},${z}`);
                 if (ch === 'O' || ch === 'F') gapBlocks.push({ x, z, fast: ch === 'F' });
                 if (ch === 'W') currentBlocks.push({ x, z });
                 if (ch === 'V') currentTargets.push(center);
@@ -809,6 +873,7 @@ export class Maze {
         if (this.spike2Position) this.createSpike(this.spike2Position, this.spike2Radius);
         if (this.spaceDoor) this.createSpaceDoor();
         if (this.slipperyBlocks.size) this.createSlipperySpots();
+        if (this.caramelBlocks.size) this.createCaramelSpots();
         for (const p of this.platforms) this.createPlatform(p);
         for (const row of this.spikeRows) this.createSpikeRow(row);
         for (const c of this.currents) this.createCurrent(c);
@@ -925,7 +990,7 @@ export class Maze {
             geometry.rotateX(Math.PI / 2);
             floorMaterial.map?.repeat.set(0.5, 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -1429,11 +1494,18 @@ export class Maze {
             if (flyer.life <= 0) this.launchFlyer(flyer);
         }
         for (const p of this.platforms) {
+            // Marshmallows squish when bounced on, then puff back up
+            for (const pad of p.pads) {
+                if (!pad.object) continue;
+                pad.squish = Math.max(0, pad.squish - dt * 2.5);
+                const q = Math.sin(pad.squish * Math.PI) * 0.5 + pad.squish * 0.2;
+                pad.object.scale.set(1 + q * 0.4, 1 - q, 1 + q * 0.4);
+            }
             if (!p.river) continue;
             // Each river rushes along, and fish jump now and then
             const r = p.river;
             r.map.offset[r.flowAxis] -= dt * 0.9;
-            for (const fish of r.fish) this.updateFish(fish, p, dt);
+            for (const fish of r.fish || []) this.updateFish(fish, p, dt);
         }
         if (this.surface) this.surface.material.map.offset.x += dt * 0.02;
         for (const c of this.currents) if (c.streaks) this.updateCurrent(c, dt);
@@ -2036,8 +2108,20 @@ export class Maze {
         const lowSideReached = alongX ? seen.has(`${gap.minX - 1},${midZ}`) : seen.has(`${midX},${gap.minZ - 1}`);
         const startAt = lowSideReached ? low : high;
         const bubble = !!this.theme.underwater;
+        const chocolate = !!this.theme.sweets;
+        const width = alongX ? gap.maxZ - gap.minZ : gap.maxX - gap.minX;
+        // Candy World: the marshmallow on each bank, and where its bounce lands
+        const pads = chocolate ? [
+            { along: -MARSHMALLOW_FROM_EDGE, landing: span + BOUNCE_LANDING },
+            { along: span + MARSHMALLOW_FROM_EDGE, landing: -BOUNCE_LANDING },
+        ].map(({ along, landing }) => {
+            const at = (a) => (alongX ? new THREE.Vector3(gap.minX + a, 0, gap.minZ + width / 2) : new THREE.Vector3(gap.minX + width / 2, 0, gap.minZ + a));
+            return { center: at(along), landing: at(landing), squish: 0 };
+        }) : [];
         return {
             gap, alongX, span, low, high, startAt,
+            chocolate, // Candy World: a chocolate river crossed by bouncing on a marshmallow
+            pads,
             bubble, // Underwater World: a bubble you push into, over a zigzag crack
             push: 0, // bubble: seconds pushed into it so far
             pushing: false, // bubble: being pushed into this step
@@ -2117,6 +2201,8 @@ export class Maze {
         if (!p) return false;
         // The bubble: never while inside it; otherwise inside the zigzag crack
         if (p.bubble) return !p.riding && this.inCrack(point, p);
+        // The chocolate river: anywhere in it (the bounce carries you over it)
+        if (p.chocolate) return true;
         const { along } = this.gapCoords(point, p);
         return along < p.at || along > p.at + PLATFORM_LENGTH;
     }
@@ -2126,7 +2212,9 @@ export class Maze {
     platformStartEdge(point) {
         const p = (point && this.gapAt(point)) || this.platform;
         const g = p.gap;
-        const before = p.startAt === p.low ? -1 : p.span + 1;
+        // (Candy World: back from the marshmallow, so it doesn't bounce you at once)
+        const back = p.chocolate ? MARSHMALLOW_FROM_EDGE + MARSHMALLOW_STEP + 0.6 : 1;
+        const before = p.startAt === p.low ? -back : p.span + back;
         const dir = p.startAt === p.low ? 1 : -1;
         const position = p.alongX
             ? new THREE.Vector3(g.minX + before, 0, (g.minZ + g.maxZ) / 2)
@@ -2151,6 +2239,7 @@ export class Maze {
     // them. Returns 'depart' or 'arrive' when that happens.
     updateOnePlatform(p, dt, position, velocity, radius) {
         if (p.bubble) return this.updateBubble(p, dt, position, velocity, radius);
+        if (p.chocolate) return null; // nothing moves: the marshmallows bounce you (see marshmallowAt)
         const { along, across, width } = this.gapCoords(position, p);
         const inRange = across >= 0 && across < width;
         const fullyOn = inRange && along - radius >= p.at && along + radius <= p.at + PLATFORM_LENGTH;
@@ -2279,6 +2368,11 @@ export class Maze {
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
     createPlatform(p) {
+        if (p.chocolate) {
+            this.createChocolateRiver(p);
+            this.createMarshmallows(p);
+            return;
+        }
         if (p.bubble) {
             this.createCrack(p);
             this.createBubble(p);
@@ -2545,6 +2639,104 @@ export class Maze {
 
     // Jungle World: a river of rushing blue water below the gap, flowing across
     // the path, with muddy banks down to it and fish that jump now and then
+    // Candy World (Level 52 on): a river of melted chocolate flowing across
+    // the path, with dark chocolate banks down to it and a crumbly edge
+    createChocolateRiver(p) {
+        const g = p.gap;
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        const surfaceY = -0.7;
+        const map = meltedChocolateTexture();
+        const sizeX = g.maxX - g.minX + 6;
+        const sizeZ = g.maxZ - g.minZ + 6;
+        map.repeat.set(sizeX / 3, sizeZ / 3);
+        const river = new THREE.Mesh(new THREE.PlaneGeometry(sizeX, sizeZ), new THREE.MeshStandardMaterial({ map, roughness: 0.25, metalness: 0.1, emissive: 0x2a1206, emissiveIntensity: 0.6 }));
+        river.rotation.x = -Math.PI / 2;
+        river.position.set(cx, surfaceY, cz);
+        this.root.add(river);
+        if (!p.alongX) {
+            map.center.set(0.5, 0.5);
+            map.rotation = Math.PI / 2;
+        }
+        const bankMaterial = new THREE.MeshStandardMaterial({ color: 0x2b160c, roughness: 0.6 });
+        const depth = -surfaceY - 0.2;
+        for (const [w, d, x, z] of [
+            [g.maxX - g.minX, 0.05, cx, g.minZ], [g.maxX - g.minX, 0.05, cx, g.maxZ],
+            [0.05, g.maxZ - g.minZ, g.minX, cz], [0.05, g.maxZ - g.minZ, g.maxX, cz],
+        ]) {
+            const bank = new THREE.Mesh(new THREE.BoxGeometry(w, depth, d), bankMaterial);
+            bank.position.set(x, -0.2 - depth / 2, z);
+            this.root.add(bank);
+        }
+        // A light chocolate trim where the path drops away, so the edge shows
+        const trim = new THREE.MeshStandardMaterial({ color: 0xc58a5a, roughness: 0.5 });
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        for (const end of [0, p.span]) {
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(width, 0.05, 0.14), trim);
+            if (p.alongX) {
+                strip.rotation.y = Math.PI / 2;
+                strip.position.set(g.minX + end + (end ? 0.07 : -0.07), 0.02, cz);
+            } else {
+                strip.position.set(cx, 0.02, g.minZ + end + (end ? 0.07 : -0.07));
+            }
+            this.root.add(strip);
+        }
+        p.river = { map, flowAxis: 'y', waterY: surfaceY, fish: [] };
+    }
+
+    // The two bouncy marshmallows: soft, puffy, pinkish-white rounded pads
+    createMarshmallows(p) {
+        const material = new THREE.MeshStandardMaterial({ color: 0xfff4f8, roughness: 0.9, emissive: 0xffd6e8, emissiveIntensity: 0.25 });
+        const dust = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1 });
+        for (const pad of p.pads) {
+            const group = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(MARSHMALLOW_RADIUS, MARSHMALLOW_RADIUS * 0.96, 0.4, 28), material);
+            body.position.y = 0.2;
+            const top = new THREE.Mesh(new THREE.SphereGeometry(MARSHMALLOW_RADIUS, 28, 10, 0, Math.PI * 2, 0, Math.PI / 2), material);
+            top.scale.y = 0.35;
+            top.position.y = 0.4;
+            group.add(body, top);
+            // A few sugar-dust specks on top
+            for (let k = 0; k < 7; k++) {
+                const a = k * 2.4;
+                const r = 0.15 + (k % 3) * 0.15;
+                const speck = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 4), dust);
+                speck.position.set(Math.cos(a) * r, 0.4 + 0.35 * MARSHMALLOW_RADIUS * Math.sqrt(1 - (r / MARSHMALLOW_RADIUS) ** 2), Math.sin(a) * r);
+                group.add(speck);
+            }
+            group.position.copy(pad.center);
+            group.traverse((o) => { o.castShadow = true; o.receiveShadow = true; });
+            this.root.add(group);
+            pad.object = group;
+        }
+    }
+
+    // Sticky caramel spots: a glossy golden puddle over each caramel cell,
+    // with a few gooey blobs on top
+    createCaramelSpots() {
+        const material = new THREE.MeshStandardMaterial({ map: caramelTexture(), roughness: 0.15, metalness: 0.15, emissive: 0x6a3a00, emissiveIntensity: 0.35 });
+        const geometry = new THREE.BoxGeometry(1.002, 0.04, 1.002);
+        for (const k of this.caramelBlocks) {
+            const [x, z] = k.split(',').map(Number);
+            const patch = new THREE.Mesh(geometry, material);
+            patch.position.set(x + 0.5, 0.02, z + 0.5);
+            patch.receiveShadow = true;
+            this.root.add(patch);
+        }
+        const blobMaterial = new THREE.MeshStandardMaterial({ color: 0xe0961f, roughness: 0.1, metalness: 0.2, emissive: 0x5a2e00, emissiveIntensity: 0.3 });
+        let r = 53;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        for (const k of this.caramelBlocks) {
+            if (random() < 0.4) continue;
+            const [x, z] = k.split(',').map(Number);
+            const size = 0.12 + random() * 0.14;
+            const blob = new THREE.Mesh(new THREE.SphereGeometry(size, 12, 8), blobMaterial);
+            blob.scale.y = 0.4;
+            blob.position.set(x + 0.2 + random() * 0.6, 0.04, z + 0.2 + random() * 0.6);
+            this.root.add(blob);
+        }
+    }
+
     createRiver(p) {
         const g = p.gap;
         const cx = (g.minX + g.maxX) / 2;
@@ -2707,6 +2899,19 @@ export class Maze {
         }
         if (p.alongX) p.object.position.set(g.minX + middle, 0, (g.minZ + g.maxZ) / 2);
         else p.object.position.set((g.minX + g.maxX) / 2, 0, g.minZ + middle);
+    }
+
+    // The marshmallow this point is standing on (Candy World), if any
+    marshmallowAt(point) {
+        for (const p of this.platforms) {
+            for (const pad of p.pads) if (Math.hypot(point.x - pad.center.x, point.z - pad.center.z) < MARSHMALLOW_STEP) return pad;
+        }
+        return null;
+    }
+
+    // Is this point on sticky caramel?
+    onCaramel(point) {
+        return this.caramelBlocks.has(`${Math.floor(point.x)},${Math.floor(point.z)}`);
     }
 
     // Is this point on slippery floor?

@@ -1246,6 +1246,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.15, length: 0.09, brightness: 2600 },
     },
+    // Level 52, the first marshmallow bounce: just sneaky. F minor at 84
+    // bpm, slow and gooey. Long, sticky notes ooze back and forth a half
+    // step (F, G-flat, F) like feet stuck in caramel, then one big "boing!"
+    // leap up an octave and a tumble back down, like bouncing over the
+    // chocolate river; the second half oozes lower and ends on a deep, quiet
+    // low F. A soft, buzzy sawtooth lead, ticking and a slow, heavy bass.
+    caramelcreep: {
+        tempo: 84,
+        bars: [[41, 'min'], [41, 'min'], [42, 'maj'], [41, 'min'], [37, 'maj'], [36, 'maj'], [42, 'maj'], [41, 'min']],
+        bass: [0, null, null, null, 0, null, null, null],
+        bassLength: 0.4,
+        stabs: [],
+        ticks: true,
+        melody: [
+            65, null, null, 66, null, null, 65, null,
+            null, null, null, null, 64, null, 65, null,
+            null, null, 66, null, null, 65, null, null,
+            null, null, 77, null, 72, 68, 65, null,
+            61, null, null, 62, null, null, 61, null,
+            null, null, null, null, 60, null, 61, null,
+            null, null, 66, null, 65, null, 64, null,
+            null, null, null, null, 53, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.12, length: 0.3, brightness: 900 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

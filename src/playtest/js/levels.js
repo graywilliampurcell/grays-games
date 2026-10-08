@@ -7,7 +7,9 @@
 //   spike on the path with its own size (spike2Radius), 'F' a gap like 'O'
 //   whose leaf goes about 30% faster (Level 27), 'W' a water current (Level
 //   41: fills a whole corridor cell; walking in from the path shoves you to
-//   the 'V', the middle of the side dead end's first cell)
+//   the 'V', the middle of the side dead end's first cell). Candy World
+//   (Level 52 on): 'O' is a chocolate river with a bouncy marshmallow on
+//   each bank, and 'C' is sticky caramel (a whole corridor cell, half speed)
 // Found with tools/find-level.mjs. theme: colors and the fluffy look, see Maze.js.
 // music: the level's tune (see sound.js), a little sneakier each level.
 // spikeRadius: size of the spike's plate (default 0.75; see Maze.js).
@@ -2310,6 +2312,60 @@ export const LEVELS = [
             '#               #       #               #',
             '#               #       #               D',
             '#               #       #               #',
+            '#########################################',
+        ],
+    },
+    {
+        name: 'Level 52',
+        // The first marshmallow bounce. `node tools/find-level.mjs level52 18`,
+        // seed 1219. 10 x 10 corridors. Correct path 64 cells (start west in
+        // row 6, door east in row 8); 18 dead ends, all 2 cells deep. No candy
+        // canes. O: the chocolate river over path cells 25-28 in the left-hand
+        // column, a marshmallow on each bank (see Maze.js) that bounces you
+        // over. C: the sticky caramel spot, path cell 51. Music: just sneaky.
+        theme: CANDY,
+        music: 'caramelcreep',
+        layout: [
+            '#########################################',
+            '#           #                       #   #',
+            '#           #                       #   #',
+            '#           #                       #   #',
+            '#   #   #   #########   #########   #   #',
+            '#OOO#   #   #               #           #',
+            '#OOO#   #   #               #           #',
+            '#OOO#   #   #               #           #',
+            '#OOO#   #################   #   #   #####',
+            '#OOO#   #   #   #           #   #   #   #',
+            '#OOO#   #   #   #           #   #   #   #',
+            '#OOO#   #   #   #           #   #   #   #',
+            '#OOO#   #   #   #########   #   #   #   #',
+            '#OOO#       #   #           #CCC#   #   #',
+            '#OOO#       #   #           #CCC#   #   #',
+            '#OOO#       #   #           #CCC#   #   #',
+            '#OOO#   #####   #########   #   #####   #',
+            '#OOO#                       #           #',
+            '#OOO#                       #           #',
+            '#OOO#                       #           #',
+            '#   #############################   #   #',
+            '#                           #       #   #',
+            '#                           #       #   #',
+            '#                           #       #   #',
+            '#########################   #########   #',
+            '#               #           #           #',
+            '# S             #           #           #',
+            '#               #           #           #',
+            '#####   #########   #########   #########',
+            '#       #       #       #       #       #',
+            '#       #       #       #       #       #',
+            '#       #       #       #       #       #',
+            '#   #####   #########   #   #########   #',
+            '#           #           #               #',
+            '#           #           #               D',
+            '#           #           #               #',
+            '#   #####   #   #####   #   #####   #####',
+            '#       #       #       #       #       #',
+            '#       #       #       #       #       #',
+            '#       #       #       #       #       #',
             '#########################################',
         ],
     },
