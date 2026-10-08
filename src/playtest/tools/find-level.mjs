@@ -32,6 +32,7 @@
 //   node tools/find-level.mjs level29 4  # Level 29 rules (Level 26's with 3-cell dead ends; all leaves fast)
 //   node tools/find-level.mjs level30 4  # Level 30 rules (Level 29's plus the big bush)
 //   node tools/find-level.mjs level31 8  # Level 31 rules (Moon World: 8 x 8, Level 11's hidden crater, no gap)
+//   node tools/find-level.mjs level51 16 # Level 51 rules (Candy World: 10 x 10, Level 41's hidden candy cane, no current)
 //   node tools/find-level.mjs level41 11 # Level 41 rules (Underwater World: 9 x 9, hidden urchin, one water current)
 //   node tools/find-level.mjs level46 15 # Level 46 rules (Level 43's path urchin + big urchin, no bubble ride)
 //   node tools/find-level.mjs level48 8  # Level 48 rules (Level 43's with every dead end 3 deep)
@@ -181,7 +182,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39', level40: 'Level 40', level41: 'Level 41', level42: 'Level 42', level43: 'Level 43', level44: 'Level 44', level45: 'Level 45', level46: 'Level 46', level47: 'Level 47', level48: 'Level 48', level49: 'Level 49', level50: 'Level 50' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39', level40: 'Level 40', level41: 'Level 41', level42: 'Level 42', level43: 'Level 43', level44: 'Level 44', level45: 'Level 45', level46: 'Level 46', level47: 'Level 47', level48: 'Level 48', level49: 'Level 49', level50: 'Level 50', level51: 'Level 51' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -232,7 +233,9 @@ const LEVEL45 = process.argv[2] === 'level45' || LEVEL49 || LEVEL50; // Level 41
 const LEVEL47 = process.argv[2] === 'level47';
 const LEVEL41 = process.argv[2] === 'level41' || LEVEL45 || LEVEL47;
 const LEVEL42 = process.argv[2] === 'level42'; // Underwater World 9 x 9: a water current and a bubble ride over a 3-cell crack, no urchins
-const LEVEL11 = process.argv[2] === 'level11' || LEVEL21 || LEVEL31 || LEVEL41;
+// Level 51: Candy World 10 x 10, Level 41's hidden candy cane only (no current, no path cane)
+const LEVEL51 = process.argv[2] === 'level51';
+const LEVEL11 = process.argv[2] === 'level11' || LEVEL21 || LEVEL31 || LEVEL41 || LEVEL51;
 // Level 12: 6 x 6 with 2-cell dead ends again, no spikes, a space door on the path
 const LEVEL13 = process.argv[2] === 'level13'; // Level 12's plus a slippery spot
 const LEVEL14 = process.argv[2] === 'level14'; // Level 12's plus a spike on the path
@@ -243,8 +246,8 @@ const LEVEL18 = process.argv[2] === 'level18' || LEVEL20; // Level 17's plus a s
 const LEVEL17 = process.argv[2] === 'level17' || LEVEL18 || LEVEL19; // a moving-platform gap, a space door, a slippery spot, a path spike
 const LEVEL15 = process.argv[2] === 'level15' || LEVEL16; // slippery spot, path spike, spike row in a dead end
 const LEVEL12 = process.argv[2] === 'level12' || LEVEL13 || LEVEL14;
-const COLS = LEVEL41 || LEVEL42 || LEVEL43 ? 9 : LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
-const ROWS = LEVEL41 || LEVEL42 || LEVEL43 ? 9 : LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
+const COLS = LEVEL51 ? 10 : LEVEL41 || LEVEL42 || LEVEL43 ? 9 : LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
+const ROWS = LEVEL51 ? 10 : LEVEL41 || LEVEL42 || LEVEL43 ? 9 : LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
 const LEVEL2 = process.argv[2] === 'level2';
 const LEVEL3 = ['level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9', 'level10'].includes(process.argv[2]); // spike on the path
 const LEVEL4 = process.argv[2] === 'level4';
@@ -254,7 +257,7 @@ const LEVEL7 = ['level7', 'level8', 'level9', 'level10'].includes(process.argv[2
 const LEVEL8 = ['level8', 'level9', 'level10'].includes(process.argv[2]); // clearly new layout and spike-row spot
 const LEVEL9 = process.argv[2] === 'level9'; // the spike row hidden just round a dead end's corner
 const LEVEL10 = process.argv[2] === 'level10'; // the finale: a visible spike row again
-const SHORT_DEAD_ENDS = LEVEL21 || LEVEL25 || LEVEL31 || LEVEL33 || LEVEL41 || LEVEL42 ? Number(process.argv[3] ?? 8) : LEVEL19 ? 5 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
+const SHORT_DEAD_ENDS = LEVEL51 || LEVEL21 || LEVEL25 || LEVEL31 || LEVEL33 || LEVEL41 || LEVEL42 ? Number(process.argv[3] ?? 8) : LEVEL19 ? 5 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
 const SHORT_DEPTH = DEEP ? 3 : LEVEL25 || LEVEL33 || LEVEL42 || LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 || (!LEVEL7 && (LEVEL2 || LEVEL3)) ? 2 : LEVEL7 ? 3 : 1; // how deep each of those dead ends is
 const SPIKE_DEPTH = LEVEL19 ? 3 : LEVEL25 || LEVEL33 || LEVEL42 || LEVEL3 || LEVEL12 || LEVEL15 || LEVEL17 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
 const SPIKE_BRANCH_WITHIN = 3; // the spike dead end leaves the path in its first 3 cells
@@ -1202,6 +1205,8 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
         spike.fromStart >= 3 && spike.fromStart <= 6 &&
         maxBranchDepth === SPIKE_DEPTH;
     if (!ok) continue;
+    // Level 51: just the hidden candy cane, in a clearly new layout
+    if (LEVEL51 && !differentEnough(shape(toLayout(hung.links, { startCell, exitCell })))) continue;
 
     // Level 41: the water current fills plain path cell k, where the path
     // runs straight through (k - 1, k, k + 1) and one 2-cell dead end branches

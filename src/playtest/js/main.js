@@ -307,6 +307,7 @@ function checkSpikeAndDoor() {
         sound.ouch();
         showMessage(maze.theme.moon ? 'Ouch! You fell in a crater. Back to the start.'
             : maze.theme.underwater ? 'Ouch! A sea urchin sent you back to the start.'
+                : maze.theme.sweets ? 'Ouch! A broken candy cane sent you back to the start.'
                 : 'Ouch! A spike sent you back to the start.');
     }
 

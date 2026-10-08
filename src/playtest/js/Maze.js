@@ -522,6 +522,121 @@ function planetTexture(base, blobs, seed) {
     return new THREE.CanvasTexture(canvas);
 }
 
+// Candy World walls: giant gumdrops stacked in rows, every color, each one
+// round on top with a sugary sparkle. A 1 x 4 wall face is 128 x 512.
+const GUMDROP_COLORS = ['#ff3b6b', '#ff9a1f', '#ffd60a', '#3ddc5a', '#2fa8ff', '#a64dff', '#ff5fd2'];
+function gumdropTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#f7c6e0';
+    g.fillRect(0, 0, width, height);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    const drop = width / 2;
+    for (let row = 0; row * drop < height; row++) {
+        const shift = row % 2 ? drop / 2 : 0;
+        // Two gumdrops per row; the ones hanging over an edge repeat on the
+        // other side in the same color, so the texture wraps without a seam
+        const rowColors = [0, 1].map(() => GUMDROP_COLORS[Math.floor(random() * GUMDROP_COLORS.length)]);
+        for (let col = -1; col <= 2; col++) {
+            const x = col * drop + shift;
+            const bottom = height - row * drop;
+            const color = rowColors[(col + 2) % 2];
+            const w = drop - 4;
+            const left = x + 2;
+            // A dome: flat bottom, round top
+            g.beginPath();
+            g.moveTo(left, bottom - 2);
+            g.lineTo(left, bottom - drop * 0.42);
+            g.bezierCurveTo(left, bottom - drop * 1.02, left + w, bottom - drop * 1.02, left + w, bottom - drop * 0.42);
+            g.lineTo(left + w, bottom - 2);
+            g.closePath();
+            const shade = g.createLinearGradient(left, bottom - drop, left + w, bottom);
+            shade.addColorStop(0, 'rgba(255,255,255,0.35)');
+            shade.addColorStop(0.5, 'rgba(255,255,255,0)');
+            shade.addColorStop(1, 'rgba(0,0,0,0.18)');
+            g.fillStyle = color;
+            g.fill();
+            g.fillStyle = shade;
+            g.fill();
+            // A shiny spot near the top
+            g.fillStyle = 'rgba(255,255,255,0.55)';
+            g.beginPath();
+            g.ellipse(left + w * 0.32, bottom - drop * 0.66, w * 0.09, drop * 0.06, -0.5, 0, Math.PI * 2);
+            g.fill();
+            // Sugar crystals
+            g.fillStyle = 'rgba(255,255,255,0.8)';
+            for (let k = 0; k < 14; k++) {
+                const sx = left + 4 + random() * (w - 8);
+                const sy = bottom - 4 - random() * drop * 0.7;
+                g.fillRect(sx, sy, 1.5, 1.5);
+            }
+        }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Candy World floor: a big chocolate bar, square pieces with raised edges and
+// grooves between them (one texture is 2 x 2 squares)
+function chocolateTexture(size) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#3d2012';
+    g.fillRect(0, 0, size, size);
+    const piece = size / 2;
+    const edge = piece * 0.12;
+    for (let px = 0; px < 2; px++) {
+        for (let pz = 0; pz < 2; pz++) {
+            const x = px * piece + 2;
+            const z = pz * piece + 2;
+            const s = piece - 4;
+            // Light top and left bevels, dark bottom and right ones
+            g.fillStyle = '#8a5434';
+            g.beginPath();
+            g.moveTo(x, z); g.lineTo(x + s, z); g.lineTo(x + s - edge, z + edge); g.lineTo(x + edge, z + edge); g.lineTo(x + edge, z + s - edge); g.lineTo(x, z + s);
+            g.closePath();
+            g.fill();
+            g.fillStyle = '#4a2716';
+            g.beginPath();
+            g.moveTo(x + s, z); g.lineTo(x + s, z + s); g.lineTo(x, z + s); g.lineTo(x + edge, z + s - edge); g.lineTo(x + s - edge, z + s - edge); g.lineTo(x + s - edge, z + edge);
+            g.closePath();
+            g.fill();
+            const top = g.createLinearGradient(x, z, x + s, z + s);
+            top.addColorStop(0, '#74442a');
+            top.addColorStop(1, '#5e3520');
+            g.fillStyle = top;
+            g.fillRect(x + edge, z + edge, s - edge * 2, s - edge * 2);
+        }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Red and white candy-cane stripes, slanting so they wind round a stick
+function candyStripeTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 64;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#fffafa';
+    g.fillRect(0, 0, 64, 64);
+    g.fillStyle = '#e8132f';
+    for (let k = -2; k < 4; k++) {
+        g.beginPath();
+        g.moveTo(k * 32, 64); g.lineTo(k * 32 + 14, 64); g.lineTo(k * 32 + 14 + 64, 0); g.lineTo(k * 32 + 64, 0);
+        g.closePath();
+        g.fill();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
 // A maze built from a fixed layout (see js/levels.js).
 // Block (x, z) spans [x, x+1) x [z, z+1) in the world.
 export const SPIKE_RADIUS = 0.75; // the normal spike plate's radius
@@ -725,8 +840,11 @@ export class Maze {
         const jungle = this.theme.jungle;
         const moon = this.theme.moon;
         const underwater = this.theme.underwater;
+        const sweets = this.theme.sweets;
         let wallMaterial;
-        if (underwater) {
+        if (sweets) {
+            wallMaterial = new THREE.MeshStandardMaterial({ map: gumdropTexture(128, 512, 31), roughness: 0.45, emissive: 0x401028, emissiveIntensity: 0.25 });
+        } else if (underwater) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: coralTexture(128, 512, 29), roughness: 0.85, emissive: 0x401018, emissiveIntensity: 0.35 });
         } else if (moon) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: moonWallTexture(128, 512), roughness: 0.3, metalness: 0.45, emissive: 0x1a2430, emissiveIntensity: 0.6 });
@@ -758,10 +876,15 @@ export class Maze {
 
         if (fluffy) this.addPuffs(count);
         if (underwater) this.addCoralTops(count);
+        if (sweets) this.addGumdropTops(count);
 
         // Floor
         let floorMaterial;
-        if (underwater) {
+        if (sweets) {
+            const map = chocolateTexture(128);
+            map.repeat.set(this.width / 2, this.depth / 2);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 0.55 });
+        } else if (underwater) {
             const map = sandTexture(256, 41);
             map.repeat.set(this.width / 6, this.depth / 6);
             floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
@@ -818,6 +941,82 @@ export class Maze {
             this.addCameras();
         }
         if (underwater) this.addSeaLife();
+        if (sweets) this.addCandySky();
+    }
+
+    // Candy World: a big gumdrop sitting on top of each wall block, every color
+    addGumdropTops(wallCount) {
+        const material = new THREE.MeshStandardMaterial({ roughness: 0.4 });
+        const drops = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), material, wallCount);
+        const matrix = new THREE.Matrix4();
+        const color = new THREE.Color();
+        let r = 17;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        let n = 0;
+        for (let x = 0; x < this.width; x++) {
+            for (let z = 0; z < this.depth; z++) {
+                if (this.grid[x][z] !== 1) continue;
+                const size = 0.5 + random() * 0.12;
+                matrix.makeScale(size, size * (1.1 + random() * 0.3), size);
+                matrix.setPosition(x + 0.5, this.height, z + 0.5);
+                drops.setMatrixAt(n, matrix);
+                drops.setColorAt(n++, color.set(GUMDROP_COLORS[Math.floor(random() * GUMDROP_COLORS.length)]));
+            }
+        }
+        this.root.add(drops);
+    }
+
+    // Candy World sky: fluffy pink, blue and white cotton candy clouds
+    // drifting high up, and bunches of balloons floating by lower down.
+    // Just to look at: no dangers, nothing to bump into.
+    addCandySky() {
+        this.flyers = [];
+        const kinds = ['cloud', 'balloon', 'cloud', 'balloon', 'cloud', 'balloon', 'cloud', 'balloon', 'cloud'];
+        kinds.forEach((kind, k) => {
+            const flyer = this.makeCandyFlyer(kind, k);
+            this.root.add(flyer.object);
+            this.flyers.push(flyer);
+            this.launchFlyer(flyer, k / kinds.length);
+        });
+    }
+
+    makeCandyFlyer(kind, k) {
+        const group = new THREE.Group();
+        const basic = (color) => new THREE.MeshBasicMaterial({ color, fog: false });
+        if (kind === 'cloud') {
+            // Cotton candy: a puffy lump of soft balls
+            const color = [0xffb3d9, 0xb3e0ff, 0xfff0fa, 0xffc8e6][k % 4];
+            const material = basic(color);
+            const ball = new THREE.SphereGeometry(1, 14, 10);
+            for (let b = 0; b < 7; b++) {
+                const puff = new THREE.Mesh(ball, material);
+                const size = 3 + ((b * 37) % 5) * 0.6;
+                puff.scale.setScalar(size);
+                puff.position.set((b - 3) * 3.2, Math.sin(b * 1.7) * 1.4 + (b % 3 === 1 ? 1.5 : 0), Math.cos(b * 2.3) * 2);
+                group.add(puff);
+            }
+        } else {
+            // A bunch of three balloons on strings
+            const colors = [0xff3b6b, 0xffd60a, 0x2fa8ff, 0x3ddc5a, 0xa64dff, 0xff9a1f];
+            const string = new THREE.LineBasicMaterial({ color: 0xffffff, fog: false });
+            for (let b = 0; b < 3; b++) {
+                const color = colors[(k + b * 2) % colors.length];
+                const balloon = new THREE.Group();
+                const body = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), new THREE.MeshStandardMaterial({ color, roughness: 0.3, emissive: color, emissiveIntensity: 0.35, fog: false }));
+                body.scale.set(1, 1.2, 1);
+                const knot = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.35, 8), basic(color));
+                knot.position.y = -1.3;
+                balloon.add(body, knot);
+                const top = new THREE.Vector3((b - 1) * 1.6, 1.2 + (b % 2) * 0.9, (b - 1) * 0.5);
+                balloon.position.copy(top);
+                group.add(balloon);
+                const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([top.clone().setY(top.y - 1.45), new THREE.Vector3(0, -4.5, 0)]), string);
+                group.add(line);
+            }
+        }
+        const object = new THREE.Group();
+        object.add(group);
+        return { kind, object, velocity: new THREE.Vector3(), life: 0, bob: Math.random() * 6 };
     }
 
     // Underwater World: knobbly coral growing along the tops of the walls, in
@@ -1179,15 +1378,17 @@ export class Maze {
         const cz = this.depth / 2;
         const angle = Math.random() * Math.PI * 2;
         // Birds and butterflies fly lower and slower than things in space
-        const speeds = { rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, butterfly: 4, turtle: 3, whale: 4, manta: 5, school: 6 };
+        const speeds = { cloud: 2.5, balloon: 3.5, rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, butterfly: 4, turtle: 3, whale: 4, manta: 5, school: 6 };
         const speed = speeds[flyer.kind];
         // Sea animals swim slowly over the reef, not too high (Underwater World)
-        const bird = ['parrot', 'toucan', 'turtle', 'whale', 'manta', 'school'].includes(flyer.kind);
+        // Candy World's clouds and balloons drift slowly, like birds
+        const bird = ['parrot', 'toucan', 'turtle', 'whale', 'manta', 'school', 'cloud', 'balloon'].includes(flyer.kind);
         const butterfly = flyer.kind === 'butterfly';
         const span = butterfly ? 70 : bird ? 160 : 260;
         const dir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
         const side = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar((Math.random() - 0.5) * (butterfly ? 30 : bird ? 60 : 120));
-        const height = flyer.kind === 'whale' ? 26 + Math.random() * 10 : butterfly ? 6 + Math.random() * 5 : bird ? 10 + Math.random() * 14 : 30 + Math.random() * 45;
+        const height = flyer.kind === 'cloud' ? 34 + Math.random() * 16 : flyer.kind === 'balloon' ? 12 + Math.random() * 14 :
+            flyer.kind === 'whale' ? 26 + Math.random() * 10 : butterfly ? 6 + Math.random() * 5 : bird ? 10 + Math.random() * 14 : 30 + Math.random() * 45;
         const start = new THREE.Vector3(cx, height, cz).addScaledVector(dir, -span / 2).add(side);
         flyer.velocity.copy(dir).multiplyScalar(speed);
         flyer.velocity.y = flyer.kind === 'meteor' ? -2 : bird || butterfly ? 0 : (Math.random() - 0.5) * 2;
@@ -1218,6 +1419,11 @@ export class Maze {
                     else wing.rotation.x = wing.userData.side * Math.sin(flyer.flap) * (butterfly ? 0.9 : sea ? 0.45 : 0.6);
                 }
                 if (butterfly) flyer.object.position.y += Math.sin(flyer.flap * 0.5) * dt * 1.2;
+            }
+            // Balloons bob gently up and down
+            if (flyer.kind === 'balloon') {
+                flyer.bob += dt;
+                flyer.object.position.y += Math.sin(flyer.bob * 1.3) * dt * 0.8;
             }
             flyer.life -= dt;
             if (flyer.life <= 0) this.launchFlyer(flyer);
@@ -1381,6 +1587,7 @@ export class Maze {
         if (this.theme.jungle) return this.createBush(position, radius);
         if (this.theme.moon) return this.createCrater(position, radius);
         if (this.theme.underwater) return this.createUrchin(position, radius);
+        if (this.theme.sweets) return this.createCandyCane(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -1435,6 +1642,41 @@ export class Maze {
         urchin.position.copy(position);
         urchin.position.y = 0;
         this.root.add(urchin);
+    }
+
+    // Candy World's spike: pointy broken candy canes, three striped pieces
+    // sticking up with sharp snapped-off tips, and the broken-off hook lying
+    // beside them. As wide as a spike's plate; touching it works the same.
+    createCandyCane(position, radius) {
+        const cane = new THREE.Group();
+        const map = candyStripeTexture();
+        map.repeat.set(1, 2);
+        const striped = new THREE.MeshStandardMaterial({ map, roughness: 0.3, emissive: 0x3a0008, emissiveIntensity: 0.2 });
+        const sugar = new THREE.MeshStandardMaterial({ color: 0xfff4f4, roughness: 0.25 });
+        const pieces = [[0, 0, 0.85, 0], [0.34, 0.2, 0.6, 0.25], [-0.32, 0.22, 0.7, -0.22], [0.05, -0.36, 0.55, 0.18]];
+        for (const [ox, oz, h, lean] of pieces) {
+            const stick = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, h, 14), striped);
+            body.position.y = h / 2;
+            // The snapped-off end: a jagged sharp point
+            const tip = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.32, 5), sugar);
+            tip.position.y = h + 0.15;
+            tip.rotation.y = ox * 3;
+            body.castShadow = tip.castShadow = true;
+            stick.add(body, tip);
+            stick.position.set(ox, 0, oz);
+            stick.rotation.set(lean * 0.6, 0, -lean);
+            cane.add(stick);
+        }
+        // The broken-off hook on the floor
+        const hook = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.08, 10, 20, Math.PI), striped);
+        hook.rotation.x = -Math.PI / 2;
+        hook.position.set(-0.25, 0.08, -0.3);
+        cane.add(hook);
+        cane.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
+        cane.position.copy(position);
+        cane.position.y = 0;
+        this.root.add(cane);
     }
 
     // The water current (Level 41): swirling sand streaks rushing across its

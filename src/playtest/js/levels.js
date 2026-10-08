@@ -30,6 +30,10 @@ const MOON = { wall: 0xb6bfca, floor: 0x9a9a9c, sky: 0x000000, moon: true };
 // with seashells and starfish, open water above with turtles, whales, manta
 // rays and schools of little fish; the spikes are sea urchins (see Maze.js)
 const UNDERWATER = { wall: 0xff7f6e, floor: 0xf2e6c9, sky: 0x1f8fc4, underwater: true };
+// Levels 51-60, Candy World: walls of giant stacked gumdrops, a floor of
+// chocolate bar squares, a sky of cotton candy clouds and balloons; the spikes
+// are pointy broken candy canes (see Maze.js)
+const CANDY = { wall: 0xff5fa2, floor: 0x5b3320, sky: 0xa9dcff, sweets: true };
 
 export const LEVELS = [
     {
@@ -2213,6 +2217,7 @@ export const LEVELS = [
         music: 'underwaterfinale',
         spike2Radius: 0.72,
         finale: 'You beat Underwater World!',
+        nextLabel: 'Start Candy World',
         layout: [
         '#####################################',
         '#                    OOOOOOOOOOO    #',
@@ -2253,6 +2258,61 @@ export const LEVELS = [
         '#####################################',
         ],
     },
+    {
+        name: 'Level 51',
+        // Welcome to Candy World. `node tools/find-level.mjs level51 16`,
+        // seed 581. 10 x 10 corridors. Correct path 65 cells (start west in
+        // row 2, door east in the bottom row); 16 dead ends 2 cells deep, plus
+        // the candy cane's: off path cell 3 it goes 2 cells, turns once, and
+        // the broken candy cane (X) sits in its last cell, out of sight of the
+        // path like Level 41's urchin. No candy cane on the path, no caramel,
+        // no marshmallow or chocolate river. Music: just sneaky.
+        theme: CANDY,
+        music: 'candysneak',
+        layout: [
+            '#########################################',
+            '#   #   #       #       #       #       #',
+            '#   #   #     X #       #       #       #',
+            '#   #   #       #       #       #       #',
+            '#   #   #   #####   #   #####   #####   #',
+            '#   #   #   #   #   #                   #',
+            '#   #   #   #   #   #                   #',
+            '#   #   #   #   #   #                   #',
+            '#   #   #   #   #   #################   #',
+            '#               #                   #   #',
+            '# S             #                   #   #',
+            '#               #                   #   #',
+            '#########   #####################   #   #',
+            '#           #       #   #           #   #',
+            '#           #       #   #           #   #',
+            '#           #       #   #           #   #',
+            '#########   #####   #   #########   #   #',
+            '#       #               #           #   #',
+            '#       #               #           #   #',
+            '#       #               #           #   #',
+            '#   #############   #############   #   #',
+            '#               #       #       #   #   #',
+            '#               #       #       #   #   #',
+            '#               #       #       #   #   #',
+            '#   #########   #####   #   #####   #   #',
+            '#           #           #           #   #',
+            '#           #           #           #   #',
+            '#           #           #           #   #',
+            '#   #####   #############   #########   #',
+            '#   #   #           #       #       #   #',
+            '#   #   #           #       #       #   #',
+            '#   #   #           #       #       #   #',
+            '#   #   #   #########   #####   #   #   #',
+            '#   #       #       #   #       #       #',
+            '#   #       #       #   #       #       #',
+            '#   #       #       #   #       #       #',
+            '#########   #   #   #   #   #############',
+            '#               #       #               #',
+            '#               #       #               D',
+            '#               #       #               #',
+            '#########################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with
@@ -2263,7 +2323,7 @@ LEVELS.forEach((level, index) => {
     if (last && last.theme === level.theme) {
         last.last = index;
     } else {
-        const look = level.theme.underwater ? 'sea' : level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
+        const look = level.theme.sweets ? 'sweets' : level.theme.underwater ? 'sea' : level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
         WORLDS.push({ theme: level.theme, first: index, last: index, look });
     }
 });

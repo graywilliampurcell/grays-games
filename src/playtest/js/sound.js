@@ -1221,6 +1221,31 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.2, length: 0.22, brightness: 420 },
     },
+    // Level 51, welcome to Candy World: just sneaky, no happy. G minor at
+    // 96 bpm. Short plucky tiptoe notes creep up a half step at a time (G,
+    // A-flat, A, B-flat) and freeze, then a quick "snap!" jump down an
+    // octave like a candy cane breaking; the second half sneaks back down
+    // the other way and ends on a low hush. A bright, crunchy square lead,
+    // ticking and a stop-start bass.
+    candysneak: {
+        tempo: 96,
+        bars: [[43, 'min'], [43, 'min'], [44, 'maj'], [38, 'maj'], [43, 'min'], [39, 'maj'], [38, 'maj'], [43, 'min']],
+        bass: [0, null, 0, null, null, null, 7, null],
+        bassLength: 0.12,
+        stabs: [],
+        ticks: true,
+        melody: [
+            67, null, 68, null, 69, null, 70, null,
+            null, null, null, null, 58, 58, null, null,
+            68, null, 69, null, 70, null, 71, null,
+            null, null, 72, null, 60, null, null, null,
+            74, null, 73, null, 72, null, 71, null,
+            70, null, null, null, 63, 63, null, null,
+            69, null, 68, null, 67, null, 66, null,
+            67, null, null, null, null, null, 55, null,
+        ],
+        lead: { wave: 'square', level: 0.15, length: 0.09, brightness: 2600 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
