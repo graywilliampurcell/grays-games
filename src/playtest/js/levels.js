@@ -2195,6 +2195,64 @@ export const LEVELS = [
         '#####################################',
         ],
     },
+    {
+        name: 'Level 50',
+        // The Underwater World finale. `node tools/find-level.mjs level50 12`,
+        // seed 228. 9 x 9 corridors. Correct path 42 cells; 12 dead ends,
+        // every one 3 cells deep, plus the sea urchin's: off path cell 5
+        // (start in the bottom row, west; door east in row 1) it runs 3 cells
+        // with one turn, and the urchin (X) sits in its last cell, out of
+        // sight of the path like Level 41's. W: the water current over path
+        // cell 25 (the path runs straight through it), shoving you south into
+        // its own 3-cell side dead end (V). Z: the urchin on the path in cell
+        // 35 (top row, heading east), plate 0.72 like Level 40's crater, the
+        // tightest squeeze. O: one crack with its bubble over path cells
+        // 38-40 in the top row. No big urchin. At least 2 path cells between
+        // any two of them. Golden door, confetti, long cheer.
+        theme: UNDERWATER,
+        music: 'underwaterfinale',
+        spike2Radius: 0.72,
+        finale: 'You beat Underwater World!',
+        layout: [
+        '#####################################',
+        '#                    OOOOOOOOOOO    #',
+        '#         Z          OOOOOOOOOOO    #',
+        '#                    OOOOOOOOOOO    #',
+        '#   #############################   #',
+        '#   #       #           #       #   #',
+        '#   #       #           #       #   D',
+        '#   #       #           #       #   #',
+        '#   #   #   #########   #   #   #####',
+        '#       #        WWW        #       #',
+        '#       #        WWW        #       #',
+        '#       #        WWW        #       #',
+        '#   #   #   #####   #   #########   #',
+        '#   #   #   #       #   #       #   #',
+        '#   #   #   #     V #   #       #   #',
+        '#   #   #   #       #   #       #   #',
+        '#   #   #   #   #####   #   #   #   #',
+        '#   #   #   #   #       #   #       #',
+        '#   #   #   #   #       #   #       #',
+        '#   #   #   #   #       #   #       #',
+        '#   #   #   #############   #########',
+        '#   #   #   #                       #',
+        '#   #   #   #                       #',
+        '#   #   #   #                       #',
+        '#############################   #   #',
+        '#   #       #                   #   #',
+        '#   # X     #                   #   #',
+        '#   #       #                   #   #',
+        '#   #####   #############   #####   #',
+        '#       #   #           #       #   #',
+        '#       #   #           #       #   #',
+        '#       #   #           #       #   #',
+        '#####   #   #   #########   #   #####',
+        '#                           #       #',
+        '# S                         #       #',
+        '#                           #       #',
+        '#####################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with

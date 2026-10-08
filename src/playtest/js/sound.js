@@ -1195,6 +1195,32 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.17, length: 0.18, brightness: 500 },
     },
+    // Level 50, the Underwater World finale: the sneakiest tune of the
+    // world. A-flat minor, the slowest yet (58 bpm). It opens with a low
+    // line that sinks one half step at a time, like going down into deep
+    // water, then a long hush broken by two quiet high pings far apart, like
+    // a sonar; the second half sinks again from higher up and ends on a
+    // single deep thump. A soft muffled triangle lead, ticking and a lone
+    // heartbeat bass. Sneakier than Level 49's.
+    underwaterfinale: {
+        tempo: 58,
+        bars: [[32, 'min'], [31, 'maj'], [32, 'min'], [28, 'maj'], [32, 'min'], [31, 'maj'], [28, 'maj'], [32, 'min']],
+        bass: [0, null, null, null, 0, null, null, 'lead-in'],
+        bassLength: 0.5,
+        stabs: [],
+        ticks: true,
+        melody: [
+            56, null, null, 55, null, null, 54, null,
+            53, null, null, null, null, null, null, null,
+            null, null, null, null, 80, null, null, null,
+            null, null, null, null, null, null, 80, null,
+            61, null, null, 60, null, null, 59, null,
+            58, null, null, null, null, null, 56, null,
+            null, null, null, null, 79, null, null, null,
+            null, null, null, null, null, null, 32, null,
+        ],
+        lead: { wave: 'triangle', level: 0.2, length: 0.22, brightness: 420 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
