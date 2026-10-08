@@ -5,7 +5,9 @@
 //   slippery spot on the floor (a strip right across a corridor), 'O' a gap
 //   with no floor, crossed on a moving platform (Level 17 on), 'Z' a second
 //   spike on the path with its own size (spike2Radius), 'F' a gap like 'O'
-//   whose leaf goes about 30% faster (Level 27)
+//   whose leaf goes about 30% faster (Level 27), 'W' a water current (Level
+//   41: fills a whole corridor cell; walking in from the path shoves you to
+//   the 'V', the middle of the side dead end's first cell)
 // Found with tools/find-level.mjs. theme: colors and the fluffy look, see Maze.js.
 // music: the level's tune (see sound.js), a little sneakier each level.
 // spikeRadius: size of the spike's plate (default 0.75; see Maze.js).
@@ -24,6 +26,10 @@ const JUNGLE = { wall: 0x2e7d32, floor: 0x8b5a2b, sky: 0x9fdcff, jungle: true };
 // walls with security cameras, gray moon dust with footprints, a black starry
 // sky with the Earth; the spikes are craters (see Maze.js)
 const MOON = { wall: 0xb6bfca, floor: 0x9a9a9c, sky: 0x000000, moon: true };
+// Levels 41-50, Underwater World: colorful coral reef walls, soft white sand
+// with seashells and starfish, open water above with turtles, whales, manta
+// rays and schools of little fish; the spikes are sea urchins (see Maze.js)
+const UNDERWATER = { wall: 0xff7f6e, floor: 0xf2e6c9, sky: 0x1f8fc4, underwater: true };
 
 export const LEVELS = [
     {
@@ -1675,6 +1681,7 @@ export const LEVELS = [
         spikeRadius: 1.2,
         spike2Radius: 0.72,
         finale: 'You beat Moon World!',
+        nextLabel: 'Start Underwater World',
         layout: [
             '#################################',
             '#            OOOOOOOOOOO        #',
@@ -1711,6 +1718,58 @@ export const LEVELS = [
             '#################################',
         ],
     },
+    {
+        name: 'Level 41',
+        // Welcome to Underwater World. `node tools/find-level.mjs level41 11`,
+        // seed 361. 9 x 9 corridors. Correct path 56 cells; 11 dead ends 2
+        // cells deep, plus the sea urchin's: off path cell 3 it goes 2 cells,
+        // turns once, and the urchin (X) sits in its last cell, out of sight of
+        // the path like Level 21's bush. W: the water current over path cell 29
+        // (the path runs straight through it), shoving you west into the side
+        // dead end (V). No urchin on the path, no bubble ride, no crack.
+        // Music: the original Level 2 tune, back again.
+        theme: UNDERWATER,
+        music: 'happySneaky',
+        layout: [
+            '#####################################',
+            '#       #                   #       #',
+            '#       #                   #       D',
+            '#       #                   #       #',
+            '#   #   #   #############   #   #####',
+            '#   #       #           #   #       #',
+            '#   #       #           #   #       #',
+            '#   #       #           #   #       #',
+            '#   #########   #####   #   #####   #',
+            '#               #    WWW#       #   #',
+            '#               # V  WWW#       #   #',
+            '#               #    WWW#       #   #',
+            '#################   #   #####   #   #',
+            '#               #   #       #       #',
+            '# S             #   #       #       #',
+            '#               #   #       #       #',
+            '#   #   #   #   #########   #########',
+            '#   #   #   #   #                   #',
+            '#   #   #   #   #                   #',
+            '#   #   #   #   #                   #',
+            '#   #   #   #   #################   #',
+            '#   #   #   #   #   #   #   #       #',
+            '#   #   #   # X #   #   #   #       #',
+            '#   #   #   #   #   #   #   #       #',
+            '#########   #####   #   #   #   #   #',
+            '#       #           #   #   #   #   #',
+            '#       #           #   #   #   #   #',
+            '#       #           #   #   #   #   #',
+            '#####   #####   #####   #   #####   #',
+            '#               #       #           #',
+            '#               #       #           #',
+            '#               #       #           #',
+            '#   #   #########   #   #   #########',
+            '#   #               #               #',
+            '#   #               #               #',
+            '#   #               #               #',
+            '#####################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with
@@ -1721,7 +1780,7 @@ LEVELS.forEach((level, index) => {
     if (last && last.theme === level.theme) {
         last.last = index;
     } else {
-        const look = level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
+        const look = level.theme.underwater ? 'sea' : level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
         WORLDS.push({ theme: level.theme, first: index, last: index, look });
     }
 });

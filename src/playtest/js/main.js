@@ -40,6 +40,10 @@ const DOOR_TOUCH_DISTANCE = 1.3;
 const SLIDE_DISTANCE = 1.5;
 const SLIDE_MIN_SPEED = 4;
 let wasOnSlippery = false;
+// A water current (Level 41) shoves you into its side dead end, taking this long
+const SHOVE_TIME = 0.8;
+let wasInCurrent = false;
+const lastOutsideCurrent = new THREE.Vector3();
 let frameCount = 0;
 let lastTime = performance.now();
 let fps = 0;
@@ -196,6 +200,10 @@ function loadLevel(level, index) {
     collisionManager = new CollisionManager(maze.getMazeData());
     scene.background.set(theme.sky);
     scene.fog.color.set(theme.sky);
+    wasInCurrent = false;
+    // Under the sea the water goes hazy blue in the distance
+    scene.fog.near = theme.underwater ? 40 : 200;
+    scene.fog.far = theme.underwater ? 220 : 500;
 
     const cx = maze.width / 2;
     const cz = maze.depth / 2;
@@ -253,6 +261,19 @@ function step(deltaTime) {
     const onSlippery = maze.onSlipperySpot(player.position);
     if (onSlippery && !wasOnSlippery && player.startSlide(SLIDE_DISTANCE, SLIDE_MIN_SPEED)) testHooks?.emit('slide');
     wasOnSlippery = onSlippery;
+    // Water current (Level 41): walking into it from the path shoves you about
+    // one square into its side dead end. Walking back out of that dead end
+    // isn't pushed, and you can walk on either way until you leave its area
+    // and come back in from the path.
+    if (maze.current && !player.shove) {
+        const inCurrent = maze.inCurrent(player.position);
+        if (inCurrent && !wasInCurrent && !maze.cameFromCurrentDeadEnd(lastOutsideCurrent)) {
+            player.startShove(maze.current.target, SHOVE_TIME);
+            testHooks?.emit('current');
+        }
+        if (!inCurrent) lastOutsideCurrent.copy(player.position);
+        wasInCurrent = inCurrent;
+    }
     // Moving platform (Level 17 on): carries the player across the gap
     const platformEvent = maze.updatePlatform(deltaTime, player.position, player.velocity, player.radius);
     if (platformEvent) testHooks?.emit('platform', { what: platformEvent });
@@ -282,7 +303,9 @@ function checkSpikeAndDoor() {
         backToStart();
         testHooks?.emit('spike');
         sound.ouch();
-        showMessage(maze.theme.moon ? 'Ouch! You fell in a crater. Back to the start.' : 'Ouch! A spike sent you back to the start.');
+        showMessage(maze.theme.moon ? 'Ouch! You fell in a crater. Back to the start.'
+            : maze.theme.underwater ? 'Ouch! A sea urchin sent you back to the start.'
+                : 'Ouch! A spike sent you back to the start.');
     }
 
     // Walking into the gap (no platform under you) works like a spike

@@ -206,6 +206,172 @@ function waterTexture() {
     return texture;
 }
 
+// Underwater World walls: a colorful coral reef. Lumpy blobs and branching
+// fingers of coral in pink, orange, purple and yellow over a warm base.
+function coralTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#e8665a';
+    g.fillRect(0, 0, width, height);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    const colors = ['#ff6f91', '#ff9a3c', '#b45cd6', '#ffd23f', '#ff5e5e', '#f78fb3', '#ff8a65', '#9c6ade'];
+    // Lumpy brain-coral blobs with a darker groove pattern
+    for (let i = 0; i < 70; i++) {
+        const x = random() * width;
+        const y = random() * height;
+        const size = 8 + random() * 18;
+        g.fillStyle = colors[Math.floor(random() * colors.length)];
+        g.beginPath();
+        g.ellipse(x, y, size, size * (0.7 + random() * 0.5), random() * Math.PI, 0, Math.PI * 2);
+        g.fill();
+        g.strokeStyle = 'rgba(90,20,40,0.35)';
+        g.lineWidth = 1.5;
+        g.beginPath();
+        g.arc(x, y, size * 0.55, random() * 3, random() * 3 + 3);
+        g.stroke();
+    }
+    // Branching coral fingers growing up
+    for (let i = 0; i < 26; i++) {
+        let x = random() * width;
+        let y = height * (0.3 + random() * 0.7);
+        g.strokeStyle = colors[Math.floor(random() * colors.length)];
+        g.lineCap = 'round';
+        const branch = (bx, by, len, angle, w) => {
+            if (len < 4) return;
+            const ex = bx + Math.cos(angle) * len;
+            const ey = by - Math.sin(angle) * len;
+            g.lineWidth = w;
+            g.beginPath();
+            g.moveTo(bx, by);
+            g.lineTo(ex, ey);
+            g.stroke();
+            branch(ex, ey, len * 0.7, angle + 0.5, w * 0.75);
+            branch(ex, ey, len * 0.7, angle - 0.5, w * 0.75);
+        };
+        branch(x, y, 14 + random() * 12, Math.PI / 2, 5);
+    }
+    // Little bright polyps dotted all over
+    for (let i = 0; i < 260; i++) {
+        g.fillStyle = `rgba(255,${200 + Math.floor(random() * 55)},${150 + Math.floor(random() * 100)},0.8)`;
+        g.beginPath();
+        g.arc(random() * width, random() * height, 1 + random() * 1.5, 0, Math.PI * 2);
+        g.fill();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Underwater World floor: soft white sand with ripples, seashells and starfish
+function sandTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#f2e6c9';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < size * size / 10; i++) {
+        const shade = 215 + Math.floor(random() * 35);
+        g.fillStyle = `rgba(${shade},${shade - 12},${shade - 40},0.5)`;
+        g.fillRect(random() * size, random() * size, 1 + random() * 1.5, 1 + random() * 1.5);
+    }
+    // Soft ripples in the sand
+    g.strokeStyle = 'rgba(200,180,140,0.35)';
+    g.lineWidth = 2;
+    for (let y = 8; y < size; y += 22) {
+        g.beginPath();
+        for (let x = 0; x <= size; x += 8) g.lineTo(x, y + Math.sin((x / size) * Math.PI * 4 + y) * 4);
+        g.stroke();
+    }
+    // Seashells: little fans with ridges
+    for (let i = 0; i < 5; i++) {
+        const x = 16 + random() * (size - 32);
+        const y = 16 + random() * (size - 32);
+        g.save();
+        g.translate(x, y);
+        g.rotate(random() * Math.PI * 2);
+        g.fillStyle = ['#fff4ea', '#ffd9c7', '#f7c6d9'][i % 3];
+        g.beginPath();
+        g.moveTo(0, 6);
+        g.arc(0, 0, 9, Math.PI * 1.1, Math.PI * 1.9);
+        g.closePath();
+        g.fill();
+        g.strokeStyle = 'rgba(170,110,90,0.7)';
+        g.lineWidth = 1;
+        for (let k = -3; k <= 3; k++) {
+            g.beginPath();
+            g.moveTo(0, 6);
+            g.lineTo(Math.sin(k * 0.3) * 9, -Math.cos(k * 0.3) * 9);
+            g.stroke();
+        }
+        g.restore();
+    }
+    // Starfish: orange and red five-armed stars
+    for (let i = 0; i < 3; i++) {
+        const x = 20 + random() * (size - 40);
+        const y = 20 + random() * (size - 40);
+        const turn = random() * Math.PI;
+        g.fillStyle = i % 2 ? '#ff7043' : '#e53935';
+        g.beginPath();
+        for (let k = 0; k < 10; k++) {
+            const rad = k % 2 ? 4 : 12;
+            const a = turn + (k * Math.PI) / 5;
+            g.lineTo(x + Math.cos(a) * rad, y + Math.sin(a) * rad);
+        }
+        g.closePath();
+        g.fill();
+        g.fillStyle = 'rgba(255,230,180,0.8)';
+        for (let k = 0; k < 5; k++) {
+            const a = turn + (k * 2 * Math.PI) / 5;
+            g.beginPath();
+            g.arc(x + Math.cos(a) * 6, y + Math.sin(a) * 6, 1, 0, Math.PI * 2);
+            g.fill();
+        }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// A water current's floor: streaks of swirling sand, drawn along +x (the push
+// direction); the texture scrolls so the streaks rush the way it pushes
+function currentTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const g = canvas.getContext('2d');
+    g.clearRect(0, 0, 128, 128);
+    let r = 5;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < 26; i++) {
+        const x = random() * 128;
+        const y = random() * 128;
+        const len = 20 + random() * 30;
+        g.strokeStyle = `rgba(${random() < 0.5 ? '255,255,255' : '214,196,150'},${0.45 + random() * 0.4})`;
+        g.lineWidth = 1.5 + random() * 2;
+        g.beginPath();
+        g.moveTo(x, y);
+        g.bezierCurveTo(x + len * 0.3, y - 6, x + len * 0.6, y + 6, x + len, y);
+        g.stroke();
+    }
+    // Chevrons pointing the way it pushes
+    g.strokeStyle = 'rgba(255,255,255,0.75)';
+    g.lineWidth = 4;
+    for (const y of [32, 96]) {
+        g.beginPath();
+        g.moveTo(52, y - 14);
+        g.lineTo(70, y);
+        g.lineTo(52, y + 14);
+        g.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
 // Moon World walls: shiny metal panels with seams, rivets and a glowing blue
 // light strip, like the inside of a secret high-tech base
 function moonWallTexture(width, height) {
@@ -455,6 +621,8 @@ export class Maze {
         // Blocks with no floor ('O'), crossed on moving platforms (one per gap);
         // 'F' is the same but its platform is a fast one (Level 27 on)
         const gapBlocks = [];
+        // A water current ('W' blocks, one corridor cell; Level 41) and where its shove ends ('V')
+        const currentBlocks = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -469,7 +637,23 @@ export class Maze {
                 if (ch === 'G') doorBlocks.push({ x, z });
                 if (ch === 'I') this.slipperyBlocks.add(`${x},${z}`);
                 if (ch === 'O' || ch === 'F') gapBlocks.push({ x, z, fast: ch === 'F' });
+                if (ch === 'W') currentBlocks.push({ x, z });
+                if (ch === 'V') this.currentTarget = center;
             }
+        }
+        if (currentBlocks.length && this.currentTarget) {
+            const xs = currentBlocks.map((b) => b.x);
+            const zs = currentBlocks.map((b) => b.z);
+            const c = {
+                minX: Math.min(...xs), maxX: Math.max(...xs) + 1,
+                minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
+            };
+            c.center = new THREE.Vector3((c.minX + c.maxX) / 2, 0, (c.minZ + c.maxZ) / 2);
+            // Which way it pushes: straight from its middle toward the target
+            const d = this.currentTarget.clone().sub(c.center);
+            c.dir = Math.abs(d.x) > Math.abs(d.z) ? new THREE.Vector3(Math.sign(d.x), 0, 0) : new THREE.Vector3(0, 0, Math.sign(d.z));
+            c.target = this.currentTarget.clone();
+            this.current = c;
         }
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
@@ -497,6 +681,7 @@ export class Maze {
         if (this.slipperyBlocks.size) this.createSlipperySpots();
         for (const p of this.platforms) this.createPlatform(p);
         for (const row of this.spikeRows) this.createSpikeRow(row);
+        if (this.current) this.createCurrent();
         this.scene.add(this.root);
     }
 
@@ -524,8 +709,11 @@ export class Maze {
         const space = this.theme.space;
         const jungle = this.theme.jungle;
         const moon = this.theme.moon;
+        const underwater = this.theme.underwater;
         let wallMaterial;
-        if (moon) {
+        if (underwater) {
+            wallMaterial = new THREE.MeshStandardMaterial({ map: coralTexture(128, 512, 29), roughness: 0.85, emissive: 0x401018, emissiveIntensity: 0.35 });
+        } else if (moon) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: moonWallTexture(128, 512), roughness: 0.3, metalness: 0.45, emissive: 0x1a2430, emissiveIntensity: 0.6 });
         } else if (jungle) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: leafTexture(128, 512, 13), roughness: 0.95 });
@@ -554,10 +742,15 @@ export class Maze {
         this.root.add(walls);
 
         if (fluffy) this.addPuffs(count);
+        if (underwater) this.addCoralTops(count);
 
         // Floor
         let floorMaterial;
-        if (moon) {
+        if (underwater) {
+            const map = sandTexture(256, 41);
+            map.repeat.set(this.width / 6, this.depth / 6);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
+        } else if (moon) {
             const map = moonDustTexture(256, 23);
             map.repeat.set(this.width / 6, this.depth / 6);
             floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
@@ -604,6 +797,141 @@ export class Maze {
             this.addMoonSky();
             this.addCameras();
         }
+        if (underwater) this.addSeaLife();
+    }
+
+    // Underwater World: knobbly coral growing along the tops of the walls, in
+    // all the reef's colors
+    addCoralTops(wallCount) {
+        const colors = [0xff6f91, 0xff9a3c, 0xb45cd6, 0xffd23f, 0xff5e5e, 0x4dd0e1];
+        const material = new THREE.MeshStandardMaterial({ roughness: 0.8 });
+        const knobs = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), material, wallCount);
+        const matrix = new THREE.Matrix4();
+        const color = new THREE.Color();
+        let r = 13;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        let n = 0;
+        for (let x = 0; x < this.width; x++) {
+            for (let z = 0; z < this.depth; z++) {
+                if (this.grid[x][z] !== 1) continue;
+                const size = 0.4 + random() * 0.25;
+                matrix.makeScale(size, size * (0.8 + random() * 0.8), size);
+                matrix.setPosition(x + 0.5 + (random() - 0.5) * 0.3, this.height + size * 0.3, z + 0.5 + (random() - 0.5) * 0.3);
+                knobs.setMatrixAt(n, matrix);
+                knobs.setColorAt(n++, color.setHex(colors[Math.floor(random() * colors.length)]));
+            }
+        }
+        this.root.add(knobs);
+    }
+
+    // Underwater World: open water above, with big gentle animals (turtles,
+    // whales, manta rays) and schools of little colorful fish swimming by.
+    // Just to look at: no dangers. Sunbeams shimmer down from the surface.
+    addSeaLife() {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        // Bright surface far above, so looking up feels like being under the sea
+        const surface = new THREE.Mesh(
+            new THREE.PlaneGeometry(900, 900),
+            new THREE.MeshBasicMaterial({ map: waterTexture(), color: 0x9fe3ff, transparent: true, opacity: 0.55, fog: false, side: THREE.DoubleSide })
+        );
+        surface.material.map.repeat.set(30, 30);
+        surface.rotation.x = Math.PI / 2;
+        surface.position.set(cx, 120, cz);
+        this.root.add(surface);
+        this.surface = surface;
+        this.flyers = [];
+        const kinds = ['turtle', 'school', 'whale', 'manta', 'school', 'turtle', 'manta', 'school'];
+        kinds.forEach((kind, k) => {
+            const flyer = this.makeSeaAnimal(kind);
+            this.root.add(flyer.object);
+            this.flyers.push(flyer);
+            this.launchFlyer(flyer, k / kinds.length);
+        });
+    }
+
+    // One sea animal, modelled swimming along +x. Fins and tails flap in update.
+    makeSeaAnimal(kind) {
+        const group = new THREE.Group();
+        const mat = (color) => new THREE.MeshStandardMaterial({ color, roughness: 0.7 });
+        const wings = [];
+        if (kind === 'turtle') {
+            const shell = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 10), mat(0x5d8a3a));
+            shell.scale.set(1.2, 0.45, 1);
+            const belly = new THREE.Mesh(new THREE.SphereGeometry(1.3, 14, 8), mat(0xd8c98a));
+            belly.scale.set(1.15, 0.25, 0.95);
+            belly.position.y = -0.2;
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.45, 12, 8), mat(0x8fb35a));
+            head.position.set(2, 0, 0);
+            group.add(shell, belly, head);
+            for (const side of [-1, 1]) {
+                for (const front of [true, false]) {
+                    const pivot = new THREE.Group();
+                    pivot.position.set(front ? 0.9 : -1, -0.1, side * 0.9);
+                    const flipper = new THREE.Mesh(new THREE.BoxGeometry(front ? 0.7 : 0.5, 0.1, front ? 1.4 : 0.8), mat(0x8fb35a));
+                    flipper.position.z = side * (front ? 0.7 : 0.4);
+                    pivot.add(flipper);
+                    pivot.userData.side = side;
+                    group.add(pivot);
+                    wings.push(pivot);
+                }
+            }
+        } else if (kind === 'whale') {
+            const body = new THREE.Mesh(new THREE.SphereGeometry(3, 20, 14), mat(0x3d5a80));
+            body.scale.set(2.4, 0.9, 1);
+            const belly = new THREE.Mesh(new THREE.SphereGeometry(2.8, 18, 10), mat(0xc9d6e3));
+            belly.scale.set(2.2, 0.6, 0.85);
+            belly.position.y = -0.8;
+            const tail = new THREE.Group();
+            tail.position.x = -6.8;
+            const fluke = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.25, 4.2), mat(0x3d5a80));
+            fluke.position.x = -0.8;
+            tail.add(fluke);
+            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), mat(0x111111));
+            eye.position.set(5.2, 0.2, 1.6);
+            group.add(body, belly, tail, eye);
+            tail.userData.whaleTail = true;
+            wings.push(tail);
+        } else if (kind === 'manta') {
+            const body = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 8), mat(0x263238));
+            body.scale.set(1.6, 0.3, 1);
+            group.add(body);
+            for (const side of [-1, 1]) {
+                const pivot = new THREE.Group();
+                pivot.position.z = side * 0.8;
+                const wing = new THREE.Mesh(new THREE.ConeGeometry(1.5, 3.2, 3), mat(0x37474f));
+                wing.rotation.x = side * Math.PI / 2;
+                wing.scale.set(1, 1, 0.12);
+                wing.position.z = side * 1.5;
+                pivot.add(wing);
+                pivot.userData.side = side;
+                group.add(pivot);
+                wings.push(pivot);
+            }
+            const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.02, 3, 6), mat(0x263238));
+            tail.rotation.z = Math.PI / 2;
+            tail.position.x = -2.8;
+            group.add(tail);
+            group.scale.setScalar(1.4);
+        } else {
+            // A school of little colorful fish swimming together
+            const colors = [0xffd23f, 0xff6f3c, 0x4dd0e1, 0xff5e9c, 0x7cff6b];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            for (let k = 0; k < 14; k++) {
+                const fish = new THREE.Group();
+                const body = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 6), new THREE.MeshBasicMaterial({ color }));
+                body.scale.set(1.6, 0.8, 0.5);
+                const tail = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.35, 4), new THREE.MeshBasicMaterial({ color }));
+                tail.rotation.z = Math.PI / 2;
+                tail.position.x = -0.6;
+                fish.add(body, tail);
+                fish.position.set((Math.random() - 0.5) * 6, (Math.random() - 0.5) * 2.5, (Math.random() - 0.5) * 4);
+                group.add(fish);
+            }
+        }
+        const object = new THREE.Group();
+        object.add(group);
+        return { kind, object, velocity: new THREE.Vector3(), life: 0, wings, flap: Math.random() * 6 };
     }
 
     // Moon World sky: black, full of stars, with the Earth hanging big and blue
@@ -831,14 +1159,15 @@ export class Maze {
         const cz = this.depth / 2;
         const angle = Math.random() * Math.PI * 2;
         // Birds and butterflies fly lower and slower than things in space
-        const speeds = { rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, butterfly: 4 };
+        const speeds = { rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, butterfly: 4, turtle: 3, whale: 4, manta: 5, school: 6 };
         const speed = speeds[flyer.kind];
-        const bird = flyer.kind === 'parrot' || flyer.kind === 'toucan';
+        // Sea animals swim slowly over the reef, not too high (Underwater World)
+        const bird = ['parrot', 'toucan', 'turtle', 'whale', 'manta', 'school'].includes(flyer.kind);
         const butterfly = flyer.kind === 'butterfly';
         const span = butterfly ? 70 : bird ? 160 : 260;
         const dir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
         const side = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar((Math.random() - 0.5) * (butterfly ? 30 : bird ? 60 : 120));
-        const height = butterfly ? 6 + Math.random() * 5 : bird ? 12 + Math.random() * 14 : 30 + Math.random() * 45;
+        const height = flyer.kind === 'whale' ? 26 + Math.random() * 10 : butterfly ? 6 + Math.random() * 5 : bird ? 10 + Math.random() * 14 : 30 + Math.random() * 45;
         const start = new THREE.Vector3(cx, height, cz).addScaledVector(dir, -span / 2).add(side);
         flyer.velocity.copy(dir).multiplyScalar(speed);
         flyer.velocity.y = flyer.kind === 'meteor' ? -2 : bird || butterfly ? 0 : (Math.random() - 0.5) * 2;
@@ -862,7 +1191,12 @@ export class Maze {
             if (flyer.wings) {
                 const butterfly = flyer.kind === 'butterfly';
                 flyer.flap += dt * (butterfly ? 14 : 7);
-                for (const wing of flyer.wings) wing.rotation.x = wing.userData.side * Math.sin(flyer.flap) * (butterfly ? 0.9 : 0.6);
+                const sea = ['turtle', 'whale', 'manta'].includes(flyer.kind);
+                if (sea) flyer.flap -= dt * 4.5; // slow, gentle strokes
+                for (const wing of flyer.wings) {
+                    if (wing.userData.whaleTail) wing.rotation.z = Math.sin(flyer.flap) * 0.3;
+                    else wing.rotation.x = wing.userData.side * Math.sin(flyer.flap) * (butterfly ? 0.9 : sea ? 0.45 : 0.6);
+                }
                 if (butterfly) flyer.object.position.y += Math.sin(flyer.flap * 0.5) * dt * 1.2;
             }
             flyer.life -= dt;
@@ -875,6 +1209,8 @@ export class Maze {
             r.map.offset[r.flowAxis] -= dt * 0.9;
             for (const fish of r.fish) this.updateFish(fish, p, dt);
         }
+        if (this.surface) this.surface.material.map.offset.x += dt * 0.02;
+        if (this.current?.streaks) this.updateCurrent(dt);
         for (const flyer of this.gapFlyers || []) {
             flyer.object.position.addScaledVector(flyer.velocity, dt);
             flyer.life -= dt;
@@ -1016,6 +1352,7 @@ export class Maze {
     createSpike(position, radius) {
         if (this.theme.jungle) return this.createBush(position, radius);
         if (this.theme.moon) return this.createCrater(position, radius);
+        if (this.theme.underwater) return this.createUrchin(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -1042,6 +1379,114 @@ export class Maze {
         spike.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
         spike.position.copy(position);
         this.root.add(spike);
+    }
+
+    // Underwater World's spike: a spiky purple sea urchin, as wide as a spike's
+    // plate. Touching it works the same as a spike.
+    createUrchin(position, radius) {
+        const urchin = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.32, 18, 12), new THREE.MeshStandardMaterial({ color: 0x5b1f8a, roughness: 0.6, emissive: 0x2a0844, emissiveIntensity: 0.4 }));
+        body.scale.y = 0.8;
+        body.position.y = 0.3;
+        body.castShadow = true;
+        urchin.add(body);
+        const spine = new THREE.MeshStandardMaterial({ color: 0x9b4fd6, roughness: 0.4, emissive: 0x3a0f66, emissiveIntensity: 0.5 });
+        const spineGeometry = new THREE.ConeGeometry(0.03, 0.55, 5);
+        // Spines poking out all over, evenly spread (a golden-angle spiral)
+        for (let k = 0; k < 70; k++) {
+            const y = 1 - (k / 69) * 1.3; // mostly the top and sides, not into the sand
+            const flat = Math.sqrt(Math.max(0, 1 - y * y));
+            const a = k * 2.39996;
+            const dir = new THREE.Vector3(Math.cos(a) * flat, y, Math.sin(a) * flat).normalize();
+            const s = new THREE.Mesh(spineGeometry, spine);
+            s.position.set(0, 0.3, 0).addScaledVector(dir, 0.27 + 0.27);
+            s.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+            urchin.add(s);
+        }
+        urchin.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
+        urchin.position.copy(position);
+        urchin.position.y = 0;
+        this.root.add(urchin);
+    }
+
+    // The water current (Level 41): swirling sand streaks rushing across its
+    // cell the way it pushes, and bubbles streaming the same way. Both carry on
+    // a little into the side dead end so you can see where it sends you.
+    createCurrent() {
+        const c = this.current;
+        const map = currentTexture();
+        const sizeX = c.maxX - c.minX;
+        const sizeZ = c.maxZ - c.minZ;
+        const streaks = new THREE.Mesh(
+            new THREE.PlaneGeometry(1, 1),
+            new THREE.MeshBasicMaterial({ map, transparent: true, depthWrite: false })
+        );
+        streaks.rotation.x = -Math.PI / 2;
+        // The texture's +x is the push direction
+        streaks.rotation.z = -Math.atan2(c.dir.z, c.dir.x);
+        const alongX = c.dir.x !== 0;
+        streaks.scale.set(alongX ? sizeX : sizeZ, alongX ? sizeZ : sizeX, 1);
+        streaks.position.set(c.center.x, 0.02, c.center.z);
+        this.root.add(streaks);
+        c.streaks = streaks;
+        // A faint swirl of water over the whole cell
+        const haze = new THREE.Mesh(
+            new THREE.BoxGeometry(sizeX, this.height * 0.8, sizeZ),
+            new THREE.MeshBasicMaterial({ color: 0xbfefff, transparent: true, opacity: 0.12, depthWrite: false })
+        );
+        haze.position.set(c.center.x, this.height * 0.4, c.center.z);
+        this.root.add(haze);
+        // Bubbles: each starts somewhere in the cell, streams the push way
+        // while rising, and starts again when it's gone a cell and a bit
+        c.bubbles = [];
+        const bubbleMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, roughness: 0.1, metalness: 0.2, emissive: 0x6fd6ff, emissiveIntensity: 0.3 });
+        for (let k = 0; k < 40; k++) {
+            const b = new THREE.Mesh(new THREE.SphereGeometry(0.06 + Math.random() * 0.08, 8, 6), bubbleMaterial);
+            this.root.add(b);
+            const bubble = { mesh: b, t: Math.random() };
+            this.placeBubble(bubble);
+            c.bubbles.push(bubble);
+        }
+    }
+
+    placeBubble(bubble) {
+        const c = this.current;
+        const across = new THREE.Vector3(-c.dir.z, 0, c.dir.x);
+        const half = (c.maxX - c.minX) / 2;
+        bubble.start = c.center.clone().addScaledVector(c.dir, -half).addScaledVector(across, (Math.random() - 0.5) * 2.6);
+        bubble.start.y = 0.1 + Math.random() * 1.2;
+        bubble.speed = 3 + Math.random() * 2;
+        bubble.wobble = Math.random() * 6;
+    }
+
+    updateCurrent(dt) {
+        const c = this.current;
+        c.streaks.material.map.offset.x -= dt * 1.4; // the streaks rush the way it pushes
+        const reach = (c.maxX - c.minX) + 1.5; // across the cell and a bit into the dead end
+        for (const b of c.bubbles) {
+            b.t += (dt * b.speed) / reach;
+            if (b.t >= 1) {
+                b.t -= 1;
+                this.placeBubble(b);
+            }
+            b.wobble += dt * 5;
+            const across = new THREE.Vector3(-c.dir.z, 0, c.dir.x);
+            b.mesh.position.copy(b.start).addScaledVector(c.dir, b.t * reach).addScaledVector(across, Math.sin(b.wobble) * 0.15);
+            b.mesh.position.y = b.start.y + b.t * 1.6;
+        }
+    }
+
+    // Is this point inside the water current's cell?
+    inCurrent(point) {
+        const c = this.current;
+        return !!c && point.x > c.minX && point.x < c.maxX && point.z > c.minZ && point.z < c.maxZ;
+    }
+
+    // Did someone walking from `from` into the current come from its dead end
+    // (the side it pushes toward)? Then it lets them back out without a shove.
+    cameFromCurrentDeadEnd(from) {
+        const c = this.current;
+        return from.clone().sub(c.center).dot(c.dir) > (c.maxX - c.minX) / 2 - 0.01;
     }
 
     // Moon World's spike: a small crater in the moon dust, `radius` across from

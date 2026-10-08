@@ -26,6 +26,8 @@ export class Player {
 
         // Sliding on a slippery spot: { dir, speed, left } while it lasts
         this.slide = null;
+        // Being shoved by a water current: { from, to, time, length } while it lasts
+        this.shove = null;
 
         // Collision
         this.radius = 0.4;
@@ -96,6 +98,7 @@ export class Player {
         this.position.copy(position);
         this.velocity.set(0, 0, 0);
         this.slide = null;
+        this.shove = null;
         this.euler.set(pitch, yaw, 0);
         this.camera.quaternion.setFromEuler(this.euler);
         this.camera.position.set(this.position.x, this.position.y + 1.6, this.position.z);
@@ -318,6 +321,20 @@ export class Player {
             this.look(controls.turn * this.turnSpeed * deltaTime, controls.tilt * this.turnSpeed * deltaTime);
         }
 
+        // A water current is carrying you: you can look around, but you go
+        // where it takes you, smoothly, then it lets go (Level 41)
+        if (this.shove) {
+            const sh = this.shove;
+            sh.time = Math.min(sh.length, sh.time + deltaTime);
+            const t = sh.time / sh.length;
+            const eased = t * t * (3 - 2 * t);
+            this.position.lerpVectors(sh.from, sh.to, eased);
+            this.velocity.set(0, 0, 0);
+            if (sh.time >= sh.length) this.shove = null;
+            this.camera.position.set(this.position.x, this.position.y + 1.6, this.position.z);
+            return;
+        }
+
         // Calculate movement direction based on input
         const forward = new THREE.Vector3();
         const right = new THREE.Vector3();
@@ -396,6 +413,13 @@ export class Player {
 
         // Update camera position
         this.camera.position.set(this.position.x, this.position.y + 1.6, this.position.z);
+    }
+
+    // Get carried to `to` over `length` seconds (a water current's shove)
+    startShove(to, length) {
+        this.slide = null;
+        this.velocity.set(0, 0, 0);
+        this.shove = { from: this.position.clone(), to: new THREE.Vector3(to.x, this.position.y, to.z), time: 0, length };
     }
 
     // Slide `distance` further the way you're moving now (a slippery spot)

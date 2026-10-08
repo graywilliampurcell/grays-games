@@ -32,6 +32,7 @@
 //   node tools/find-level.mjs level29 4  # Level 29 rules (Level 26's with 3-cell dead ends; all leaves fast)
 //   node tools/find-level.mjs level30 4  # Level 30 rules (Level 29's plus the big bush)
 //   node tools/find-level.mjs level31 8  # Level 31 rules (Moon World: 8 x 8, Level 11's hidden crater, no gap)
+//   node tools/find-level.mjs level41 11 # Level 41 rules (Underwater World: 9 x 9, hidden urchin, one water current)
 //   node tools/find-level.mjs level32 8  # Level 32 rules (Level 31's plus a crater on the path, like Level 25's bush)
 //   node tools/find-level.mjs level35 8  # Level 35 rules (Level 32's plus Level 33's big crater in a straight dead end)
 //   node tools/find-level.mjs level36 8  # Level 36 rules (Level 33's path crater plus a giant crater: a 3-cell platform gap, no big crater)
@@ -174,7 +175,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39', level40: 'Level 40' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39', level40: 'Level 40', level41: 'Level 41' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -206,7 +207,10 @@ const LEVEL34 = process.argv[2] === 'level34'; // Level 33's again with a new la
 const LEVEL36 = process.argv[2] === 'level36'; // Moon World: a crater on the path plus a giant crater (a 3-cell platform gap), no big crater
 const LEVEL38 = process.argv[2] === 'level38'; // Moon World: Level 33's path crater + big crater plus two giant craters (3-cell platform gaps)
 const LEVEL33 = process.argv[2] === 'level33' || LEVEL34 || LEVEL36 || LEVEL38; // Moon World 8 x 8: a crater on the path plus the big crater in a straight dead end, no hidden crater // Moon World: 8 x 8, Level 11's hidden crater, no platform gap
-const LEVEL11 = process.argv[2] === 'level11' || LEVEL21 || LEVEL31;
+// Underwater World: 9 x 9, Level 21's hidden urchin plus a water current ('W')
+// on a straight bit of path where a 2-cell dead end branches off sideways
+const LEVEL41 = process.argv[2] === 'level41';
+const LEVEL11 = process.argv[2] === 'level11' || LEVEL21 || LEVEL31 || LEVEL41;
 // Level 12: 6 x 6 with 2-cell dead ends again, no spikes, a space door on the path
 const LEVEL13 = process.argv[2] === 'level13'; // Level 12's plus a slippery spot
 const LEVEL14 = process.argv[2] === 'level14'; // Level 12's plus a spike on the path
@@ -217,8 +221,8 @@ const LEVEL18 = process.argv[2] === 'level18' || LEVEL20; // Level 17's plus a s
 const LEVEL17 = process.argv[2] === 'level17' || LEVEL18 || LEVEL19; // a moving-platform gap, a space door, a slippery spot, a path spike
 const LEVEL15 = process.argv[2] === 'level15' || LEVEL16; // slippery spot, path spike, spike row in a dead end
 const LEVEL12 = process.argv[2] === 'level12' || LEVEL13 || LEVEL14;
-const COLS = LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
-const ROWS = LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
+const COLS = LEVEL41 ? 9 : LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
+const ROWS = LEVEL41 ? 9 : LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
 const LEVEL2 = process.argv[2] === 'level2';
 const LEVEL3 = ['level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9', 'level10'].includes(process.argv[2]); // spike on the path
 const LEVEL4 = process.argv[2] === 'level4';
@@ -228,7 +232,7 @@ const LEVEL7 = ['level7', 'level8', 'level9', 'level10'].includes(process.argv[2
 const LEVEL8 = ['level8', 'level9', 'level10'].includes(process.argv[2]); // clearly new layout and spike-row spot
 const LEVEL9 = process.argv[2] === 'level9'; // the spike row hidden just round a dead end's corner
 const LEVEL10 = process.argv[2] === 'level10'; // the finale: a visible spike row again
-const SHORT_DEAD_ENDS = LEVEL21 || LEVEL25 || LEVEL31 || LEVEL33 ? Number(process.argv[3] ?? 8) : LEVEL19 ? 5 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
+const SHORT_DEAD_ENDS = LEVEL21 || LEVEL25 || LEVEL31 || LEVEL33 || LEVEL41 ? Number(process.argv[3] ?? 8) : LEVEL19 ? 5 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : LEVEL7 ? 3 : LEVEL2 || LEVEL3 ? 4 : Number(process.argv[2] ?? 5); // Level 1: 4 or 5 per the plan
 const SHORT_DEPTH = DEEP ? 3 : LEVEL25 || LEVEL33 || LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 || (!LEVEL7 && (LEVEL2 || LEVEL3)) ? 2 : LEVEL7 ? 3 : 1; // how deep each of those dead ends is
 const SPIKE_DEPTH = LEVEL19 ? 3 : LEVEL25 || LEVEL33 || LEVEL3 || LEVEL12 || LEVEL15 || LEVEL17 ? 0 : 3; // Level 3's spike is on the path, not in a dead end
 const SPIKE_BRANCH_WITHIN = 3; // the spike dead end leaves the path in its first 3 cells
@@ -1048,6 +1052,27 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
         maxBranchDepth === SPIKE_DEPTH;
     if (!ok) continue;
 
+    // Level 41: the water current fills plain path cell k, where the path
+    // runs straight through (k - 1, k, k + 1) and one 2-cell dead end branches
+    // off sideways; it shoves the player into that dead end's first cell. At
+    // least 2 path cells from the urchin dead end's opening, in the middle part
+    // of the path, and a clearly new layout.
+    if (LEVEL41) {
+        if (!differentEnough(shape(toLayout(hung.links, { startCell, exitCell })))) continue;
+        const step = (p, q) => `${q.i - p.i},${q.j - p.j}`;
+        const options = [];
+        for (let k = 2; k < path.length - 2; k++) {
+            if (step(path[k - 1], path[k]) !== step(path[k], path[k + 1])) continue;
+            if (hung.links[path[k].i][path[k].j].length !== 3) continue;
+            if (Math.abs(k - hung.junctionIndex) - 1 < 2 || k < path.length * 0.2 || k > path.length * 0.8) continue;
+            const c = hung.chains.findIndex((chain, n) => key(hung.roots[n]) === key(path[k]));
+            if (c < 0 || hung.chains[c].length !== 2) continue;
+            options.push({ index: k, cell: path[k], into: hung.chains[c][0] });
+        }
+        if (options.length === 0) continue;
+        hung.current = options[Math.floor(random() * options.length)];
+    }
+
     // Level 32: a crater on the path in plain path cell k, the path straight
     // from k - 2 to k + 1 (seen coming), at least 2 path cells from the hidden
     // crater's dead-end opening; a new start row and a clearly new layout
@@ -1214,6 +1239,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL37) Object.assign(best, { gap: [path[hung.gapIndex], path[hung.gapIndex + 1], path[hung.gapIndex + 2]], gapIndex: hung.gapIndex });
     if (LEVEL39) Object.assign(best, { gap2: [path[hung.gapIndex2], path[hung.gapIndex2 + 1], path[hung.gapIndex2 + 2]], gapIndex2: hung.gapIndex2 });
     if (hung.spikeCell2) Object.assign(best, { spikeCell2: hung.spikeCell2, spikeIndex2: hung.spikeIndex2 });
+    if (hung.current) best.current = hung.current;
 }
 
 if (!best) {
@@ -1259,6 +1285,19 @@ if (best.door) {
         layout[z] = row.join('');
     }
 }
+if (best.current) {
+    // The current ('W') fills its whole cell; 'V' marks the middle of the dead
+    // end's first cell, where the shove ends
+    const { cell, into } = best.current;
+    for (let z = 4 * cell.j + 1; z <= 4 * cell.j + 3; z++) {
+        const row = layout[z].split('');
+        for (let x = 4 * cell.i + 1; x <= 4 * cell.i + 3; x++) row[x] = 'W';
+        layout[z] = row.join('');
+    }
+    const row = layout[4 * into.j + 2].split('');
+    row[4 * into.i + 2] = 'V';
+    layout[4 * into.j + 2] = row.join('');
+}
 console.log(layout.map((row) => `        '${row}',`).join('\n'));
 console.log(`\nseed ${best.seed}: ${COLS}x${ROWS}, path ${best.solution.length} cells, ` +
     `${best.deadEnds.length} dead ends (depths ${best.deadEnds.map((d) => d.depth).join(',')}), ` +
@@ -1269,6 +1308,7 @@ console.log(`\nseed ${best.seed}: ${COLS}x${ROWS}, path ${best.solution.length} 
     (best.gap ? `platform gap over path cells ${best.gapIndex + 1}-${best.gapIndex + best.gap.length}, ` : '') +
     (best.gap2 ? `second platform gap over path cells ${best.gapIndex2 + 1}-${best.gapIndex2 + best.gap2.length}, ` : '') +
     (best.gap3 ? `third platform gap over path cells ${best.gapIndex3 + 1}-${best.gapIndex3 + 2}, ` : '') +
+    (best.current ? `water current in path cell ${best.current.index + 1} (urchin dead end off path cell ${best.spike?.fromStart}), ` : '') +
     (best.door ? `space door between path cells ${best.doorIndex + 1} and ${best.doorIndex + 2}` : best.spike ? `spike ${best.spike.fromStart} cells from start` : '') +
     (best.blocker ? `, spike row in the dead end at ${best.blocker.rowCell.i},${best.blocker.rowCell.j}` : '') +
     (best.blocker?.at !== undefined ? ` (opening off path cell ${best.blocker.at + 1})` : ''));
