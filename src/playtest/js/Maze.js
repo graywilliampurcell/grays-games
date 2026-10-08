@@ -1569,6 +1569,7 @@ export class Maze {
     createSpikeRow(row) {
         if (this.theme.jungle) return this.createBigBush(row);
         if (this.theme.moon) return this.createBigCrater(row);
+        if (this.theme.underwater) return this.createBigUrchin(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -1629,6 +1630,41 @@ export class Maze {
         }
         if (!row.spansX) group.rotation.y = Math.PI / 2;
         group.position.copy(row.position);
+        this.root.add(group);
+    }
+
+    // Underwater World's spike row (Level 43): a big urchin right across the
+    // corridor, as wide as the corridor and as deep as a spike row: one wide
+    // spiky purple body with two smaller urchins snuggled in at its sides,
+    // so there's no way past
+    createBigUrchin(row) {
+        const group = new THREE.Group();
+        const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x5b1f8a, roughness: 0.6, emissive: 0x2a0844, emissiveIntensity: 0.4 });
+        const spine = new THREE.MeshStandardMaterial({ color: 0x9b4fd6, roughness: 0.4, emissive: 0x3a0f66, emissiveIntensity: 0.5 });
+        const spineGeometry = new THREE.ConeGeometry(0.04, 0.6, 5);
+        // [x, radius along the corridor's width, height scale]
+        for (const [x, r, tall] of [[0, 0.62, 1], [-1.05, 0.4, 0.85], [1.05, 0.4, 0.85]]) {
+            const centerY = r * 0.8 * tall;
+            const body = new THREE.Mesh(new THREE.SphereGeometry(r, 22, 14), bodyMaterial);
+            body.scale.set(1, 0.8 * tall, Math.min(1, (SPIKE_ROW_DEPTH / 2) / r + 0.15));
+            body.position.set(x, centerY, 0);
+            body.castShadow = true;
+            group.add(body);
+            const count = Math.round(r * 150);
+            for (let k = 0; k < count; k++) {
+                const y = 1 - (k / (count - 1)) * 1.3;
+                const flat = Math.sqrt(Math.max(0, 1 - y * y));
+                const a = k * 2.39996;
+                const dir = new THREE.Vector3(Math.cos(a) * flat, y, Math.sin(a) * flat).normalize();
+                const s = new THREE.Mesh(spineGeometry, spine);
+                s.position.set(x, centerY, 0).addScaledVector(dir, r * 0.85 + 0.3);
+                s.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+                group.add(s);
+            }
+        }
+        if (!row.spansX) group.rotation.y = Math.PI / 2;
+        group.position.copy(row.position);
+        group.position.y = 0;
         this.root.add(group);
     }
 

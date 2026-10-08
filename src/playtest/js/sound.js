@@ -1027,6 +1027,29 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.3, length: 0.13, brightness: 2400 },
     },
+    // Level 43, urchins and the bubble: E-flat minor, slower and lower than
+    // Level 42's. A tiptoeing half-step creep (E-flat, D, E-flat) that keeps
+    // stopping to listen, a spiky tritone poke (A against E-flat) like
+    // brushing an urchin, and a long hush before each phrase. No happy climb.
+    urchinprowl: {
+        tempo: 100,
+        bars: [[39, 'min'], [39, 'min'], [38, 'maj'], [39, 'min'], [42, 'maj'], [39, 'min'], [44, 'min'], [38, 'maj']],
+        bass: [0, null, null, null, 1, 0, null, 'lead-in'],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            63, null, 62, 63, null, null, null, null,
+            66, null, 65, 66, null, null, 69, null,
+            63, null, 62, 63, null, null, 58, null,
+            57, null, null, 58, null, null, null, null,
+            66, null, 65, 66, null, null, 70, null,
+            69, null, null, 63, null, null, null, null,
+            68, 66, null, 64, 63, null, 62, null,
+            63, null, null, null, 51, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.32, length: 0.12, brightness: 1600 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
