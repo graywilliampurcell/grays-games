@@ -33,6 +33,7 @@
 //   node tools/find-level.mjs level30 4  # Level 30 rules (Level 29's plus the big bush)
 //   node tools/find-level.mjs level31 8  # Level 31 rules (Moon World: 8 x 8, Level 11's hidden crater, no gap)
 //   node tools/find-level.mjs level41 11 # Level 41 rules (Underwater World: 9 x 9, hidden urchin, one water current)
+//   node tools/find-level.mjs level45 10 # Level 45 rules (Level 41's plus two bubble rides: two 3-cell cracks)
 //   node tools/find-level.mjs level32 8  # Level 32 rules (Level 31's plus a crater on the path, like Level 25's bush)
 //   node tools/find-level.mjs level35 8  # Level 35 rules (Level 32's plus Level 33's big crater in a straight dead end)
 //   node tools/find-level.mjs level36 8  # Level 36 rules (Level 33's path crater plus a giant crater: a 3-cell platform gap, no big crater)
@@ -175,7 +176,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39', level40: 'Level 40', level41: 'Level 41', level42: 'Level 42', level43: 'Level 43', level44: 'Level 44' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39', level40: 'Level 40', level41: 'Level 41', level42: 'Level 42', level43: 'Level 43', level44: 'Level 44', level45: 'Level 45' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -213,7 +214,8 @@ const LEVEL43 = process.argv[2] === 'level43' || LEVEL44;
 const LEVEL33 = process.argv[2] === 'level33' || LEVEL34 || LEVEL36 || LEVEL38 || LEVEL43; // Moon World 8 x 8: a crater on the path plus the big crater in a straight dead end, no hidden crater // Moon World: 8 x 8, Level 11's hidden crater, no platform gap
 // Underwater World: 9 x 9, Level 21's hidden urchin plus a water current ('W')
 // on a straight bit of path where a 2-cell dead end branches off sideways
-const LEVEL41 = process.argv[2] === 'level41';
+const LEVEL45 = process.argv[2] === 'level45'; // Level 41's hidden urchin + current plus two bubble rides (two 3-cell cracks)
+const LEVEL41 = process.argv[2] === 'level41' || LEVEL45;
 const LEVEL42 = process.argv[2] === 'level42'; // Underwater World 9 x 9: a water current and a bubble ride over a 3-cell crack, no urchins
 const LEVEL11 = process.argv[2] === 'level11' || LEVEL21 || LEVEL31 || LEVEL41;
 // Level 12: 6 x 6 with 2-cell dead ends again, no spikes, a space door on the path
@@ -1154,6 +1156,27 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
         }
         if (options.length === 0) continue;
         hung.current = options[Math.floor(random() * options.length)];
+        // Level 45: two cracks, each over three plain path cells g, g + 1,
+        // g + 2 with the path straight from g - 1 to g + 3, a turn between
+        // them, and at least 2 path cells between any two of the cracks, the
+        // current and the urchin dead end's opening; a new start row
+        if (LEVEL45) {
+            if ([0, 3, 6, 8].includes(path[0].j)) continue; // Levels 41-44 start in rows 3, 6, 0, 8
+            const j = hung.junctionIndex;
+            const plain = (n) => n > 0 && n < path.length - 1 && hung.links[path[n].i][path[n].j].length === 2 && step(path[n - 1], path[n]) === step(path[n], path[n + 1]);
+            const turnBetween = (a, b) => { for (let n = a; n < b; n++) if (step(path[n - 1], path[n]) !== step(path[n], path[n + 1])) return true; return false; };
+            const clear = (a, g) => a <= g - 3 || a >= g + 5;
+            const gaps = [];
+            for (let g = 3; g < path.length - 4; g++) if (plain(g) && plain(g + 1) && plain(g + 2) && clear(j, g)) gaps.push(g);
+            const picks = [];
+            for (const current of options) for (const g1 of gaps) for (const g2 of gaps) {
+                if (g2 >= g1 + 5 && turnBetween(g1 + 3, g2 - 1) && clear(current.index, g1) && clear(current.index, g2)) picks.push({ current, g1, g2 });
+            }
+            if (picks.length === 0) continue;
+            const pick = picks[Math.floor(random() * picks.length)];
+            hung.current = pick.current;
+            [hung.gapIndex, hung.gapIndex2] = [pick.g1, pick.g2];
+        }
     }
 
     // Level 32: a crater on the path in plain path cell k, the path straight
@@ -1323,6 +1346,8 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
     if (LEVEL39) Object.assign(best, { gap2: [path[hung.gapIndex2], path[hung.gapIndex2 + 1], path[hung.gapIndex2 + 2]], gapIndex2: hung.gapIndex2 });
     if (hung.spikeCell2) Object.assign(best, { spikeCell2: hung.spikeCell2, spikeIndex2: hung.spikeIndex2 });
     if (hung.current) best.current = hung.current;
+    if (LEVEL45) Object.assign(best, { gap: [path[hung.gapIndex], path[hung.gapIndex + 1], path[hung.gapIndex + 2]], gapIndex: hung.gapIndex,
+        gap2: [path[hung.gapIndex2], path[hung.gapIndex2 + 1], path[hung.gapIndex2 + 2]], gapIndex2: hung.gapIndex2 });
 }
 
 if (!best) {

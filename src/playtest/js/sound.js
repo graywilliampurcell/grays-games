@@ -1073,6 +1073,30 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.3, length: 0.16, brightness: 1200 },
     },
+    // Level 45, two bubbles: B-flat minor, slower and darker than Level 44's.
+    // Every little phrase comes twice, the second time an octave lower and
+    // softer, like an echo from a second bubble deep down; a creeping
+    // half-step wobble (B-flat, A, B-flat), a sour E (the tritone) poke, a
+    // slow two-note low bass heartbeat, and long held hushes. No happy at all.
+    twinbubble: {
+        tempo: 86,
+        bars: [[46, 'min'], [46, 'min'], [45, 'maj'], [46, 'min'], [42, 'maj'], [46, 'min'], [40, 'maj'], [45, 'maj']],
+        bass: [0, null, null, 0, null, null, null, 'lead-in'],
+        bassLength: 0.28,
+        stabs: [],
+        ticks: true,
+        melody: [
+            70, null, 69, 70, null, null, null, null,
+            58, null, 57, 58, null, null, null, null,
+            null, null, 64, null, null, null, 65, null,
+            null, null, 52, null, null, null, 53, null,
+            73, null, null, 72, null, null, 70, null,
+            61, null, null, 60, null, null, 58, null,
+            69, null, null, null, 64, null, null, null,
+            46, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.3, length: 0.18, brightness: 1000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
