@@ -1606,6 +1606,32 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.16, length: 0.12, brightness: 1400 },
     },
+    // Level 66, the squeeze-past coal: just sneaky, no happy. F minor at
+    // 118 bpm. Each phrase creeps up to a note and then wiggles between it
+    // and the note right next to it, as if squeezing sideways past something
+    // hot, then slips on by with a quick little run; the geyser and the vent
+    // are a sudden high jump and a short hiss of repeated notes. The second
+    // half squeezes higher and ends on a hanging, unfinished G. A buzzy
+    // sawtooth lead, no ticking, and a steady, walking bass.
+    coalsqueeze: {
+        tempo: 118,
+        bars: [[41, 'min'], [41, 'min'], [37, 'maj'], [36, 'maj'], [41, 'min'], [34, 'min'], [37, 'maj'], [36, 'maj']],
+        bass: [0, null, 0, null, 0, null, 0, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: false,
+        melody: [
+            53, null, 56, null, 60, 61, 60, 61,
+            60, 61, 60, null, 63, 65, 68, null,
+            61, null, 65, null, 68, 69, 68, 69,
+            68, null, 80, null, 72, 72, 72, null,
+            65, null, 68, null, 72, 73, 72, 73,
+            72, 73, 72, null, 75, 77, 80, null,
+            73, null, 77, null, 80, 81, 80, 81,
+            null, null, 79, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.1, length: 0.1, brightness: 1200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

@@ -3140,6 +3140,68 @@ export const LEVELS = [
         '#############################################',
         ],
     },
+    {
+        name: 'Level 66',
+        // The squeeze-past coal. `node tools/find-volcano-level.mjs level66`,
+        // seed 9281. 11 x 11 corridors. Correct path 81 cells (start west in
+        // row 10, door east in row 10); 20 dead ends 2 cells deep. X: the hot
+        // coal on the path, path cell 28 (row 3, heading east), with Level
+        // 53's squeeze gap (spikeRadius 0.64). K: one lava geyser over path
+        // cell 38 (the top row, heading east). H: one steam vent over path
+        // cell 76 (the bottom row, heading east), pushing back into path cell
+        // 75 (Q). No balloon ride, no sneaky or big hot coal. Music: just
+        // sneaky.
+        theme: VOLCANO,
+        music: 'coalsqueeze',
+        spikeRadius: 0.64,
+        layout: [
+            '#############################################',
+            '#                   #        KKK    #       #',
+            '#                   #        KKK    #       #',
+            '#                   #        KKK    #       #',
+            '#########   #####   #   #########   #   #   #',
+            '#           #       #   #       #   #   #   #',
+            '#           #       #   #       #   #   #   #',
+            '#           #       #   #       #   #   #   #',
+            '#########   #   #####   #   #   #   #   #   #',
+            '#           #       #       #   #       #   #',
+            '#           #       #       #   #       #   #',
+            '#           #       #       #   #       #   #',
+            '#########   #####   #########   #########   #',
+            '#               #               #           #',
+            '#               #         X     #           #',
+            '#               #               #           #',
+            '#############   #####   #################   #',
+            '#   #       #   #       #   #               #',
+            '#   #       #   #       #   #               #',
+            '#   #       #   #       #   #               #',
+            '#   #   #####   #########   #   #############',
+            '#   #                   #                   #',
+            '#   #                   #                   #',
+            '#   #                   #                   #',
+            '#   #   #####   #############   #####   #   #',
+            '#       #       #       #       #       #   #',
+            '#       #       #       #       #       #   #',
+            '#       #       #       #       #       #   #',
+            '#   #############   #####################   #',
+            '#   #       #       #   #   #   #       #   #',
+            '#   #       #       #   #   #   #       #   #',
+            '#   #       #       #   #   #   #       #   #',
+            '#   #####   #   #   #   #   #   #####   #   #',
+            '#           #   #   #   #   #           #   #',
+            '#           #   #   #   #   #           #   #',
+            '#           #   #   #   #   #           #   #',
+            '#####   #   #   #   #   #   #####   #   #   #',
+            '#       #   #   #                   #       #',
+            '#       #   #   #                   #       #',
+            '#       #   #   #                   #       #',
+            '#########   #   #############################',
+            '#           #        HHH                    #',
+            '# S         #     Q  HHH                    D',
+            '#           #        HHH                    #',
+            '#############################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with
