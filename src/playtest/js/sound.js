@@ -1581,6 +1581,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.14, length: 0.09, brightness: 1000 },
     },
+    // Level 65, two balloons: just sneaky, no happy. C minor at 102 bpm.
+    // Two slow climbs, like two balloons going up one after the other: a
+    // low one rises and hangs, drifts down a step at a time, then a second
+    // one rises from a little higher and drifts down too. The second half
+    // climbs both at once, higher, and ends on a hanging, unfinished D.
+    // A soft triangle lead over quiet ticking and a short, plucked bass.
+    twoballoons: {
+        tempo: 102,
+        bars: [[36, 'min'], [36, 'min'], [32, 'maj'], [31, 'maj'], [36, 'min'], [29, 'min'], [32, 'maj'], [31, 'maj']],
+        bass: [0, null, null, 0, null, null, 0, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            48, 51, 55, 60, 63, null, null, null,
+            62, null, 60, null, 58, null, 55, null,
+            56, 60, 63, 68, 72, null, null, null,
+            71, null, 68, null, 67, null, null, null,
+            60, 63, 67, 72, 75, null, 79, null,
+            77, null, 75, null, 72, null, 68, null,
+            56, 60, 63, 68, 72, 75, null, null,
+            null, null, 74, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.16, length: 0.12, brightness: 1400 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

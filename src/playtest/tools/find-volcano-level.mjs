@@ -6,6 +6,7 @@
 //   node tools/find-volcano-level.mjs level62 20 15001   # one balloon ride over a lava gap + one steam vent (Level 62 = seed 15713)
 //   node tools/find-volcano-level.mjs level63 20 3001     # one lava geyser + one balloon ride (Level 63 = seed 4348)
 //   node tools/find-volcano-level.mjs level64 20 1        # two lava geysers (each in its own straight stretch) + the big hot coal (Level 64 = seed 4949)
+//   node tools/find-volcano-level.mjs level65 20 10501    # two balloon rides (each its own lava gap, a turn between) + one steam vent (Level 65 = seed 10503)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 11 x 11, so run many first seeds in parallel.
@@ -36,6 +37,7 @@ const RULES = {
     level62: { name: 'Level 62', depth: 2, deadEnds: 20, vents: 1, gaps: 1 },
     level63: { name: 'Level 63', depth: 2, deadEnds: 20, geysers: 1, gaps: 1 },
     level64: { name: 'Level 64', depth: 2, deadEnds: 20, geysers: 2, bigCane: true },
+    level65: { name: 'Level 65', depth: 2, deadEnds: 20, vents: 1, gaps: 2 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
