@@ -1632,6 +1632,32 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.1, length: 0.1, brightness: 1200 },
     },
+    // Level 67, the tighter squeeze: just sneaky, no happy. E minor at 108
+    // bpm. Like Level 66's tune but tighter: each phrase tiptoes down, then
+    // shuffles between two notes right next to each other, faster and
+    // closer than before, as if edging past something hot with no room to
+    // spare; the balloon is one long, slow climb in the middle. The end
+    // stops on a hanging, unfinished F sharp. A soft triangle lead with
+    // ticking, and a bass that only moves on the first beat.
+    tightsqueeze: {
+        tempo: 108,
+        bars: [[40, 'min'], [40, 'min'], [36, 'maj'], [35, 'maj'], [40, 'min'], [43, 'maj'], [36, 'maj'], [35, 'maj']],
+        bass: [0, null, null, null, 0, null, null, null],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            76, null, 74, null, 71, 72, 71, 72,
+            71, 72, 71, 72, 71, null, 67, null,
+            72, null, 71, null, 67, 68, 67, 68,
+            67, 68, 67, null, 63, null, null, null,
+            64, null, 67, null, 71, null, 76, null,
+            79, null, 83, null, 79, 78, 79, 78,
+            76, null, 74, null, 72, 71, 72, 71,
+            null, null, 66, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.15, length: 0.11, brightness: 1300 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
