@@ -76,6 +76,7 @@ export function installTestHooks(game) {
             current: maze.current ? currentState(maze.current) : null,
             currents: maze.currents.map(currentState),
             vents: maze.vents.map((v) => ({ minX: v.minX, maxX: v.maxX, minZ: v.minZ, maxZ: v.maxZ, phase: v.phase, timer: round(v.timer), target: { x: v.target.x, z: v.target.z } })),
+            geysers: maze.geysers.map((g) => ({ minX: g.minX, maxX: g.maxX, minZ: g.minZ, maxZ: g.maxZ, phase: g.phase, timer: round(g.timer), waiting: g.waiting, rise: round(g.rise) })),
             spaceDoor: maze.spaceDoor ? { phase: maze.spaceDoor.phase, shut: round(maze.spaceDoor.shut), solid: maze.spaceDoor.solid } : null,
             platform: maze.platform ? platformState(maze.platform) : null,
             platforms: maze.platforms.map(platformState),

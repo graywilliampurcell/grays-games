@@ -51,6 +51,8 @@ let wasOnMarshmallow = null;
 const CARAMEL_SPEED = 0.5;
 // A steam vent's puff (Volcano World) pushes you one square back, taking this long
 const VENT_PUSH_TIME = 0.45;
+// How far away an erupting lava geyser can be heard (it gets quieter with distance)
+const GEYSER_HEAR_DISTANCE = 24;
 const VENT_HISS_TIME = 1;
 // The balloon lets you out (Volcano World): you step out onto the floor, taking this long
 const BALLOON_STEP_OUT_TIME = 0.4;
@@ -295,6 +297,21 @@ function step(deltaTime) {
         if (event === 'push' && !player.shove) {
             player.startShove(vent.target, VENT_PUSH_TIME);
             testHooks?.emit('steam');
+        }
+    }
+    // Lava geysers (Volcano World): each erupts for a while, then is quiet,
+    // on its own timer; it never starts while you're in it. Being in one while
+    // it erupts sends you back to the start.
+    for (const { geyser, event } of maze.updateGeysers(deltaTime, player.position, player.radius)) {
+        if (event === 'erupt') {
+            sound.roar(Math.max(0, 1 - horizontalDistance(player.position, geyser.center) / GEYSER_HEAR_DISTANCE));
+            testHooks?.emit('geyser');
+        }
+        if (event === 'hit' && !escaped) {
+            backToStart();
+            testHooks?.emit('spike', { what: 'geyser' });
+            sound.ouch();
+            showMessage('Ouch! The lava geyser sent you back to the start.');
         }
     }
     // Sticky caramel (Level 52 on): half speed while on it, normal as soon as you're off

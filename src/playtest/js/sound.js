@@ -1530,6 +1530,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.15, length: 0.12, brightness: 1150 },
     },
+    // Level 63, the first lava geyser: just sneaky, no happy. C# minor at
+    // 106 bpm. Each phrase waits on a low note ticking quietly three times,
+    // like a geyser hole bubbling, then bursts straight up more than an
+    // octave in a rush of fast notes and splashes back down in a tumble; the
+    // second half waits longer and bursts higher, and ends hanging on a high,
+    // unfinished D. A buzzy sawtooth lead, ticking and a low, thumping bass.
+    geyserburst: {
+        tempo: 106,
+        bars: [[37, 'min'], [37, 'min'], [33, 'maj'], [32, 'maj'], [37, 'min'], [30, 'min'], [33, 'maj'], [32, 'maj']],
+        bass: [0, null, null, null, 0, 0, null, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            49, null, 49, null, 49, null, null, null,
+            52, 56, 61, 64, 68, null, 66, 63,
+            61, null, null, null, 56, null, null, null,
+            48, null, 48, null, 48, null, 48, null,
+            49, null, 49, null, 49, null, 49, null,
+            52, 56, 61, 64, 68, 73, 71, 68,
+            64, null, 61, null, 56, null, null, null,
+            null, null, 74, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.1, length: 0.1, brightness: 1300 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -1808,6 +1833,23 @@ export class Sound {
         if (!this.settings.sfx || !this.ctx) return;
         this.onEvent('whoosh');
         this.steam(this.ctx.currentTime, length, 0.6, 0.8, 2400);
+    }
+
+    // A lava geyser erupting (Volcano World): a deep, rushing roar, quieter
+    // the further away it is (volume 0-1). Obeys the Sound effects switch.
+    roar(volume = 1, length = 1.2) {
+        if (!this.settings.sfx || !this.ctx || volume <= 0.01) return;
+        this.onEvent('roar');
+        const t = this.ctx.currentTime;
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'lowpass';
+        f.frequency.setValueAtTime(900, t);
+        f.frequency.exponentialRampToValueAtTime(300, t + length);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.9 * volume, t + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + length);
+        this.noiseSource(t, length + 0.05).connect(f).connect(g).connect(this.sfxBus);
     }
 
     steam(t, length, from, to, freq) {

@@ -982,6 +982,17 @@ const VENT_QUIET_TIME = 3;
 const VENT_WARNING_TIME = 1;
 const VENT_PUFF_TIME = 0.5;
 
+// A lava geyser's timer (Volcano World, Level 63 on), like Level 12's space
+// door: erupting, then quiet. It never starts erupting while you're in its
+// cell; it waits until you've left. Its column shoots up over GEYSER_RISE
+// seconds and sinks back over GEYSER_SINK at the end; GEYSER_BUBBLE is how
+// long before an eruption the hole starts to bubble and glow brighter.
+const GEYSER_QUIET_TIME = 3;
+const GEYSER_ERUPT_TIME = 3;
+const GEYSER_RISE = 0.25;
+const GEYSER_SINK = 0.3;
+const GEYSER_BUBBLE = 1;
+
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
@@ -1021,6 +1032,8 @@ export class Maze {
         // it on the way from the start)
         const ventBlocks = [];
         const ventTargets = [];
+        // Lava geysers ('K' blocks, one corridor cell each; Volcano World)
+        const geyserBlocks = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -1040,6 +1053,7 @@ export class Maze {
                 if (ch === 'V') currentTargets.push(center);
                 if (ch === 'H') ventBlocks.push({ x, z });
                 if (ch === 'Q') ventTargets.push(center);
+                if (ch === 'K') geyserBlocks.push({ x, z });
             }
         }
         this.currents = [];
@@ -1073,6 +1087,17 @@ export class Maze {
             v.target = ventTargets.reduce((a, b) => (b.distanceTo(v.center) < a.distanceTo(v.center) ? b : a)).clone();
             this.vents.push(v);
         }
+        this.geysers = groupBlocks(geyserBlocks).map((blocks) => {
+            const xs = blocks.map((b) => b.x);
+            const zs = blocks.map((b) => b.z);
+            const g = {
+                minX: Math.min(...xs), maxX: Math.max(...xs) + 1,
+                minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
+                phase: 'quiet', timer: GEYSER_QUIET_TIME, waiting: false, rise: 0,
+            };
+            g.center = new THREE.Vector3((g.minX + g.maxX) / 2, 0, (g.minZ + g.maxZ) / 2);
+            return g;
+        });
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
         if (doorBlocks.length) {
@@ -1102,6 +1127,7 @@ export class Maze {
         for (const row of this.spikeRows) this.createSpikeRow(row);
         for (const c of this.currents) this.createCurrent(c);
         for (const v of this.vents) this.createVent(v);
+        for (const g of this.geysers) this.createGeyser(g);
         this.scene.add(this.root);
     }
 
@@ -2159,6 +2185,119 @@ export class Maze {
     onVent(v, point, radius) {
         const dx = Math.max(v.minX - point.x, 0, point.x - v.maxX);
         const dz = Math.max(v.minZ - point.z, 0, point.z - v.maxZ);
+        return Math.hypot(dx, dz) < radius;
+    }
+
+    // A lava geyser (Volcano World): a glowing hole of bubbling lava across its
+    // whole corridor cell in a rocky rim. When it erupts, a column of lava
+    // shoots up well above the walls, with blobs flying off the top.
+    createGeyser(g) {
+        const sizeX = g.maxX - g.minX;
+        const sizeZ = g.maxZ - g.minZ;
+        const group = new THREE.Group();
+        group.position.set(g.center.x, 0, g.center.z);
+        const rim = new THREE.Mesh(new THREE.BoxGeometry(sizeX - 0.05, 0.08, sizeZ - 0.05), new THREE.MeshStandardMaterial({ color: 0x2a1d1a, roughness: 0.9 }));
+        rim.position.y = 0.04;
+        group.add(rim);
+        const map = lavaTexture();
+        const pool = new THREE.Mesh(new THREE.PlaneGeometry(sizeX * 0.82, sizeZ * 0.82), new THREE.MeshBasicMaterial({ map, color: 0xffffff }));
+        pool.rotation.x = -Math.PI / 2;
+        pool.position.y = 0.085;
+        group.add(pool);
+        // The column: an outer orange skin and a brighter yellow core
+        const height = this.height * 2.2;
+        const radius = Math.min(sizeX, sizeZ) * 0.42;
+        const column = new THREE.Group();
+        const columnMap = lavaTexture();
+        columnMap.repeat.set(2, 3);
+        const outer = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.8, radius, height, 20, 1, true), new THREE.MeshBasicMaterial({ map: columnMap, side: THREE.DoubleSide }));
+        outer.position.y = height / 2;
+        column.add(outer);
+        const core = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.45, radius * 0.6, height * 1.04, 12), new THREE.MeshBasicMaterial({ color: 0xffe066 }));
+        core.position.y = height * 0.52;
+        column.add(core);
+        column.visible = false;
+        group.add(column);
+        // Blobs of lava flung off the top, reused over and over
+        const blobMaterial = new THREE.MeshBasicMaterial({ color: 0xffa020 });
+        const blobGeometry = new THREE.SphereGeometry(0.22, 8, 6);
+        g.blobs = [];
+        for (let k = 0; k < 24; k++) {
+            const mesh = new THREE.Mesh(blobGeometry, blobMaterial);
+            mesh.visible = false;
+            group.add(mesh);
+            g.blobs.push({ mesh, life: 0, v: new THREE.Vector3() });
+        }
+        Object.assign(g, { group, pool, column, columnMap, poolMap: map, height });
+        this.root.add(group);
+        this.showGeyser(g, 0);
+    }
+
+    // Run every geyser's timer (only while playing) and animate it, and say
+    // what happened: [{ geyser, event: 'erupt' | 'hit' }]. A hit means part of
+    // the player (a circle `radius` round `point`) is in an erupting geyser.
+    updateGeysers(dt, point, radius) {
+        const events = [];
+        for (const g of this.geysers) {
+            const inCell = !!point && this.inGeyser(g, point, radius);
+            g.timer -= dt;
+            if (g.phase === 'quiet') {
+                // Its time is up, but never while you're in it: it waits for you to leave
+                g.waiting = g.timer <= 0 && inCell;
+                if (g.timer <= 0 && !inCell) {
+                    Object.assign(g, { phase: 'erupt', timer: GEYSER_ERUPT_TIME, waiting: false });
+                    events.push({ geyser: g, event: 'erupt' });
+                }
+            } else if (g.timer <= 0) {
+                Object.assign(g, { phase: 'quiet', timer: GEYSER_QUIET_TIME });
+            }
+            if (g.phase === 'erupt') {
+                const t = GEYSER_ERUPT_TIME - g.timer;
+                g.rise = Math.min(1, t / GEYSER_RISE, Math.max(0, g.timer) / GEYSER_SINK);
+            } else {
+                g.rise = 0;
+            }
+            if (g.phase === 'erupt' && inCell) events.push({ geyser: g, event: 'hit' });
+            this.showGeyser(g, dt);
+        }
+        return events;
+    }
+
+    showGeyser(g, dt) {
+        if (!g.group) return;
+        const t = performance.now() / 1000;
+        g.poolMap.offset.set(Math.sin(t * 0.3) * 0.1, t * 0.05);
+        g.columnMap.offset.y = -t * 1.6;
+        // The hole bubbles brighter just before it erupts and while erupting
+        const soon = g.phase === 'erupt' || (g.timer < GEYSER_BUBBLE);
+        const flicker = 0.85 + 0.15 * Math.sin(t * (soon ? 22 : 5));
+        g.pool.material.color.setScalar(soon ? flicker : 0.55 * flicker);
+        g.column.visible = g.rise > 0;
+        g.column.scale.set(0.9 + 0.1 * Math.sin(t * 30), Math.max(0.001, g.rise), 0.9 + 0.1 * Math.cos(t * 27));
+        const top = g.height * g.rise;
+        for (const b of g.blobs) {
+            if (b.life <= 0 && g.rise >= 1 && Math.random() < dt * 12) {
+                b.life = 0.6 + Math.random() * 0.5;
+                b.mesh.position.set((Math.random() - 0.5) * 0.6, top, (Math.random() - 0.5) * 0.6);
+                b.v.set((Math.random() - 0.5) * 3, 2 + Math.random() * 3, (Math.random() - 0.5) * 3);
+            }
+            if (b.life > 0) {
+                b.life -= dt;
+                b.v.y -= 14 * dt;
+                b.mesh.position.addScaledVector(b.v, dt);
+                // Keep them over the hole so they never land on the floor around it
+                b.mesh.position.x = Math.max(-1, Math.min(1, b.mesh.position.x));
+                b.mesh.position.z = Math.max(-1, Math.min(1, b.mesh.position.z));
+                if (b.mesh.position.y < 0) b.life = 0;
+            }
+            b.mesh.visible = b.life > 0;
+        }
+    }
+
+    // Is any part of a circle `radius` round `point` in this geyser's cell?
+    inGeyser(g, point, radius) {
+        const dx = Math.max(g.minX - point.x, 0, point.x - g.maxX);
+        const dz = Math.max(g.minZ - point.z, 0, point.z - g.maxZ);
         return Math.hypot(dx, dz) < radius;
     }
 
