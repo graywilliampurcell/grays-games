@@ -1271,6 +1271,32 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.12, length: 0.3, brightness: 900 },
     },
+    // Level 53, candy canes and the bounce: just sneaky. E minor at 108 bpm.
+    // It opens with two quick low "crunch crunch" notes and a pause, like
+    // stepping on candy, then a tight squeeze of notes a half step apart
+    // (squeezing past the candy cane), then a sudden high "boing!" that
+    // drops back like bouncing over the river. The second half crunches
+    // higher and ends on a sour, unresolved low note. A hollow, short
+    // triangle lead, ticking and a stomping bass on the off-beats.
+    canecrunch: {
+        tempo: 108,
+        bars: [[40, 'min'], [40, 'min'], [36, 'maj'], [35, 'maj'], [40, 'min'], [41, 'maj'], [36, 'maj'], [35, 'maj']],
+        bass: [null, 0, null, null, null, 0, 0, null],
+        bassLength: 0.14,
+        stabs: [],
+        ticks: true,
+        melody: [
+            52, 52, null, null, null, null, 59, 60,
+            59, 60, 59, null, null, null, null, null,
+            52, 52, null, null, null, null, 76, null,
+            71, null, 67, null, 64, null, null, null,
+            55, 55, null, null, null, null, 63, 64,
+            63, 64, 63, null, null, null, null, null,
+            55, 55, null, null, 79, null, 75, null,
+            null, null, 58, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.2, length: 0.11, brightness: 1600 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

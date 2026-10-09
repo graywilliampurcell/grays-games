@@ -1885,6 +1885,7 @@ export class Maze {
         if (this.theme.jungle) return this.createBigBush(row);
         if (this.theme.moon) return this.createBigCrater(row);
         if (this.theme.underwater) return this.createBigUrchin(row);
+        if (this.theme.sweets) return this.createBigCandyCane(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -1945,6 +1946,51 @@ export class Maze {
         }
         if (!row.spansX) group.rotation.y = Math.PI / 2;
         group.position.copy(row.position);
+        this.root.add(group);
+    }
+
+    // Candy World's spike row (Level 53): a big broken candy cane right across
+    // the corridor, as wide as the corridor and as deep as a spike row: a
+    // fence of thick striped pieces with sharp snapped-off tips, and one giant
+    // cane in the middle whose hook arches over the top, so there's no way past
+    createBigCandyCane(row) {
+        const group = new THREE.Group();
+        const map = candyStripeTexture();
+        map.repeat.set(1, 3);
+        const striped = new THREE.MeshStandardMaterial({ map, roughness: 0.3, emissive: 0x3a0008, emissiveIntensity: 0.2 });
+        const sugar = new THREE.MeshStandardMaterial({ color: 0xfff4f4, roughness: 0.25 });
+        // [x across the corridor, z along it, height, lean]
+        const pieces = [[-1.25, 0.18, 0.9, 0.2], [-0.85, -0.16, 1.25, -0.15], [-0.45, 0.2, 1.0, 0.1],
+            [0.45, -0.18, 1.1, -0.1], [0.85, 0.16, 1.35, 0.15], [1.25, -0.14, 0.95, -0.2]];
+        for (const [x, z, h, lean] of pieces) {
+            const stick = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, h, 16), striped);
+            body.position.y = h / 2;
+            const tip = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.42, 5), sugar);
+            tip.position.y = h + 0.2;
+            tip.rotation.y = x * 2;
+            body.castShadow = tip.castShadow = true;
+            stick.add(body, tip);
+            stick.position.set(x, 0, z);
+            stick.rotation.set(lean * 0.5, 0, -lean);
+            group.add(stick);
+        }
+        // The giant cane in the middle, whole, its hook curling over the fence
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 2.1, 18), striped);
+        pole.position.set(0, 1.05, 0);
+        pole.castShadow = true;
+        group.add(pole);
+        const hook = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.2, 14, 28, Math.PI), striped);
+        hook.position.set(0.5, 2.1, 0);
+        hook.castShadow = true;
+        group.add(hook);
+        const end = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.45, 6), sugar);
+        end.position.set(1.0, 1.9, 0);
+        end.rotation.z = Math.PI;
+        group.add(end);
+        if (!row.spansX) group.rotation.y = Math.PI / 2;
+        group.position.copy(row.position);
+        group.position.y = 0;
         this.root.add(group);
     }
 
