@@ -1323,6 +1323,32 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.13, length: 0.07, brightness: 1300 },
     },
+    // Level 55, two bounces: just sneaky. B minor at 104 bpm. It opens with
+    // two big boings, a low B jumping up a whole octave and dropping back,
+    // twice, like the two marshmallow bounces, then a creeping slide down
+    // in half steps (D, C-sharp, C, B), tiptoeing off to the hidden candy
+    // cane. The second half bounces from higher up and ends hanging on a
+    // sly, unresolved C. A buzzy, dark sawtooth lead, ticking and a
+    // two-beat bass that hops like a ball.
+    twobounce: {
+        tempo: 104,
+        bars: [[47, 'min'], [47, 'min'], [43, 'maj'], [42, 'maj'], [47, 'min'], [40, 'min'], [43, 'maj'], [42, 'maj']],
+        bass: [0, null, null, 0, null, null, null, null],
+        bassLength: 0.16,
+        stabs: [],
+        ticks: true,
+        melody: [
+            59, null, 71, null, 59, null, null, null,
+            59, null, 71, null, 59, null, null, null,
+            62, null, 61, null, 60, null, 59, null,
+            null, null, null, null, null, null, null, null,
+            64, null, 76, null, 64, null, null, null,
+            66, null, 78, null, 66, null, null, null,
+            67, null, 66, null, 65, null, 64, null,
+            null, null, 60, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.11, length: 0.1, brightness: 1100 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

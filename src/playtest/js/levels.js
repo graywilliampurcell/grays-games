@@ -2483,6 +2483,63 @@ export const LEVELS = [
         '#########################################',
         ],
     },
+    {
+        name: 'Level 55',
+        // Two bounces. `node tools/find-candy-level.mjs level55`, seed 726.
+        // 10 x 10 corridors. Correct path 65 cells (start west in row 5, door
+        // east in row 2); 16 dead ends 2 cells deep, plus the candy cane's: off
+        // path cell 3 it goes 2 cells, turns once, and the broken candy cane
+        // (X) sits in its last cell, out of sight of the path. O: two chocolate
+        // rivers, each with a marshmallow on each bank: path cells 45-48 in
+        // row 1 (crossed heading west) and 52-55 in the top row (crossed
+        // heading east), with a turn between them. No candy cane on the path,
+        // no big candy cane, no caramel. Music: just sneaky.
+        theme: CANDY,
+        music: 'twobounce',
+        layout: [
+        '#########################################',
+        '#                OOOOOOOOOOOOOOO        #',
+        '#                OOOOOOOOOOOOOOO        #',
+        '#                OOOOOOOOOOOOOOO        #',
+        '#########   #########################   #',
+        '#            OOOOOOOOOOOOOOO    #       #',
+        '#            OOOOOOOOOOOOOOO    #       #',
+        '#            OOOOOOOOOOOOOOO    #       #',
+        '#############################   #   #####',
+        '#       #   #       #   #       #   #   #',
+        '# X     #   #       #   #       #   #   D',
+        '#       #   #       #   #       #   #   #',
+        '#####   #   #   #   #   #   #   #   #   #',
+        '#   #   #   #   #       #   #   #   #   #',
+        '#   #   #   #   #       #   #   #   #   #',
+        '#   #   #   #   #       #   #   #   #   #',
+        '#   #   #   #   #   #########   #   #   #',
+        '#               #       #       #       #',
+        '#               #       #       #       #',
+        '#               #       #       #       #',
+        '#####   #########   #   #   #############',
+        '#       #           #   #               #',
+        '# S     #           #   #               #',
+        '#       #           #   #               #',
+        '#########   #############   #   #####   #',
+        '#                   #       #   #   #   #',
+        '#                   #       #   #   #   #',
+        '#                   #       #   #   #   #',
+        '#   #########################   #   #   #',
+        '#           #   #   #   #   #   #   #   #',
+        '#           #   #   #   #   #   #   #   #',
+        '#           #   #   #   #   #   #   #   #',
+        '#####   #   #   #   #   #   #####   #   #',
+        '#       #   #   #   #   #   #       #   #',
+        '#       #   #   #   #   #   #       #   #',
+        '#       #   #   #   #   #   #       #   #',
+        '#   #########   #   #   #   #   #   #   #',
+        '#                               #       #',
+        '#                               #       #',
+        '#                               #       #',
+        '#########################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with
