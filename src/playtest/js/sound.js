@@ -1297,6 +1297,32 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.2, length: 0.11, brightness: 1600 },
     },
+    // Level 54, the tighter squeeze: just sneaky. A minor at 100 bpm. It
+    // opens with a tight, wriggling trill of notes a half step apart (A, B-flat,
+    // A, G-sharp, A), like squeezing sideways past the candy cane, then one
+    // long note that holds on and on, stuck like feet in caramel, then a
+    // quick jump up and back down, a bounce over the river. The second half
+    // wriggles higher and ends on a sly, unresolved B-flat. A thin, plucky
+    // square lead, ticking and a creeping two-note bass.
+    tightsqueeze: {
+        tempo: 100,
+        bars: [[45, 'min'], [45, 'min'], [46, 'maj'], [44, 'maj'], [45, 'min'], [41, 'maj'], [46, 'maj'], [44, 'maj']],
+        bass: [0, null, 0, null, null, null, null, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: true,
+        melody: [
+            69, 70, 69, 68, 69, null, null, null,
+            72, null, null, null, null, null, null, null,
+            null, null, 64, null, 81, null, 76, 69,
+            null, null, null, null, null, null, null, null,
+            76, 77, 76, 75, 76, null, null, null,
+            77, null, null, null, null, null, null, null,
+            null, null, 69, null, 84, null, 80, 76,
+            null, null, 70, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.13, length: 0.07, brightness: 1300 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

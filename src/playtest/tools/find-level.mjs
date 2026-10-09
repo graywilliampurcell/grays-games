@@ -33,6 +33,7 @@
 //   node tools/find-level.mjs level30 4  # Level 30 rules (Level 29's plus the big bush)
 //   node tools/find-level.mjs level31 8  # Level 31 rules (Moon World: 8 x 8, Level 11's hidden crater, no gap)
 //   node tools/find-level.mjs level51 16 # Level 51 rules (Candy World: 10 x 10, Level 41's hidden candy cane, no current)
+//   node tools/find-level.mjs level54 16 # Level 54 rules (Candy World 10 x 10: path candy cane + a 4-cell chocolate river + one caramel spot, no big cane)
 //   node tools/find-level.mjs level53 16 # Level 53 rules (Candy World 10 x 10: path candy cane + big candy cane + a 4-cell chocolate river, no caramel)
 //   node tools/find-level.mjs level52 16 # Level 52 rules (Candy World 10 x 10: a 4-cell chocolate river + one caramel spot, no candy canes)
 //   node tools/find-level.mjs level41 11 # Level 41 rules (Underwater World: 9 x 9, hidden urchin, one water current)
@@ -184,7 +185,7 @@ import { LEVELS } from '../js/levels.js';
 // Walls only, so a new level (Level 5 on) can't repeat an existing level's maze
 const shape = (rows) => rows.map((r) => r.replace(/[^#]/g, ' ')).join('\n');
 // (every level except the one being made, so re-running a level's command finds it again)
-const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39', level40: 'Level 40', level41: 'Level 41', level42: 'Level 42', level43: 'Level 43', level44: 'Level 44', level45: 'Level 45', level46: 'Level 46', level47: 'Level 47', level48: 'Level 48', level49: 'Level 49', level50: 'Level 50', level51: 'Level 51', level52: 'Level 52', level53: 'Level 53' }[process.argv[2]];
+const TARGET = { level5: 'Level 5', level6: 'Level 6', level7: 'Level 7', level8: 'Level 8', level9: 'Level 9', level10: 'Level 10', level11: 'Level 11', level12: 'Level 12', level13: 'Level 13', level14: 'Level 14', level15: 'Level 15', level16: 'Level 16', level17: 'Level 17', level18: 'Level 18', level19: 'Level 19', level20: 'Level 20', level21: 'Level 21', level22: 'Level 22', level23: 'Level 23', level24: 'Level 24', level25: 'Level 25', level26: 'Level 26', level27: 'Level 27', level28: 'Level 28', level29: 'Level 29', level30: 'Level 30', level31: 'Level 31', level32: 'Level 32', level33: 'Level 33', level34: 'Level 34', level35: 'Level 35', level36: 'Level 36', level37: 'Level 37', level38: 'Level 38', level39: 'Level 39', level40: 'Level 40', level41: 'Level 41', level42: 'Level 42', level43: 'Level 43', level44: 'Level 44', level45: 'Level 45', level46: 'Level 46', level47: 'Level 47', level48: 'Level 48', level49: 'Level 49', level50: 'Level 50', level51: 'Level 51', level52: 'Level 52', level53: 'Level 53', level54: 'Level 54' }[process.argv[2]];
 const EXISTING = new Set(LEVELS.filter((l) => l.name !== TARGET).map((l) => shape(l.layout)));
 // Level 8 on: also clearly different (at least MIN_DIFFERENT blocks of wall
 // changed against every earlier level) and the spike row somewhere new
@@ -225,7 +226,9 @@ const LEVEL48 = process.argv[2] === 'level48';
 const LEVEL43 = process.argv[2] === 'level43' || LEVEL44 || LEVEL46 || LEVEL48;
 // Level 53: Candy World 10 x 10, Level 33's path candy cane ('X') + big candy cane ('Y') plus a 4-cell chocolate river ('O'), no caramel
 const LEVEL53 = process.argv[2] === 'level53';
-const LEVEL33 = process.argv[2] === 'level33' || LEVEL34 || LEVEL36 || LEVEL38 || LEVEL43 || LEVEL53; // Moon World 8 x 8: a crater on the path plus the big crater in a straight dead end, no hidden crater // Moon World: 8 x 8, Level 11's hidden crater, no platform gap
+// Level 54: Candy World 10 x 10, Level 33's path candy cane ('X') plus a 4-cell chocolate river ('O') and one caramel spot ('C'), no big cane
+const LEVEL54 = process.argv[2] === 'level54';
+const LEVEL33 = process.argv[2] === 'level33' || LEVEL34 || LEVEL36 || LEVEL38 || LEVEL43 || LEVEL53 || LEVEL54; // Moon World 8 x 8: a crater on the path plus the big crater in a straight dead end, no hidden crater // Moon World: 8 x 8, Level 11's hidden crater, no platform gap
 // Underwater World: 9 x 9, Level 21's hidden urchin plus a water current ('W')
 // on a straight bit of path where a 2-cell dead end branches off sideways
 // Level 49: Level 45's with every dead end 3 deep and two water currents
@@ -252,8 +255,8 @@ const LEVEL18 = process.argv[2] === 'level18' || LEVEL20; // Level 17's plus a s
 const LEVEL17 = process.argv[2] === 'level17' || LEVEL18 || LEVEL19; // a moving-platform gap, a space door, a slippery spot, a path spike
 const LEVEL15 = process.argv[2] === 'level15' || LEVEL16; // slippery spot, path spike, spike row in a dead end
 const LEVEL12 = process.argv[2] === 'level12' || LEVEL13 || LEVEL14;
-const COLS = LEVEL51 || LEVEL52 || LEVEL53 ? 10 : LEVEL41 || LEVEL42 || LEVEL43 ? 9 : LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
-const ROWS = LEVEL51 || LEVEL52 || LEVEL53 ? 10 : LEVEL41 || LEVEL42 || LEVEL43 ? 9 : LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
+const COLS = LEVEL51 || LEVEL52 || LEVEL53 || LEVEL54 ? 10 : LEVEL41 || LEVEL42 || LEVEL43 ? 9 : LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
+const ROWS = LEVEL51 || LEVEL52 || LEVEL53 || LEVEL54 ? 10 : LEVEL41 || LEVEL42 || LEVEL43 ? 9 : LEVEL31 || LEVEL33 ? 8 : LEVEL21 || LEVEL25 ? 7 : LEVEL11 || LEVEL12 || LEVEL15 || LEVEL17 ? 6 : 5;
 const LEVEL2 = process.argv[2] === 'level2';
 const LEVEL3 = ['level3', 'level4', 'level5', 'level6', 'level7', 'level8', 'level9', 'level10'].includes(process.argv[2]); // spike on the path
 const LEVEL4 = process.argv[2] === 'level4';
@@ -1125,6 +1128,7 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
         if (LEVEL44 && [0, 3].includes(path[0].j)) continue; // Level 43 starts in row 0 (and Level 41 in row 3)
         if (LEVEL46 && [0, 2, 8].includes(path[0].j)) continue; // Levels 43, 44, 45 start in rows 0, 8, 2
         if (LEVEL48 && [0, 2, 3, 4, 6, 7, 8].includes(path[0].j)) continue;
+        if (LEVEL54 && [2, 6, 8].includes(path[0].j)) continue; // Levels 51-53 start in rows 2, 6, 8
         if (LEVEL53 && path[0].j === 6) continue; // Levels 51 and 52 start in rows 2 and 6 // Levels 41-47 start in rows 3, 6, 0, 8, 2, 4, 7
         const hung = hangPathSpike(path, random);
         if (!hung) continue;
@@ -1152,6 +1156,25 @@ for (let seed = 1; seed <= SEEDS && !best; seed++) {
             const g = gaps[Math.floor(random() * gaps.length)];
             best = { seed, links: hung.links, startCell, exitCell, spikeCell: hung.spikeCell, solution, deadEnds, spikeIndex: k,
                 gap: [path[g], path[g + 1], path[g + 2]], gapIndex: g };
+            continue;
+        }
+        // Level 54: one chocolate river, a gap over four plain path cells
+        // g .. g + 3 with the path straight from g - 1 to g + 4 (the banks),
+        // and one caramel spot in plain path cell c; at least 2 path cells
+        // between any two of the path candy cane, the river and the caramel
+        if (LEVEL54) {
+            const k = hung.spikeIndex;
+            const plain = (n) => n > 0 && n < path.length - 1 && hung.links[path[n].i][path[n].j].length === 2 && step(path[n - 1], path[n]) === step(path[n], path[n + 1]);
+            const clear = (a, g) => a <= g - 3 || a >= g + 6;
+            const options = [];
+            for (let g = 3; g < path.length - 5; g++) {
+                if (![0, 1, 2, 3].every((d) => plain(g + d)) || !clear(k, g)) continue;
+                for (let c = 2; c < path.length - 2; c++) if (plain(c) && clear(c, g) && Math.abs(c - k) >= 3) options.push({ g, c });
+            }
+            if (options.length === 0) continue;
+            const pick = options[Math.floor(random() * options.length)];
+            best = { seed, links: hung.links, startCell, exitCell, spikeCell: hung.spikeCell, solution, deadEnds, spikeIndex: k,
+                gap: [0, 1, 2, 3].map((d) => path[pick.g + d]), gapIndex: pick.g, caramel: path[pick.c], caramelIndex: pick.c };
             continue;
         }
         const blockers = hung.chains.map((chain, c) => ({ chain, from: hung.roots[c], rowFrom: hung.roots[c], rowCell: chain[0], at: indexOf(hung.roots[c]) }))
