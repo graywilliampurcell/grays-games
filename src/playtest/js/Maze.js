@@ -778,6 +778,132 @@ function groupBlocks(blocks) {
     return groups;
 }
 
+// Volcano World walls: shiny black volcano rock with glowing orange cracks.
+// The same canvas is the glow map, so only the cracks (and a faint sheen) glow.
+function volcanoRockTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#0d0b0c';
+    g.fillRect(0, 0, width, height);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    // Glassy, slightly lighter streaks in the black rock
+    for (let i = 0; i < (width * height) / 700; i++) {
+        const x = random() * width;
+        const y = random() * height;
+        const radius = 6 + random() * 18;
+        const sheen = g.createRadialGradient(x, y, 0, x, y, radius);
+        sheen.addColorStop(0, 'rgba(70,62,66,0.35)');
+        sheen.addColorStop(1, 'rgba(70,62,66,0)');
+        g.fillStyle = sheen;
+        g.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+    }
+    // Jagged cracks: a wide dim orange glow with a thin bright yellow core
+    for (let c = 0; c < (width * height) / 5000; c++) {
+        const points = [[random() * width, random() * height]];
+        let angle = random() * Math.PI * 2;
+        for (let k = 0; k < 6 + random() * 8; k++) {
+            angle += (random() - 0.5) * 1.6;
+            const [x, y] = points[points.length - 1];
+            points.push([x + Math.cos(angle) * (6 + random() * 12), y + Math.sin(angle) * (6 + random() * 12)]);
+        }
+        for (const [w, color] of [[6, 'rgba(255,80,0,0.35)'], [2.5, 'rgba(255,120,10,0.9)'], [1, 'rgba(255,220,90,1)']]) {
+            g.strokeStyle = color;
+            g.lineWidth = w;
+            g.lineJoin = 'round';
+            g.beginPath();
+            points.forEach(([x, y], k) => (k ? g.lineTo(x, y) : g.moveTo(x, y)));
+            g.stroke();
+        }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Volcano World floor: cooled lava, black with swirly grey ripples and a few
+// faint dark red veins
+function cooledLavaTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#141012';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    g.lineCap = 'round';
+    for (let k = 0; k < 70; k++) {
+        const x = random() * size;
+        const y = random() * size;
+        const radius = 6 + random() * 26;
+        const start = random() * Math.PI * 2;
+        g.strokeStyle = random() < 0.15 ? 'rgba(110,20,10,0.55)' : `rgba(${60 + random() * 40 | 0},${55 + random() * 30 | 0},${58 + random() * 30 | 0},0.6)`;
+        g.lineWidth = 1 + random() * 3;
+        // A swirl: an arc that winds inward
+        g.beginPath();
+        for (let t = 0; t < 1; t += 0.02) {
+            const a = start + t * Math.PI * 3;
+            const rr = radius * (1 - t * 0.7);
+            const px = x + Math.cos(a) * rr;
+            const py = y + Math.sin(a) * rr;
+            if (t) g.lineTo(px, py); else g.moveTo(px, py);
+        }
+        g.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// A glowing hot coal's skin: dark charcoal with bright orange-yellow cracks
+function coalTexture() {
+    const size = 128;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#ff6a10';
+    g.fillRect(0, 0, size, size);
+    let r = 53;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    // Dark charcoal plates with glowing seams between them
+    for (let k = 0; k < 60; k++) {
+        const x = random() * size;
+        const y = random() * size;
+        const w = 10 + random() * 22;
+        const h = 8 + random() * 18;
+        g.fillStyle = `rgb(${24 + random() * 20 | 0},${16 + random() * 10 | 0},${14 + random() * 8 | 0})`;
+        g.beginPath();
+        g.ellipse(x, y, w / 2, h / 2, random() * Math.PI, 0, Math.PI * 2);
+        g.fill();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// A soft white puff, for steam
+function puffTexture() {
+    const size = 64;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    const grad = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+    grad.addColorStop(0.5, 'rgba(240,240,240,0.45)');
+    grad.addColorStop(1, 'rgba(230,230,230,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, size, size);
+    return new THREE.CanvasTexture(canvas);
+}
+
+// A steam vent's timer (Volcano World, Level 61 on): quiet, then a warning
+// (wisps and a hiss), then a puff that pushes you back one square
+const VENT_QUIET_TIME = 3;
+const VENT_WARNING_TIME = 1;
+const VENT_PUFF_TIME = 0.5;
+
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
@@ -812,6 +938,11 @@ export class Maze {
         // Level 49) and where each one's shove ends ('V', next to its cell)
         const currentBlocks = [];
         const currentTargets = [];
+        // Steam vents ('H' blocks, one corridor cell each; Volcano World) and
+        // where each one's puff pushes you ('Q', the middle of the cell before
+        // it on the way from the start)
+        const ventBlocks = [];
+        const ventTargets = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -829,6 +960,8 @@ export class Maze {
                 if (ch === 'O' || ch === 'F') gapBlocks.push({ x, z, fast: ch === 'F' });
                 if (ch === 'W') currentBlocks.push({ x, z });
                 if (ch === 'V') currentTargets.push(center);
+                if (ch === 'H') ventBlocks.push({ x, z });
+                if (ch === 'Q') ventTargets.push(center);
             }
         }
         this.currents = [];
@@ -849,6 +982,19 @@ export class Maze {
             this.currents.push(c);
         }
         this.current = this.currents[0] ?? null;
+        this.vents = [];
+        for (const blocks of ventTargets.length ? groupBlocks(ventBlocks) : []) {
+            const xs = blocks.map((b) => b.x);
+            const zs = blocks.map((b) => b.z);
+            const v = {
+                minX: Math.min(...xs), maxX: Math.max(...xs) + 1,
+                minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
+                phase: 'quiet', timer: VENT_QUIET_TIME,
+            };
+            v.center = new THREE.Vector3((v.minX + v.maxX) / 2, 0, (v.minZ + v.maxZ) / 2);
+            v.target = ventTargets.reduce((a, b) => (b.distanceTo(v.center) < a.distanceTo(v.center) ? b : a)).clone();
+            this.vents.push(v);
+        }
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
         if (doorBlocks.length) {
@@ -877,6 +1023,7 @@ export class Maze {
         for (const p of this.platforms) this.createPlatform(p);
         for (const row of this.spikeRows) this.createSpikeRow(row);
         for (const c of this.currents) this.createCurrent(c);
+        for (const v of this.vents) this.createVent(v);
         this.scene.add(this.root);
     }
 
@@ -906,8 +1053,12 @@ export class Maze {
         const moon = this.theme.moon;
         const underwater = this.theme.underwater;
         const sweets = this.theme.sweets;
+        const volcano = this.theme.volcano;
         let wallMaterial;
-        if (sweets) {
+        if (volcano) {
+            const rock = volcanoRockTexture(128, 512, 37);
+            wallMaterial = new THREE.MeshStandardMaterial({ map: rock, emissiveMap: rock, emissive: 0xffffff, emissiveIntensity: 0.85, roughness: 0.18, metalness: 0.35 });
+        } else if (sweets) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: gumdropTexture(128, 512, 31), roughness: 0.45, emissive: 0x401028, emissiveIntensity: 0.25 });
         } else if (underwater) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: coralTexture(128, 512, 29), roughness: 0.85, emissive: 0x401018, emissiveIntensity: 0.35 });
@@ -945,7 +1096,11 @@ export class Maze {
 
         // Floor
         let floorMaterial;
-        if (sweets) {
+        if (volcano) {
+            const map = cooledLavaTexture(256, 43);
+            map.repeat.set(this.width / 6, this.depth / 6);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 0.4, metalness: 0.1 });
+        } else if (sweets) {
             const map = chocolateTexture(128);
             map.repeat.set(this.width / 2, this.depth / 2);
             floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 0.55 });
@@ -990,7 +1145,7 @@ export class Maze {
             geometry.rotateX(Math.PI / 2);
             floorMaterial.map?.repeat.set(0.5, 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -1007,6 +1162,42 @@ export class Maze {
         }
         if (underwater) this.addSeaLife();
         if (sweets) this.addCandySky();
+        if (volcano) this.addAsh();
+    }
+
+    // Volcano World sky: ash falling all the time like snowflakes over the
+    // whole maze. Just to look at: it goes straight through you.
+    addAsh() {
+        const count = 1800;
+        const spread = Math.max(this.width, this.depth) + 40;
+        const positions = new Float32Array(count * 3);
+        let r = 61;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        for (let k = 0; k < count; k++) {
+            positions[k * 3] = this.width / 2 + (random() - 0.5) * spread;
+            positions[k * 3 + 1] = random() * 30;
+            positions[k * 3 + 2] = this.depth / 2 + (random() - 0.5) * spread;
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const material = new THREE.PointsMaterial({ color: 0xb0a8a6, size: 0.14, map: puffTexture(), transparent: true, depthWrite: false, fog: false });
+        this.ash = new THREE.Points(geometry, material);
+        this.ash.userData.time = 0;
+        this.root.add(this.ash);
+    }
+
+    updateAsh(dt) {
+        const a = this.ash;
+        a.userData.time += dt;
+        const p = a.geometry.attributes.position;
+        for (let k = 0; k < p.count; k++) {
+            let y = p.getY(k) - dt * (0.9 + (k % 7) * 0.08);
+            if (y < 0) y += 30;
+            p.setY(k, y);
+            p.setX(k, p.getX(k) + Math.sin(a.userData.time * 0.8 + k) * dt * 0.25);
+        }
+        p.needsUpdate = true;
+        for (const coal of this.coals || []) coal.material.emissiveIntensity = 0.9 + 0.3 * Math.sin(a.userData.time * 2.2 + coal.userData.phase);
     }
 
     // Candy World: a big gumdrop sitting on top of each wall block, every color
@@ -1466,6 +1657,7 @@ export class Maze {
 
     // Move the things flying through the sky, and under the platform gap (called every frame)
     update(dt) {
+        if (this.ash) this.updateAsh(dt);
         for (const cam of this.cameras || []) {
             cam.time += dt;
             cam.pivot.rotation.y = Math.sin(cam.time * cam.speed + cam.phase) * 0.7;
@@ -1660,6 +1852,7 @@ export class Maze {
         if (this.theme.moon) return this.createCrater(position, radius);
         if (this.theme.underwater) return this.createUrchin(position, radius);
         if (this.theme.sweets) return this.createCandyCane(position, radius);
+        if (this.theme.volcano) return this.createHotCoal(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -1749,6 +1942,140 @@ export class Maze {
         cane.position.copy(position);
         cane.position.y = 0;
         this.root.add(cane);
+    }
+
+    // Volcano World's spike: a giant glowing hot coal (one big lump and two
+    // small ones), as wide as a spike's plate. Touching it works the same.
+    createHotCoal(position, radius) {
+        const group = new THREE.Group();
+        const map = coalTexture();
+        this.coals = this.coals || [];
+        const lumps = [[0, 0, 0.42, 0.5], [0.42, 0.22, 0.2, 0.2], [-0.3, -0.4, 0.18, 0.15]];
+        lumps.forEach(([ox, oz, size, h], n) => {
+            const geometry = new THREE.IcosahedronGeometry(1, 1);
+            // Lumpy, like a real coal
+            const pos = geometry.attributes.position;
+            for (let k = 0; k < pos.count; k++) {
+                const wobble = 0.82 + 0.3 * Math.abs(Math.sin(k * 12.9898 + n * 78.233));
+                pos.setXYZ(k, pos.getX(k) * wobble, pos.getY(k) * wobble, pos.getZ(k) * wobble);
+            }
+            geometry.computeVertexNormals();
+            const material = new THREE.MeshStandardMaterial({ map, emissiveMap: map, emissive: 0xffffff, emissiveIntensity: 1, roughness: 0.8 });
+            const lump = new THREE.Mesh(geometry, material);
+            lump.scale.set(size, h * 0.9, size);
+            lump.position.set(ox, h * 0.55, oz);
+            lump.castShadow = true;
+            // Each lump glows brighter and dimmer on its own (see updateAsh)
+            lump.userData.phase = n * 1.7;
+            this.coals.push(lump);
+            group.add(lump);
+        });
+        // A warm glow on the floor around it
+        const glow = new THREE.Mesh(new THREE.CircleGeometry(0.85, 24), new THREE.MeshBasicMaterial({ color: 0xff5a00, transparent: true, opacity: 0.35, depthWrite: false }));
+        glow.rotation.x = -Math.PI / 2;
+        glow.position.y = 0.02;
+        group.add(glow);
+        group.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
+        group.position.copy(position);
+        group.position.y = 0;
+        this.root.add(group);
+    }
+
+    // A steam vent (Volcano World): a grate of dark slots in a rocky rim
+    // across its whole corridor cell, with steam that wisps up as a warning
+    // and then blasts up in a big puff.
+    createVent(v) {
+        const sizeX = v.maxX - v.minX;
+        const sizeZ = v.maxZ - v.minZ;
+        const group = new THREE.Group();
+        group.position.set(v.center.x, 0, v.center.z);
+        const rim = new THREE.Mesh(new THREE.BoxGeometry(sizeX - 0.1, 0.05, sizeZ - 0.1), new THREE.MeshStandardMaterial({ color: 0x4a4446, roughness: 0.7, metalness: 0.4 }));
+        rim.position.y = 0.025;
+        group.add(rim);
+        const slot = new THREE.MeshBasicMaterial({ color: 0x050303 });
+        for (let k = 0; k < 6; k++) {
+            const bar = new THREE.Mesh(new THREE.BoxGeometry(sizeX * 0.8, 0.02, 0.22), slot);
+            bar.position.set(0, 0.055, -sizeZ * 0.4 + (k + 0.5) * (sizeZ * 0.8) / 6);
+            group.add(bar);
+        }
+        // A faint orange glow deep inside the slots
+        const glow = new THREE.Mesh(new THREE.PlaneGeometry(sizeX * 0.8, sizeZ * 0.8), new THREE.MeshBasicMaterial({ color: 0xff4400, transparent: true, opacity: 0.12, depthWrite: false }));
+        glow.rotation.x = -Math.PI / 2;
+        glow.position.y = 0.06;
+        group.add(glow);
+        // Steam puffs, reused over and over
+        const map = puffTexture();
+        v.steam = [];
+        for (let k = 0; k < 48; k++) {
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map, transparent: true, depthWrite: false, opacity: 0 }));
+            sprite.visible = false;
+            group.add(sprite);
+            v.steam.push({ sprite, life: 0, span: 1, vy: 0, size: 1, x: 0, z: 0 });
+        }
+        v.sizeX = sizeX;
+        v.sizeZ = sizeZ;
+        v.group = group;
+        this.root.add(group);
+    }
+
+    launchSteam(v, big) {
+        const free = v.steam.find((s) => s.life <= 0);
+        if (!free) return;
+        free.x = (Math.random() - 0.5) * v.sizeX * 0.8;
+        free.z = (Math.random() - 0.5) * v.sizeZ * 0.8;
+        free.span = free.life = big ? 0.7 + Math.random() * 0.5 : 0.8 + Math.random() * 0.4;
+        free.vy = big ? 6 + Math.random() * 3 : 0.8 + Math.random() * 0.5;
+        free.size = big ? 1.2 + Math.random() * 0.8 : 0.35 + Math.random() * 0.25;
+        free.peak = big ? 0.85 : 0.45;
+        free.y = 0.1;
+        free.sprite.visible = true;
+    }
+
+    // Run every vent's timer (only while playing), animate its steam, and say
+    // what happened: [{ vent, event: 'warning' | 'puff' | 'push' }]. A push
+    // means part of the player (a circle `radius` round `point`) is on the
+    // vent while it puffs.
+    updateVents(dt, point, radius) {
+        const events = [];
+        for (const v of this.vents) {
+            v.timer -= dt;
+            if (v.timer <= 0) {
+                if (v.phase === 'quiet') {
+                    v.phase = 'warning';
+                    v.timer += VENT_WARNING_TIME;
+                    events.push({ vent: v, event: 'warning' });
+                } else if (v.phase === 'warning') {
+                    v.phase = 'puff';
+                    v.timer += VENT_PUFF_TIME;
+                    events.push({ vent: v, event: 'puff' });
+                    for (let k = 0; k < 24; k++) this.launchSteam(v, true);
+                } else {
+                    v.phase = 'quiet';
+                    v.timer += VENT_QUIET_TIME;
+                }
+            }
+            if (v.phase === 'warning' && Math.random() < dt * 14) this.launchSteam(v, false);
+            if (v.phase === 'puff' && Math.random() < dt * 40) this.launchSteam(v, true);
+            for (const s of v.steam) {
+                if (s.life <= 0) continue;
+                s.life -= dt;
+                s.y += s.vy * dt;
+                const t = 1 - s.life / s.span;
+                s.sprite.position.set(s.x, s.y, s.z);
+                s.sprite.scale.setScalar(s.size * (0.6 + t));
+                s.sprite.material.opacity = s.peak * Math.sin(Math.PI * Math.min(1, t));
+                if (s.life <= 0) s.sprite.visible = false;
+            }
+            if (v.phase === 'puff' && point && this.onVent(v, point, radius)) events.push({ vent: v, event: 'push' });
+        }
+        return events;
+    }
+
+    // Is any part of a circle `radius` round `point` on this vent?
+    onVent(v, point, radius) {
+        const dx = Math.max(v.minX - point.x, 0, point.x - v.maxX);
+        const dz = Math.max(v.minZ - point.z, 0, point.z - v.maxZ);
+        return Math.hypot(dx, dz) < radius;
     }
 
     // The water current (Level 41): swirling sand streaks rushing across its

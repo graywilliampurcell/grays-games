@@ -1479,6 +1479,32 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.1, length: 0.08, brightness: 1800 },
     },
+    // Level 61, welcome to Volcano World: just sneaky, no happy. F minor at
+    // 92 bpm with the dark, flat second (G-flat) of a smouldering volcano.
+    // Two low "blub blub" notes like lava bubbling, a slow creep up through
+    // the flat second, then a sudden "pfff" of short high notes rising like a
+    // puff of steam; the second half rumbles lower still and ends on a
+    // hanging, unfinished G-flat. A warm triangle lead, ticking and a heavy,
+    // slow bass.
+    lavaprowl: {
+        tempo: 92,
+        bars: [[41, 'min'], [41, 'min'], [42, 'maj'], [41, 'min'], [37, 'maj'], [42, 'maj'], [36, 'maj'], [41, 'min']],
+        bass: [0, null, null, 0, null, null, null, null],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            53, 53, null, null, 53, 53, null, null,
+            54, null, null, 56, null, null, 54, null,
+            null, null, null, null, 77, 78, 80, 82,
+            null, null, null, null, null, null, null, null,
+            48, 48, null, null, 48, 48, null, null,
+            49, null, null, 51, null, null, 53, null,
+            null, null, null, null, 72, 73, 75, 77,
+            null, null, 66, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.2, length: 0.14, brightness: 900 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -1742,6 +1768,33 @@ export class Sound {
         this.onEvent('ouch');
         const own = () => this.playOwnVoice((t) => this.syntheticOuch(t));
         if (!this.speak([['Ouch!', 1.3]], 1.1, own)) own();
+    }
+
+    // A steam vent (Volcano World): a soft hiss that swells for `length`
+    // seconds (its warning), and a louder whoosh when it puffs. Both obey the
+    // Sound effects switch.
+    hiss(length = 1) {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('hiss');
+        this.steam(this.ctx.currentTime, length, 0.05, 0.35, 5200);
+    }
+
+    whoosh(length = 0.5) {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('whoosh');
+        this.steam(this.ctx.currentTime, length, 0.6, 0.8, 2400);
+    }
+
+    steam(t, length, from, to, freq) {
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'highpass';
+        f.frequency.value = freq;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(from, t + 0.05);
+        g.gain.exponentialRampToValueAtTime(to, t + length * 0.8);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + length);
+        this.noiseSource(t, length + 0.05).connect(f).connect(g).connect(this.sfxBus);
     }
 
     // The game's own "Ouch!": a voice-like "ow" and a soft "ch" at the end

@@ -36,6 +36,10 @@ const UNDERWATER = { wall: 0xff7f6e, floor: 0xf2e6c9, sky: 0x1f8fc4, underwater:
 // chocolate bar squares, a sky of cotton candy clouds and balloons; the spikes
 // are pointy broken candy canes (see Maze.js)
 const CANDY = { wall: 0xff5fa2, floor: 0x5b3320, sky: 0xa9dcff, sweets: true };
+// Levels 61-70, Volcano World: walls of shiny black volcano rock with glowing
+// orange cracks, a floor of black swirly cooled lava, a dark red sky with ash
+// falling like snowflakes; the spikes are giant glowing hot coals (see Maze.js)
+const VOLCANO = { wall: 0x0d0b0c, floor: 0x141012, sky: 0x4a0d08, volcano: true };
 
 export const LEVELS = [
     {
@@ -2791,6 +2795,7 @@ export const LEVELS = [
         music: 'candyfinale',
         spike2Radius: 0.72,
         finale: 'You beat Candy World!',
+        nextLabel: 'Start Volcano World',
         layout: [
         '#########################################',
         '#    OOOOOOOOOOOOOOO            #   #   #',
@@ -2835,6 +2840,67 @@ export const LEVELS = [
         '#########################################',
         ],
     },
+    {
+        name: 'Level 61',
+        // Welcome to Volcano World. `node tools/find-volcano-level.mjs level61`,
+        // seed 11685. 11 x 11 corridors. Correct path 78 cells (start west in
+        // row 3, door east in row 4); 20 dead ends 2 cells deep, plus the hot
+        // coal's: off path cell 1 it goes 2 cells, turns once, and the sneaky
+        // hot coal (X) sits in its last cell, out of sight of the path like
+        // Level 51's candy cane. H: the steam vent over path cell 28 (the
+        // right column, heading south); Q: where its puff pushes you, the
+        // middle of path cell 27. No path or big hot coal, no geysers, no
+        // balloon ride. Music: just sneaky.
+        theme: VOLCANO,
+        music: 'lavaprowl',
+        layout: [
+            '#############################################',
+            '#       #       #           #       #       #',
+            '#       #       #           #       #       #',
+            '#       #       #           #       #       #',
+            '#   #####   #####   #####   #   #   #   #   #',
+            '#                   #       #   #       #   #',
+            '#                   #       #   #       # Q #',
+            '#                   #       #   #       #   #',
+            '#   #################   #####   #########   #',
+            '#                   #           #       #HHH#',
+            '#                   #           #       #HHH#',
+            '#                   #           #       #HHH#',
+            '#########   #########   #   #####   #   #   #',
+            '#                   #   #   #       #       #',
+            '# S                 #   #   #       #       #',
+            '#                   #   #   #       #       #',
+            '#   #################   #   #   #############',
+            '#           #   #   #   #   #           #   #',
+            '#         X #   #   #   #   #           #   D',
+            '#           #   #   #   #   #           #   #',
+            '#############   #   #############   #   #   #',
+            '#   #       #   #   #   #       #   #   #   #',
+            '#   #       #   #   #   #       #   #   #   #',
+            '#   #       #   #   #   #       #   #   #   #',
+            '#   #   #   #   #   #   #   #   #   #####   #',
+            '#       #   #           #   #           #   #',
+            '#       #   #           #   #           #   #',
+            '#       #   #           #   #           #   #',
+            '#####   #   #   #   #####   #   #####   #   #',
+            '#       #   #   #           #       #   #   #',
+            '#       #   #   #           #       #   #   #',
+            '#       #   #   #           #       #   #   #',
+            '#   #   #   #   #####   #################   #',
+            '#   #   #       #       #                   #',
+            '#   #   #       #       #                   #',
+            '#   #   #       #       #                   #',
+            '#####   #########################   #########',
+            '#               #               #           #',
+            '#               #               #           #',
+            '#               #               #           #',
+            '#   #########   #   #########   #####   #   #',
+            '#   #               #                   #   #',
+            '#   #               #                   #   #',
+            '#   #               #                   #   #',
+            '#############################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with
@@ -2845,7 +2911,7 @@ LEVELS.forEach((level, index) => {
     if (last && last.theme === level.theme) {
         last.last = index;
     } else {
-        const look = level.theme.sweets ? 'sweets' : level.theme.underwater ? 'sea' : level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
+        const look = level.theme.volcano ? 'volcano' : level.theme.sweets ? 'sweets' : level.theme.underwater ? 'sea' : level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
         WORLDS.push({ theme: level.theme, first: index, last: index, look });
     }
 });

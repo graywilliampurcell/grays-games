@@ -49,6 +49,9 @@ const BOUNCE_HEIGHT = 2.5;
 let wasOnMarshmallow = null;
 // Sticky caramel (Level 52 on): you walk at half speed while you're on it
 const CARAMEL_SPEED = 0.5;
+// A steam vent's puff (Volcano World) pushes you one square back, taking this long
+const VENT_PUSH_TIME = 0.45;
+const VENT_HISS_TIME = 1;
 const lastOutsideCurrent = new THREE.Vector3();
 let frameCount = 0;
 let lastTime = performance.now();
@@ -281,6 +284,17 @@ function step(deltaTime) {
         if (!inCurrent) lastOutsideCurrent.copy(player.position);
         wasInCurrent = inCurrent;
     }
+    // Steam vents (Volcano World): each runs on its own timer (quiet, then
+    // wisps and a hiss, then a puff); a puff pushes anyone on it one square
+    // back toward the start
+    for (const { vent, event } of maze.updateVents(deltaTime, player.position, player.radius)) {
+        if (event === 'warning') sound.hiss(VENT_HISS_TIME);
+        if (event === 'puff') sound.whoosh();
+        if (event === 'push' && !player.shove) {
+            player.startShove(vent.target, VENT_PUSH_TIME);
+            testHooks?.emit('steam');
+        }
+    }
     // Sticky caramel (Level 52 on): half speed while on it, normal as soon as you're off
     player.sticky = maze.onCaramel(player.position) ? CARAMEL_SPEED : 1;
     // Marshmallow (Level 52 on): stepping onto one bounces you over the
@@ -327,6 +341,7 @@ function checkSpikeAndDoor() {
         showMessage(maze.theme.moon ? 'Ouch! You fell in a crater. Back to the start.'
             : maze.theme.underwater ? 'Ouch! A sea urchin sent you back to the start.'
                 : maze.theme.sweets ? 'Ouch! A broken candy cane sent you back to the start.'
+                : maze.theme.volcano ? 'Ouch! A hot coal sent you back to the start.'
                 : 'Ouch! A spike sent you back to the start.');
     }
 
