@@ -176,7 +176,7 @@ function round(v) {
 }
 
 function platformState(p) {
-    return { at: round(p.at), target: round(p.target), riding: p.riding, alongX: p.alongX, speed: p.speed, gap: { ...p.gap }, bubble: p.bubble, push: round(p.push), pushing: p.pushing, startAt: p.startAt, span: p.span };
+    return { at: round(p.at), target: round(p.target), riding: p.riding, alongX: p.alongX, speed: p.speed, gap: { ...p.gap }, bubble: p.bubble, push: round(p.push), pushing: p.pushing, startAt: p.startAt, span: p.span, balloon: p.balloon, phase: p.phase, lift: round(p.lift ?? 0), view: p.view ?? null };
 }
 
 function currentState(c) {

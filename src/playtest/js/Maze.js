@@ -730,6 +730,84 @@ const MARSHMALLOW_RADIUS = 0.7;
 const MARSHMALLOW_FROM_EDGE = 0.8; // its middle, back from the river's edge
 const MARSHMALLOW_STEP = MARSHMALLOW_RADIUS + 0.15; // your middle this close to its middle counts as stepping on
 const BOUNCE_LANDING = 2.2; // where you land, past the far edge
+// Volcano World's crossing (Level 62 on): a hot-air balloon over a 4-cell
+// lava gap. Its basket is the gap's width and PLATFORM_LENGTH long, resting
+// at one edge. Fully inside it for BALLOON_WAIT and the burner fires: it
+// rises BALLOON_HEIGHT straight up, crosses at the top, and comes straight
+// down at the far edge (about 6 s in all), then lets you out onto the floor.
+const BALLOON_WAIT = 1.0;
+const BALLOON_RISE_TIME = 2.0;
+const BALLOON_CROSS_TIME = 2.0;
+const BALLOON_DOWN_TIME = 2.0;
+const BALLOON_HEIGHT = 24; // six times the walls' height
+// Where it lets you out: your middle this far past the far edge
+const BALLOON_LANDING = 0.75;
+// The ash cloud at the top: it thickens over the last part of the rise and
+// clears over the first part of the way down (fractions of those times)
+const BALLOON_CLOUD_FADE = 0.25;
+
+// Volcano World's lava: bright orange and yellow swirls with dark crust
+function lavaTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#ff6a00';
+    g.fillRect(0, 0, 128, 128);
+    let r = 71;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < 60; k++) {
+        const x = random() * 128;
+        const y = random() * 128;
+        const size = 6 + random() * 18;
+        const blob = g.createRadialGradient(x, y, 0, x, y, size);
+        const hot = random() < 0.6;
+        blob.addColorStop(0, hot ? 'rgba(255,236,120,0.9)' : 'rgba(120,20,0,0.7)');
+        blob.addColorStop(1, hot ? 'rgba(255,160,0,0)' : 'rgba(80,10,0,0)');
+        g.fillStyle = blob;
+        for (const dx of [-128, 0, 128]) for (const dy of [-128, 0, 128]) {
+            g.save();
+            g.translate(dx, dy);
+            g.fillRect(x - size, y - size, size * 2, size * 2);
+            g.restore();
+        }
+    }
+    const map = new THREE.CanvasTexture(canvas);
+    map.wrapS = map.wrapT = THREE.RepeatWrapping;
+    return map;
+}
+
+// The balloon: wide stripes of red, orange and yellow from top to bottom
+function balloonTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 64;
+    const g = canvas.getContext('2d');
+    const colors = ['#e8321e', '#ff9a1f', '#ffd93a', '#ff9a1f'];
+    for (let k = 0; k < 16; k++) {
+        g.fillStyle = colors[k % colors.length];
+        g.fillRect(k * 16, 0, 16, 64);
+    }
+    return new THREE.CanvasTexture(canvas);
+}
+
+// The basket: woven wicker
+function wickerTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 64;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#9a6a35';
+    g.fillRect(0, 0, 64, 64);
+    for (let y = 0; y < 64; y += 8) {
+        for (let x = 0; x < 64; x += 8) {
+            g.fillStyle = (x + y) % 16 === 0 ? '#b7844a' : '#7a4f24';
+            g.fillRect(x + 1, y + 1, 6, 6);
+        }
+    }
+    const map = new THREE.CanvasTexture(canvas);
+    map.wrapS = map.wrapT = THREE.RepeatWrapping;
+    map.repeat.set(3, 1);
+    return map;
+}
 
 // A shiny, icy strip for slippery spots (Level 13 on)
 function iceTexture() {
@@ -1030,6 +1108,11 @@ export class Maze {
     // Remove the maze from the scene and free its memory
     dispose() {
         this.scene.remove(this.root);
+        if (this.cloud) {
+            this.scene.remove(this.cloud);
+            this.cloud.geometry.dispose();
+            this.cloud.material.dispose();
+        }
         this.root.traverse((o) => {
             o.geometry?.dispose();
             const materials = Array.isArray(o.material) ? o.material : o.material ? [o.material] : [];
@@ -1709,6 +1792,7 @@ export class Maze {
                 fish.glow.material.opacity = 0.35 + 0.25 * Math.sin(fish.time * 2.1 + fish.phase);
             }
         }
+        for (const p of this.platforms) if (p.lava) this.updateLava(p, dt);
         for (const flyer of this.gapFlyers || []) {
             flyer.object.position.addScaledVector(flyer.velocity, dt);
             flyer.life -= dt;
@@ -2482,6 +2566,7 @@ export class Maze {
         const startAt = lowSideReached ? low : high;
         const bubble = !!this.theme.underwater;
         const chocolate = !!this.theme.sweets;
+        const balloon = !!this.theme.volcano;
         const width = alongX ? gap.maxZ - gap.minZ : gap.maxX - gap.minX;
         // Candy World: the marshmallow on each bank, and where its bounce lands
         const pads = chocolate ? [
@@ -2495,6 +2580,11 @@ export class Maze {
             gap, alongX, span, low, high, startAt,
             chocolate, // Candy World: a chocolate river crossed by bouncing on a marshmallow
             pads,
+            balloon, // Volcano World: a lava gap crossed in a hot-air balloon, high above the maze
+            phase: 'rest', // balloon: 'rest' | 'wait' (you're in, the burner's about to fire) | 'rise' | 'cross' | 'down' | 'float' (empty, coming to you)
+            time: 0, // balloon: seconds into the phase
+            lift: 0, // balloon: how high it is
+            view: null, // balloon: what you can see ('corridor' | 'cloud' | null = everything)
             bubble, // Underwater World: a bubble you push into, over a zigzag crack
             push: 0, // bubble: seconds pushed into it so far
             pushing: false, // bubble: being pushed into this step
@@ -2515,7 +2605,8 @@ export class Maze {
     // Every platform back to its start's side, empty (any reset to the start)
     resetPlatform() {
         for (const p of this.platforms) {
-            Object.assign(p, { at: p.startAt, target: p.startAt, riding: false, wait: 0, mustLeave: false, push: 0, pushing: false });
+            Object.assign(p, { at: p.startAt, target: p.startAt, riding: false, wait: 0, mustLeave: false, push: 0, pushing: false, phase: 'rest', time: 0, lift: 0 });
+            if (p.balloon) this.setRideView(p, null, 0);
             this.showPlatform(p);
         }
     }
@@ -2576,6 +2667,8 @@ export class Maze {
         if (p.bubble) return !p.riding && this.inCrack(point, p);
         // The chocolate river: anywhere in it (the bounce carries you over it)
         if (p.chocolate) return true;
+        // The balloon: never while it's in the air with you in it
+        if (p.balloon && ['rise', 'cross', 'down'].includes(p.phase)) return false;
         const { along } = this.gapCoords(point, p);
         return along < p.at || along > p.at + PLATFORM_LENGTH;
     }
@@ -2613,6 +2706,7 @@ export class Maze {
     updateOnePlatform(p, dt, position, velocity, radius) {
         if (p.bubble) return this.updateBubble(p, dt, position, velocity, radius);
         if (p.chocolate) return null; // nothing moves: the marshmallows bounce you (see marshmallowAt)
+        if (p.balloon) return this.updateBalloon(p, dt, position, velocity, radius);
         const { along, across, width } = this.gapCoords(position, p);
         const inRange = across >= 0 && across < width;
         const fullyOn = inRange && along - radius >= p.at && along + radius <= p.at + PLATFORM_LENGTH;
@@ -2661,6 +2755,314 @@ export class Maze {
         }
         this.showPlatform(p);
         return event;
+    }
+
+    // Run one balloon (Volcano World, Level 62 on). It rests at one edge of
+    // the lava gap. Once you're fully inside its basket it waits
+    // BALLOON_WAIT (step out and it doesn't go), then its burner fires and it
+    // carries you: straight up, across at the top, straight down at the far
+    // edge. You can look around but can't move till it lets you out onto the
+    // floor; then it rests there. It works the same from either side. If it's
+    // empty and you come to the edge it isn't at, it floats over to you.
+    // Returns 'board', 'cancel', 'depart' (the burner fires) or 'land' (main.js
+    // then walks you out to this.landing).
+    updateBalloon(p, dt, position, velocity, radius) {
+        const g = p.gap;
+        const { along, across, width } = this.gapCoords(position, p);
+        const inRange = across >= 0 && across < width;
+        const fullyOn = inRange && along - radius >= p.at && along + radius <= p.at + PLATFORM_LENGTH;
+        const touching = inRange && along + radius > p.at && along - radius < p.at + PLATFORM_LENGTH;
+        const ease = (t) => t * t * (3 - 2 * t);
+        // Held where you stood in the basket while it carries you
+        const hold = () => {
+            const a = p.at + p.offset;
+            if (p.alongX) position.set(g.minX + a, position.y, g.minZ + p.across);
+            else position.set(g.minX + p.across, position.y, g.minZ + a);
+            velocity.set(0, 0, 0);
+        };
+        let event = null;
+        p.time += dt;
+        p.burn = Math.max(0, (p.burn ?? 0) - dt);
+        if (p.phase === 'rest') {
+            p.time = 0;
+            // Just let out: you have to step off before it will carry you again
+            if (p.mustLeave && !touching) p.mustLeave = false;
+            if (fullyOn && !p.mustLeave) {
+                Object.assign(p, { phase: 'wait', riding: true });
+                event = 'board';
+            } else if (!touching && inRange) {
+                // Empty: float over to whichever edge the player comes to
+                if (p.at !== p.low && along < 0 && along > -PLATFORM_CALL_DISTANCE) Object.assign(p, { phase: 'float', target: p.low });
+                if (p.at !== p.high && along > p.span && along < p.span + PLATFORM_CALL_DISTANCE) Object.assign(p, { phase: 'float', target: p.high });
+            }
+        } else if (p.phase === 'float') {
+            p.at = p.target > p.at ? Math.min(p.target, p.at + p.speed * dt) : Math.max(p.target, p.at - p.speed * dt);
+            if (p.at === p.target) Object.assign(p, { phase: 'rest', time: 0 });
+        } else if (p.phase === 'wait') {
+            if (!fullyOn) {
+                Object.assign(p, { phase: 'rest', riding: false, time: 0 });
+                event = 'cancel';
+            } else if (p.time >= BALLOON_WAIT) {
+                Object.assign(p, { phase: 'rise', time: 0, offset: along - p.at, across, from: p.at, target: p.at === p.low ? p.high : p.low, burn: 0.8 });
+                event = 'depart';
+                hold();
+            }
+        } else if (p.phase === 'rise') {
+            const t = Math.min(1, p.time / BALLOON_RISE_TIME);
+            p.lift = BALLOON_HEIGHT * ease(t);
+            if (Math.random() < dt * 3) p.burn = 0.5;
+            if (t >= 1) Object.assign(p, { phase: 'cross', time: 0 });
+            hold();
+        } else if (p.phase === 'cross') {
+            const t = Math.min(1, p.time / BALLOON_CROSS_TIME);
+            p.at = p.from + (p.target - p.from) * ease(t);
+            if (t >= 1) Object.assign(p, { phase: 'down', time: 0, at: p.target });
+            hold();
+        } else if (p.phase === 'down') {
+            const t = Math.min(1, p.time / BALLOON_DOWN_TIME);
+            p.lift = BALLOON_HEIGHT * (1 - ease(t));
+            hold();
+            if (t >= 1) {
+                // Down at the far edge: out you get, onto the floor just past it
+                const out = p.at === p.high ? p.span + BALLOON_LANDING : -BALLOON_LANDING;
+                this.landing = p.alongX ? new THREE.Vector3(g.minX + out, 0, g.minZ + width / 2) : new THREE.Vector3(g.minX + width / 2, 0, g.minZ + out);
+                Object.assign(p, { phase: 'rest', riding: false, time: 0, lift: 0, mustLeave: true });
+                event = 'land';
+            }
+        }
+        // What you can see: in the air only the gap's corridor (glowing), and
+        // at the top nothing at all (a thick ash cloud)
+        let view = null;
+        let cloud = 0;
+        if (p.phase === 'rise') {
+            view = 'corridor';
+            cloud = Math.max(0, (p.time / BALLOON_RISE_TIME - (1 - BALLOON_CLOUD_FADE)) / BALLOON_CLOUD_FADE);
+        } else if (p.phase === 'cross') {
+            view = 'cloud';
+            cloud = 1;
+        } else if (p.phase === 'down') {
+            view = 'corridor';
+            cloud = Math.max(0, 1 - p.time / BALLOON_DOWN_TIME / BALLOON_CLOUD_FADE);
+        }
+        this.setRideView(p, view, cloud, position);
+        this.showPlatform(p);
+        return event;
+    }
+
+    // How high the balloon you're riding is (null when you're not in the air in one)
+    rideLift() {
+        const p = this.platforms.find((q) => q.balloon && ['rise', 'cross', 'down'].includes(q.phase));
+        return p ? p.lift : null;
+    }
+
+    // Show only what the ride lets you see. view: null = the whole maze as
+    // normal; 'corridor' = only the balloon, the lava and the gap's corridor
+    // (from the cell before the gap to the cell after it), glowing; 'cloud' =
+    // the ash cloud. cloud: how thick the ash cloud round your head is (0-1).
+    setRideView(p, view, cloud, position) {
+        if (!view && !p.view) return; // nothing to change (and leave another balloon's ride alone)
+        if (view !== p.view) {
+            if (view && !this.savedVisible) {
+                this.savedVisible = new Map(this.root.children.map((o) => [o, o.visible]));
+                for (const o of this.root.children) o.visible = false;
+            }
+            if (!view && this.savedVisible) {
+                for (const [o, visible] of this.savedVisible) o.visible = visible;
+                this.savedVisible = null;
+            }
+            const corridor = view === 'corridor';
+            for (const m of p.basketMaterials ?? []) Object.assign(m, { transparent: !!view, opacity: view ? 0.25 : 1, depthWrite: !view });
+            for (const o of [p.object, p.lava?.group, p.corridor]) if (o) o.visible = corridor || (!view && o !== p.corridor);
+            p.view = view;
+        }
+        if (!this.cloud && cloud > 0) {
+            this.cloud = new THREE.Mesh(new THREE.SphereGeometry(3, 24, 16), new THREE.MeshBasicMaterial({
+                color: 0x3a2c28, transparent: true, opacity: 0, side: THREE.BackSide, depthTest: false, depthWrite: false, fog: false,
+            }));
+            this.cloud.renderOrder = 999;
+            this.scene.add(this.cloud);
+        }
+        if (this.cloud) {
+            this.cloud.visible = cloud > 0;
+            this.cloud.material.opacity = Math.min(1, cloud);
+            this.cloud.material.transparent = cloud < 1;
+            if (position) this.cloud.position.set(position.x, position.y + 1.6 + p.lift, position.z);
+        }
+    }
+
+    // The lava gap (Volcano World): bright, bubbling lava far below, with
+    // black rock sides down to it and a glowing edge where the path drops away
+    createLavaPit(p) {
+        const g = p.gap;
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        const surfaceY = -2.2;
+        const group = new THREE.Group();
+        const map = lavaTexture();
+        map.repeat.set((g.maxX - g.minX) / 4, (g.maxZ - g.minZ) / 4);
+        const lava = new THREE.Mesh(new THREE.PlaneGeometry(g.maxX - g.minX, g.maxZ - g.minZ), new THREE.MeshBasicMaterial({ map, fog: false }));
+        lava.rotation.x = -Math.PI / 2;
+        lava.position.set(cx, surfaceY, cz);
+        group.add(lava);
+        // Rock sides, lit orange from below
+        const rock = new THREE.MeshStandardMaterial({ color: 0x1a0d0a, roughness: 0.5, emissive: 0x5a1400, emissiveIntensity: 0.6 });
+        const depth = -surfaceY - 0.2;
+        for (const [w, d, x, z] of [
+            [g.maxX - g.minX, 0.05, cx, g.minZ], [g.maxX - g.minX, 0.05, cx, g.maxZ],
+            [0.05, g.maxZ - g.minZ, g.minX, cz], [0.05, g.maxZ - g.minZ, g.maxX, cz],
+        ]) {
+            const side = new THREE.Mesh(new THREE.BoxGeometry(w, depth, d), rock);
+            side.position.set(x, -0.2 - depth / 2, z);
+            group.add(side);
+        }
+        // A glowing orange edge where the floor stops
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        const edge = new THREE.MeshBasicMaterial({ color: 0xff7a1a });
+        for (const end of [0, p.span]) {
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(width, 0.05, 0.12), edge);
+            if (p.alongX) {
+                strip.rotation.y = Math.PI / 2;
+                strip.position.set(g.minX + end + (end ? 0.06 : -0.06), 0.02, cz);
+            } else {
+                strip.position.set(cx, 0.02, g.minZ + end + (end ? 0.06 : -0.06));
+            }
+            group.add(strip);
+        }
+        // Bubbles that swell up and pop
+        const bubbleMaterial = new THREE.MeshBasicMaterial({ color: 0xffb02e, fog: false });
+        const bubbles = [];
+        for (let k = 0; k < 10; k++) {
+            const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), bubbleMaterial);
+            group.add(mesh);
+            const bubble = { mesh, life: Math.random() * 1.5, span: 1 };
+            bubbles.push(bubble);
+        }
+        this.root.add(group);
+        p.lava = { group, map, bubbles, surfaceY };
+        for (const b of bubbles) this.placeLavaBubble(p, b);
+    }
+
+    placeLavaBubble(p, b) {
+        const g = p.gap;
+        b.mesh.position.set(g.minX + 0.4 + Math.random() * (g.maxX - g.minX - 0.8), p.lava.surfaceY, g.minZ + 0.4 + Math.random() * (g.maxZ - g.minZ - 0.8));
+        b.span = b.life = 0.8 + Math.random() * 1.2;
+        b.size = 0.5 + Math.random() * 0.9;
+    }
+
+    // The lava slowly churns, its bubbles swell and pop, and the balloon's
+    // burner flickers (called every frame)
+    updateLava(p, dt) {
+        const lava = p.lava;
+        lava.time = (lava.time ?? 0) + dt;
+        lava.map.offset.set(Math.sin(lava.time * 0.3) * 0.08, lava.time * 0.03);
+        for (const b of lava.bubbles) {
+            b.life -= dt;
+            if (b.life <= 0) this.placeLavaBubble(p, b);
+            const t = 1 - b.life / b.span;
+            b.mesh.scale.setScalar(Math.max(0.01, b.size * t));
+        }
+        if (p.flame) {
+            const roar = (p.burn ?? 0) > 0 ? 1.8 : 0.6;
+            p.flame.scale.set(1, roar * (0.85 + 0.3 * Math.random()), 1);
+            p.flame.material.opacity = (p.burn ?? 0) > 0 ? 0.95 : 0.7;
+        }
+    }
+
+    // The hot-air balloon: a wicker basket the gap's width (you step into
+    // it), ropes up to a burner, and a big round red, orange and yellow
+    // striped balloon, high enough to clear the walls
+    createBalloon(p) {
+        const g = p.gap;
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        const group = new THREE.Group();
+        const wicker = new THREE.MeshStandardMaterial({ map: wickerTexture(), roughness: 0.9 });
+        const w = width - 0.2;
+        const l = PLATFORM_LENGTH - 0.1;
+        const floor = new THREE.Mesh(new THREE.BoxGeometry(w, 0.12, l), wicker);
+        floor.position.y = -0.06;
+        group.add(floor);
+        const sideHeight = 1.0;
+        for (const [sx, sz, bx, bz] of [[w, 0.08, 0, l / 2], [w, 0.08, 0, -l / 2], [0.08, l, w / 2, 0], [0.08, l, -w / 2, 0]]) {
+            const side = new THREE.Mesh(new THREE.BoxGeometry(sx, sideHeight, sz), wicker);
+            side.position.set(bx, sideHeight / 2, bz);
+            group.add(side);
+        }
+        const rim = new THREE.MeshStandardMaterial({ color: 0x5a3416, roughness: 0.8 });
+        // In the air the basket goes see-through, so you can look down at the corridor below
+        p.basketMaterials = [wicker, rim];
+        for (const [sx, sz, bx, bz] of [[w + 0.1, 0.14, 0, l / 2], [w + 0.1, 0.14, 0, -l / 2], [0.14, l + 0.1, w / 2, 0], [0.14, l + 0.1, -w / 2, 0]]) {
+            const top = new THREE.Mesh(new THREE.BoxGeometry(sx, 0.1, sz), rim);
+            top.position.set(bx, sideHeight, bz);
+            group.add(top);
+        }
+        // The burner and its flame
+        const burnerY = 4.1;
+        const burner = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.3, 0.3, 12), new THREE.MeshStandardMaterial({ color: 0x777777, metalness: 0.8, roughness: 0.3 }));
+        burner.position.y = burnerY;
+        group.add(burner);
+        const flame = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.9, 12), new THREE.MeshBasicMaterial({ color: 0xffa020, transparent: true, opacity: 0.7, fog: false }));
+        flame.geometry.translate(0, 0.45, 0);
+        flame.position.y = burnerY + 0.15;
+        group.add(flame);
+        p.flame = flame;
+        // Ropes from the basket's corners up to the balloon
+        const rope = new THREE.MeshBasicMaterial({ color: 0x2a1a10 });
+        const envelopeY = 6.9;
+        for (const [cx, cz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+            const a = new THREE.Vector3(cx * (w / 2 - 0.05), sideHeight, cz * (l / 2 - 0.05));
+            const b = new THREE.Vector3(cx * 0.9, envelopeY - 2.2, cz * 0.9);
+            const line = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, a.distanceTo(b), 5), rope);
+            line.position.copy(a).add(b).multiplyScalar(0.5);
+            line.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b.clone().sub(a).normalize());
+            group.add(line);
+        }
+        // The balloon itself: round on top, narrowing toward the burner
+        const envelope = new THREE.Mesh(new THREE.SphereGeometry(2.3, 32, 24), new THREE.MeshStandardMaterial({ map: balloonTexture(), roughness: 0.6, emissive: 0x401000, emissiveIntensity: 0.4 }));
+        envelope.scale.set(1, 1.15, 1);
+        envelope.position.y = envelopeY;
+        group.add(envelope);
+        const skirt = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 0.55, 1.2, 24, 1, true), new THREE.MeshStandardMaterial({ color: 0xd8401a, roughness: 0.7, side: THREE.DoubleSide }));
+        skirt.position.y = envelopeY - 2.5;
+        group.add(skirt);
+        // The group's z is the gap's long side; turn it when the gap runs along x
+        if (p.alongX) group.rotation.y = Math.PI / 2;
+        this.root.add(group);
+        p.object = group;
+    }
+
+    // The gap's corridor as you see it from the balloon: from the cell
+    // before the gap to the cell after it, walls and floor glowing bright
+    // orange. Hidden except while the balloon is in the air.
+    createRideCorridor(p) {
+        const g = p.gap;
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        const walls = [];
+        const floors = [];
+        for (let a = -5; a < p.span + 5; a++) {
+            for (let c = -1; c <= width; c++) {
+                const x = p.alongX ? g.minX + a : g.minX + c;
+                const z = p.alongX ? g.minZ + c : g.minZ + a;
+                const wall = this.grid[x]?.[z];
+                if (wall === undefined) continue;
+                if (wall === 1) walls.push([x, z]);
+                else if (!(a >= 0 && a < p.span && c >= 0 && c < width)) floors.push([x, z]);
+            }
+        }
+        const group = new THREE.Group();
+        const matrix = new THREE.Matrix4();
+        const wallMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, this.height, 1), new THREE.MeshBasicMaterial({ color: 0xff8a2a, fog: false }), walls.length);
+        walls.forEach(([x, z], k) => wallMesh.setMatrixAt(k, matrix.makeTranslation(x + 0.5, this.height / 2, z + 0.5)));
+        group.add(wallMesh);
+        // Darker wall tops so the corridor's shape shows from above
+        const topMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1.001, 0.05, 1.001), new THREE.MeshBasicMaterial({ color: 0x7a1e04, fog: false }), walls.length);
+        walls.forEach(([x, z], k) => topMesh.setMatrixAt(k, matrix.makeTranslation(x + 0.5, this.height + 0.03, z + 0.5)));
+        group.add(topMesh);
+        const floorMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.05, 1), new THREE.MeshBasicMaterial({ color: 0xffd36a, fog: false }), floors.length);
+        floors.forEach(([x, z], k) => floorMesh.setMatrixAt(k, matrix.makeTranslation(x + 0.5, 0.03, z + 0.5)));
+        group.add(floorMesh);
+        group.visible = false;
+        this.root.add(group);
+        p.corridor = group;
     }
 
     // Run one bubble (Underwater World, Level 42 on). It rests at one edge of
@@ -2741,6 +3143,13 @@ export class Maze {
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
     createPlatform(p) {
+        if (p.balloon) {
+            this.createLavaPit(p);
+            this.createBalloon(p);
+            this.createRideCorridor(p);
+            this.showPlatform(p);
+            return;
+        }
         if (p.chocolate) {
             this.createChocolateRiver(p);
             this.createMarshmallows(p);
@@ -3270,8 +3679,9 @@ export class Maze {
             p.ball.scale.set(bulge, bulge, squash); // the ball's z is the gap's long side
             p.ball.position.y = BUBBLE_RADIUS * bulge;
         }
-        if (p.alongX) p.object.position.set(g.minX + middle, 0, (g.minZ + g.maxZ) / 2);
-        else p.object.position.set((g.minX + g.maxX) / 2, 0, g.minZ + middle);
+        const y = p.balloon ? p.lift : 0;
+        if (p.alongX) p.object.position.set(g.minX + middle, y, (g.minZ + g.maxZ) / 2);
+        else p.object.position.set((g.minX + g.maxX) / 2, y, g.minZ + middle);
     }
 
     // The marshmallow this point is standing on (Candy World), if any

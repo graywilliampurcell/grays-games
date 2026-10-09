@@ -52,6 +52,8 @@ const CARAMEL_SPEED = 0.5;
 // A steam vent's puff (Volcano World) pushes you one square back, taking this long
 const VENT_PUSH_TIME = 0.45;
 const VENT_HISS_TIME = 1;
+// The balloon lets you out (Volcano World): you step out onto the floor, taking this long
+const BALLOON_STEP_OUT_TIME = 0.4;
 const lastOutsideCurrent = new THREE.Vector3();
 let frameCount = 0;
 let lastTime = performance.now();
@@ -312,6 +314,13 @@ function step(deltaTime) {
     // Underwater (Level 42 on) it's a bubble you push into first.
     const platformEvent = maze.updatePlatform(deltaTime, player.position, player.velocity, player.radius);
     if (platformEvent) testHooks?.emit('platform', { what: platformEvent });
+    // The hot-air balloon (Volcano World): its burner roars as it sets off;
+    // in the air you're carried up with it; down at the far edge you step out
+    if (platformEvent === 'depart' && maze.theme.volcano) sound.whoosh(0.8);
+    const lift = maze.rideLift();
+    player.carried = lift !== null;
+    if (lift !== null) player.camera.position.set(player.position.x, player.position.y + 1.6 + lift, player.position.z);
+    if (platformEvent === 'land') player.startShove(maze.landing, BALLOON_STEP_OUT_TIME);
     checkSpikeAndDoor();
 
     // Update camera to follow player
@@ -354,6 +363,7 @@ function checkSpikeAndDoor() {
         showMessage(maze.theme.moon ? 'Ouch! You fell in a crater. Back to the start.'
             : maze.theme.underwater ? 'Ouch! You fell in the crack. Back to the start.'
                 : maze.theme.sweets ? 'Ouch! You fell in the chocolate. Back to the start.'
+                : maze.theme.volcano ? 'Ouch! You fell in the lava. Back to the start.'
                 : 'Whoops! You fell off. Back to the start.');
     }
 
@@ -410,6 +420,7 @@ function showMessage(text) {
 function backToStart() {
     player.resetTo(maze.getStartPosition(), maze.getStartYaw());
     player.sticky = 1;
+    player.carried = false;
     wasOnMarshmallow = null;
     maze.resetPlatform();
 }

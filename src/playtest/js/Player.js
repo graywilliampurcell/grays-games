@@ -29,6 +29,7 @@ export class Player {
         // Being shoved by a water current, or bounced by a marshmallow (with a
         // hop: how high the arc goes): { from, to, time, length, hop } while it lasts
         this.shove = null;
+        this.carried = false; // in the air in a hot-air balloon (Volcano World): look only
         // How fast you walk compared with normal (0.5 on sticky caramel, Level 52 on)
         this.sticky = 1;
 
@@ -322,6 +323,13 @@ export class Player {
         const controls = this.readControls();
         if (controls.turn || controls.tilt) {
             this.look(controls.turn * this.turnSpeed * deltaTime, controls.tilt * this.turnSpeed * deltaTime);
+        }
+
+        // In the air in a hot-air balloon (Volcano World): you can look
+        // around but not move; main.js holds you in the basket
+        if (this.carried) {
+            this.velocity.set(0, 0, 0);
+            return;
         }
 
         // A water current is carrying you: you can look around, but you go

@@ -3,6 +3,7 @@
 // find-candy-level.mjs (Levels 55-60), at 11 x 11.
 //
 //   node tools/find-volcano-level.mjs level61 20 11685   # the sneaky hot coal + one steam vent, 2-deep dead ends (Level 61 = seed 11685)
+//   node tools/find-volcano-level.mjs level62 20 15001   # one balloon ride over a lava gap + one steam vent (Level 62 = seed 15713)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 11 x 11, so run many first seeds in parallel.
@@ -30,6 +31,7 @@ import { LEVELS } from '../js/levels.js';
 
 const RULES = {
     level61: { name: 'Level 61', depth: 2, deadEnds: 20, sneaky: true, vents: 1 },
+    level62: { name: 'Level 62', depth: 2, deadEnds: 20, vents: 1, gaps: 1 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
