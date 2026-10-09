@@ -2770,6 +2770,71 @@ export const LEVELS = [
         '#########################################',
         ],
     },
+    {
+        name: 'Level 60',
+        // The Candy World finale. `node tools/find-candy-level.mjs level60`,
+        // seed 27759. 10 x 10 corridors. Correct path 58 cells (start west in
+        // row 7, door east in the bottom row); 13 dead ends, every one 3 cells
+        // deep, plus the sneaky candy cane's: off path cell 1 it goes 3 cells
+        // with one turn, and the broken candy cane (X) sits in its last cell,
+        // out of sight of the path. Z: the candy cane on the path, path cell
+        // 26 (heading north), plate 0.72 like Level 50's urchin, the tightest
+        // squeeze. Y: the big candy cane across the straight dead end off path
+        // cell 29, in plain view. O: two chocolate rivers, each with a
+        // marshmallow on each bank: path cells 33-36 in the top row (crossed
+        // heading east) and 51-54 in the right column (crossed heading south).
+        // C: five sticky caramel spots, three on the path (path cells 10, 13
+        // and 47) and two in dead ends (the ones off path cells 2 and 22). At
+        // least 2 path cells between any two of them. Golden door, confetti,
+        // long cheer, "You beat Candy World!".
+        theme: CANDY,
+        music: 'candyfinale',
+        spike2Radius: 0.72,
+        finale: 'You beat Candy World!',
+        layout: [
+        '#########################################',
+        '#    OOOOOOOOOOOOOOO            #   #   #',
+        '#    OOOOOOOOOOOOOOO            #   #   #',
+        '#    OOOOOOOOOOOOOOO            #   #   #',
+        '#   #########################   #   #   #',
+        '#                   #   #       #   #   #',
+        '#                   #   #       #   #   #',
+        '#                   #   #       #   #   #',
+        '#   #   #   #####   #   #   #####   #   #',
+        '#   #   # Y #   #   #   #           #   #',
+        '#   #   #   #   # Z #   #           #   #',
+        '#   #   #   #   #   #   #           #   #',
+        '#   #   #   #   #   #   #####   #####   #',
+        '#   #   #   #   #       #       #       #',
+        '#   #   #   #   #       #       #       #',
+        '#   #   #   #   #       #       #       #',
+        '#   #   #   #   #   #####   #####   #   #',
+        '#   #   #   #           #    CCC    #OOO#',
+        '#   #   #   #           #    CCC    #OOO#',
+        '#   #   #   #           #    CCC    #OOO#',
+        '#####################   #############OOO#',
+        '#       #    CCC            #       #OOO#',
+        '#     X #    CCC            #       #OOO#',
+        '#       #    CCC            #       #OOO#',
+        '#   #####################   #   #   #OOO#',
+        '#   #           #       #       #   #OOO#',
+        '#   #           #       #       #   #OOO#',
+        '#   #           #       #       #   #OOO#',
+        '#   #########   #####   #########   #OOO#',
+        '#                       #           #OOO#',
+        '# S                     #           #OOO#',
+        '#                       #           #OOO#',
+        '#####   #########   #####   #   #####   #',
+        '#CCC    #           #       #CCC#       #',
+        '#CCC    #           #       #CCC#       #',
+        '#CCC    #           #       #CCC#       #',
+        '#   #####   #   #############   #   #####',
+        '#   #       #        CCC        #       #',
+        '#   #       #        CCC        #       D',
+        '#   #       #        CCC        #       #',
+        '#########################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with

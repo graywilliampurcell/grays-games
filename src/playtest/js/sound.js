@@ -1452,6 +1452,33 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.12, length: 0.15, brightness: 2000 },
     },
+    // Level 60, the Candy World finale: the sneakiest Candy World tune.
+    // B-flat minor at 112 bpm. It opens with the squeeze trill (B-flat, B,
+    // B-flat), then a bounce leap up an octave that sags into caramel, then a
+    // creeping chromatic sneak down four half steps to a low thud, a bit of
+    // every Candy World level at once. The second half does it all again a
+    // fourth higher, faster and closer together, and ends hanging on a
+    // sneaky, unresolved B. A sharp, biting sawtooth lead, ticking, a busy
+    // off-beat bass and short stabs.
+    candyfinale: {
+        tempo: 112,
+        bars: [[46, 'min'], [46, 'min'], [42, 'maj'], [41, 'maj'], [46, 'min'], [39, 'min'], [42, 'maj'], [41, 'maj']],
+        bass: [0, null, 0, null, null, 0, null, 0],
+        bassLength: 0.12,
+        stabs: [],
+        ticks: true,
+        melody: [
+            70, 71, 70, null, 58, null, 70, 69,
+            null, null, 73, 72, 71, 70, null, null,
+            46, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null,
+            75, 76, 75, null, 63, null, 75, 74,
+            null, null, 78, 77, 76, 75, null, null,
+            51, null, null, null, 51, null, null, null,
+            null, null, 71, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.1, length: 0.08, brightness: 1800 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
