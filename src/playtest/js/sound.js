@@ -1375,6 +1375,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.12, length: 0.06, brightness: 1700 },
     },
+    // Level 57, longer wrong ways: just sneaky. G minor at 88 bpm. It opens
+    // with a long walk of five even steps up (G, A, B-flat, C, D), going a
+    // long way, then a sudden step back down to where it started, the dead
+    // end, then a sneaky low wobble. The second half walks a different way,
+    // up from B-flat, turns back again and ends on a lost, unresolved A. A
+    // soft, round triangle lead with longer notes, ticking and a slow bass.
+    longwrongway: {
+        tempo: 88,
+        bars: [[43, 'min'], [43, 'min'], [39, 'maj'], [38, 'maj'], [46, 'maj'], [43, 'min'], [39, 'maj'], [38, 'maj']],
+        bass: [0, null, null, null, 0, null, null, null],
+        bassLength: 0.35,
+        stabs: [],
+        ticks: true,
+        melody: [
+            67, null, 69, null, 70, null, 72, null,
+            74, null, null, null, 67, null, null, null,
+            null, null, 55, 54, 55, null, null, null,
+            null, null, null, null, null, null, null, null,
+            70, null, 72, null, 74, null, 75, null,
+            77, null, null, null, 70, null, null, null,
+            null, null, 58, 57, 58, null, null, null,
+            null, null, 69, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.26, length: 0.2, brightness: 1100 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
