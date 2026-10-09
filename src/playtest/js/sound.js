@@ -1658,6 +1658,31 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.15, length: 0.11, brightness: 1300 },
     },
+    // Level 68, longer wrong ways: just sneaky, no happy. C# minor at 94
+    // bpm. Each phrase wanders down a long winding line of small steps,
+    // stops, and turns back the way it came, like walking all the way into
+    // a long wrong way and creeping back out; the balloon is one slow climb
+    // near the end. The end stops on a hanging, unfinished D sharp. A dark
+    // square lead with ticking, and a bass that walks on beats one and three.
+    deepvolcano: {
+        tempo: 94,
+        bars: [[37, 'min'], [37, 'min'], [33, 'maj'], [32, 'maj'], [37, 'min'], [30, 'min'], [33, 'maj'], [32, 'maj']],
+        bass: [0, null, null, null, 7, null, null, null],
+        bassLength: 0.35,
+        stabs: [],
+        ticks: true,
+        melody: [
+            73, 71, 69, 68, 66, 64, null, null,
+            64, 66, 68, 69, 71, null, null, null,
+            76, 75, 73, 71, 69, 68, null, null,
+            68, 69, 71, null, 68, null, null, null,
+            61, null, 64, null, 68, null, 73, null,
+            76, null, 78, null, 81, null, null, null,
+            80, 78, 76, 75, 73, 71, 69, 68,
+            null, null, 63, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.1, length: 0.12, brightness: 900 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

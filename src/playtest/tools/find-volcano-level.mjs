@@ -9,6 +9,7 @@
 //   node tools/find-volcano-level.mjs level65 20 10501    # two balloon rides (each its own lava gap, a turn between) + one steam vent (Level 65 = seed 10503)
 //   node tools/find-volcano-level.mjs level66 20 1        # the path hot coal (squeeze past) + one lava geyser + one steam vent (Level 66 = seed 9281)
 //   node tools/find-volcano-level.mjs level67 20 1        # the tighter squeeze (path hot coal) + one balloon ride (Level 67 = seed 17475)
+//   node tools/find-volcano-level.mjs level68 18 301      # 3-deep dead ends + the big hot coal + one balloon ride (Level 68 = seed 352)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 11 x 11, so run many first seeds in parallel.
@@ -25,7 +26,7 @@
 // from every other level. Spacing: at least 2 path cells between any two
 // obstacles on the path (a lava gap counts as its 4 cells, a steam vent as its
 // cell plus the cell it pushes you back into) and between them and every
-// obstacle dead end's opening. Steam vents, geysers, lava gaps and the path
+// obstacle dead end's opening. Dead ends are 2 deep, or 3 deep from Level 68. Steam vents, geysers, lava gaps and the path
 // hot coal sit on plain cells (only the path goes through them) in a straight
 // stretch visible on approach. The sneaky hot coal: a dead end 3 cells deep
 // with one 90° turn, leaving the path in its first 3 cells, the coal in its
@@ -42,6 +43,7 @@ const RULES = {
     level65: { name: 'Level 65', depth: 2, deadEnds: 20, vents: 1, gaps: 2 },
     level66: { name: 'Level 66', depth: 2, deadEnds: 20, vents: 1, geysers: 1, pathCane: true },
     level67: { name: 'Level 67', depth: 2, deadEnds: 20, gaps: 1, pathCane: true },
+    level68: { name: 'Level 68', depth: 3, deadEnds: 18, gaps: 1, bigCane: true },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -79,6 +81,26 @@ const shuffle = (list, random) => {
     return list;
 };
 
+// 3-deep dead ends only fit when every patch of cells left over from the path
+// can be cut into 3-cell pieces, so a 3-deep level keeps searching for a path
+// whose leftover patches all have a multiple of 3 cells
+function leftoverSplits(used) {
+    const seen = new Set(used);
+    for (let i = 0; i < COLS; i++) for (let j = 0; j < ROWS; j++) {
+        if (seen.has(`${i},${j}`)) continue;
+        let size = 0;
+        const stack = [{ i, j }];
+        seen.add(`${i},${j}`);
+        while (stack.length) {
+            const c = stack.pop();
+            size++;
+            for (const n of neighbours(c)) if (!seen.has(key(n))) { seen.add(key(n)); stack.push(n); }
+        }
+        if (size % 3 !== 0) return false;
+    }
+    return true;
+}
+
 // Random self-avoiding walk of exactly PATH_LENGTH cells, west edge to east edge
 function layPath(random) {
     const start = { i: 0, j: Math.floor(random() * ROWS) };
@@ -88,7 +110,7 @@ function layPath(random) {
     function extend() {
         if (++steps > STEPS_PER_SEED) return false;
         const last = path[path.length - 1];
-        if (path.length === PATH_LENGTH) return last.i === COLS - 1;
+        if (path.length === PATH_LENGTH) return last.i === COLS - 1 && (DEPTH !== 3 || leftoverSplits(used));
         if (COLS - 1 - last.i > PATH_LENGTH - path.length) return false;
         const options = path.length === 1 ? [{ i: 1, j: start.j }] : shuffle(neighbours(last), random);
         for (const next of options) {
