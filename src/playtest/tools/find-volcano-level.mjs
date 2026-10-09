@@ -5,6 +5,7 @@
 //   node tools/find-volcano-level.mjs level61 20 11685   # the sneaky hot coal + one steam vent, 2-deep dead ends (Level 61 = seed 11685)
 //   node tools/find-volcano-level.mjs level62 20 15001   # one balloon ride over a lava gap + one steam vent (Level 62 = seed 15713)
 //   node tools/find-volcano-level.mjs level63 20 3001     # one lava geyser + one balloon ride (Level 63 = seed 4348)
+//   node tools/find-volcano-level.mjs level64 20 1        # two lava geysers (each in its own straight stretch) + the big hot coal (Level 64 = seed 4949)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 11 x 11, so run many first seeds in parallel.
@@ -34,6 +35,7 @@ const RULES = {
     level61: { name: 'Level 61', depth: 2, deadEnds: 20, sneaky: true, vents: 1 },
     level62: { name: 'Level 62', depth: 2, deadEnds: 20, vents: 1, gaps: 1 },
     level63: { name: 'Level 63', depth: 2, deadEnds: 20, geysers: 1, gaps: 1 },
+    level64: { name: 'Level 64', depth: 2, deadEnds: 20, geysers: 2, bigCane: true },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -257,12 +259,14 @@ function place(path, hung, random) {
         out.vents.push(k);
         spans.push([k - 1, k]);
     }
-    // Lava geysers: like a steam vent's cell, in a straight stretch
+    // Lava geysers: like a steam vent's cell, in a straight stretch; two
+    // geysers each get their own straight stretch (a turn between them)
     out.geysers = [];
     for (let v = 0; v < (rule.geysers ?? 0); v++) {
         const options = [];
         for (let k = 3; k < path.length - 2; k++) {
-            if (plain(k) && step(path[k - 2], path[k - 1]) === step(path[k - 1], path[k]) && fits([k, k])) options.push(k);
+            if (plain(k) && step(path[k - 2], path[k - 1]) === step(path[k - 1], path[k]) && fits([k, k])
+                && out.geysers.every((h) => turnBetween(Math.min(k, h) + 1, Math.max(k, h)))) options.push(k);
         }
         if (options.length === 0) return null;
         const k = options[Math.floor(random() * options.length)];

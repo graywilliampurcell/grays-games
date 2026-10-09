@@ -992,6 +992,7 @@ const GEYSER_ERUPT_TIME = 3;
 const GEYSER_RISE = 0.25;
 const GEYSER_SINK = 0.3;
 const GEYSER_BUBBLE = 1;
+const GEYSER_OFFSET = 1.5;
 
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
@@ -1087,13 +1088,15 @@ export class Maze {
             v.target = ventTargets.reduce((a, b) => (b.distanceTo(v.center) < a.distanceTo(v.center) ? b : a)).clone();
             this.vents.push(v);
         }
-        this.geysers = groupBlocks(geyserBlocks).map((blocks) => {
+        // Each geyser keeps its own timer; with two (Level 64) the second starts
+        // GEYSER_OFFSET seconds out of step, so they don't go off together
+        this.geysers = groupBlocks(geyserBlocks).map((blocks, index) => {
             const xs = blocks.map((b) => b.x);
             const zs = blocks.map((b) => b.z);
             const g = {
                 minX: Math.min(...xs), maxX: Math.max(...xs) + 1,
                 minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
-                phase: 'quiet', timer: GEYSER_QUIET_TIME, waiting: false, rise: 0,
+                phase: 'quiet', timer: GEYSER_QUIET_TIME - (index % 2) * GEYSER_OFFSET, waiting: false, rise: 0,
             };
             g.center = new THREE.Vector3((g.minX + g.maxX) / 2, 0, (g.minZ + g.maxZ) / 2);
             return g;
@@ -2436,6 +2439,7 @@ export class Maze {
         if (this.theme.moon) return this.createBigCrater(row);
         if (this.theme.underwater) return this.createBigUrchin(row);
         if (this.theme.sweets) return this.createBigCandyCane(row);
+        if (this.theme.volcano) return this.createBigHotCoal(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -2538,6 +2542,46 @@ export class Maze {
         end.position.set(1.0, 1.9, 0);
         end.rotation.z = Math.PI;
         group.add(end);
+        if (!row.spansX) group.rotation.y = Math.PI / 2;
+        group.position.copy(row.position);
+        group.position.y = 0;
+        this.root.add(group);
+    }
+
+    // Volcano World's spike row (Level 64): a big hot coal right across the
+    // corridor, as wide as the corridor and as deep as a spike row: one giant
+    // glowing coal in the middle with smaller coals piled against it at both
+    // sides, so there's no way past
+    createBigHotCoal(row) {
+        const group = new THREE.Group();
+        const map = coalTexture();
+        this.coals = this.coals || [];
+        // [x across the corridor, z along it, half-width, height]
+        const lumps = [[0, 0, 0.62, 1.3], [-0.95, 0.08, 0.42, 0.85], [0.95, -0.06, 0.42, 0.9],
+            [-1.3, -0.12, 0.22, 0.45], [1.3, 0.12, 0.22, 0.5], [-0.45, -0.2, 0.25, 0.4], [0.5, 0.22, 0.24, 0.45]];
+        lumps.forEach(([x, z, size, h], n) => {
+            const geometry = new THREE.IcosahedronGeometry(1, 1);
+            const pos = geometry.attributes.position;
+            for (let k = 0; k < pos.count; k++) {
+                const wobble = 0.82 + 0.3 * Math.abs(Math.sin(k * 12.9898 + n * 41.37));
+                pos.setXYZ(k, pos.getX(k) * wobble, pos.getY(k) * wobble, pos.getZ(k) * wobble);
+            }
+            geometry.computeVertexNormals();
+            const material = new THREE.MeshStandardMaterial({ map, emissiveMap: map, emissive: 0xffffff, emissiveIntensity: 1, roughness: 0.8 });
+            const lump = new THREE.Mesh(geometry, material);
+            // Never deeper than the row (the lumps are about 1.1 x their size)
+            lump.scale.set(size, h / 2, Math.min(size, 0.36));
+            lump.position.set(x, h * 0.45, z);
+            lump.castShadow = true;
+            lump.userData.phase = n * 1.3;
+            this.coals.push(lump);
+            group.add(lump);
+        });
+        // A warm glow on the floor under it
+        const glow = new THREE.Mesh(new THREE.PlaneGeometry(SPIKE_ROW_WIDTH, SPIKE_ROW_DEPTH + 0.6), new THREE.MeshBasicMaterial({ color: 0xff5a00, transparent: true, opacity: 0.35, depthWrite: false }));
+        glow.rotation.x = -Math.PI / 2;
+        glow.position.y = 0.02;
+        group.add(glow);
         if (!row.spansX) group.rotation.y = Math.PI / 2;
         group.position.copy(row.position);
         group.position.y = 0;

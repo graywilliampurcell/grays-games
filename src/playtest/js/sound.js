@@ -1555,6 +1555,32 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.1, length: 0.1, brightness: 1300 },
     },
+    // Level 64, two geysers: just sneaky, no happy. G minor at 112 bpm.
+    // Two voices take turns like two geysers out of step: a low spurt of
+    // three quick notes, then a high one answers from the other side, then
+    // the low one again; a big hot coal sits under it all as a slow, heavy
+    // two-note bass. The second half answers back and forth faster and ends
+    // on a hanging, unfinished A-flat. A square lead, no ticking, a dull,
+    // thudding bass.
+    twingeysers: {
+        tempo: 112,
+        bars: [[43, 'min'], [43, 'min'], [44, 'maj'], [43, 'min'], [39, 'maj'], [44, 'maj'], [38, 'maj'], [43, 'min']],
+        bass: [0, null, null, null, null, null, 0, null],
+        bassLength: 0.45,
+        stabs: [],
+        ticks: false,
+        melody: [
+            55, 58, 62, null, null, null, null, null,
+            null, null, null, null, 74, 79, 82, null,
+            56, 58, 62, null, null, null, null, null,
+            null, null, null, null, 75, 79, 80, null,
+            55, 58, 62, null, 74, 79, 82, null,
+            51, 55, 58, null, 70, 75, 79, null,
+            50, 54, 57, null, 74, 78, 81, null,
+            null, null, 68, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.14, length: 0.09, brightness: 1000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
