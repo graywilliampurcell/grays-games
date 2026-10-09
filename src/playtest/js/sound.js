@@ -1426,6 +1426,32 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.12, length: 0.32, brightness: 750 },
     },
+    // Level 59, bounces and caramel: just sneaky. F-sharp minor at 98 bpm.
+    // It opens with a bounce (a low F-sharp leaping up an octave) that lands
+    // in goo: the high note holds and sags down a half step, then another
+    // bounce that sags the same way, then a quick tiptoe of four notes off
+    // toward the hidden candy cane. The second half bounces from a fifth
+    // higher, sags, tiptoes, and ends on a sneaky, unresolved G. A bright,
+    // hollow square lead, ticking and a bass that bounces on two beats.
+    gooeybounce: {
+        tempo: 98,
+        bars: [[42, 'min'], [42, 'min'], [38, 'maj'], [37, 'maj'], [42, 'min'], [47, 'min'], [38, 'maj'], [37, 'maj']],
+        bass: [0, null, null, null, 0, 0, null, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            54, null, 66, null, null, 65, null, null,
+            54, null, 66, null, null, 65, null, null,
+            null, null, 69, 68, 66, 64, null, null,
+            null, null, null, null, null, null, null, null,
+            61, null, 73, null, null, 72, null, null,
+            61, null, 73, null, null, 72, null, null,
+            null, null, 76, 75, 73, 71, null, null,
+            null, null, 67, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.15, brightness: 2000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
