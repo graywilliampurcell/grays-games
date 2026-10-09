@@ -1349,6 +1349,32 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.11, length: 0.1, brightness: 1100 },
     },
+    // Level 56, the even tighter squeeze: just sneaky. C-sharp minor at 92
+    // bpm. It opens with three short, pinched notes squeezed close together
+    // (C-sharp, D, C-sharp), a breath in, then a slow, careful step down
+    // past the candy cane, then a big low thud, the big candy cane blocking
+    // the way. The second half pinches tighter, a half step higher, and ends
+    // on a nervous, unresolved D. A narrow, nasal square lead with a short
+    // note, ticking and a bass that only plays on the thud.
+    eventighter: {
+        tempo: 92,
+        bars: [[49, 'min'], [49, 'min'], [45, 'maj'], [44, 'maj'], [49, 'min'], [42, 'min'], [45, 'maj'], [44, 'maj']],
+        bass: [null, null, null, null, 0, null, null, null],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            73, 74, 73, null, null, null, null, null,
+            73, null, 71, null, 69, null, 68, null,
+            null, null, null, null, 49, null, null, null,
+            null, null, null, null, null, null, null, null,
+            74, 75, 74, null, null, null, null, null,
+            74, null, 72, null, 70, null, 69, null,
+            null, null, null, null, 50, null, null, null,
+            null, null, 62, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.06, brightness: 1700 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

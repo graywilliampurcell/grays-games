@@ -1,6 +1,6 @@
 {
   "name": "mazle-playtest",
-  "version": "0.70.0",
+  "version": "0.71.0",
   "description": "Mazle map-only playtest - movement and navigation testing",
   "main": "src/index.js",
   "scripts": {
