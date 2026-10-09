@@ -1400,6 +1400,32 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.26, length: 0.2, brightness: 1100 },
     },
+    // Level 58, lots of caramel: just sneaky. E-flat minor at 76 bpm, the
+    // slowest Candy World tune. It opens with heavy notes that stick and
+    // drag, each one held and then sliding down a half step (E-flat to D,
+    // G-flat to F), like feet pulling out of caramel, then three quick
+    // notes as you get free, then stuck again on a long low note. The
+    // second half drags higher and ends on a gooey, unresolved E. A thick,
+    // dark sawtooth lead with long notes, ticking and a slow, heavy bass.
+    caramelswamp: {
+        tempo: 76,
+        bars: [[39, 'min'], [39, 'min'], [35, 'maj'], [34, 'maj'], [39, 'min'], [42, 'maj'], [35, 'maj'], [34, 'maj']],
+        bass: [0, null, null, null, null, null, 0, null],
+        bassLength: 0.45,
+        stabs: [],
+        ticks: true,
+        melody: [
+            63, null, null, 62, 66, null, null, 65,
+            null, null, 70, 68, 66, null, null, null,
+            51, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null,
+            66, null, null, 65, 70, null, null, 69,
+            null, null, 73, 71, 70, null, null, null,
+            54, null, null, null, null, null, null, null,
+            null, null, 64, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.12, length: 0.32, brightness: 750 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
