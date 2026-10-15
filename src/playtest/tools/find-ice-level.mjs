@@ -4,6 +4,7 @@
 //
 //   SEEDS=1500 node tools/find-ice-level.mjs level71 24 4501   # the sneaky icicle + one sled ride over a 3-cell crack (Level 71 = seed 5855)
 //   SEEDS=1500 node tools/find-ice-level.mjs level72 24 4501   # one snowman + one sled ride (Level 72 = seed 4716)
+//   SEEDS=1500 node tools/find-ice-level.mjs level73 24 4501   # one thin ice + one path icicle (Level 73)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 12 x 12, so run many first seeds in parallel.
@@ -16,7 +17,9 @@
 // line on the path), 'M' the snowman himself (two blocks against the far end
 // wall of the hallway's last cell, away from the side the path turns to), 'P'
 // the middle of the path cell just before the hallway (a snowball that hits
-// you in the hallway's first cell pushes you back there).
+// you in the hallway's first cell pushes you back there), 'T' a thin ice
+// cell (one plain path cell in a straight stretch; stand on it ~2 s and it
+// breaks).
 //
 // Rules for every level: 12 x 12, one solution path from the west edge to the
 // east edge, start and door on opposite edges, a layout clearly different
@@ -36,6 +39,7 @@ import { LEVELS } from '../js/levels.js';
 const RULES = {
     level71: { name: 'Level 71', depth: 2, deadEnds: 24, sneaky: true, gaps: 1 },
     level72: { name: 'Level 72', depth: 2, deadEnds: 24, gaps: 1, snowmen: 1 },
+    level73: { name: 'Level 73', depth: 2, deadEnds: 24, pathCane: true, thinIce: 1 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -297,6 +301,18 @@ function place(path, hung, random) {
         out.pathCane = options[Math.floor(random() * options.length)];
         spans.push([out.pathCane, out.pathCane]);
     }
+    // Thin ice on the path: a plain cell, the path straight from n - 2 to n + 2
+    out.thinIce = [];
+    for (let t = 0; t < (rule.thinIce ?? 0); t++) {
+        const options = [];
+        for (let n = 3; n < path.length - 3; n++) {
+            if (plain(n) && step(path[n - 2], path[n - 1]) === step(path[n - 1], path[n]) && step(path[n + 1], path[n + 2]) === step(path[n], path[n + 1]) && fits([n, n])) options.push(n);
+        }
+        if (options.length === 0) return null;
+        const n = options[Math.floor(random() * options.length)];
+        out.thinIce.push(n);
+        spans.push([n, n]);
+    }
     // The big icicle curtain: a straight dead end (all DEPTH cells in a line from its opening)
     if (rule.bigCane) {
         const options = hung.chains.map((chain, c) => ({ chain, at: hung.roots[c] }))
@@ -359,6 +375,7 @@ const put = ([x, z], ch) => { layout[z][x] = ch; };
 for (const g of placed.rivers) for (const b of gapBlocks([...Array(GAP_CELLS).keys()].map((d) => path[g + d]))) put(b, 'O');
 if (hung.sneaky && placed.pathCane !== undefined) put([4 * path[placed.pathCane].i + 2, 4 * path[placed.pathCane].j + 2], 'Z');
 if (placed.bigCane) put(rowBlock(path[placed.bigCane.at], placed.bigCane.chain[0]), 'Y');
+for (const n of placed.thinIce) for (const b of gapBlocks([path[n]])) put(b, 'T');
 for (const h of placed.snowmen) {
     for (const b of gapBlocks([...Array(SNOWMAN_CELLS).keys()].map((d) => path[h + d]))) put(b, 'N');
     const end = path[h + SNOWMAN_CELLS - 1];
@@ -383,4 +400,5 @@ if (hung.sneaky) console.log(`sneaky icicle: dead end off path cell ${hung.sneak
 placed.rivers.forEach((g) => console.log(`crack: path cells ${g + 1}-${g + GAP_CELLS}, crossed heading ${dir(g)}`));
 if (placed.pathCane !== undefined) console.log(`path icicle: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
 placed.snowmen.forEach((h) => console.log(`snowman: hallway path cells ${h + 1}-${h + SNOWMAN_CELLS} heading ${dir(h + 1)}, path turns ${dir(h + SNOWMAN_CELLS)} out of its last cell`));
+placed.thinIce.forEach((n) => console.log(`thin ice: path cell ${n + 1} (${key(path[n])}), heading ${dir(n)}`));
 if (placed.bigCane) console.log(`big icicle curtain: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);

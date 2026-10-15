@@ -1793,6 +1793,32 @@ const TUNES = {
         lead: { wave: 'square', level: 0.12, length: 0.14, brightness: 900 },
         jingles: { bells: [3, 7], twinkles: { 14: 90, 30: 92, 46: 97, 62: 90 } },
     },
+    // Level 73, the first thin ice: just sneaky, with wintery jingles.
+    // B-flat minor at 104 bpm. Each phrase tiptoes up three notes, then
+    // shivers on two notes right next to each other, like ice cracking under
+    // your feet; the second half climbs higher, creaks down a half step and
+    // hurries home. A soft, muted sawtooth lead; sleigh bells on beats 2 and
+    // 6 and a high twinkle at the end of each phrase (jingles).
+    thinicecreep: {
+        tempo: 104,
+        bars: [[46, 'min'], [46, 'min'], [42, 'maj'], [41, 'maj'], [46, 'min'], [49, 'maj'], [39, 'min'], [41, 'maj']],
+        bass: [0, null, 0, null, null, null, 0, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: false,
+        melody: [
+            70, null, 72, null, 73, null, null, null,
+            73, 72, 73, 72, 70, null, null, null,
+            66, null, 70, null, 73, null, 78, null,
+            77, null, 76, null, 77, null, null, null,
+            82, null, 81, null, 82, 80, 78, null,
+            77, null, 73, null, 70, null, null, null,
+            75, 77, 78, 77, 75, null, 73, null,
+            72, null, null, 69, 70, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.1, length: 0.12, brightness: 800 },
+        jingles: { bells: [1, 5], twinkles: { 6: 89, 22: 94, 38: 92, 54: 97 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

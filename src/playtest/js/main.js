@@ -342,6 +342,17 @@ function step(deltaTime) {
             testHooks?.emit('snowball');
         }
     }
+    // Thin ice (Ice World, Level 73 on): stand on it too long and it breaks,
+    // sending you back to the start; keep moving and you're safe
+    for (const { event } of maze.updateThinIce(deltaTime, player.position, player.radius)) {
+        if (event === 'break' && !escaped) {
+            backToStart();
+            testHooks?.emit('spike', { what: 'thinIce' });
+            testHooks?.emit('thinIce');
+            sound.ouch();
+            showMessage('Ouch! The thin ice broke. Back to the start.');
+        }
+    }
     // Sticky caramel (Level 52 on): half speed while on it, normal as soon as you're off
     player.sticky = maze.onCaramel(player.position) ? CARAMEL_SPEED : 1;
     // Marshmallow (Level 52 on): stepping onto one bounces you over the

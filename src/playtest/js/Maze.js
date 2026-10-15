@@ -1017,6 +1017,70 @@ const SNOWBALL_REACH = 1.2;
 const SNOWBALL_RADIUS = 1.3;
 const SNOWMAN_WINDUP = 0.5;
 
+// Ice World's thin ice (Level 73 on): one corridor cell of dark, cracked ice
+// on the path. Once any part of you has been on it for THIN_ICE_TIME seconds
+// in a row it breaks (back to the start); stepping off starts the count again.
+// The cracks spread and turn whiter as the count goes up, so you can see it
+// is about to go.
+const THIN_ICE_TIME = 2.0;
+
+// Thin ice: dark blue-green ice you can see down into, with frosty white
+// edges and white cracks running out from the middle (`more` = the extra
+// cracks that appear as it's about to break, on a see-through canvas)
+function thinIceTexture(more) {
+    const size = 256;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    let r = more ? 71 : 37;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    if (!more) {
+        const deep = g.createRadialGradient(size / 2, size / 2, 10, size / 2, size / 2, size * 0.75);
+        deep.addColorStop(0, '#123e66');
+        deep.addColorStop(0.6, '#2a6f9e');
+        deep.addColorStop(1, '#bfe6f7');
+        g.fillStyle = deep;
+        g.fillRect(0, 0, size, size);
+        // Bubbles frozen in the ice
+        for (let k = 0; k < 40; k++) {
+            g.fillStyle = `rgba(220,245,255,${0.2 + random() * 0.4})`;
+            g.beginPath();
+            g.arc(random() * size, random() * size, 1 + random() * 3, 0, Math.PI * 2);
+            g.fill();
+        }
+        // Frosty rim
+        g.strokeStyle = 'rgba(255,255,255,0.9)';
+        g.lineWidth = 8;
+        g.strokeRect(4, 4, size - 8, size - 8);
+    }
+    // Cracks: jagged white lines from near the middle out toward the edges,
+    // with little side branches
+    const cracks = more ? 14 : 9;
+    for (let k = 0; k < cracks; k++) {
+        const angle = (k / cracks) * Math.PI * 2 + random() * 0.6;
+        let x = size / 2 + (random() - 0.5) * 30;
+        let y = size / 2 + (random() - 0.5) * 30;
+        g.strokeStyle = more ? 'rgba(255,255,255,0.95)' : 'rgba(240,250,255,0.9)';
+        g.lineWidth = more ? 3 : 4.5;
+        g.beginPath();
+        g.moveTo(x, y);
+        const steps = more ? 6 : 5;
+        for (let s = 0; s < steps; s++) {
+            const a = angle + (random() - 0.5) * 0.9;
+            x += Math.cos(a) * size * 0.08;
+            y += Math.sin(a) * size * 0.08;
+            g.lineTo(x, y);
+            if (random() < 0.4) {
+                const b = a + (random() < 0.5 ? 1 : -1) * (0.6 + random() * 0.6);
+                g.lineTo(x + Math.cos(b) * size * 0.05, y + Math.sin(b) * size * 0.05);
+                g.moveTo(x, y);
+            }
+        }
+        g.stroke();
+    }
+    return new THREE.CanvasTexture(canvas);
+}
+
 // Ice World walls: frosty blue ice blocks, stacked like bricks, that glow
 // blue but can't be seen through. The same canvas is the glow map.
 function iceBlockTexture(width, height, seed) {
@@ -1248,6 +1312,8 @@ export class Maze {
         const hallBlocks = [];
         const snowmanBlocks = [];
         const hallTargets = [];
+        // Thin ice ('T' blocks, one corridor cell each; Ice World, Level 73 on)
+        const thinIceBlocks = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -1271,6 +1337,7 @@ export class Maze {
                 if (ch === 'N') hallBlocks.push({ x, z });
                 if (ch === 'M') snowmanBlocks.push({ x, z });
                 if (ch === 'P') hallTargets.push(center);
+                if (ch === 'T') thinIceBlocks.push({ x, z });
             }
         }
         this.currents = [];
@@ -1321,6 +1388,14 @@ export class Maze {
             };
             g.center = new THREE.Vector3((g.minX + g.maxX) / 2, 0, (g.minZ + g.maxZ) / 2);
             return g;
+        });
+        // Each thin ice cell keeps its own count of how long you've stood on it
+        this.thinIce = groupBlocks(thinIceBlocks).map((blocks) => {
+            const xs = blocks.map((b) => b.x);
+            const zs = blocks.map((b) => b.z);
+            const t = { minX: Math.min(...xs), maxX: Math.max(...xs) + 1, minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1, time: 0 };
+            t.center = new THREE.Vector3((t.minX + t.maxX) / 2, 0, (t.minZ + t.maxZ) / 2);
+            return t;
         });
         this.snowmen = groupBlocks([...hallBlocks, ...snowmanBlocks]).map((blocks) => this.setUpSnowman(blocks, snowmanBlocks, hallTargets));
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
@@ -1435,6 +1510,63 @@ export class Maze {
         return events;
     }
 
+    // Count how long the player (a circle `radius` round `point`) has been on
+    // each thin ice cell, and say which ones just broke: [{ ice, event: 'break' }].
+    // Stepping off starts the count again.
+    updateThinIce(dt, point, radius) {
+        const events = [];
+        for (const t of this.thinIce) {
+            const on = !!point && this.inGeyser(t, point, radius);
+            t.time = on ? t.time + dt : 0;
+            if (t.time >= THIN_ICE_TIME) {
+                t.time = 0;
+                events.push({ ice: t, event: 'break' });
+            }
+            this.showThinIce(t);
+        }
+        return events;
+    }
+
+    // Back to the start: every thin ice cell whole again
+    resetThinIce() {
+        for (const t of this.thinIce) {
+            t.time = 0;
+            this.showThinIce(t);
+        }
+    }
+
+    // Thin ice: a slab of dark cracked ice over its cell, and a second layer of
+    // cracks that shows up (and the ice sags and shivers) as the count goes up
+    createThinIce(t) {
+        const sizeX = t.maxX - t.minX;
+        const sizeZ = t.maxZ - t.minZ;
+        const slab = new THREE.Mesh(
+            new THREE.BoxGeometry(sizeX + 0.004, 0.05, sizeZ + 0.004),
+            new THREE.MeshStandardMaterial({ map: thinIceTexture(false), roughness: 0.05, metalness: 0.3, emissive: 0x0b3a66, emissiveIntensity: 0.35 }),
+        );
+        slab.position.set(t.center.x, 0.025, t.center.z);
+        slab.receiveShadow = true;
+        const cracks = new THREE.Mesh(
+            new THREE.PlaneGeometry(sizeX, sizeZ),
+            new THREE.MeshBasicMaterial({ map: thinIceTexture(true), transparent: true, opacity: 0, depthWrite: false }),
+        );
+        cracks.rotation.x = -Math.PI / 2;
+        cracks.position.set(t.center.x, 0.056, t.center.z);
+        this.root.add(slab, cracks);
+        t.slab = slab;
+        t.cracks = cracks;
+        this.showThinIce(t);
+    }
+
+    showThinIce(t) {
+        if (!t.slab) return;
+        const k = Math.min(1, t.time / THIN_ICE_TIME);
+        t.cracks.material.opacity = k;
+        const shiver = k > 0.5 ? Math.sin(t.time * 60) * 0.006 * k : 0;
+        t.slab.position.y = 0.025 - 0.02 * k + shiver;
+        t.cracks.position.y = t.slab.position.y + 0.031;
+    }
+
     // Back to the start: no snowballs in the air, timers start again
     resetSnowmen() {
         for (const s of this.snowmen) {
@@ -1458,6 +1590,7 @@ export class Maze {
         for (const v of this.vents) this.createVent(v);
         for (const g of this.geysers) this.createGeyser(g);
         for (const s of this.snowmen) this.createSnowman(s);
+        for (const t of this.thinIce) this.createThinIce(t);
         this.scene.add(this.root);
     }
 
@@ -3420,6 +3553,7 @@ export class Maze {
     // Every platform back to its start's side, empty (any reset to the start)
     resetPlatform() {
         this.resetSnowmen();
+        this.resetThinIce();
         for (const p of this.platforms) {
             Object.assign(p, { at: p.startAt, target: p.startAt, riding: false, wait: 0, mustLeave: false, push: 0, pushing: false, phase: 'rest', time: 0, lift: 0 });
             if (p.balloon) this.setRideView(p, null, 0);
