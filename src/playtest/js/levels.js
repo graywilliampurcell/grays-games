@@ -3385,6 +3385,76 @@ export const LEVELS = [
         '#############################################',
         ],
     },
+    {
+        name: 'Level 70',
+        // The Volcano World finale. `node tools/find-volcano-level.mjs
+        // level70 14 25001`, seed 25193. 11 x 11 corridors. Correct path 76
+        // cells (start west in row 1, door east in the bottom row); 14 dead
+        // ends, every one 3 cells deep, plus the sneaky hot coal's: off the
+        // start cell it goes 3 cells with one turn, and the hot coal (X) sits
+        // in its last cell, out of sight of the path. H: two steam vents, path
+        // cells 9 (top row, heading east) and 35 (heading north), each pushing
+        // you back into the cell before it (Q). Z: the hot coal on the path,
+        // path cell 25 (heading north), plate 0.72 like Level 60's candy cane,
+        // the tightest squeeze. O: two 4-cell lava gaps, path cells 28-31
+        // (crossed heading south) and 49-52 (the bottom row, crossed heading
+        // east), each with its own hot-air balloon. K: two lava geysers, path
+        // cells 39 (heading south) and 57 (heading north), on their own
+        // timers. Y: the big hot coal across the straight dead end off path
+        // cell 63, in plain view. At least 2 path cells between any two of
+        // them. Golden door, confetti, long cheer, "You beat Volcano World!".
+        theme: VOLCANO,
+        music: 'volcanofinale',
+        spike2Radius: 0.72,
+        finale: 'You beat Volcano World!',
+        layout: [
+        '#############################################',
+        '#           #        HHH    #       #       #',
+        '#         X #     Q  HHH    #       #       #',
+        '#           #        HHH    #       #       #',
+        '#   #########   #########   #   #   #   #####',
+        '#           #   #       #       #       #   #',
+        '# S         #   #       #       #       #   #',
+        '#           #   #       #       #       #   #',
+        '#########   #   #   #   #########   #####   #',
+        '#       #       #OOO#   #       #           #',
+        '#       #       #OOO# Z #       #           #',
+        '#       #       #OOO#   #       #           #',
+        '#####   #########OOO#   #   #   #   #########',
+        '#   #           #OOO#   #   #       #       #',
+        '#   #           #OOO#   #   #       #       #',
+        '#   #           #OOO#   #   #       #       #',
+        '#   #####   #   #OOO#   #   #############   #',
+        '#           #HHH#OOO#                   #   #',
+        '#           #HHH#OOO#                   #   #',
+        '#           #HHH#OOO#                   #   #',
+        '#########   #   #OOO#####################   #',
+        '#       #KKK#   #OOO#                       #',
+        '#       #KKK# Q #OOO#          Y            #',
+        '#       #KKK#   #OOO#                       #',
+        '#####   #   #   #   #############   #####   #',
+        '#   #       #       #   #       #   #       #',
+        '#   #       #       #   #       #   #       #',
+        '#   #       #       #   #       #   #       #',
+        '#   #####   #########   #   #   #   #   #####',
+        '#           #       #   #KKK#       #       #',
+        '#           #       #   #KKK#       #       #',
+        '#           #       #   #KKK#       #       #',
+        '#########   #   #####   #   #############   #',
+        '#       #       #   #   #   #           #   #',
+        '#       #       #   #   #   #           #   #',
+        '#       #       #   #   #   #           #   #',
+        '#   #   #   #####   #   #   #########   #   #',
+        '#   #               #       #   #           #',
+        '#   #               #       #   #           #',
+        '#   #               #       #   #           #',
+        '#   #################   #####   #   #########',
+        '#    OOOOOOOOOOOOOOO            #           #',
+        '#    OOOOOOOOOOOOOOO            #           D',
+        '#    OOOOOOOOOOOOOOO            #           #',
+        '#############################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with

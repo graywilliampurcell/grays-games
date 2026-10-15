@@ -11,6 +11,7 @@
 //   node tools/find-volcano-level.mjs level67 20 1        # the tighter squeeze (path hot coal) + one balloon ride (Level 67 = seed 17475)
 //   node tools/find-volcano-level.mjs level68 18 301      # 3-deep dead ends + the big hot coal + one balloon ride (Level 68 = seed 352)
 //   node tools/find-volcano-level.mjs level69 18 3901     # 3-deep dead ends + two balloon rides + two lava geysers (Level 69 = seed 3933)
+//   node tools/find-volcano-level.mjs level70 14 25001    # the finale: 3-deep dead ends + sneaky, path and big hot coal + two vents, two geysers, two balloon rides (Level 70 = seed 25193)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 11 x 11, so run many first seeds in parallel.
@@ -46,6 +47,7 @@ const RULES = {
     level67: { name: 'Level 67', depth: 2, deadEnds: 20, gaps: 1, pathCane: true },
     level68: { name: 'Level 68', depth: 3, deadEnds: 18, gaps: 1, bigCane: true },
     level69: { name: 'Level 69', depth: 3, deadEnds: 18, gaps: 2, geysers: 2 },
+    level70: { name: 'Level 70', depth: 3, deadEnds: 14, sneaky: true, vents: 2, geysers: 2, gaps: 2, pathCane: true, bigCane: true, placeTries: 400 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -68,7 +70,7 @@ const MIN_DIFFERENT = 24;
 const differentEnough = (s) => OTHERS.every((o) => o.length !== s.length || [...o].filter((ch, k) => ch !== s[k]).length >= MIN_DIFFERENT);
 // Start somewhere new: not in the row the level before this one starts in
 const previous = LEVELS[LEVELS.findIndex((l) => l.name === rule.name) - 1] ?? LEVELS[LEVELS.length - 1];
-const PREVIOUS_START_ROW = previous.layout.findIndex((r) => r.includes('S'));
+const PREVIOUS_START_ROW = Math.floor(previous.layout.findIndex((r) => r.includes('S')) / 4);
 
 const DIRECTIONS = [{ di: 1, dj: 0 }, { di: -1, dj: 0 }, { di: 0, dj: 1 }, { di: 0, dj: -1 }];
 const key = (c) => `${c.i},${c.j}`;
@@ -363,7 +365,9 @@ for (let seed = FIRST_SEED; seed < FIRST_SEED + SEEDS && !best; seed++) {
     const plainLayout = toLayout(hung.links, { startCell, exitCell, spikeCell: hung.sneaky?.s });
     if (!differentEnough(shape(plainLayout))) { fail('same'); continue; }
     if (hung.sneaky && spikeVisible(plainLayout, solution)) { fail('visible'); continue; }
-    const placed = place(path, hung, random);
+    // Placing is random, so give a crowded level (Level 70) many tries
+    let placed = null;
+    for (let t = 0; t < (rule.placeTries ?? 1) && !placed; t++) placed = place(path, hung, random);
     if (!placed) { fail('place'); continue; }
     best = { seed, path, hung, placed, solution, deadEnds, startCell, exitCell };
 }

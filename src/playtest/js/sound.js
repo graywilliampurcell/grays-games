@@ -1708,6 +1708,33 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.08, length: 0.1, brightness: 1100 },
     },
+    // Level 70, the Volcano World finale: the sneakiest Volcano World tune.
+    // A-flat minor at 116 bpm. A bit of every Volcano World level at once:
+    // the squeeze trill (A-flat, A, A-flat) past the hot coal, a geyser that
+    // shoots up an octave and drops straight back, a slow balloon swell that
+    // hangs in the ash cloud, and a quick "pfff" of steam; then a creeping
+    // chromatic sneak down to a low thud. The second half does it again a
+    // fourth higher and closer together, and ends hanging on a sneaky,
+    // unresolved A. A biting sawtooth lead, ticking, and a busy off-beat bass.
+    volcanofinale: {
+        tempo: 116,
+        bars: [[44, 'min'], [44, 'min'], [40, 'maj'], [39, 'maj'], [44, 'min'], [37, 'min'], [40, 'maj'], [39, 'maj']],
+        bass: [0, null, 0, null, null, 0, null, 0],
+        bassLength: 0.12,
+        stabs: [],
+        ticks: true,
+        melody: [
+            68, 69, 68, null, 56, 80, 56, null,
+            63, null, 66, null, 71, null, null, null,
+            80, 82, 83, 85, 71, 70, 69, 68,
+            44, null, null, null, null, null, null, null,
+            73, 74, 73, null, 61, 85, 61, null,
+            68, 71, 76, null, null, null, 85, 87,
+            76, 75, 74, 73, 49, null, null, null,
+            null, null, 69, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.1, length: 0.08, brightness: 1500 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
