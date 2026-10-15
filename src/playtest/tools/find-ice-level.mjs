@@ -3,6 +3,7 @@
 // (Levels 61-70), at 12 x 12.
 //
 //   SEEDS=1500 node tools/find-ice-level.mjs level71 24 4501   # the sneaky icicle + one sled ride over a 3-cell crack (Level 71 = seed 5855)
+//   SEEDS=1500 node tools/find-ice-level.mjs level72 24 4501   # one snowman + one sled ride (Level 72 = seed 4716)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 12 x 12, so run many first seeds in parallel.
@@ -11,7 +12,11 @@
 // sneaky one when there is one, otherwise the one on the path), 'Z' the
 // icicle on the path when there is also a sneaky one, 'Y' the big icicle
 // curtain across a straight dead end, 'O' a 3-cell icy crack, crossed on the
-// zip-line sled.
+// zip-line sled, 'N' a snowman's hallway (SNOWMAN_CELLS cells in a straight
+// line on the path), 'M' the snowman himself (two blocks against the far end
+// wall of the hallway's last cell, away from the side the path turns to), 'P'
+// the middle of the path cell just before the hallway (a snowball that hits
+// you in the hallway's first cell pushes you back there).
 //
 // Rules for every level: 12 x 12, one solution path from the west edge to the
 // east edge, start and door on opposite edges, a layout clearly different
@@ -23,11 +28,14 @@
 // deep with one 90 degree turn, leaving the path in its first 3 cells, the
 // icicle in its last cell, out of sight of the whole path. The big icicle
 // curtain: across the first cell of a straight dead end, in plain view.
+// The snowman's hallway: SNOWMAN_CELLS plain cells in a straight line, the
+// path turning 90 degrees out of the side of its last cell (the only way on).
 import { mulberry32, analyzeMaze, toLayout } from '../js/mazeCarver.js';
 import { LEVELS } from '../js/levels.js';
 
 const RULES = {
     level71: { name: 'Level 71', depth: 2, deadEnds: 24, sneaky: true, gaps: 1 },
+    level72: { name: 'Level 72', depth: 2, deadEnds: 24, gaps: 1, snowmen: 1 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -39,6 +47,7 @@ const FIRST_SEED = Number(process.argv[4] ?? 1);
 const COLS = 12;
 const ROWS = 12;
 const GAP_CELLS = 3; // a crack is 3 corridor cells long
+const SNOWMAN_CELLS = 4; // a snowman's hallway is 4 corridor cells long
 const DEPTH = rule.depth;
 const PATH_LENGTH = COLS * ROWS - DEAD_ENDS * DEPTH - (rule.sneaky ? 3 : 0);
 const SEEDS = Number(process.env.SEEDS ?? 4000);
@@ -259,6 +268,25 @@ function place(path, hung, random) {
         out.rivers.push(g);
         spans.push([g, g + GAP_CELLS - 1]);
     }
+    // Snowmen: a hallway h .. h + SNOWMAN_CELLS - 1 with only the path through
+    // it, straight all the way, and the path turning out of its last cell
+    out.snowmen = [];
+    const last = SNOWMAN_CELLS - 1;
+    const only = (n) => links[path[n].i][path[n].j].length === 2;
+    for (let s = 0; s < (rule.snowmen ?? 0); s++) {
+        const options = [];
+        for (let h = 2; h + last + 1 < path.length - 1; h++) {
+            const cells = [...Array(SNOWMAN_CELLS).keys()].map((d) => h + d);
+            if (!cells.every(only)) continue;
+            if (!cells.slice(1).every((n) => step(path[n - 1], path[n]) === step(path[h], path[h + 1]))) continue;
+            if (step(path[h + last], path[h + last + 1]) === step(path[h], path[h + 1])) continue;
+            if (fits([h, h + last])) options.push(h);
+        }
+        if (options.length === 0) return null;
+        const h = options[Math.floor(random() * options.length)];
+        out.snowmen.push(h);
+        spans.push([h, h + last]);
+    }
     // The icicle on the path: plain, with the path straight from k - 2 to k + 1, in the middle part of the path
     if (rule.pathCane) {
         const options = [];
@@ -331,6 +359,20 @@ const put = ([x, z], ch) => { layout[z][x] = ch; };
 for (const g of placed.rivers) for (const b of gapBlocks([...Array(GAP_CELLS).keys()].map((d) => path[g + d]))) put(b, 'O');
 if (hung.sneaky && placed.pathCane !== undefined) put([4 * path[placed.pathCane].i + 2, 4 * path[placed.pathCane].j + 2], 'Z');
 if (placed.bigCane) put(rowBlock(path[placed.bigCane.at], placed.bigCane.chain[0]), 'Y');
+for (const h of placed.snowmen) {
+    for (const b of gapBlocks([...Array(SNOWMAN_CELLS).keys()].map((d) => path[h + d]))) put(b, 'N');
+    const end = path[h + SNOWMAN_CELLS - 1];
+    const [dx, dz] = step(path[h], path[h + 1]).split(',').map(Number);
+    const [tx, tz] = step(end, path[h + SNOWMAN_CELLS]).split(',').map(Number);
+    // The row against the end wall, and the two blocks of it away from the turn
+    const ex = dx > 0 ? 4 * end.i + 3 : dx < 0 ? 4 * end.i + 1 : null;
+    const ez = dz > 0 ? 4 * end.j + 3 : dz < 0 ? 4 * end.j + 1 : null;
+    for (const c of [2, tx + tz > 0 ? 1 : 3]) {
+        if (ex !== null) put([ex, 4 * end.j + c], 'M');
+        else put([4 * end.i + c, ez], 'M');
+    }
+    put([4 * path[h - 1].i + 2, 4 * path[h - 1].j + 2], 'P');
+}
 
 console.log(layout.map((row) => `        '${row.join('')}',`).join('\n'));
 const along = (cell) => path.findIndex((p) => key(p) === key(cell)) + 1;
@@ -340,4 +382,5 @@ console.log(`\n${rule.name}: seed ${best.seed}, 12x12, start row ${best.startCel
 if (hung.sneaky) console.log(`sneaky icicle: dead end off path cell ${hung.sneaky.index + 1}, icicle in cell ${key(hung.sneaky.s)}`);
 placed.rivers.forEach((g) => console.log(`crack: path cells ${g + 1}-${g + GAP_CELLS}, crossed heading ${dir(g)}`));
 if (placed.pathCane !== undefined) console.log(`path icicle: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
+placed.snowmen.forEach((h) => console.log(`snowman: hallway path cells ${h + 1}-${h + SNOWMAN_CELLS} heading ${dir(h + 1)}, path turns ${dir(h + SNOWMAN_CELLS)} out of its last cell`));
 if (placed.bigCane) console.log(`big icicle curtain: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);

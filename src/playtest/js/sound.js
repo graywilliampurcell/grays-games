@@ -1767,6 +1767,32 @@ const TUNES = {
         lead: { wave: 'triangle', level: 0.18, length: 0.18, brightness: 1200 },
         jingles: { bells: [2, 6], twinkles: { 7: 87, 23: 90, 39: 94, 55: 91, 63: 87 } },
     },
+    // Level 72, the first snowman: just sneaky, with wintery jingles. F-sharp
+    // minor at 96 bpm. Each phrase taps the same note twice (sneaking up),
+    // then flings up high and tumbles back down, like a snowball thrown down
+    // the hallway; the second half does it a fifth higher and slides down to
+    // a sly F before home. A soft, dark square lead and ticks; sleigh bells on
+    // the off-beats and a high twinkle near the end of each phrase (jingles).
+    snowmansneak: {
+        tempo: 96,
+        bars: [[42, 'min'], [42, 'min'], [38, 'maj'], [37, 'maj'], [42, 'min'], [45, 'maj'], [40, 'maj'], [37, 'maj']],
+        bass: [0, null, null, 0, null, null, 0, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            66, 66, null, 73, null, 69, 66, null,
+            61, null, 62, null, 61, null, null, null,
+            66, 66, null, 74, null, 73, 69, null,
+            68, null, 64, null, 61, null, null, null,
+            73, 73, null, 78, null, 76, 73, null,
+            69, null, 73, null, 76, null, null, null,
+            74, 73, 71, 69, 68, null, 64, null,
+            65, null, null, null, 66, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.14, brightness: 900 },
+        jingles: { bells: [3, 7], twinkles: { 14: 90, 30: 92, 46: 97, 62: 90 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -2111,6 +2137,29 @@ export class Sound {
         g.gain.exponentialRampToValueAtTime(0.9 * volume, t + 0.08);
         g.gain.exponentialRampToValueAtTime(0.0001, t + length);
         this.noiseSource(t, length + 0.05).connect(f).connect(g).connect(this.sfxBus);
+    }
+
+    // A snowman throwing (Ice World): a short soft swish, quieter the further
+    // away he is (volume 0-1). Obeys the Sound effects switch.
+    throwSnowball(volume = 1) {
+        if (!this.settings.sfx || !this.ctx || volume <= 0.01) return;
+        this.onEvent('throw');
+        this.steam(this.ctx.currentTime, 0.3, 0.25 * volume, 0.35 * volume, 1800);
+    }
+
+    // A snowball hitting you: a soft, low "pff" of snow
+    splat() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('splat');
+        const t = this.ctx.currentTime;
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'lowpass';
+        f.frequency.value = 1400;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.7, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+        this.noiseSource(t, 0.35).connect(f).connect(g).connect(this.sfxBus);
     }
 
     steam(t, length, from, to, freq) {

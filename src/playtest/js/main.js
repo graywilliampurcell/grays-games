@@ -54,6 +54,10 @@ const VENT_PUSH_TIME = 0.45;
 // How far away an erupting lava geyser can be heard (it gets quieter with distance)
 const GEYSER_HEAR_DISTANCE = 24;
 const VENT_HISS_TIME = 1;
+// A snowball (Ice World) pushes you one square back, taking this long; his
+// throw is heard this far away (quieter with distance)
+const SNOWBALL_PUSH_TIME = 0.45;
+const SNOWMAN_HEAR_DISTANCE = 30;
 // The balloon lets you out (Volcano World): you step out onto the floor, taking this long
 const BALLOON_STEP_OUT_TIME = 0.4;
 const lastOutsideCurrent = new THREE.Vector3();
@@ -322,6 +326,20 @@ function step(deltaTime) {
             testHooks?.emit('spike', { what: 'geyser' });
             sound.ouch();
             showMessage('Ouch! The lava geyser sent you back to the start.');
+        }
+    }
+    // Snowmen (Ice World, Level 72 on): each throws a snowball down his
+    // hallway on a timer; one that touches you pushes you one square back
+    // toward the start (it never sends you to the start)
+    for (const { snowman, event, target } of maze.updateSnowmen(deltaTime, player.position, player.radius)) {
+        if (event === 'throw') {
+            sound.throwSnowball(Math.max(0, 1 - horizontalDistance(player.position, snowman.center) / SNOWMAN_HEAR_DISTANCE));
+            testHooks?.emit('throw');
+        }
+        if (event === 'hit' && !player.shove && !escaped) {
+            player.startShove(target, SNOWBALL_PUSH_TIME);
+            sound.splat();
+            testHooks?.emit('snowball');
         }
     }
     // Sticky caramel (Level 52 on): half speed while on it, normal as soon as you're off

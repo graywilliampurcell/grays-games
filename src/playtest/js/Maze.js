@@ -1003,6 +1003,20 @@ const SLED_TIME = 1.5;
 const SLED_LANDING = 1.0;
 const ZIP_LINE_HEIGHT = 3.6; // the zip line, just under the tops of the walls (4)
 
+// Ice World's snowman (Level 72 on): he stands against the end wall of a
+// straight hallway and throws a snowball down it every SNOWMAN_THROW_TIME
+// seconds. The snowball fills the hallway's width and flies toward the start
+// at SNOWBALL_SPEED until it reaches the hallway's first cell, then it's gone.
+// SNOWBALL_REACH is how far its front and back reach from its middle along
+// the hallway. It starts just in front of him, so the part of the last cell
+// beside him (at the turn) is never reached: the safe spot. The arm he throws
+// with comes up SNOWMAN_WINDUP seconds before each throw.
+const SNOWMAN_THROW_TIME = 2.5;
+const SNOWBALL_SPEED = 14;
+const SNOWBALL_REACH = 1.2;
+const SNOWBALL_RADIUS = 1.3;
+const SNOWMAN_WINDUP = 0.5;
+
 // Ice World walls: frosty blue ice blocks, stacked like bricks, that glow
 // blue but can't be seen through. The same canvas is the glow map.
 function iceBlockTexture(width, height, seed) {
@@ -1228,6 +1242,12 @@ export class Maze {
         const ventTargets = [];
         // Lava geysers ('K' blocks, one corridor cell each; Volcano World)
         const geyserBlocks = [];
+        // Snowmen (Ice World): each one's hallway ('N' blocks), the snowman
+        // himself ('M', two solid blocks against its end wall) and where a hit
+        // in the hallway's first cell pushes you ('P', the cell before it)
+        const hallBlocks = [];
+        const snowmanBlocks = [];
+        const hallTargets = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -1248,6 +1268,9 @@ export class Maze {
                 if (ch === 'H') ventBlocks.push({ x, z });
                 if (ch === 'Q') ventTargets.push(center);
                 if (ch === 'K') geyserBlocks.push({ x, z });
+                if (ch === 'N') hallBlocks.push({ x, z });
+                if (ch === 'M') snowmanBlocks.push({ x, z });
+                if (ch === 'P') hallTargets.push(center);
             }
         }
         this.currents = [];
@@ -1299,6 +1322,7 @@ export class Maze {
             g.center = new THREE.Vector3((g.minX + g.maxX) / 2, 0, (g.minZ + g.maxZ) / 2);
             return g;
         });
+        this.snowmen = groupBlocks([...hallBlocks, ...snowmanBlocks]).map((blocks) => this.setUpSnowman(blocks, snowmanBlocks, hallTargets));
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
         if (doorBlocks.length) {
@@ -1314,6 +1338,110 @@ export class Maze {
 
         // Collision data: [x][z][y], same wall value at every height
         this.mazeData = this.grid.map((col) => col.map((v) => new Array(this.height).fill(v)));
+        // A snowman is solid, like a wall (bumping into him isn't an Ouch)
+        for (const s of this.snowmen) for (const { x, z } of s.solid) this.mazeData[x][z].fill(1);
+    }
+
+    // One snowman's hallway (Ice World): `blocks` are its 'N' and 'M' blocks.
+    // Along the hallway, u runs from 0 at its entrance (the start's end) to
+    // `length` at the end wall behind him; across it, v runs from 0 to its width.
+    setUpSnowman(blocks, snowmanBlocks, targets) {
+        const xs = blocks.map((b) => b.x);
+        const zs = blocks.map((b) => b.z);
+        const s = {
+            minX: Math.min(...xs), maxX: Math.max(...xs) + 1,
+            minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
+            timer: SNOWMAN_THROW_TIME, balls: [],
+        };
+        const mine = new Set(blocks.map((b) => `${b.x},${b.z}`));
+        s.solid = snowmanBlocks.filter((b) => mine.has(`${b.x},${b.z}`));
+        s.alongX = s.maxX - s.minX > s.maxZ - s.minZ;
+        const lo = s.alongX ? s.minX : s.minZ;
+        const hi = s.alongX ? s.maxX : s.maxZ;
+        const solidAlong = s.solid[0][s.alongX ? 'x' : 'z'] + 0.5;
+        // He's at the high end when his blocks are nearer it
+        s.sign = Math.abs(solidAlong - hi) < Math.abs(solidAlong - lo) ? 1 : -1;
+        s.entrance = s.sign > 0 ? lo : hi;
+        s.length = hi - lo;
+        s.width = s.alongX ? s.maxZ - s.minZ : s.maxX - s.minX;
+        const middle = new THREE.Vector3((s.minX + s.maxX) / 2, 0, (s.minZ + s.maxZ) / 2);
+        s.target = targets.reduce((a, b) => (b.distanceTo(middle) < a.distanceTo(middle) ? b : a)).clone();
+        // His middle, and the way he faces (toward the start)
+        s.center = new THREE.Vector3(
+            s.solid.reduce((t, b) => t + b.x + 0.5, 0) / s.solid.length, 0,
+            s.solid.reduce((t, b) => t + b.z + 0.5, 0) / s.solid.length);
+        s.facing = s.alongX ? new THREE.Vector3(-s.sign, 0, 0) : new THREE.Vector3(0, 0, -s.sign);
+        // His front, and where a snowball starts and ends (its middle)
+        s.front = s.length - 1;
+        s.startU = s.front - SNOWBALL_REACH;
+        s.endU = SNOWBALL_REACH;
+        return s;
+    }
+
+    // Hallway coordinates (u along from the entrance, v across) of a point
+    hallCoords(s, point) {
+        const along = s.alongX ? point.x : point.z;
+        const across = s.alongX ? point.z - s.minZ : point.x - s.minX;
+        return { u: (along - s.entrance) * s.sign, v: across };
+    }
+
+    // The world point at hallway coordinates (u, v)
+    hallPoint(s, u, v) {
+        const along = s.entrance + u * s.sign;
+        return s.alongX ? new THREE.Vector3(along, 0, s.minZ + v) : new THREE.Vector3(s.minX + v, 0, along);
+    }
+
+    // Where a snowball hit pushes you: straight back to the middle of the
+    // path cell before the one you're in, keeping to the same side of the
+    // hallway (clear of its walls); from its first cell, to the middle of the
+    // cell before the hallway
+    snowballPush(s, point) {
+        const { u, v } = this.hallCoords(s, point);
+        const cell = Math.floor(Math.max(0, Math.min(s.length - 0.01, u)) / 4);
+        if (cell === 0) return s.target.clone();
+        return this.hallPoint(s, 4 * (cell - 1) + 1.5, Math.max(0.5, Math.min(s.width - 0.5, v)));
+    }
+
+    // Run every snowman's timer (only while playing), fly the snowballs, and
+    // say what happened: [{ snowman, event: 'throw' | 'hit', target }]. A hit
+    // means a snowball touched part of the player (a circle `radius` round
+    // `point`); the snowball is gone and `target` is where to push them.
+    updateSnowmen(dt, point, radius) {
+        const events = [];
+        for (const s of this.snowmen) {
+            s.timer -= dt;
+            if (s.timer <= 0) {
+                s.timer += SNOWMAN_THROW_TIME;
+                s.balls.push({ u: s.startU, spin: 0 });
+                events.push({ snowman: s, event: 'throw' });
+            }
+            const here = point ? this.hallCoords(s, point) : null;
+            for (const ball of s.balls) {
+                ball.u -= SNOWBALL_SPEED * dt;
+                ball.spin += (SNOWBALL_SPEED * dt) / SNOWBALL_RADIUS;
+                if (ball.u <= s.endU) ball.gone = true;
+                if (!ball.gone && here) {
+                    const du = Math.max(ball.u - SNOWBALL_REACH - here.u, 0, here.u - ball.u - SNOWBALL_REACH);
+                    const dv = Math.max(-here.v, 0, here.v - s.width);
+                    if (Math.hypot(du, dv) < radius) {
+                        ball.gone = true;
+                        events.push({ snowman: s, event: 'hit', target: this.snowballPush(s, point) });
+                    }
+                }
+            }
+            s.balls = s.balls.filter((b) => !b.gone);
+            this.showSnowman(s);
+        }
+        return events;
+    }
+
+    // Back to the start: no snowballs in the air, timers start again
+    resetSnowmen() {
+        for (const s of this.snowmen) {
+            s.timer = SNOWMAN_THROW_TIME;
+            s.balls = [];
+            this.showSnowman(s);
+        }
     }
 
     build() {
@@ -1329,6 +1457,7 @@ export class Maze {
         for (const c of this.currents) this.createCurrent(c);
         for (const v of this.vents) this.createVent(v);
         for (const g of this.geysers) this.createGeyser(g);
+        for (const s of this.snowmen) this.createSnowman(s);
         this.scene.add(this.root);
     }
 
@@ -2705,6 +2834,99 @@ export class Maze {
         }
     }
 
+    // A big snowman (Ice World): three snowballs, coal eyes and buttons, a
+    // carrot nose, a red scarf, a black top hat and stick arms. He faces down
+    // his hallway; his right arm comes up just before each throw.
+    createSnowman(s) {
+        const group = new THREE.Group();
+        // Pressed back against the end wall a little
+        group.position.copy(s.center).addScaledVector(s.facing, -0.2);
+        group.rotation.y = Math.atan2(s.facing.x, s.facing.z);
+        const snow = new THREE.MeshStandardMaterial({ color: 0xf6f9ff, emissive: 0x9fb4d8, emissiveIntensity: 0.25, roughness: 0.9 });
+        const coal = new THREE.MeshStandardMaterial({ color: 0x15161a, roughness: 0.6 });
+        const stick = new THREE.MeshStandardMaterial({ color: 0x5b3a1f, roughness: 0.9 });
+        const parts = [[0.95, 0.85], [0.72, 2.1], [0.5, 3.0]];
+        for (const [r, y] of parts) {
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), snow);
+            ball.position.y = y;
+            group.add(ball);
+        }
+        for (const side of [-1, 1]) {
+            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), coal);
+            eye.position.set(side * 0.17, 3.12, 0.44);
+            group.add(eye);
+        }
+        for (const y of [1.85, 2.15, 2.45]) {
+            const button = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), coal);
+            button.position.set(0, y, Math.sqrt(Math.max(0, 0.72 ** 2 - (y - 2.1) ** 2)) + 0.02);
+            group.add(button);
+        }
+        const nose = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.45, 10), new THREE.MeshStandardMaterial({ color: 0xff7a1a, roughness: 0.7 }));
+        nose.rotation.x = Math.PI / 2;
+        nose.position.set(0, 3.0, 0.68);
+        group.add(nose);
+        const scarf = new THREE.Mesh(new THREE.TorusGeometry(0.46, 0.1, 8, 20), new THREE.MeshStandardMaterial({ color: 0xd0263a, roughness: 0.8 }));
+        scarf.rotation.x = Math.PI / 2;
+        scarf.position.y = 2.6;
+        group.add(scarf);
+        const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.05, 20), coal);
+        brim.position.y = 3.42;
+        const top = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.45, 20), coal);
+        top.position.y = 3.66;
+        group.add(brim, top);
+        // Stick arms from the middle ball: the left one still, the right one throws
+        const arms = [];
+        for (const side of [-1, 1]) {
+            const shoulder = new THREE.Group();
+            shoulder.position.set(side * 0.65, 2.25, 0);
+            const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 1.1, 6), stick);
+            arm.position.y = 0.55;
+            shoulder.add(arm);
+            shoulder.rotation.z = -side * 1.0;
+            group.add(shoulder);
+            arms.push(shoulder);
+        }
+        this.root.add(group);
+        // The snowballs he throws (one in the air at a time; a spare just in case)
+        const ballMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xa8bce0, emissiveIntensity: 0.3, roughness: 0.95 });
+        s.ballMeshes = [0, 1].map(() => {
+            const mesh = new THREE.Mesh(new THREE.SphereGeometry(SNOWBALL_RADIUS, 18, 12), ballMaterial);
+            // A few lumps of packed snow, so you can see it tumble
+            for (const [x, y, z] of [[1, 0.3, 0], [-0.6, 0.7, 0.4], [0, -0.8, 0.6], [0.2, 0.5, -0.85], [-0.7, -0.4, -0.5], [0.5, -0.3, 0.8]]) {
+                const lump = new THREE.Mesh(new THREE.SphereGeometry(SNOWBALL_RADIUS * 0.3, 10, 8), ballMaterial);
+                lump.position.set(x, y, z).normalize().multiplyScalar(SNOWBALL_RADIUS * 0.92);
+                mesh.add(lump);
+            }
+            mesh.visible = false;
+            this.root.add(mesh);
+            return mesh;
+        });
+        Object.assign(s, { group, throwArm: arms[1] });
+        this.showSnowman(s);
+    }
+
+    showSnowman(s) {
+        if (!s.group) return;
+        // The throwing arm comes up before a throw and swings down after it
+        const sinceThrow = SNOWMAN_THROW_TIME - s.timer;
+        const windup = Math.max(0, 1 - s.timer / SNOWMAN_WINDUP);
+        const swing = Math.max(0, 1 - sinceThrow / 0.25);
+        s.throwArm.rotation.z = -1.0 + 1.9 * Math.max(windup, swing);
+        s.throwArm.rotation.x = windup > 0 ? -0.6 * windup : 0.9 * swing;
+        s.ballMeshes.forEach((mesh, k) => {
+            const ball = s.balls[k];
+            mesh.visible = !!ball;
+            if (!ball) return;
+            const p = this.hallPoint(s, ball.u, s.width / 2);
+            mesh.position.set(p.x, SNOWBALL_RADIUS + 0.05, p.z);
+            // It grows to full size as it leaves his hands
+            mesh.scale.setScalar(Math.min(1, 0.4 + 0.6 * (s.startU - ball.u) / 2));
+            // It tumbles toward the start
+            if (s.alongX) mesh.rotation.set(0, 0, ball.spin * s.sign);
+            else mesh.rotation.set(-ball.spin * s.sign, 0, 0);
+        });
+    }
+
     // Is any part of a circle `radius` round `point` in this geyser's cell?
     inGeyser(g, point, radius) {
         const dx = Math.max(g.minX - point.x, 0, point.x - g.maxX);
@@ -3197,6 +3419,7 @@ export class Maze {
 
     // Every platform back to its start's side, empty (any reset to the start)
     resetPlatform() {
+        this.resetSnowmen();
         for (const p of this.platforms) {
             Object.assign(p, { at: p.startAt, target: p.startAt, riding: false, wait: 0, mustLeave: false, push: 0, pushing: false, phase: 'rest', time: 0, lift: 0 });
             if (p.balloon) this.setRideView(p, null, 0);

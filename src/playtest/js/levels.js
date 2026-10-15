@@ -3527,6 +3527,72 @@ export const LEVELS = [
         '#################################################',
         ],
     },
+    {
+        name: 'Level 72',
+        // The first snowman. `SEEDS=500 node tools/find-ice-level.mjs level72
+        // 24 4501`, seed 4716. 12 x 12 corridors. Correct path 96 cells
+        // (start west in row 9, door east in the bottom row); 24 dead ends 2
+        // cells deep. O: the 3-cell icy crack over path cells 20-22 (crossed
+        // heading east), crossed on the zip-line sled. N: the snowman's
+        // hallway, path cells 46-49 (row 2, heading east); M: the snowman
+        // against its east end wall, on the north side; the path turns south
+        // out of the hallway's last cell, beside him (the safe spot). P: the
+        // cell before the hallway, where a hit in its first cell pushes you.
+        // No icicles, no thin ice. Music: just sneaky, with wintery jingles.
+        theme: ICE,
+        music: 'snowmansneak',
+        layout: [
+        '#################################################',
+        '#   #                           #   #   #       #',
+        '#   #                           #   #   #       #',
+        '#   #                           #   #   #       #',
+        '#   #########   #########   #   #   #   #   #####',
+        '#   #       #   #           #   #   #   #       #',
+        '#   #       #   # P         #   #   #   #       #',
+        '#   #       #   #           #   #   #   #       #',
+        '#   #   #####   #   #############   #   #   #   #',
+        '#       #       #NNNNNNNNNNNNNNM#           #   #',
+        '#       #       #NNNNNNNNNNNNNNM#           #   #',
+        '#       #       #NNNNNNNNNNNNNNN#           #   #',
+        '#   #   #   #################   #   #   #####   #',
+        '#   #       #       #       #       #       #   #',
+        '#   #       #       #       #       #       #   #',
+        '#   #       #       #       #       #       #   #',
+        '#   #########   #   #   #####################   #',
+        '#               #   #       #       #           #',
+        '#               #   #       #       #           #',
+        '#               #   #       #       #           #',
+        '#################   #   #   #   #   #########   #',
+        '#    OOOOOOOOOOO    #   #   #   #   #       #   #',
+        '#    OOOOOOOOOOO    #   #   #   #   #       #   #',
+        '#    OOOOOOOOOOO    #   #   #   #   #       #   #',
+        '#   #################   #   #   #   #####   #   #',
+        '#   #           #   #   #       #       #       #',
+        '#   #           #   #   #       #       #       #',
+        '#   #           #   #   #       #       #       #',
+        '#   #   #####   #   #   #########   #   #   #####',
+        '#       #   #       #   #           #   #       #',
+        '#       #   #       #   #           #   #       #',
+        '#       #   #       #   #           #   #       #',
+        '#########   #   #####   #########   #########   #',
+        '#       #   #   #       #                   #   #',
+        '#       #   #   #       #                   #   #',
+        '#       #   #   #       #                   #   #',
+        '#   #####   #   #   #   #################   #   #',
+        '#       #       #   #           #   #       #   #',
+        '# S     #       #   #           #   #       #   #',
+        '#       #       #   #           #   #       #   #',
+        '#####   #   #########   #########   #   #   #   #',
+        '#       #       #                   #   #       #',
+        '#       #       #                   #   #       #',
+        '#       #       #                   #   #       #',
+        '#   #####   #   #   #####   #   #################',
+        '#           #   #   #       #                   #',
+        '#           #   #   #       #                   D',
+        '#           #   #   #       #                   #',
+        '#################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with
