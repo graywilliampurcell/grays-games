@@ -342,8 +342,11 @@ function step(deltaTime) {
     const platformEvent = maze.updatePlatform(deltaTime, player.position, player.velocity, player.radius);
     if (platformEvent) testHooks?.emit('platform', { what: platformEvent });
     // The hot-air balloon (Volcano World): its burner roars as it sets off;
-    // in the air you're carried up with it; down at the far edge you step out
+    // in the air you're carried up with it; down at the far edge you step out.
+    // The sled (Ice World) holds you the same way while it zooms across.
     if (platformEvent === 'depart' && maze.theme.volcano) sound.whoosh(0.8);
+    // The sled (Ice World): a quick whoosh as it zooms off along the zip line
+    if (platformEvent === 'depart' && maze.theme.ice) sound.whoosh(0.6, 0.7);
     const lift = maze.rideLift();
     player.carried = lift !== null;
     if (lift !== null) player.camera.position.set(player.position.x, player.position.y + 1.6 + lift, player.position.z);
@@ -378,6 +381,7 @@ function checkSpikeAndDoor() {
             : maze.theme.underwater ? 'Ouch! A sea urchin sent you back to the start.'
                 : maze.theme.sweets ? 'Ouch! A broken candy cane sent you back to the start.'
                 : maze.theme.volcano ? 'Ouch! A hot coal sent you back to the start.'
+                : maze.theme.ice ? 'Ouch! An icicle sent you back to the start.'
                 : 'Ouch! A spike sent you back to the start.');
     }
 
@@ -388,7 +392,7 @@ function checkSpikeAndDoor() {
         testHooks?.emit('fall');
         sound.ouch();
         showMessage(maze.theme.moon ? 'Ouch! You fell in a crater. Back to the start.'
-            : maze.theme.underwater ? 'Ouch! You fell in the crack. Back to the start.'
+            : maze.theme.underwater || maze.theme.ice ? 'Ouch! You fell in the crack. Back to the start.'
                 : maze.theme.sweets ? 'Ouch! You fell in the chocolate. Back to the start.'
                 : maze.theme.volcano ? 'Ouch! You fell in the lava. Back to the start.'
                 : 'Whoops! You fell off. Back to the start.');

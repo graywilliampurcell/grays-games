@@ -994,6 +994,199 @@ const GEYSER_SINK = 0.3;
 const GEYSER_BUBBLE = 1;
 const GEYSER_OFFSET = 1.5;
 
+// Ice World's crossing (Level 71 on): a sled hanging from a zip line over a
+// 3-cell icy crack. It's the crack's width and PLATFORM_LENGTH long, resting
+// at one edge. As soon as you're fully on it, it zooms across in SLED_TIME
+// (you can look around but not steer or step off), then sets you down on the
+// floor SLED_LANDING past the far edge and rests there.
+const SLED_TIME = 1.5;
+const SLED_LANDING = 1.0;
+const ZIP_LINE_HEIGHT = 3.6; // the zip line, just under the tops of the walls (4)
+
+// Ice World walls: frosty blue ice blocks, stacked like bricks, that glow
+// blue but can't be seen through. The same canvas is the glow map.
+function iceBlockTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    const rowHeight = width / 2;
+    for (let y = 0, row = 0; y < height; y += rowHeight, row++) {
+        for (let x = (row % 2) * -width / 2; x < width; x += width) {
+            // Each block: a frosty blue, lighter toward its middle
+            const shade = 0.85 + random() * 0.3;
+            const grad = g.createLinearGradient(x, y, x + width, y + rowHeight);
+            grad.addColorStop(0, `rgb(${70 * shade | 0},${150 * shade | 0},${225 * shade | 0})`);
+            grad.addColorStop(0.5, `rgb(${120 * shade | 0},${195 * shade | 0},${250 * shade | 0})`);
+            grad.addColorStop(1, `rgb(${60 * shade | 0},${135 * shade | 0},${215 * shade | 0})`);
+            g.fillStyle = grad;
+            g.fillRect(x, y, width, rowHeight);
+            // Bright frosty seams round each block
+            g.strokeStyle = 'rgba(225,248,255,0.9)';
+            g.lineWidth = 3;
+            g.strokeRect(x + 1.5, y + 1.5, width - 3, rowHeight - 3);
+        }
+    }
+    // Frost speckles and a few thin cracks inside the ice
+    for (let k = 0; k < (width * height) / 60; k++) {
+        g.fillStyle = `rgba(235,250,255,${0.25 + random() * 0.5})`;
+        g.fillRect(random() * width, random() * height, 1.5, 1.5);
+    }
+    g.strokeStyle = 'rgba(230,250,255,0.5)';
+    g.lineWidth = 1;
+    for (let c = 0; c < (width * height) / 3000; c++) {
+        let x = random() * width;
+        let y = random() * height;
+        g.beginPath();
+        g.moveTo(x, y);
+        for (let k = 0; k < 4; k++) {
+            x += (random() - 0.5) * 30;
+            y += (random() - 0.5) * 30;
+            g.lineTo(x, y);
+        }
+        g.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Ice World floor: crunchy white snow with little patches of ice (just for
+// looks: they aren't slippery)
+function snowTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#eef4fb';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    // Crunchy bumps: soft blue-gray shadows and bright sparkles
+    for (let k = 0; k < size * 6; k++) {
+        const x = random() * size;
+        const y = random() * size;
+        g.fillStyle = random() < 0.5 ? `rgba(160,180,205,${0.2 + random() * 0.3})` : 'rgba(255,255,255,0.9)';
+        g.beginPath();
+        g.arc(x, y, 0.6 + random() * 1.6, 0, Math.PI * 2);
+        g.fill();
+    }
+    // Ice patches: pale blue, shiny, with a white glint
+    for (let k = 0; k < 5; k++) {
+        const x = 20 + random() * (size - 40);
+        const y = 20 + random() * (size - 40);
+        const w = 10 + random() * 18;
+        const h = 6 + random() * 12;
+        const a = random() * Math.PI;
+        g.fillStyle = 'rgba(150,215,245,0.85)';
+        g.beginPath();
+        g.ellipse(x, y, w, h, a, 0, Math.PI * 2);
+        g.fill();
+        g.strokeStyle = 'rgba(255,255,255,0.9)';
+        g.lineWidth = 1.5;
+        g.beginPath();
+        g.moveTo(x - w * 0.4, y + h * 0.1);
+        g.lineTo(x + w * 0.2, y - h * 0.3);
+        g.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// The northern lights: soft green curtains that fade to purple at the top,
+// and fade out at the bottom and the ends
+function auroraTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 128;
+    const g = canvas.getContext('2d');
+    const color = g.createLinearGradient(0, 128, 0, 0);
+    color.addColorStop(0, 'rgba(60,255,150,0)');
+    color.addColorStop(0.15, 'rgba(60,255,150,0.85)');
+    color.addColorStop(0.55, 'rgba(90,230,170,0.6)');
+    color.addColorStop(0.8, 'rgba(170,90,255,0.55)');
+    color.addColorStop(1, 'rgba(170,90,255,0)');
+    g.fillStyle = color;
+    g.fillRect(0, 0, 256, 128);
+    // Light streaks running up and down, and fading out at the ends
+    g.globalCompositeOperation = 'destination-in';
+    const ends = g.createLinearGradient(0, 0, 256, 0);
+    ends.addColorStop(0, 'rgba(0,0,0,0)');
+    ends.addColorStop(0.2, 'rgba(0,0,0,1)');
+    ends.addColorStop(0.8, 'rgba(0,0,0,1)');
+    ends.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = ends;
+    g.fillRect(0, 0, 256, 128);
+    g.globalCompositeOperation = 'source-over';
+    let r = 19;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < 40; k++) {
+        const x = 30 + random() * 196;
+        g.fillStyle = `rgba(200,255,220,${0.05 + random() * 0.12})`;
+        g.fillRect(x, 10 + random() * 30, 1 + random() * 3, 70 + random() * 30);
+    }
+    return new THREE.CanvasTexture(canvas);
+}
+
+// The crack's icy sides: glowing pale blue at the top, deeper blue further
+// down, fading into dark blue (CRACK_DEPTH down, matching its far end, so no
+// bottom is ever seen), with jagged facets in the ice
+const CRACK_DEPTH = 60;
+const CRACK_DEEP = 0x061a3a;
+function crackIceTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 512;
+    const g = canvas.getContext('2d');
+    const grad = g.createLinearGradient(0, 0, 0, 512);
+    grad.addColorStop(0, '#c8f6ff');
+    grad.addColorStop(0.02, '#4cc8ff');
+    grad.addColorStop(0.1, '#1a62c4');
+    grad.addColorStop(0.3, '#0b2f6e');
+    grad.addColorStop(1, '#061a3a');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 64, 512);
+    let r = 29;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < 70; k++) {
+        const y = random() * 512;
+        const fade = 1 - y / 512;
+        g.strokeStyle = `rgba(210,250,255,${0.5 * fade})`;
+        g.lineWidth = 1;
+        g.beginPath();
+        let x = random() * 64;
+        g.moveTo(x, y);
+        for (let s = 0; s < 3; s++) {
+            x += (random() - 0.5) * 30;
+            g.lineTo(x, y + (random() - 0.3) * 40);
+        }
+        g.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    return texture;
+}
+
+// The sled: bright red wood
+function sledTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 64;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#c62828';
+    g.fillRect(0, 0, 64, 64);
+    for (let x = 0; x < 64; x += 16) {
+        g.fillStyle = '#8e1b1b';
+        g.fillRect(x, 0, 2, 64);
+    }
+    for (let k = 0; k < 30; k++) {
+        g.fillStyle = 'rgba(255,140,120,0.25)';
+        g.fillRect(Math.random() * 64, Math.random() * 64, 6, 1);
+    }
+    return new THREE.CanvasTexture(canvas);
+}
+
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
@@ -1171,8 +1364,12 @@ export class Maze {
         const underwater = this.theme.underwater;
         const sweets = this.theme.sweets;
         const volcano = this.theme.volcano;
+        const ice = this.theme.ice;
         let wallMaterial;
-        if (volcano) {
+        if (ice) {
+            const blocks = iceBlockTexture(128, 512, 47);
+            wallMaterial = new THREE.MeshStandardMaterial({ map: blocks, emissiveMap: blocks, emissive: 0x4aa8ff, emissiveIntensity: 0.55, roughness: 0.15, metalness: 0.1 });
+        } else if (volcano) {
             const rock = volcanoRockTexture(128, 512, 37);
             wallMaterial = new THREE.MeshStandardMaterial({ map: rock, emissiveMap: rock, emissive: 0xffffff, emissiveIntensity: 0.85, roughness: 0.18, metalness: 0.35 });
         } else if (sweets) {
@@ -1213,7 +1410,12 @@ export class Maze {
 
         // Floor
         let floorMaterial;
-        if (volcano) {
+        if (ice) {
+            const map = snowTexture(256, 53);
+            map.repeat.set(this.width / 8, this.depth / 8);
+            // A soft blue glow so the snow in the walls' shadows looks cold blue, not gray
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 0.9, emissiveMap: map, emissive: 0x7f9cc8, emissiveIntensity: 0.4 });
+        } else if (volcano) {
             const map = cooledLavaTexture(256, 43);
             map.repeat.set(this.width / 6, this.depth / 6);
             floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 0.4, metalness: 0.1 });
@@ -1262,7 +1464,7 @@ export class Maze {
             geometry.rotateX(Math.PI / 2);
             floorMaterial.map?.repeat.set(0.5, 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -1280,11 +1482,13 @@ export class Maze {
         if (underwater) this.addSeaLife();
         if (sweets) this.addCandySky();
         if (volcano) this.addAsh();
+        if (ice) this.addIceSky();
     }
 
     // Volcano World sky: ash falling all the time like snowflakes over the
     // whole maze. Just to look at: it goes straight through you.
-    addAsh() {
+    // Ice World uses it for snowflakes: white, bigger, falling a bit slower.
+    addAsh({ color = 0xb0a8a6, size = 0.14, fall = 1 } = {}) {
         const count = 1800;
         const spread = Math.max(this.width, this.depth) + 40;
         const positions = new Float32Array(count * 3);
@@ -1297,9 +1501,10 @@ export class Maze {
         }
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const material = new THREE.PointsMaterial({ color: 0xb0a8a6, size: 0.14, map: puffTexture(), transparent: true, depthWrite: false, fog: false });
+        const material = new THREE.PointsMaterial({ color, size, map: puffTexture(), transparent: true, depthWrite: false, fog: false });
         this.ash = new THREE.Points(geometry, material);
         this.ash.userData.time = 0;
+        this.ash.userData.fall = fall;
         this.root.add(this.ash);
     }
 
@@ -1308,13 +1513,72 @@ export class Maze {
         a.userData.time += dt;
         const p = a.geometry.attributes.position;
         for (let k = 0; k < p.count; k++) {
-            let y = p.getY(k) - dt * (0.9 + (k % 7) * 0.08);
+            let y = p.getY(k) - dt * (0.9 + (k % 7) * 0.08) * a.userData.fall;
             if (y < 0) y += 30;
             p.setY(k, y);
             p.setX(k, p.getX(k) + Math.sin(a.userData.time * 0.8 + k) * dt * 0.25);
         }
         p.needsUpdate = true;
         for (const coal of this.coals || []) coal.material.emissiveIntensity = 0.9 + 0.3 * Math.sin(a.userData.time * 2.2 + coal.userData.phase);
+    }
+
+    // Ice World sky (Level 71 on): a dark night sky with stars, green and
+    // purple northern lights slowly waving high up, snowy owls flying by and
+    // snowflakes falling over the maze. Just to look at: snow and owls go
+    // straight through you.
+    addIceSky() {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        let r = 83;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const stars = [];
+        for (let k = 0; k < 600; k++) {
+            const a = random() * Math.PI * 2;
+            const up = 0.15 + random() * 0.85;
+            const d = 380;
+            stars.push(cx + Math.cos(a) * d * Math.sqrt(1 - up * up), d * up, cz + Math.sin(a) * d * Math.sqrt(1 - up * up));
+        }
+        const starGeometry = new THREE.BufferGeometry();
+        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(stars, 3));
+        this.root.add(new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 1.6, fog: false })));
+        // The northern lights: tall wavy curtains all round the sky
+        const map = auroraTexture();
+        this.auroras = [];
+        for (let k = 0; k < 6; k++) {
+            const geometry = new THREE.PlaneGeometry(220, 70, 48, 1);
+            const material = new THREE.MeshBasicMaterial({ map, transparent: true, opacity: 0.8, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
+            const curtain = new THREE.Mesh(geometry, material);
+            const a = (k / 6) * Math.PI * 2 + random() * 0.5;
+            const d = 170 + random() * 60;
+            curtain.position.set(cx + Math.cos(a) * d, 95 + random() * 40, cz + Math.sin(a) * d);
+            curtain.lookAt(cx, curtain.position.y - 30, cz);
+            curtain.userData = { base: Float32Array.from(geometry.attributes.position.array), phase: random() * 6 };
+            this.root.add(curtain);
+            this.auroras.push(curtain);
+        }
+        this.flyers = [];
+        for (let k = 0; k < 4; k++) {
+            const flyer = this.makeFlyer('owl');
+            this.root.add(flyer.object);
+            this.flyers.push(flyer);
+            this.launchFlyer(flyer, k / 4);
+        }
+        this.addAsh({ color: 0xffffff, size: 0.22, fall: 0.7 });
+    }
+
+    // The northern lights ripple slowly (called every frame)
+    updateAuroras(dt) {
+        for (const curtain of this.auroras) {
+            const u = curtain.userData;
+            u.phase += dt * 0.35;
+            const pos = curtain.geometry.attributes.position;
+            for (let k = 0; k < pos.count; k++) {
+                const x = u.base[k * 3];
+                pos.setZ(k, Math.sin(x * 0.04 + u.phase) * 14 + Math.sin(x * 0.11 - u.phase * 1.7) * 4);
+            }
+            pos.needsUpdate = true;
+            curtain.material.opacity = 0.65 + 0.2 * Math.sin(u.phase * 0.8);
+        }
     }
 
     // Candy World: a big gumdrop sitting on top of each wall block, every color
@@ -1700,6 +1964,45 @@ export class Maze {
             const object = new THREE.Group();
             object.add(group);
             return { kind, object, velocity: new THREE.Vector3(), life: 0, wings, flap: Math.random() * 6 };
+        } else if (kind === 'owl') {
+            // A snowy owl flying along +x: round white body and head, big
+            // yellow eyes, wide white wings with a few gray speckles
+            const white = basic(0xf7f9fc);
+            const body = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), white);
+            body.scale.set(1.3, 0.8, 0.85);
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.75, 16, 12), white);
+            head.position.set(1.3, 0.35, 0);
+            group.add(body, head);
+            for (const side of [-1, 1]) {
+                const eye = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 8), basic(0xffd21f));
+                eye.position.set(1.9, 0.5, side * 0.3);
+                const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), basic(0x111111));
+                pupil.position.set(2.05, 0.5, side * 0.3);
+                group.add(eye, pupil);
+            }
+            const beak = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.3, 8), basic(0x333333));
+            beak.rotation.z = -Math.PI / 2;
+            beak.position.set(2.05, 0.25, 0);
+            group.add(beak);
+            const wings = [];
+            for (const side of [-1, 1]) {
+                const pivot = new THREE.Group();
+                const wing = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.1, 2.6), white);
+                wing.position.z = side * 1.3;
+                pivot.add(wing);
+                for (const [sx, sz] of [[0.3, 1.0], [-0.3, 1.7], [0.1, 2.3]]) {
+                    const speck = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.11, 0.25), basic(0x8a8f99));
+                    speck.position.set(sx, 0, side * sz);
+                    pivot.add(speck);
+                }
+                pivot.userData.side = side;
+                group.add(pivot);
+                wings.push(pivot);
+            }
+            group.scale.setScalar(1.1);
+            const object = new THREE.Group();
+            object.add(group);
+            return { kind, object, velocity: new THREE.Vector3(), life: 0, wings, flap: Math.random() * 6 };
         } else if (kind === 'butterfly') {
             const colors = [[0xff9800, 0x212121], [0x29b6f6, 0x0d47a1], [0xf06292, 0xffeb3b], [0xffeb3b, 0xff5722]];
             const [main, edge] = colors[Math.floor(Math.random() * colors.length)];
@@ -1751,11 +2054,11 @@ export class Maze {
         const cz = this.depth / 2;
         const angle = Math.random() * Math.PI * 2;
         // Birds and butterflies fly lower and slower than things in space
-        const speeds = { cloud: 2.5, balloon: 3.5, rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, butterfly: 4, turtle: 3, whale: 4, manta: 5, school: 6 };
+        const speeds = { cloud: 2.5, balloon: 3.5, rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, owl: 8, butterfly: 4, turtle: 3, whale: 4, manta: 5, school: 6 };
         const speed = speeds[flyer.kind];
         // Sea animals swim slowly over the reef, not too high (Underwater World)
         // Candy World's clouds and balloons drift slowly, like birds
-        const bird = ['parrot', 'toucan', 'turtle', 'whale', 'manta', 'school', 'cloud', 'balloon'].includes(flyer.kind);
+        const bird = ['parrot', 'toucan', 'owl', 'turtle', 'whale', 'manta', 'school', 'cloud', 'balloon'].includes(flyer.kind);
         const butterfly = flyer.kind === 'butterfly';
         const span = butterfly ? 70 : bird ? 160 : 260;
         const dir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
@@ -1775,6 +2078,7 @@ export class Maze {
     // Move the things flying through the sky, and under the platform gap (called every frame)
     update(dt) {
         if (this.ash) this.updateAsh(dt);
+        if (this.auroras) this.updateAuroras(dt);
         for (const cam of this.cameras || []) {
             cam.time += dt;
             cam.pivot.rotation.y = Math.sin(cam.time * cam.speed + cam.phase) * 0.7;
@@ -1971,6 +2275,7 @@ export class Maze {
         if (this.theme.underwater) return this.createUrchin(position, radius);
         if (this.theme.sweets) return this.createCandyCane(position, radius);
         if (this.theme.volcano) return this.createHotCoal(position, radius);
+        if (this.theme.ice) return this.createIcicle(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -2096,6 +2401,67 @@ export class Maze {
         group.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
         group.position.copy(position);
         group.position.y = 0;
+        this.root.add(group);
+    }
+
+    // An icicle (Ice World, Level 71 on): an igloo arch of ice bricks over
+    // the corridor, wall to wall, with one big icicle hanging from its top
+    // low enough to see clearly (its tip about knee high) and a few little
+    // ones beside it. Touching it works like a spike (its plate is radius).
+    createIcicle(position, radius) {
+        const group = new THREE.Group();
+        const x = Math.floor(position.x);
+        const z = Math.floor(position.z);
+        // The arch spans the corridor: across x when the corridor runs along z
+        const runsAlongZ = this.grid[x - 2]?.[z] === 1 && this.grid[x + 2]?.[z] === 1;
+        const half = 1.5; // half the corridor's width (3 blocks)
+        const legHeight = 2.1;
+        const brick = (shade) => new THREE.MeshStandardMaterial({ color: new THREE.Color(0.82 * shade, 0.93 * shade, 1), emissive: 0x3a8ad0, emissiveIntensity: 0.35, roughness: 0.25 });
+        const shades = [1, 0.93, 0.97, 0.9, 1.02];
+        // The legs: bricks stacked up against each wall
+        let n = 0;
+        for (const side of [-1, 1]) {
+            for (let y = 0; y < legHeight; y += 0.35) {
+                const b = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.32, 0.55), brick(shades[n++ % shades.length]));
+                b.position.set(side * (half - 0.14), y + 0.17, 0);
+                group.add(b);
+            }
+        }
+        // The arch: bricks round a half circle, wall to wall
+        const archRadius = half - 0.14;
+        const bricks = 11;
+        for (let k = 0; k < bricks; k++) {
+            const a = ((k + 0.5) / bricks) * Math.PI;
+            const b = new THREE.Mesh(new THREE.BoxGeometry(0.28, (Math.PI * archRadius) / bricks - 0.03, 0.55), brick(shades[n++ % shades.length]));
+            b.position.set(Math.cos(a) * archRadius, legHeight + Math.sin(a) * archRadius, 0);
+            b.rotation.z = a;
+            group.add(b);
+        }
+        // The icicles: see-through-ish glowing pale blue, pointing down
+        const iceMaterial = new THREE.MeshStandardMaterial({ color: 0xd8f6ff, emissive: 0x6fd0ff, emissiveIntensity: 0.6, roughness: 0.08, metalness: 0.1, transparent: true, opacity: 0.92 });
+        const top = legHeight + archRadius - 0.12;
+        const tipHeight = 0.55;
+        const big = new THREE.Mesh(new THREE.ConeGeometry(0.34, top - tipHeight, 14), iceMaterial);
+        big.rotation.x = Math.PI;
+        big.position.y = (top + tipHeight) / 2;
+        big.castShadow = true;
+        group.add(big);
+        for (const [ox, len] of [[-0.55, 0.9], [0.5, 0.7], [-0.95, 0.5], [0.9, 0.45]]) {
+            const y = legHeight + Math.sqrt(Math.max(0, archRadius * archRadius - ox * ox)) - 0.12;
+            const small = new THREE.Mesh(new THREE.ConeGeometry(0.12, len, 10), iceMaterial);
+            small.rotation.x = Math.PI;
+            small.position.set(ox, y - len / 2, 0);
+            group.add(small);
+        }
+        // A frosty blue patch on the snow under it, as wide as its plate
+        const frost = new THREE.Mesh(new THREE.CircleGeometry(0.85, 24), new THREE.MeshBasicMaterial({ color: 0x7fd6ff, transparent: true, opacity: 0.4, depthWrite: false }));
+        frost.rotation.x = -Math.PI / 2;
+        frost.position.y = 0.02;
+        frost.scale.setScalar(radius / SPIKE_RADIUS);
+        group.add(frost);
+        // The group's x is across the arch
+        if (!runsAlongZ) group.rotation.y = Math.PI / 2;
+        group.position.set(position.x, 0, position.z);
         this.root.add(group);
     }
 
@@ -2792,6 +3158,7 @@ export class Maze {
         const bubble = !!this.theme.underwater;
         const chocolate = !!this.theme.sweets;
         const balloon = !!this.theme.volcano;
+        const sled = !!this.theme.ice;
         const width = alongX ? gap.maxZ - gap.minZ : gap.maxX - gap.minX;
         // Candy World: the marshmallow on each bank, and where its bounce lands
         const pads = chocolate ? [
@@ -2806,7 +3173,8 @@ export class Maze {
             chocolate, // Candy World: a chocolate river crossed by bouncing on a marshmallow
             pads,
             balloon, // Volcano World: a lava gap crossed in a hot-air balloon, high above the maze
-            phase: 'rest', // balloon: 'rest' | 'wait' (you're in, the burner's about to fire) | 'rise' | 'cross' | 'down' | 'float' (empty, coming to you)
+            sled, // Ice World: an icy crack crossed on a sled hanging from a zip line
+            phase: 'rest', // sled: 'rest' | 'zip' (carrying you) | 'float' (empty, coming to you); balloon: 'rest' | 'wait' (you're in, the burner's about to fire) | 'rise' | 'cross' | 'down' | 'float' (empty, coming to you)
             time: 0, // balloon: seconds into the phase
             lift: 0, // balloon: how high it is
             view: null, // balloon: what you can see ('corridor' | 'cloud' | null = everything)
@@ -2894,6 +3262,8 @@ export class Maze {
         if (p.chocolate) return true;
         // The balloon: never while it's in the air with you in it
         if (p.balloon && ['rise', 'cross', 'down'].includes(p.phase)) return false;
+        // The sled: never while it's zooming you across
+        if (p.sled && p.phase === 'zip') return false;
         const { along } = this.gapCoords(point, p);
         return along < p.at || along > p.at + PLATFORM_LENGTH;
     }
@@ -2932,6 +3302,7 @@ export class Maze {
         if (p.bubble) return this.updateBubble(p, dt, position, velocity, radius);
         if (p.chocolate) return null; // nothing moves: the marshmallows bounce you (see marshmallowAt)
         if (p.balloon) return this.updateBalloon(p, dt, position, velocity, radius);
+        if (p.sled) return this.updateSled(p, dt, position, velocity, radius);
         const { along, across, width } = this.gapCoords(position, p);
         const inRange = across >= 0 && across < width;
         const fullyOn = inRange && along - radius >= p.at && along + radius <= p.at + PLATFORM_LENGTH;
@@ -3074,9 +3445,71 @@ export class Maze {
         return event;
     }
 
+    // Run one sled (Ice World, Level 71 on). It hangs from the zip line at
+    // one edge of the crack. As soon as you're fully on it, it zooms across
+    // (SLED_TIME, starting and stopping smoothly); you can look around but
+    // can't steer, step off or fall. At the far edge it sets you down on the
+    // floor (main.js walks you out to this.landing) and rests there. It works
+    // the same from either side. If it's empty and you come to the edge it
+    // isn't at, it zips over to you and waits.
+    // Returns 'depart' (it zooms off with you) or 'land'.
+    updateSled(p, dt, position, velocity, radius) {
+        const g = p.gap;
+        const { along, across, width } = this.gapCoords(position, p);
+        const inRange = across >= 0 && across < width;
+        const fullyOn = inRange && along - radius >= p.at && along + radius <= p.at + PLATFORM_LENGTH;
+        const touching = inRange && along + radius > p.at && along - radius < p.at + PLATFORM_LENGTH;
+        const ease = (t) => t * t * (3 - 2 * t);
+        const hold = () => {
+            const a = p.at + p.offset;
+            if (p.alongX) position.set(g.minX + a, position.y, g.minZ + p.across);
+            else position.set(g.minX + p.across, position.y, g.minZ + a);
+            velocity.set(0, 0, 0);
+        };
+        let event = null;
+        p.time += dt;
+        if (p.phase === 'rest') {
+            p.time = 0;
+            // Just set down: you have to step off before it will carry you again
+            if (p.mustLeave && !touching) p.mustLeave = false;
+            if (fullyOn && !p.mustLeave) {
+                // Hop on and it zooms right away
+                Object.assign(p, { phase: 'zip', riding: true, time: 0, offset: along - p.at, across, from: p.at, target: p.at === p.low ? p.high : p.low });
+                event = 'depart';
+                hold();
+            } else if (!touching && inRange) {
+                // Empty: zip over to whichever edge the player comes to
+                if (p.at !== p.low && along < 0 && along > -PLATFORM_CALL_DISTANCE) Object.assign(p, { phase: 'float', target: p.low });
+                if (p.at !== p.high && along > p.span && along < p.span + PLATFORM_CALL_DISTANCE) Object.assign(p, { phase: 'float', target: p.high });
+            }
+        } else if (p.phase === 'float') {
+            p.at = p.target > p.at ? Math.min(p.target, p.at + p.speed * dt) : Math.max(p.target, p.at - p.speed * dt);
+            if (p.at === p.target) Object.assign(p, { phase: 'rest', time: 0 });
+        } else if (p.phase === 'zip') {
+            const t = Math.min(1, p.time / SLED_TIME);
+            p.at = p.from + (p.target - p.from) * ease(t);
+            hold();
+            if (t >= 1) {
+                // Across: off you get, onto the floor just past the edge
+                const out = p.at === p.high ? p.span + SLED_LANDING : -SLED_LANDING;
+                this.landing = p.alongX ? new THREE.Vector3(g.minX + out, 0, g.minZ + width / 2) : new THREE.Vector3(g.minX + width / 2, 0, g.minZ + out);
+                Object.assign(p, { phase: 'rest', riding: false, time: 0, mustLeave: true, at: p.target });
+                event = 'land';
+            }
+        }
+        // The sled tips forward a little as it speeds up and swings back as it stops
+        if (p.object) {
+            const swing = p.phase === 'zip' ? Math.sin(Math.min(1, p.time / SLED_TIME) * Math.PI * 2) * 0.04 * Math.sign(p.target - p.from) : 0;
+            p.sledBody.rotation.x = swing;
+        }
+        this.showPlatform(p);
+        return event;
+    }
+
     // How high the balloon you're riding is (null when you're not in the air in one)
+    // (the sled zooming you across counts too, at no height: you can only look)
     rideLift() {
-        const p = this.platforms.find((q) => q.balloon && ['rise', 'cross', 'down'].includes(q.phase));
+        const p = this.platforms.find((q) => (q.balloon && ['rise', 'cross', 'down'].includes(q.phase)) || (q.sled && q.phase === 'zip'));
         return p ? p.lift : null;
     }
 
@@ -3368,6 +3801,12 @@ export class Maze {
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
     createPlatform(p) {
+        if (p.sled) {
+            this.createIceCrack(p);
+            this.createSled(p);
+            this.showPlatform(p);
+            return;
+        }
         if (p.balloon) {
             this.createLavaPit(p);
             this.createBalloon(p);
@@ -3576,6 +4015,132 @@ export class Maze {
             this.root.add(object);
             p.anglers.push({ object, glow, x, y, z, time: random() * 10, speed: 0.2 + random() * 0.3, range: 0.4 + random() * 0.4, phase: random() * 6 });
         }
+    }
+
+    // The icy crack (Ice World): its sides are glowing blue ice going down
+    // and down, getting deeper blue, with no bottom ever in sight; a glowing
+    // pale blue edge where the snow stops. Over it, the zip line: a bar of ice
+    // bricks across the corridor just past each end, with a steel cable
+    // between them down the corridor's middle.
+    createIceCrack(p) {
+        const g = p.gap;
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        const group = new THREE.Group();
+        const map = crackIceTexture();
+        const sides = new THREE.MeshBasicMaterial({ map, side: THREE.DoubleSide, fog: false });
+        const w = g.maxX - g.minX;
+        const d = g.maxZ - g.minZ;
+        for (const [len, x, z, turn] of [[w, cx, g.minZ, 0], [w, cx, g.maxZ, 0], [d, g.minX, cz, Math.PI / 2], [d, g.maxX, cz, Math.PI / 2]]) {
+            const side = new THREE.Mesh(new THREE.PlaneGeometry(len, CRACK_DEPTH), sides);
+            side.position.set(x, -0.2 - CRACK_DEPTH / 2, z);
+            side.rotation.y = turn;
+            group.add(side);
+        }
+        // Far down it's all the same dark blue as the sides' far end, so
+        // there's no bottom to see
+        const deep = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshBasicMaterial({ color: CRACK_DEEP, fog: false }));
+        deep.rotation.x = -Math.PI / 2;
+        deep.position.set(cx, -0.2 - CRACK_DEPTH + 0.01, cz);
+        group.add(deep);
+        // A glowing edge where the snow stops
+        const width = p.alongX ? d : w;
+        const edge = new THREE.MeshBasicMaterial({ color: 0xaaf0ff });
+        for (const end of [0, p.span]) {
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(width, 0.05, 0.12), edge);
+            if (p.alongX) {
+                strip.rotation.y = Math.PI / 2;
+                strip.position.set(g.minX + end + (end ? 0.06 : -0.06), 0.02, cz);
+            } else {
+                strip.position.set(cx, 0.02, g.minZ + end + (end ? 0.06 : -0.06));
+            }
+            group.add(strip);
+        }
+        // The zip line. Built along z (the gap's long side), turned when the gap runs along x
+        const zip = new THREE.Group();
+        const bar = new THREE.MeshStandardMaterial({ color: 0xdff3ff, emissive: 0x3a8ad0, emissiveIntensity: 0.35, roughness: 0.25 });
+        const reach = p.span / 2 + 0.5; // the bars sit just past each end of the crack
+        for (const end of [-1, 1]) {
+            const beam = new THREE.Mesh(new THREE.BoxGeometry(width, 0.3, 0.4), bar);
+            beam.position.set(0, ZIP_LINE_HEIGHT + 0.15, end * reach);
+            zip.add(beam);
+        }
+        const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, reach * 2, 8), new THREE.MeshStandardMaterial({ color: 0x9aa4ae, metalness: 0.8, roughness: 0.3 }));
+        cable.rotation.x = Math.PI / 2;
+        cable.position.y = ZIP_LINE_HEIGHT;
+        zip.add(cable);
+        if (p.alongX) zip.rotation.y = Math.PI / 2;
+        zip.position.set(cx, 0, cz);
+        group.add(zip);
+        this.root.add(group);
+    }
+
+    // The sled: a red wooden sled the crack's width (you step onto it), with
+    // runners curling up at both ends, hanging by four ropes from a pulley
+    // that rolls along the zip line
+    createSled(p) {
+        const g = p.gap;
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        const group = new THREE.Group();
+        const body = new THREE.Group();
+        const wood = new THREE.MeshStandardMaterial({ map: sledTexture(), roughness: 0.7 });
+        const w = width - 0.2;
+        const l = PLATFORM_LENGTH - 0.1;
+        const deck = new THREE.Mesh(new THREE.BoxGeometry(w, 0.12, l), wood);
+        deck.position.y = -0.06;
+        body.add(deck);
+        // Low rails along the sides
+        for (const side of [-1, 1]) {
+            const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.3, l), wood);
+            rail.position.set(side * (w / 2 - 0.04), 0.15, 0);
+            body.add(rail);
+        }
+        // Shiny runners underneath, curling up at both ends
+        const metal = new THREE.MeshStandardMaterial({ color: 0xc8d0d8, metalness: 0.3, roughness: 0.35 });
+        for (const side of [-0.35, 0.35]) {
+            const runner = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, l - 0.3), metal);
+            runner.position.set(side * w, -0.3, 0);
+            body.add(runner);
+            for (const end of [-1, 1]) {
+                const curl = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.035, 6, 12, Math.PI), metal);
+                curl.rotation.y = Math.PI / 2;
+                curl.rotation.z = end > 0 ? -Math.PI / 2 : Math.PI / 2;
+                curl.position.set(side * w, -0.14, end * ((l - 0.3) / 2));
+                body.add(curl);
+            }
+            for (const at of [-0.6, 0.6]) {
+                const strut = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.24, 0.05), metal);
+                strut.position.set(side * w, -0.18, at);
+                body.add(strut);
+            }
+        }
+        // The pulley on the zip line, and ropes from the sled's corners up to it
+        const pulley = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.12, 14), metal);
+        pulley.rotation.z = Math.PI / 2;
+        pulley.position.y = ZIP_LINE_HEIGHT;
+        const hanger = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.35, 0.1), metal);
+        hanger.position.y = ZIP_LINE_HEIGHT - 0.25;
+        body.add(pulley, hanger);
+        const rope = new THREE.MeshBasicMaterial({ color: 0x5a3a1e });
+        const knot = new THREE.Vector3(0, ZIP_LINE_HEIGHT - 0.42, 0);
+        for (const [sx, sz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+            const a = new THREE.Vector3(sx * (w / 2 - 0.05), 0.3, sz * (l / 2 - 0.05));
+            const line = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, a.distanceTo(knot), 5), rope);
+            line.position.copy(a).add(knot).multiplyScalar(0.5);
+            line.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), knot.clone().sub(a).normalize());
+            body.add(line);
+        }
+        // It swings from the zip line (see updateSled)
+        const pivot = new THREE.Group();
+        pivot.position.y = ZIP_LINE_HEIGHT;
+        body.position.y = -ZIP_LINE_HEIGHT;
+        pivot.add(body);
+        group.add(pivot);
+        // The group's z is the gap's long side; turn it when the gap runs along x
+        if (p.alongX) group.rotation.y = Math.PI / 2;
+        this.root.add(group);
+        p.object = group;
+        p.sledBody = pivot;
     }
 
     // Underwater World's ride: a giant clear bubble with a soft blue tint,

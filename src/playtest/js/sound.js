@@ -15,6 +15,10 @@ const MUSIC_LEVEL = SFX_LEVEL / 2; // music about half as loud as the sound effe
 const MUSIC_LOOKAHEAD = 0.4; // seconds of music booked ahead
 const CHEER_LEVEL = 1.4; // the no-voice fallback shouts, inside the sound-effects level
 const VENT_VOLUME = 0.75; // steam vents (hiss and puff), 3/4 of their first loudness
+// Ice World's wintery jingles (sleigh bells and twinkles) play in the music,
+// a little quieter than its sneaky melody (Gray, 2026-10-15)
+const BELL_LEVEL = 0.06;
+const TWINKLE_LEVEL = 0.09;
 // How long the device voice gets to start before the game's own voice sound plays instead
 const SPEECH_START_TIMEOUT = 700;
 
@@ -1736,6 +1740,33 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.1, length: 0.08, brightness: 1500 },
     },
+    // Level 71, welcome to Ice World: just sneaky, with wintery jingles in
+    // the background. E-flat minor at 86 bpm, slower than any other tune.
+    // Each phrase starts on one note, then slides up by half steps like
+    // skating on ice (E-flat, E, F, G-flat), and tiptoes back down; the
+    // second half slides up an octave higher and lands on a sly D before
+    // home. A soft triangle lead and ticks; sleigh bells shake twice a bar
+    // and a high twinkle rings at the end of each phrase (jingles).
+    icesneak: {
+        tempo: 86,
+        bars: [[39, 'min'], [39, 'min'], [35, 'maj'], [34, 'maj'], [39, 'min'], [42, 'maj'], [35, 'maj'], [34, 'maj']],
+        bass: [0, null, null, null, 0, null, null, null],
+        bassLength: 0.25,
+        stabs: [],
+        ticks: true,
+        melody: [
+            63, null, null, 64, 65, 66, null, null,
+            70, null, 66, null, 63, null, null, null,
+            71, null, null, 70, 69, 70, null, null,
+            74, null, 70, null, 65, null, null, null,
+            75, null, null, 76, 77, 78, null, null,
+            78, null, 73, null, 70, null, 66, null,
+            71, 70, 71, null, 66, null, 63, null,
+            62, null, null, null, 63, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.18, length: 0.18, brightness: 1200 },
+        jingles: { bells: [2, 6], twinkles: { 7: 87, 23: 90, 39: 94, 55: 91, 63: 87 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -1914,6 +1945,37 @@ export class Sound {
         if (m !== null) this.pluck(hz(m), t, lead.level, lead.length, lead.wave, lead.brightness);
         // Soft tick on the off-beats (tiptoeing)
         if (tune.ticks && beat % 2 === 1) this.tick(t);
+        // Ice World's wintery jingles: sleigh bells and high twinkles
+        if (tune.jingles) {
+            if (tune.jingles.bells.includes(beat)) this.sleighBells(t);
+            const twinkle = tune.jingles.twinkles[step];
+            if (twinkle) this.twinkle(hz(twinkle), t);
+        }
+    }
+
+    // A quick shake of sleigh bells: a few bright, ringing taps close together
+    sleighBells(t) {
+        for (let k = 0; k < 4; k++) {
+            const at = t + k * 0.035;
+            const src = this.noiseSource(at, 0.12);
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 7500 + k * 400;
+            filter.Q.value = 6;
+            const gain = this.ctx.createGain();
+            gain.gain.setValueAtTime(0.0001, at);
+            gain.gain.exponentialRampToValueAtTime(BELL_LEVEL * (k === 0 ? 1.6 : 1), at + 0.004);
+            gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.1);
+            src.connect(filter).connect(gain).connect(this.musicBus);
+            // A little bell ring on top
+            this.pluck(5200 + k * 330, at, BELL_LEVEL * 0.5, 0.09, 'sine', 9000);
+        }
+    }
+
+    // A high, bell-like twinkle that rings on a moment
+    twinkle(freq, t) {
+        this.pluck(freq, t, TWINKLE_LEVEL, 0.6, 'sine', 9000);
+        this.pluck(freq * 2, t + 0.09, TWINKLE_LEVEL * 0.5, 0.4, 'sine', 9000);
     }
 
     pluck(freq, t, level, length, wave, brightness) {

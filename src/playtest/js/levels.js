@@ -40,6 +40,11 @@ const CANDY = { wall: 0xff5fa2, floor: 0x5b3320, sky: 0xa9dcff, sweets: true };
 // orange cracks, a floor of black swirly cooled lava, a dark red sky with ash
 // falling like snowflakes; the spikes are giant glowing hot coals (see Maze.js)
 const VOLCANO = { wall: 0x0d0b0c, floor: 0x141012, sky: 0x4a0d08, volcano: true };
+// Levels 71-80, Ice World: walls of frosty blue ice blocks that glow but
+// can't be seen through, crunchy snow with little ice patches (just for
+// looks), a night sky with green and purple northern lights, snowy owls and
+// falling snow; the spikes are icicles hanging from igloo arches (see Maze.js)
+const ICE = { wall: 0x6fb6f0, floor: 0xeef4fb, sky: 0x0a1633, ice: true };
 
 export const LEVELS = [
     {
@@ -3407,6 +3412,7 @@ export const LEVELS = [
         music: 'volcanofinale',
         spike2Radius: 0.72,
         finale: 'You beat Volcano World!',
+        nextLabel: 'Start Ice World',
         layout: [
         '#############################################',
         '#           #        HHH    #       #       #',
@@ -3455,6 +3461,72 @@ export const LEVELS = [
         '#############################################',
         ],
     },
+    {
+        name: 'Level 71',
+        // Welcome to Ice World. `SEEDS=1500 node tools/find-ice-level.mjs
+        // level71 24 4501`, seed 5855. 12 x 12 corridors. Correct path 93
+        // cells (start west in row 4, door east in the bottom row); 24 dead
+        // ends 2 cells deep, plus the sneaky icicle's: off the start cell it
+        // goes 2 cells south, turns once, and the icicle (X, hanging from an
+        // igloo arch) sits in its last cell, out of sight of the path. O: the
+        // 3-cell icy crack over path cells 73-75 (a long straight stretch,
+        // crossed heading west), crossed on the zip-line sled that waits at
+        // its east edge. No path or big icicle, no snowman, no thin ice.
+        // Music: just sneaky, with wintery jingles.
+        theme: ICE,
+        music: 'icesneak',
+        layout: [
+        '#################################################',
+        '#                       #                       #',
+        '#                       #                       #',
+        '#                       #                       #',
+        '#   #########   #################   #   #########',
+        '#   #                   #           #   #   #   #',
+        '#   #                   #           #   #   #   #',
+        '#   #                   #           #   #   #   #',
+        '#   #   #########################   #   #   #   #',
+        '#   #                   #           #   #   #   #',
+        '#   #                   #           #   #   #   #',
+        '#   #                   #           #   #   #   #',
+        '#   #########   #################   #   #   #   #',
+        '#       #           #               #           #',
+        '#       #           #               #           #',
+        '#       #           #               #           #',
+        '#####   #   #####   #########   #############   #',
+        '#       #       #   #           #           #   #',
+        '# S     #       #   #           #           #   #',
+        '#       #       #   #           #           #   #',
+        '#   #   #####   #############   #   #####   #   #',
+        '#   #       #   #   #           #       #       #',
+        '#   #       #   #   #           #       #       #',
+        '#   #       #   #   #           #       #       #',
+        '#   #########   #   #########   #####   #########',
+        '#       #   #       #       #   #               #',
+        '#     X #   #       #       #   #               #',
+        '#       #   #       #       #   #               #',
+        '#########   #   #########   #   #   #############',
+        '#   #   #       #               #   #       #   #',
+        '#   #   #       #               #   #       #   #',
+        '#   #   #       #               #   #       #   #',
+        '#   #   #####   #   #############   #####   #   #',
+        '#   #   #       #               #               #',
+        '#   #   #       #               #               #',
+        '#   #   #       #               #               #',
+        '#   #   #   #   #############   #########   #####',
+        '#       #   #                   #               #',
+        '#       #   #                   #               #',
+        '#       #   #                   #               #',
+        '#   #   #####################################   #',
+        '#   #            OOOOOOOOOOO                    #',
+        '#   #            OOOOOOOOOOO                    #',
+        '#   #            OOOOOOOOOOO                    #',
+        '#   #############################################',
+        '#                                               #',
+        '#                                               D',
+        '#                                               #',
+        '#################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with
@@ -3465,7 +3537,7 @@ LEVELS.forEach((level, index) => {
     if (last && last.theme === level.theme) {
         last.last = index;
     } else {
-        const look = level.theme.volcano ? 'volcano' : level.theme.sweets ? 'sweets' : level.theme.underwater ? 'sea' : level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
+        const look = level.theme.ice ? 'ice' : level.theme.volcano ? 'volcano' : level.theme.sweets ? 'sweets' : level.theme.underwater ? 'sea' : level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
         WORLDS.push({ theme: level.theme, first: index, last: index, look });
     }
 });
