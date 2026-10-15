@@ -3324,6 +3324,67 @@ export const LEVELS = [
         '#############################################',
         ],
     },
+    {
+        name: 'Level 69',
+        // Two balloons and two geysers. `node tools/find-volcano-level.mjs
+        // level69 18 3901`, seed 3933. 11 x 11 corridors. Correct path 67
+        // cells (start west in row 10, door east in row 0); 18 dead ends, every
+        // one 3 cells deep. K: two lava geysers on path cells 23 (bottom row,
+        // heading east) and 27 (right column, heading north), on their own
+        // timers. O: two 4-cell lava gaps, path cells 47-50 (row 1, crossed
+        // heading west) and 60-63 (the top row, crossed heading east), each
+        // with its own hot-air balloon. No hot coals, no steam vents. Music:
+        // just sneaky.
+        theme: VOLCANO,
+        music: 'balloongeysers',
+        layout: [
+        '#############################################',
+        '#       #            OOOOOOOOOOOOOOO    #   #',
+        '#       #            OOOOOOOOOOOOOOO    #   D',
+        '#       #            OOOOOOOOOOOOOOO    #   #',
+        '#####   #   #########################   #   #',
+        '#   #       #    OOOOOOOOOOOOOOO    #       #',
+        '#   #       #    OOOOOOOOOOOOOOO    #       #',
+        '#   #       #    OOOOOOOOOOOOOOO    #       #',
+        '#   #####   #   #################   #########',
+        '#           #   #       #       #           #',
+        '#           #   #       #       #           #',
+        '#           #   #       #       #           #',
+        '#########   #   #   #####   #   #####   #   #',
+        '#               #           #           #   #',
+        '#               #           #           #   #',
+        '#               #           #           #   #',
+        '#   #####   #########   #####   #########   #',
+        '#   #       #               #           #   #',
+        '#   #       #               #           #   #',
+        '#   #       #               #           #   #',
+        '#####   #####   #########   #################',
+        '#   #   #   #   #                           #',
+        '#   #   #   #   #                           #',
+        '#   #   #   #   #                           #',
+        '#   #####   #####   #########   #############',
+        '#       #   #   #   #                       #',
+        '#       #   #   #   #                       #',
+        '#       #   #   #   #                       #',
+        '#####   #   #   #####   #####   #   #####   #',
+        '#       #   #       #   #       #   #   #   #',
+        '#       #   #       #   #       #   #   #   #',
+        '#       #   #       #   #       #   #   #   #',
+        '#   #   #   #####   #####   #####   #   #   #',
+        '#   #       #           #   #   #   #   #KKK#',
+        '#   #       #           #   #   #   #   #KKK#',
+        '#   #       #           #   #   #   #   #KKK#',
+        '#   #####   #   #####   #####   #   #   #   #',
+        '#       #   #       #           #   #   #   #',
+        '#       #   #       #           #   #   #   #',
+        '#       #   #       #           #   #   #   #',
+        '#####   #   #####   #   #############   #   #',
+        '#       #           #            KKK        #',
+        '# S     #           #            KKK        #',
+        '#       #           #            KKK        #',
+        '#############################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with

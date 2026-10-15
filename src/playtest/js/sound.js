@@ -1683,6 +1683,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.1, length: 0.12, brightness: 900 },
     },
+    // Level 69, two balloons and two geysers: just sneaky, no happy. D minor
+    // at 100 bpm. Two slow rising swells (the two balloons going up, each
+    // stopping in the clouds on a held note) and two sudden jumps that shoot
+    // up an octave and drop straight back (the two geysers). The end sinks
+    // back down and stops on a hanging, unfinished E. A sawtooth lead,
+    // ticking, and a bass that pulses on the off-beats.
+    balloongeysers: {
+        tempo: 100,
+        bars: [[38, 'min'], [34, 'maj'], [38, 'min'], [33, 'maj'], [31, 'min'], [34, 'maj'], [33, 'maj'], [33, 'maj']],
+        bass: [null, 0, null, 0, null, 7, null, 0],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            62, null, 64, null, 65, null, 67, null,
+            69, null, null, null, null, null, 65, 62,
+            62, 74, 62, null, 62, 74, 62, null,
+            61, null, 64, null, 69, null, null, null,
+            55, null, 58, null, 62, null, 65, null,
+            67, null, null, null, null, null, 70, 67,
+            69, 81, 69, null, 67, 65, 64, 62,
+            null, 61, null, 64, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.08, length: 0.1, brightness: 1100 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
