@@ -14,6 +14,7 @@ const SFX_LEVEL = 0.8;
 const MUSIC_LEVEL = SFX_LEVEL / 2; // music about half as loud as the sound effects
 const MUSIC_LOOKAHEAD = 0.4; // seconds of music booked ahead
 const CHEER_LEVEL = 1.4; // the no-voice fallback shouts, inside the sound-effects level
+const VENT_VOLUME = 0.75; // steam vents (hiss and puff), 3/4 of their first loudness
 // How long the device voice gets to start before the game's own voice sound plays instead
 const SPEECH_START_TIMEOUT = 700;
 
@@ -2002,17 +2003,35 @@ export class Sound {
 
     // A steam vent (Volcano World): a soft hiss that swells for `length`
     // seconds (its warning), and a louder whoosh when it puffs. Both obey the
-    // Sound effects switch.
+    // Sound effects switch and play at VENT_VOLUME (Gray, 2026-10-15: 3/4 of
+    // what they were). Each returns a handle for hush(), or null.
     hiss(length = 1) {
-        if (!this.settings.sfx || !this.ctx) return;
+        if (!this.settings.sfx || !this.ctx) return null;
         this.onEvent('hiss');
-        this.steam(this.ctx.currentTime, length, 0.05, 0.35, 5200);
+        return this.steam(this.ctx.currentTime, length, 0.05 * VENT_VOLUME, 0.35 * VENT_VOLUME, 5200);
     }
 
-    whoosh(length = 0.5) {
-        if (!this.settings.sfx || !this.ctx) return;
+    // The vent's puff. (A balloon setting off also whooshes, at full volume.)
+    puff(length = 0.5) {
+        return this.whoosh(length, VENT_VOLUME);
+    }
+
+    whoosh(length = 0.5, volume = 1) {
+        if (!this.settings.sfx || !this.ctx) return null;
         this.onEvent('whoosh');
-        this.steam(this.ctx.currentTime, length, 0.6, 0.8, 2400);
+        return this.steam(this.ctx.currentTime, length, 0.6 * volume, 0.8 * volume, 2400);
+    }
+
+    // Quickly fade out a vent sound that's still playing (you got past it)
+    hush(handle) {
+        if (!handle || !this.ctx) return;
+        const t = this.ctx.currentTime;
+        if (t >= handle.end) return;
+        const g = handle.gain.gain;
+        g.cancelScheduledValues(t);
+        g.setValueAtTime(Math.max(0.0001, g.value), t);
+        g.exponentialRampToValueAtTime(0.0001, t + 0.08);
+        handle.end = t;
     }
 
     // A lava geyser erupting (Volcano World): a deep, rushing roar, quieter
@@ -2042,6 +2061,7 @@ export class Sound {
         g.gain.exponentialRampToValueAtTime(to, t + length * 0.8);
         g.gain.exponentialRampToValueAtTime(0.0001, t + length);
         this.noiseSource(t, length + 0.05).connect(f).connect(g).connect(this.sfxBus);
+        return { gain: g, end: t + length };
     }
 
     // The game's own "Ouch!": a voice-like "ow" and a soft "ch" at the end

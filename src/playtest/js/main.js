@@ -290,10 +290,20 @@ function step(deltaTime) {
     }
     // Steam vents (Volcano World): each runs on its own timer (quiet, then
     // wisps and a hiss, then a puff); a puff pushes anyone on it one square
-    // back toward the start
+    // back toward the start. A vent is only heard until you're past it (Gray,
+    // 2026-10-15): once you're entirely on its far side it goes silent (a
+    // sound already playing fades out), and it sounds again if you end up
+    // back on its start side.
+    for (const vent of maze.vents) {
+        vent.audible = maze.ventAudible(vent, player.position, player.radius);
+        if (!vent.audible && vent.sound) {
+            sound.hush(vent.sound);
+            vent.sound = null;
+        }
+    }
     for (const { vent, event } of maze.updateVents(deltaTime, player.position, player.radius)) {
-        if (event === 'warning') sound.hiss(VENT_HISS_TIME);
-        if (event === 'puff') sound.whoosh();
+        if (event === 'warning' && vent.audible) vent.sound = sound.hiss(VENT_HISS_TIME);
+        if (event === 'puff' && vent.audible) vent.sound = sound.puff();
         if (event === 'push' && !player.shove) {
             player.startShove(vent.target, VENT_PUSH_TIME);
             testHooks?.emit('steam');

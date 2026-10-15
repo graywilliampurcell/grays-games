@@ -1086,8 +1086,13 @@ export class Maze {
             };
             v.center = new THREE.Vector3((v.minX + v.maxX) / 2, 0, (v.minZ + v.maxZ) / 2);
             v.target = ventTargets.reduce((a, b) => (b.distanceTo(v.center) < a.distanceTo(v.center) ? b : a)).clone();
+            v.blocks = new Set(blocks.map((b) => `${b.x},${b.z}`));
             this.vents.push(v);
         }
+        // Each vent splits the maze in two: its start side (every block you can
+        // reach from the start without stepping on the vent) and its exit side
+        // (everything else). A vent goes silent once you're past it.
+        for (const v of this.vents) v.startSide = this.reachableAvoiding(v.blocks);
         // Each geyser keeps its own timer; with two (Level 64) the second starts
         // GEYSER_OFFSET seconds out of step, so they don't go off together
         this.geysers = groupBlocks(geyserBlocks).map((blocks, index) => {
@@ -2182,6 +2187,43 @@ export class Maze {
             if (v.phase === 'puff' && point && this.onVent(v, point, radius)) events.push({ vent: v, event: 'push' });
         }
         return events;
+    }
+
+    // Every floor block reachable from the start without entering `avoid`
+    // (a set of "x,z" keys), as a set of "x,z" keys
+    reachableAvoiding(avoid) {
+        const seen = new Set();
+        const sx = Math.floor(this.startPosition.x);
+        const sz = Math.floor(this.startPosition.z);
+        const todo = [[sx, sz]];
+        seen.add(`${sx},${sz}`);
+        while (todo.length) {
+            const [x, z] = todo.pop();
+            for (const [nx, nz] of [[x + 1, z], [x - 1, z], [x, z + 1], [x, z - 1]]) {
+                const key = `${nx},${nz}`;
+                if (nx < 0 || nz < 0 || nx >= this.width || nz >= this.depth) continue;
+                if (seen.has(key) || avoid.has(key) || this.grid[nx][nz] !== 0) continue;
+                seen.add(key);
+                todo.push([nx, nz]);
+            }
+        }
+        return seen;
+    }
+
+    // Can you hear this vent? Yes while any part of the player (a circle
+    // `radius` round `point`) is on its start side or on the vent itself; no
+    // once the player is entirely past it, on its exit side.
+    ventAudible(v, point, radius) {
+        for (let x = Math.floor(point.x - radius); x <= Math.floor(point.x + radius); x++) {
+            for (let z = Math.floor(point.z - radius); z <= Math.floor(point.z + radius); z++) {
+                const key = `${x},${z}`;
+                if (!v.startSide.has(key) && !v.blocks.has(key)) continue;
+                const dx = Math.max(x - point.x, 0, point.x - (x + 1));
+                const dz = Math.max(z - point.z, 0, point.z - (z + 1));
+                if (Math.hypot(dx, dz) < radius) return true;
+            }
+        }
+        return false;
     }
 
     // Is any part of a circle `radius` round `point` on this vent?
