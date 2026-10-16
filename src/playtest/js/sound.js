@@ -2419,6 +2419,33 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.2, length: 0.22, brightness: 2000 },
     },
+    // Level 97, Everything World: Volcano: just sneaky in Volcano World's
+    // style (B-flat minor, 112 bpm), a little tour of its four dangers. Three
+    // short same-note puffs and a hiss up (the steam vent), a sudden shoot
+    // up two octaves and straight back down (the lava geyser), a slow
+    // step-by-step climb (the balloon going up), then a tight shuffle
+    // between two notes (edging past the hot coal). The end stops on a
+    // hanging, unfinished C. A dark square lead with ticking, and a bass on
+    // beats one and two.
+    volcanotour: {
+        tempo: 112,
+        bars: [[34, 'min'], [34, 'min'], [29, 'maj'], [29, 'maj'], [34, 'min'], [30, 'maj'], [32, 'maj'], [29, 'maj']],
+        bass: [0, null, 7, null, 0, null, null, null],
+        bassLength: 0.28,
+        stabs: [],
+        ticks: true,
+        melody: [
+            70, null, 70, null, 70, 77, null, null,
+            75, null, 73, null, 72, null, null, null,
+            65, 77, null, 89, null, 77, 65, null,
+            72, null, 73, null, 72, null, 70, null,
+            70, null, 72, null, 73, null, 75, null,
+            77, null, 78, null, 80, null, 82, null,
+            82, 80, 82, 80, 82, null, 77, null,
+            null, null, 72, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.12, brightness: 1100 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

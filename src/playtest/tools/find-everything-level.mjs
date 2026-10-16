@@ -9,6 +9,7 @@
 //   SEEDS=3000 node tools/find-everything-level.mjs level94 36 1     # Moon: two 3-cell giant-crater gaps (hover discs), a path crater, the big crater
 //   SEEDS=1000 node tools/find-everything-level.mjs level95 36 1     # Underwater: a water current, a 3-cell bubble-ride crack, a path urchin, the big urchin
 //   SEEDS=1000 node tools/find-everything-level.mjs level96 34 1     # Candy: a 4-cell chocolate river, two caramel spots, a path cane, the sneaky cane
+//   SEEDS=1000 node tools/find-everything-level.mjs level97 18 1     # Volcano: a 4-cell balloon-ride lava gap, a geyser, a steam vent, a path coal
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -22,7 +23,10 @@
 // 'W' a water current over a path cell (rule.current) and 'V' the middle of
 // its side dead end's first cell, where the shove ends, 'C' a caramel spot
 // filling a path cell (rule.caramelPath: how many). In Candy World's look
-// a 4-cell 'O' gap is a chocolate river with a marshmallow on each bank.
+// a 4-cell 'O' gap is a chocolate river with a marshmallow on each bank,
+// and in Volcano World's look a lava gap crossed by balloon. 'H' a steam
+// vent filling a path cell, with 'Q' in the middle of the cell before it
+// (where a puff pushes you); 'K' a lava geyser filling a path cell.
 //
 // Rules for every level: 14 x 14, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -49,6 +53,10 @@ const RULES = {
     // Level 52's), two caramel spots on the path, a candy cane on the path
     // ('Z', since there's a sneaky cane 'X'), the sneaky candy cane
     level96: { name: 'Level 96', depth: 2, deadEnds: 34, sneaky: true, pathCane: true, platforms: 1, platformCells: 4, caramelPath: 2, prunePairs: true, placeTries: 20 },
+    // Volcano: one balloon ride over a 4-cell lava gap ('O', Level 62's), one
+    // lava geyser ('K'), one steam vent ('H' + 'Q'), a hot coal on the path;
+    // every dead end 3 deep from here on
+    level97: { name: 'Level 97', depth: 3, deadEnds: 18, pathCane: true, platforms: 1, platformCells: 4, vents: 1, geysers: 1, prune: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -492,6 +500,32 @@ function place(path, hung, random) {
         out.current = options[Math.floor(random() * options.length)];
         spans.push([out.current.index, out.current.index]);
     }
+    // Steam vents (Level 61's): a plain cell k with the path straight from
+    // k - 2 to k + 1; a puff pushes you back into cell k - 1, so that cell
+    // must be free of any other obstacle too
+    out.vents = [];
+    for (let v = 0; v < (rule.vents ?? 0); v++) {
+        const options = [];
+        for (let k = 3; k < path.length - 2; k++) {
+            if (plain(k) && plain(k - 1) && step(path[k - 2], path[k - 1]) === step(path[k - 1], path[k]) && fits([k - 1, k])) options.push(k);
+        }
+        if (options.length === 0) return null;
+        const k = options[Math.floor(random() * options.length)];
+        out.vents.push(k);
+        spans.push([k - 1, k]);
+    }
+    // Lava geysers (Level 63's): a plain cell in a straight stretch
+    out.geysers = [];
+    for (let v = 0; v < (rule.geysers ?? 0); v++) {
+        const options = [];
+        for (let k = 3; k < path.length - 2; k++) {
+            if (plain(k) && step(path[k - 2], path[k - 1]) === step(path[k - 1], path[k]) && fits([k, k])) options.push(k);
+        }
+        if (options.length === 0) return null;
+        const k = options[Math.floor(random() * options.length)];
+        out.geysers.push(k);
+        spans.push([k, k]);
+    }
     // Caramel spots (Level 52's): plain path cells
     for (let n = 0; n < (rule.caramelPath ?? 0); n++) {
         const options = [];
@@ -567,6 +601,11 @@ if (placed.current) {
 const platformOrder = [...placed.platforms].sort((a, b) => a - b);
 for (const g of placed.platforms) for (const b of gapBlocks([path[g], path[g + PLATFORM_CELLS - 1]])) put(b, (rule.fast ?? []).includes(platformOrder.indexOf(g)) ? 'F' : 'O');
 for (const c of placed.caramel) for (const b of gapBlocks([path[c]])) put(b, 'C');
+for (const k of placed.vents) {
+    for (const b of gapBlocks([path[k]])) put(b, 'H');
+    put([4 * path[k - 1].i + 2, 4 * path[k - 1].j + 2], 'Q');
+}
+for (const k of placed.geysers) for (const b of gapBlocks([path[k]])) put(b, 'K');
 for (const k of placed.slippery) {
     const cell = path[k];
     for (const d of [1, 2, 3]) put(cell.i !== path[k + 1].i ? [4 * cell.i + 2, 4 * cell.j + d] : [4 * cell.i + d, 4 * cell.j + 2], 'I');
@@ -606,6 +645,8 @@ placed.slippery.forEach((k) => console.log(`slippery spot: path cell ${k + 1} ($
 placed.rivers.forEach((g) => console.log(`gap: path cells ${g + 1}-${g + GAP_CELLS}, crossed heading ${dir(g)}`));
 placed.belts.forEach(({ h, e, b }) => console.log(`belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + BELT_CELLS}, fling to cell ${key(path[h])}`));
 placed.armBelts.forEach(({ h, e, b }) => console.log(`arm belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + ARM_BELT_CELLS}, push to cell ${key(path[b - 1])}`));
+placed.vents.forEach((k) => console.log(`steam vent: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}, pushes back into path cell ${k}`));
+placed.geysers.forEach((k) => console.log(`lava geyser: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}`));
 if (placed.caramel.length) console.log(`caramel on the path: cells ${[...placed.caramel].sort((a, b) => a - b).map((c) => `${c + 1} (${key(path[c])}, heading ${dir(c)})`).join(', ')}`);
 if (placed.pathCane !== undefined) console.log(`path spike: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
 if (placed.current) console.log(`water current: path cell ${placed.current.index + 1} (${key(path[placed.current.index])}), heading ${dir(placed.current.index)}, shoves into ${key(placed.current.into)}`);
