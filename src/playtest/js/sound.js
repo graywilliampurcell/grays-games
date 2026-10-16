@@ -2392,6 +2392,33 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.3, length: 0.14, brightness: 2600 },
     },
+    // Level 96, Everything World: Candy: just sneaky in Candy World's style
+    // (E minor, 96 bpm), with a little tour bounce. Two slow, sticky notes
+    // that ooze down a half step (E, D-sharp) like feet stuck in caramel,
+    // twice (two caramel spots), then a quick "boing" leap up an octave and
+    // a tumble back down like bouncing over the chocolate river on a
+    // marshmallow, a sneaky creep up to a sour B-flat like peeking round a
+    // corner at a hidden candy cane, and an unresolved end on F-sharp. A
+    // soft triangle lead with gooey long notes, ticks and a plodding bass.
+    candytour: {
+        tempo: 96,
+        bars: [[40, 'min'], [40, 'min'], [36, 'maj'], [35, 'maj'], [40, 'min'], [45, 'min'], [36, 'maj'], [35, 'maj']],
+        bass: [0, null, null, null, 0, null, 7, null],
+        bassLength: 0.22,
+        stabs: [],
+        ticks: true,
+        melody: [
+            64, null, null, 63, null, null, null, null,
+            64, null, null, 63, null, null, null, null,
+            59, 71, null, 83, null, 78, 74, 71,
+            63, null, 66, null, 71, null, null, null,
+            64, null, 66, null, 67, null, 69, null,
+            70, null, null, null, 69, null, 67, null,
+            72, null, 76, 84, null, 79, 76, 72,
+            71, null, null, null, 66, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.2, length: 0.22, brightness: 2000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

@@ -8,6 +8,7 @@
 //   SEEDS=3000 node tools/find-everything-level.mjs level93 34 1201  # Jungle: two river gaps (one fast leaf), a path bush, the sneaky bush (Level 93 = seed 1215)
 //   SEEDS=3000 node tools/find-everything-level.mjs level94 36 1     # Moon: two 3-cell giant-crater gaps (hover discs), a path crater, the big crater
 //   SEEDS=1000 node tools/find-everything-level.mjs level95 36 1     # Underwater: a water current, a 3-cell bubble-ride crack, a path urchin, the big urchin
+//   SEEDS=1000 node tools/find-everything-level.mjs level96 34 1     # Candy: a 4-cell chocolate river, two caramel spots, a path cane, the sneaky cane
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -19,7 +20,9 @@
 // leaf; rule.platformCells sets its length, 3 for the Moon's hover discs), 'F' the same with a fast leaf (rule.fast: which gaps along the
 // path), 'Z' the spike on the path when there's also a sneaky one ('X'),
 // 'W' a water current over a path cell (rule.current) and 'V' the middle of
-// its side dead end's first cell, where the shove ends.
+// its side dead end's first cell, where the shove ends, 'C' a caramel spot
+// filling a path cell (rule.caramelPath: how many). In Candy World's look
+// a 4-cell 'O' gap is a chocolate river with a marshmallow on each bank.
 //
 // Rules for every level: 14 x 14, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -42,6 +45,10 @@ const RULES = {
     // 2-cell dead end off to the side, not the big urchin's), one bubble ride
     // over a 3-cell crack ('O'), an urchin on the path, the big urchin
     level95: { name: 'Level 95', depth: 2, deadEnds: 36, current: true, pathCane: true, bigCane: true, platforms: 1, platformCells: 3, prunePairs: true, placeTries: 20 },
+    // Candy: one chocolate river (a 4-cell 'O' gap with its two marshmallows,
+    // Level 52's), two caramel spots on the path, a candy cane on the path
+    // ('Z', since there's a sneaky cane 'X'), the sneaky candy cane
+    level96: { name: 'Level 96', depth: 2, deadEnds: 34, sneaky: true, pathCane: true, platforms: 1, platformCells: 4, caramelPath: 2, prunePairs: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -360,7 +367,7 @@ function place(path, hung, random) {
     const spans = [];
     if (hung.sneaky) spans.push([hung.sneaky.index, hung.sneaky.index]);
     const fits = (span) => spans.every((s) => apart(s, span));
-    const out = { rivers: [], belts: [], armBelts: [], platforms: [], slippery: [] };
+    const out = { rivers: [], belts: [], armBelts: [], platforms: [], slippery: [], caramel: [] };
     // Platform gaps (Level 17's): PLATFORM_CELLS plain path cells from g,
     // straight from g - 1 to g + PLATFORM_CELLS, in the middle part of the path
     const last = PLATFORM_CELLS - 1;
@@ -485,6 +492,15 @@ function place(path, hung, random) {
         out.current = options[Math.floor(random() * options.length)];
         spans.push([out.current.index, out.current.index]);
     }
+    // Caramel spots (Level 52's): plain path cells
+    for (let n = 0; n < (rule.caramelPath ?? 0); n++) {
+        const options = [];
+        for (let c = 2; c < path.length - 2; c++) if (plain(c) && fits([c, c])) options.push(c);
+        if (options.length === 0) return null;
+        const c = options[Math.floor(random() * options.length)];
+        out.caramel.push(c);
+        spans.push([c, c]);
+    }
     return out;
 }
 
@@ -550,6 +566,7 @@ if (placed.current) {
 }
 const platformOrder = [...placed.platforms].sort((a, b) => a - b);
 for (const g of placed.platforms) for (const b of gapBlocks([path[g], path[g + PLATFORM_CELLS - 1]])) put(b, (rule.fast ?? []).includes(platformOrder.indexOf(g)) ? 'F' : 'O');
+for (const c of placed.caramel) for (const b of gapBlocks([path[c]])) put(b, 'C');
 for (const k of placed.slippery) {
     const cell = path[k];
     for (const d of [1, 2, 3]) put(cell.i !== path[k + 1].i ? [4 * cell.i + 2, 4 * cell.j + d] : [4 * cell.i + d, 4 * cell.j + 2], 'I');
@@ -589,6 +606,7 @@ placed.slippery.forEach((k) => console.log(`slippery spot: path cell ${k + 1} ($
 placed.rivers.forEach((g) => console.log(`gap: path cells ${g + 1}-${g + GAP_CELLS}, crossed heading ${dir(g)}`));
 placed.belts.forEach(({ h, e, b }) => console.log(`belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + BELT_CELLS}, fling to cell ${key(path[h])}`));
 placed.armBelts.forEach(({ h, e, b }) => console.log(`arm belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + ARM_BELT_CELLS}, push to cell ${key(path[b - 1])}`));
+if (placed.caramel.length) console.log(`caramel on the path: cells ${[...placed.caramel].sort((a, b) => a - b).map((c) => `${c + 1} (${key(path[c])}, heading ${dir(c)})`).join(', ')}`);
 if (placed.pathCane !== undefined) console.log(`path spike: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
 if (placed.current) console.log(`water current: path cell ${placed.current.index + 1} (${key(path[placed.current.index])}), heading ${dir(placed.current.index)}, shoves into ${key(placed.current.into)}`);
 if (placed.bigCane) console.log(`big spike: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);
