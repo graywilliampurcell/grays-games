@@ -57,7 +57,13 @@ const VENT_HISS_TIME = 1;
 // A snowball (Ice World) pushes you one square back, taking this long; his
 // throw is heard this far away (quieter with distance)
 const SNOWBALL_PUSH_TIME = 0.45;
-const SNOWMAN_HEAR_DISTANCE = 30;
+// Hearing a snowman (Gray, 2026-10-16; starting values Gray will judge):
+// silent more than SNOWMAN_HEAR_CELLS corridor cells from his hallway,
+// louder as you come closer, full in his hallway. His loudness changes by at
+// most 1 / SNOWMAN_FADE_TIME a second, so with two snowmen, once you're past
+// the first one he goes quiet within SNOWMAN_FADE_TIME seconds.
+const SNOWMAN_HEAR_CELLS = 6;
+const SNOWMAN_FADE_TIME = 1.0;
 // The balloon lets you out (Volcano World): you step out onto the floor, taking this long
 const BALLOON_STEP_OUT_TIME = 0.4;
 const lastOutsideCurrent = new THREE.Vector3();
@@ -206,6 +212,8 @@ function init() {
 // (-1 for a test layout). Doesn't move the player.
 function loadLevel(level, index) {
     levelIndex = index;
+    // The old level's snowmen stop being heard
+    for (const s of maze?.snowmen ?? []) s.voice?.gain.disconnect();
     maze?.dispose();
     const theme = level.theme || LEVELS[0].theme;
     maze = new Maze(scene, level.layout, theme, {
@@ -331,9 +339,30 @@ function step(deltaTime) {
     // Snowmen (Ice World, Level 72 on): each throws a snowball down his
     // hallway on a timer; one that touches you pushes you one square back
     // toward the start (it never sends you to the start)
-    for (const { snowman, event, target } of maze.updateSnowmen(deltaTime, player.position, player.radius)) {
+    // You hear each snowball rolling down his hallway, from a few squares
+    // away, before you can see him. With one snowman that's all: louder as you
+    // come closer, quieter as you walk away. With two, once you're past one
+    // (entirely on his far side, like a steam vent) he fades out quickly, so
+    // you hear the other one sooner.
+    for (const snowman of maze.snowmen) {
+        const { cells, past } = maze.snowmanHearing(snowman, player.position, player.radius);
+        const want = past && maze.snowmen.length > 1 ? 0 : Math.max(0, Math.min(1, 1 - cells / SNOWMAN_HEAR_CELLS));
+        const most = deltaTime / SNOWMAN_FADE_TIME;
+        const now = snowman.hearing ?? want;
+        snowman.hearing = now + Math.max(-most, Math.min(most, want - now));
+        snowman.voice ??= sound.snowmanVoice();
+        sound.setVoice(snowman.voice, snowman.hearing);
+        // A snowball that's gone (it hit you, or the level reset) stops rolling
+        snowman.rolls = (snowman.rolls ?? []).filter((r) => {
+            if (snowman.balls.includes(r.ball) && sound.ctx && sound.ctx.currentTime < r.sound.end) return true;
+            sound.hush(r.sound);
+            return false;
+        });
+    }
+    for (const { snowman, event, target, ball } of maze.updateSnowmen(deltaTime, player.position, player.radius)) {
         if (event === 'throw') {
-            sound.throwSnowball(Math.max(0, 1 - horizontalDistance(player.position, snowman.center) / SNOWMAN_HEAR_DISTANCE));
+            const rolling = sound.roll(snowman.voice, snowman.flight);
+            if (rolling) snowman.rolls.push({ ball, sound: rolling });
             testHooks?.emit('throw');
         }
         if (event === 'hit' && !player.shove && !escaped) {
@@ -373,9 +402,9 @@ function step(deltaTime) {
     // The hot-air balloon (Volcano World): its burner roars as it sets off;
     // in the air you're carried up with it; down at the far edge you step out.
     // The sled (Ice World) holds you the same way while it zooms across.
+    // The sled is silent (Gray, 2026-10-16), so its "shh" can't be mistaken
+    // for anything else.
     if (platformEvent === 'depart' && maze.theme.volcano) sound.whoosh(0.8);
-    // The sled (Ice World): a quick whoosh as it zooms off along the zip line
-    if (platformEvent === 'depart' && maze.theme.ice) sound.whoosh(0.6, 0.7);
     const lift = maze.rideLift();
     player.carried = lift !== null;
     if (lift !== null) player.camera.position.set(player.position.x, player.position.y + 1.6 + lift, player.position.z);

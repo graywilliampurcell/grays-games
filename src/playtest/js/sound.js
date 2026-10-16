@@ -14,6 +14,7 @@ const SFX_LEVEL = 0.8;
 const MUSIC_LEVEL = SFX_LEVEL / 2; // music about half as loud as the sound effects
 const MUSIC_LOOKAHEAD = 0.4; // seconds of music booked ahead
 const CHEER_LEVEL = 1.4; // the no-voice fallback shouts, inside the sound-effects level
+const ROLL_LEVEL = 1.5; // a snowball rolling, close up: about as loud as a steam vent's hiss
 const VENT_VOLUME = 0.75; // steam vents (hiss and puff), 3/4 of their first loudness
 // Ice World's wintery jingles (sleigh bells and twinkles) play in the music,
 // a little quieter than its sneaky melody (Gray, 2026-10-15)
@@ -2347,12 +2348,73 @@ export class Sound {
         this.noiseSource(t, length + 0.05).connect(f).connect(g).connect(this.sfxBus);
     }
 
-    // A snowman throwing (Ice World): a short soft swish, quieter the further
-    // away he is (volume 0-1). Obeys the Sound effects switch.
-    throwSnowball(volume = 1) {
-        if (!this.settings.sfx || !this.ctx || volume <= 0.01) return;
-        this.onEvent('throw');
-        this.steam(this.ctx.currentTime, 0.3, 0.25 * volume, 0.35 * volume, 1800);
+    // A snowman's own volume knob (Ice World): every rolling sound of his
+    // snowballs goes through it, so main.js can turn him up as you come
+    // closer and down as you walk away while a snowball is still rolling.
+    // Returns null until sound has started.
+    snowmanVoice() {
+        if (!this.ctx) return null;
+        const gain = this.ctx.createGain();
+        gain.gain.value = 0;
+        gain.connect(this.sfxBus);
+        return { gain };
+    }
+
+    // Set a snowman's loudness (0-1); a tiny glide keeps it from clicking
+    setVoice(voice, volume) {
+        if (!voice || !this.ctx) return;
+        voice.gain.gain.setTargetAtTime(Math.max(0, volume), this.ctx.currentTime, 0.03);
+    }
+
+    // A snowball rolling down the hallway (Ice World, Gray 2026-10-16): balls
+    // tumbling down a hallway or a slope. A low, bumpy rumble (no hiss) with
+    // a soft thud on every tumble, for `length` seconds, through the
+    // snowman's voice. Obeys the Sound effects switch. Returns a handle for
+    // hush(), or null.
+    roll(voice, length) {
+        if (!this.settings.sfx || !this.ctx || !voice) return null;
+        this.onEvent('roll');
+        const t = this.ctx.currentTime;
+        const end = t + length;
+        const out = this.ctx.createGain();
+        out.gain.setValueAtTime(0.0001, t);
+        out.gain.exponentialRampToValueAtTime(ROLL_LEVEL, t + 0.06);
+        out.gain.setValueAtTime(ROLL_LEVEL, Math.max(t + 0.06, end - 0.08));
+        out.gain.exponentialRampToValueAtTime(0.0001, end);
+        out.connect(voice.gain);
+        // The rumble: noise kept low (nothing above about 400 Hz), wobbling
+        const low = this.ctx.createBiquadFilter();
+        low.type = 'lowpass';
+        low.frequency.value = 380;
+        low.Q.value = 3;
+        const rumble = this.ctx.createGain();
+        rumble.gain.value = 0.5;
+        const wobble = this.ctx.createOscillator();
+        wobble.frequency.value = 9;
+        const depth = this.ctx.createGain();
+        depth.gain.value = 0.3;
+        wobble.connect(depth).connect(rumble.gain);
+        wobble.start(t);
+        wobble.stop(end + 0.05);
+        this.noiseSource(t, length + 0.05).connect(low).connect(rumble).connect(out);
+        // The tumbles: little low thuds at uneven steps, like a ball bouncing
+        // along as it rolls
+        for (let at = t + 0.02; at < end - 0.05; at += 0.07 + Math.random() * 0.06) {
+            const thud = this.ctx.createOscillator();
+            thud.type = 'triangle';
+            const pitch = 70 + Math.random() * 50;
+            thud.frequency.setValueAtTime(pitch * 1.6, at);
+            thud.frequency.exponentialRampToValueAtTime(pitch, at + 0.05);
+            const g = this.ctx.createGain();
+            const peak = 0.35 + Math.random() * 0.3;
+            g.gain.setValueAtTime(0.0001, at);
+            g.gain.exponentialRampToValueAtTime(peak, at + 0.008);
+            g.gain.exponentialRampToValueAtTime(0.0001, at + 0.09);
+            thud.connect(g).connect(out);
+            thud.start(at);
+            thud.stop(at + 0.1);
+        }
+        return { gain: out, end };
     }
 
     // A snowball hitting you: a soft, low "pff" of snow

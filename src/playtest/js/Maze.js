@@ -1402,6 +1402,14 @@ export class Maze {
             return t;
         });
         this.snowmen = groupBlocks([...hallBlocks, ...snowmanBlocks]).map((blocks, index) => this.setUpSnowman(blocks, snowmanBlocks, hallTargets, index));
+        // How you hear each snowman (Gray, 2026-10-16): how far every floor
+        // block is from his hallway along the corridors, and, like a steam
+        // vent, his start side (every block reachable from the start without
+        // entering the last cell of his hallway, where he stands)
+        for (const sm of this.snowmen) {
+            sm.steps = this.stepsFrom(sm.blocks);
+            sm.startSide = this.reachableAvoiding(sm.lastCell);
+        }
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
         if (doorBlocks.length) {
@@ -1456,6 +1464,14 @@ export class Maze {
         s.front = s.length - 1;
         s.startU = s.front - SNOWBALL_REACH;
         s.endU = SNOWBALL_REACH;
+        // How long a snowball rolls if nothing stops it
+        s.flight = (s.startU - s.endU) / SNOWBALL_SPEED;
+        // His hallway's blocks, and those of its last cell (his cell)
+        s.blocks = new Set(blocks.map((b) => `${b.x},${b.z}`));
+        const lastCell = Math.floor((s.length - 1) / 4);
+        s.lastCell = new Set(blocks
+            .filter((b) => Math.floor(this.hallCoords(s, { x: b.x + 0.5, z: b.z + 0.5 }).u / 4) === lastCell)
+            .map((b) => `${b.x},${b.z}`));
         return s;
     }
 
@@ -1493,8 +1509,9 @@ export class Maze {
             s.timer -= dt;
             if (s.timer <= 0) {
                 s.timer += SNOWMAN_THROW_TIME;
-                s.balls.push({ u: s.startU, spin: 0 });
-                events.push({ snowman: s, event: 'throw' });
+                const ball = { u: s.startU, spin: 0 };
+                s.balls.push(ball);
+                events.push({ snowman: s, event: 'throw', ball });
             }
             const here = point ? this.hallCoords(s, point) : null;
             for (const ball of s.balls) {
@@ -1506,7 +1523,7 @@ export class Maze {
                     const dv = Math.max(-here.v, 0, here.v - s.width);
                     if (Math.hypot(du, dv) < radius) {
                         ball.gone = true;
-                        events.push({ snowman: s, event: 'hit', target: this.snowballPush(s, point) });
+                        events.push({ snowman: s, event: 'hit', ball, target: this.snowballPush(s, point) });
                     }
                 }
             }
@@ -2842,6 +2859,50 @@ export class Maze {
             }
         }
         return seen;
+    }
+
+    // Floor steps (in blocks, along the corridors) from the nearest of the
+    // `from` blocks (a set of "x,z" keys) to every floor block: a Map
+    stepsFrom(from) {
+        const steps = new Map();
+        let todo = [];
+        for (const key of from) {
+            steps.set(key, 0);
+            todo.push(key.split(',').map(Number));
+        }
+        for (let n = 1; todo.length; n++) {
+            const next = [];
+            for (const [x, z] of todo) {
+                for (const [nx, nz] of [[x + 1, z], [x - 1, z], [x, z + 1], [x, z - 1]]) {
+                    const key = `${nx},${nz}`;
+                    if (nx < 0 || nz < 0 || nx >= this.width || nz >= this.depth) continue;
+                    if (steps.has(key) || this.grid[nx][nz] !== 0) continue;
+                    steps.set(key, n);
+                    next.push([nx, nz]);
+                }
+            }
+            todo = next;
+        }
+        return steps;
+    }
+
+    // How a snowman sounds from where the player (a circle `radius` round
+    // `point`) is: `cells`, how many corridor cells away from his hallway
+    // they are (0 inside it), and `past`, true once they're entirely on his
+    // exit side (past him, like a steam vent)
+    snowmanHearing(s, point, radius) {
+        const steps = s.steps.get(`${Math.floor(point.x)},${Math.floor(point.z)}`);
+        let past = true;
+        for (let x = Math.floor(point.x - radius); x <= Math.floor(point.x + radius) && past; x++) {
+            for (let z = Math.floor(point.z - radius); z <= Math.floor(point.z + radius); z++) {
+                const key = `${x},${z}`;
+                if (!s.startSide.has(key) && !s.lastCell.has(key)) continue;
+                const dx = Math.max(x - point.x, 0, point.x - (x + 1));
+                const dz = Math.max(z - point.z, 0, point.z - (z + 1));
+                if (Math.hypot(dx, dz) < radius) { past = false; break; }
+            }
+        }
+        return { cells: steps === undefined ? Infinity : steps / 4, past };
     }
 
     // Can you hear this vent? Yes while any part of the player (a circle
