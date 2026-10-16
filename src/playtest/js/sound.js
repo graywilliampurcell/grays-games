@@ -2316,6 +2316,31 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.32, length: 0.22, brightness: 6000 },
     },
+    // Level 93, Everything World: Jungle: a happy, bouncy jungle tune (D
+    // major, 116 bpm) in Jungle World's style, whose hook hops leaf to leaf
+    // (down-up-up leaps) then tiptoes down by half steps past a bush, with
+    // one sneaky minor bar pair, on a woody plucked lead over a skipping
+    // bass with soft ticks like bugs in the leaves.
+    jungletour: {
+        tempo: 116,
+        bars: [[38, 'maj'], [43, 'maj'], [45, 'maj'], [38, 'maj'], [47, 'min'], [40, 'min'], [43, 'maj'], [45, 'maj']],
+        bass: [0, null, 12, 7, null, 7, 0, 'lead-in'],
+        bassLength: 0.12,
+        stabs: [3, 7],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            74, null, 69, 74, 78, null, 81, null,
+            79, null, 78, 77, 76, null, 71, null,
+            73, null, 69, 73, 76, null, 81, null,
+            78, null, 76, null, 74, null, null, null,
+            71, 74, 78, null, 76, 74, 71, null,
+            72, null, 71, 70, 69, null, 64, null,
+            67, 71, 74, null, 79, null, 78, 76,
+            81, null, 73, null, 74, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.3, length: 0.09, brightness: 5200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
