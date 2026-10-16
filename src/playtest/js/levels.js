@@ -3856,6 +3856,71 @@ export const LEVELS = [
         '#################################################',
         ],
     },
+    {
+        name: 'Level 77',
+        // Longer wrong ways. `SEEDS=3000 node tools/find-ice-level.mjs
+        // level77 20 20001`, seed 20016. 12 x 12 corridors. Correct path 84
+        // cells (start west in row 5, door east in row 3); 20 dead ends,
+        // every one 3 cells deep. O: a 3-cell icy crack with its zip-line
+        // sled, path cells 40-42 (bottom row, heading east). Y: the big
+        // icicle (icicle arch) across the opening of a straight 3-cell dead
+        // end going west off path cell 45, in plain view from the path. T:
+        // thin ice, path cell 54 (bottom row, heading east). No snowman, no
+        // path or sneaky icicle. Music: just sneaky, with wintery jingles.
+        theme: ICE,
+        music: 'longwrongice',
+        layout: [
+        '#################################################',
+        '#   #           #   #   #                       #',
+        '#   #           #   #   #                       #',
+        '#   #           #   #   #                       #',
+        '#   #   #########   #   #   #   #############   #',
+        '#   #       #       #   #   #               #   #',
+        '#   #       #       #   #   #               #   #',
+        '#   #       #       #   #   #               #   #',
+        '#   #   #   #   #####   #   #   #########   #   #',
+        '#       #               #   #   #       #   #   #',
+        '#       #               #   #   #       #   #   #',
+        '#       #               #   #   #       #   #   #',
+        '#####   #########   #########   #   #   #   #   #',
+        '#       #       #       #       #   #       #   #',
+        '#       #       #       #       #   #       #   D',
+        '#       #       #       #       #   #       #   #',
+        '#   #####   #   #   #   #############   #########',
+        '#       #   #       #       #       #           #',
+        '#       #   #       #       #       #           #',
+        '#       #   #       #       #       #           #',
+        '#####   #   #####   #########   #########   #   #',
+        '#       #       #           #               #   #',
+        '# S     #       #           #               #   #',
+        '#       #       #           #               #   #',
+        '#############   #################   #####   #   #',
+        '#           #       #       #   #       #   #   #',
+        '#           #       #       #   #       #   #   #',
+        '#           #       #       #   #       #   #   #',
+        '#   #############   #   #####   #####   #   #####',
+        '#       #       #   #   #       #   #   #       #',
+        '#       #       #   #   #       #   #   #       #',
+        '#       #       #   #   #       #   #   #       #',
+        '#   #   #   #   #   #   #   #####   #   #########',
+        '#   #       #   #   #       #       #           #',
+        '#   #       #   #   #       #       #           #',
+        '#   #       #   #   #       #       #           #',
+        '#   #####   #####   #   #   #   #########   #   #',
+        '#       #           #   #       #           #   #',
+        '#       #           #   #       #           #   #',
+        '#       #           #   #       #           #   #',
+        '#####   #############   #####   #############   #',
+        '#       #                   #   #           #   #',
+        '#       #          Y        #   #           #   #',
+        '#       #                   #   #           #   #',
+        '#   #####################   #   #   #########   #',
+        '#            OOOOOOOOOOO    #        TTT        #',
+        '#            OOOOOOOOOOO    #        TTT        #',
+        '#            OOOOOOOOOOO    #        TTT        #',
+        '#################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with

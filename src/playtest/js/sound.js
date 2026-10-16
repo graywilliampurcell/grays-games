@@ -1897,6 +1897,31 @@ const TUNES = {
         lead: { wave: 'sawtooth', level: 0.08, length: 0.13, brightness: 1100 },
         jingles: { bells: [1, 5], twinkles: { 12: 91, 28: 96, 44: 98, 60: 91 } },
     },
+    // Level 77, longer wrong ways: just sneaky, with wintery jingles. G#
+    // minor at 102 bpm. Each phrase tiptoes a long way up the scale, step by
+    // step, like walking deep into a wrong way, then stops, and comes back
+    // down the way it came. A soft triangle lead; sleigh bells on beats 0
+    // and 6 and a twinkle at the end of each long climb (jingles).
+    longwrongice: {
+        tempo: 102,
+        bars: [[32, 'min'], [32, 'min'], [40, 'maj'], [42, 'maj'], [32, 'min'], [37, 'min'], [40, 'maj'], [39, 'maj']],
+        bass: [0, null, 0, null, null, null, 0, null],
+        bassLength: 0.16,
+        stabs: [],
+        ticks: false,
+        melody: [
+            68, null, 70, 71, 73, null, 75, null,
+            76, null, 75, null, 73, null, null, null,
+            71, null, 73, 75, 76, null, 78, null,
+            80, null, 78, null, 75, null, null, null,
+            68, 70, 71, 73, 75, 76, 78, null,
+            80, null, null, null, 73, null, 76, null,
+            76, null, 75, null, 71, null, 68, null,
+            67, null, 68, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.14, length: 0.15, brightness: 1600 },
+        jingles: { bells: [0, 6], twinkles: { 6: 92, 22: 97, 38: 99, 54: 92 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
