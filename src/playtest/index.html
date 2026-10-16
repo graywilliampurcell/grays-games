@@ -335,6 +335,36 @@
             background-repeat: no-repeat;
         }
 
+        /* Everything World: a patchwork of little pieces of all nine worlds
+           (cotton candy, space, jungle, moon, sea, candy, volcano, ice,
+           robot factory), each with a tiny bit of its own look */
+        .item.look-everything {
+            background-color: #56606e;
+            background-image:
+                radial-gradient(circle at 50% 50%, #fff 0 6%, transparent 9%),
+                radial-gradient(circle at 50% 50%, #e53935 0 14%, transparent 17%),
+                radial-gradient(circle at 50% 50%, #55555a 0 22%, transparent 26%),
+                radial-gradient(circle at 50% 50%, #ffd23f 0 18%, transparent 22%),
+                radial-gradient(circle at 50% 50%, #ff3b6b 0 20%, transparent 24%),
+                radial-gradient(circle at 50% 50%, #ffd23a 0 14%, #ff6a10 30%, transparent 40%),
+                radial-gradient(circle at 50% 50%, #ffffff 0 10%, transparent 14%),
+                radial-gradient(circle at 50% 50%, #9a7438 0 22%, transparent 26%),
+                linear-gradient(160deg, #ffb3dd, #b9a3ff),
+                linear-gradient(160deg, #04060f, #1c2153),
+                linear-gradient(180deg, #2e7d32 0 70%, #8b5a2b 70%),
+                linear-gradient(180deg, #000 0 60%, #9a9a9c 60%),
+                linear-gradient(180deg, #4fc3f7, #1f8fc4),
+                linear-gradient(180deg, #a9dcff 0 60%, #5b3320 60%),
+                linear-gradient(180deg, #4a0d08 0 60%, #0d0b0c 60%),
+                linear-gradient(180deg, #0a1633 0 55%, #eef4fb 55%),
+                linear-gradient(180deg, #56606e 0 50%, #b5582a 50%);
+            background-size: 33.4% 33.4%;
+            background-position:
+                50% 0, 100% 0, 0 50%, 50% 50%, 100% 50%, 0 100%, 50% 100%, 100% 100%,
+                0 0, 50% 0, 100% 0, 0 50%, 50% 50%, 100% 50%, 0 100%, 50% 100%, 100% 100%;
+            background-repeat: no-repeat;
+        }
+
         /* Locked: plain gray with only a lock, nothing about what's inside */
         .item.locked {
             background-image: none;

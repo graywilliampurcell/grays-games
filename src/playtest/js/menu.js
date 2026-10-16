@@ -14,7 +14,7 @@
 // stickers sit on Pick a level, the world and the level until it's played.
 
 import { TOUCH_SETUPS, KEYBOARD_SETUPS } from './settings.js';
-import { WORLDS } from './levels.js';
+import { LEVELS, WORLDS, levelLook } from './levels.js';
 
 export class Menu {
     // game: { canPause(), pause(), resume(), startOver(), quit(), nextLevel(),
@@ -366,7 +366,7 @@ export class Menu {
         grid.style.setProperty('--cols', grid.dataset.cols);
         for (let index = world.first; index <= world.last; index++) {
             const open = index <= furthest;
-            const button = this.pickButton('pick-one', open ? String(index + 1) : '', open ? world.look : null, { level: index });
+            const button = this.pickButton('pick-one', open ? String(index + 1) : '', open ? levelLook(LEVELS[index]) : null, { level: index });
             if (open) this.sticker(button, this.game.freshLevels().includes(index));
             grid.appendChild(button);
         }

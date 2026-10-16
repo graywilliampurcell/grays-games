@@ -2267,6 +2267,31 @@ const TUNES = {
         lead: { wave: 'sawtooth', level: 0.11, length: 0.09, brightness: 1300 },
         factory: { clanks: [0, 3, 6], beeps: { 3: 96, 11: 89, 19: 93, 27: 86, 35: 97, 43: 90, 51: 84, 59: 94 } },
     },
+    // Level 91, Everything World: Cotton Candy. A happy, skipping cotton
+    // candy tune in E-flat major at 126 bpm: "da-da DUM" skips up to a high
+    // note in every bar, a bouncy oom-pah bass with chords on top, one soft
+    // minor bar pair (C minor, F minor) and a big happy run home, on a
+    // bell-like triangle lead. No ticking, so it stays happy.
+    candyparade: {
+        tempo: 126,
+        bars: [[39, 'maj'], [44, 'maj'], [46, 'maj'], [39, 'maj'], [36, 'min'], [41, 'min'], [46, 'maj'], [39, 'maj']],
+        bass: [0, null, 7, null, 0, null, 7, 'lead-in'],
+        bassLength: 0.16,
+        stabs: [2, 6],
+        stabLevel: 0.06,
+        ticks: false,
+        melody: [
+            70, 75, null, 74, 75, null, 79, null,
+            80, null, 79, 77, 75, null, 72, null,
+            74, 77, null, 75, 74, null, 70, null,
+            67, null, 70, null, 75, null, null, null,
+            72, 75, null, 74, 72, null, 79, null,
+            77, null, 75, 72, 68, null, 72, null,
+            70, 74, 77, 82, 80, null, 77, 74,
+            75, null, null, null, 75, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.32, length: 0.14, brightness: 4500 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

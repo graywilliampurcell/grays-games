@@ -4821,6 +4821,7 @@ export const LEVELS = [
         armInterval: [3, 2],
         spikeRadius: 0.72,
         finale: 'You beat Robot Factory World!',
+        nextLabel: 'Start Everything World',
         layout: [
         '#####################################################',
         '#           #   AAAAAAAAAAAAAAAAAAAAAAAA    #       #',
@@ -4877,17 +4878,98 @@ export const LEVELS = [
         '#####################################################',
         ],
     },
+    {
+        name: 'Level 91',
+        // Everything World: Cotton Candy (Levels 91-99 are each one earlier
+        // world, in order). `SEEDS=3000 node tools/find-everything-level.mjs
+        // level91 36 15001`, seed 15599. 14 x 14 corridors. Correct path 124
+        // cells (start west in row 7, door east in row 13); 36 dead ends, each
+        // 2 cells deep. X: the spike on the path, path cell 95 (heading
+        // south), plate 0.64 like Level 6's (the roomy first squeeze). Y: the
+        // big spike right across the opening of the straight dead end going
+        // south off path cell 80. No sneaky spike. Cotton Candy World's look;
+        // a happy, skipping cotton candy tune.
+        theme: COTTON_CANDY,
+        world: 'everything',
+        music: 'candyparade',
+        spikeRadius: 0.64,
+        layout: [
+        '#########################################################',
+        '#                   #                           #       #',
+        '#                   #                           #       #',
+        '#                   #                           #       #',
+        '#   #####   #########   #############   #########   #####',
+        '#   #   #               #               #               #',
+        '#   #   #               #               #               #',
+        '#   #   #               #               #               #',
+        '#   #   #   #########   #   #   #########   #########   #',
+        '#   #   #       #       #   #       #   #   #           #',
+        '#   #   #       #       #   #       #   #   #           #',
+        '#   #   #       #       #   #       #   #   #           #',
+        '#   #   #########################   #   #   #########   #',
+        '#   #               #                   #   #   #   #   #',
+        '#   #               #                   #   #   #   #   #',
+        '#   #               #                   #   #   #   #   #',
+        '#   #   #   #################   #########   #   #   #   #',
+        '#       #   #       #               #   #       #       #',
+        '#       #   #       #               #   #       #       #',
+        '#       #   #       #               #   #       #       #',
+        '#   #####   #####   #############   #   #   #########   #',
+        '#       #   #               #       #           #       #',
+        '#       #   #               #       #           #       #',
+        '#       #   #               #       #           #       #',
+        '#########   #   #########   #   #############   #   #   #',
+        '#           #   #           #                   #   #   #',
+        '#           #   #           #                   #   # X #',
+        '#           #   #           #                   #   #   #',
+        '#########   #   #########   #   #####   #   #########   #',
+        '#       #   #   #           #   #       # Y #   #       #',
+        '# S     #   #   #           #   #       #   #   #       #',
+        '#       #   #   #           #   #       #   #   #       #',
+        '#####   #   #   #   #####   #   #########   #   #   #####',
+        '#       #       #   #       #   #       #   #           #',
+        '#       #       #   #       #   #       #   #           #',
+        '#       #       #   #       #   #       #   #           #',
+        '#   #############   #############   #################   #',
+        '#               #           #   #                       #',
+        '#               #           #   #                       #',
+        '#               #           #   #                       #',
+        '#############   #   #####   #   #   #####################',
+        '#       #       #   #       #       #   #       #       #',
+        '#       #       #   #       #       #   #       #       #',
+        '#       #       #   #       #       #   #       #       #',
+        '#####   #   #   #   #   #   #####   #   #####   #   #   #',
+        '#       #   #   #   #   #   #           #           #   #',
+        '#       #   #   #   #   #   #           #           #   #',
+        '#       #   #   #   #   #   #           #           #   #',
+        '#   #   #   #   #########   #   #########   #   #####   #',
+        '#   #       #   #       #   #   #       #   #   #       #',
+        '#   #       #   #       #   #   #       #   #   #       #',
+        '#   #       #   #       #   #   #       #   #   #       #',
+        '#   #################   #   #   #####   #####   #   #####',
+        '#                           #                   #       #',
+        '#                           #                   #       D',
+        '#                           #                   #       #',
+        '#########################################################',
+        ],
+    },
 ];
 
-// The worlds, for Pick a level: each run of levels with the same theme, with
-// the index of its first and last built level and its look.
+// The worlds, for Pick a level: each run of levels in the same world, with
+// the index of its first and last built level and its look. A level's world
+// is its theme, or its `world` name when it has one (Everything World,
+// Levels 91-100: each level wears an earlier world's theme).
+const lookOf = (theme) => theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
+// The look of one level's button: its own theme's look
+export const levelLook = (level) => lookOf(level.theme);
 export const WORLDS = [];
 LEVELS.forEach((level, index) => {
     const last = WORLDS[WORLDS.length - 1];
-    if (last && last.theme === level.theme) {
+    const world = level.world ?? level.theme;
+    if (last && last.world === world) {
         last.last = index;
     } else {
-        const look = level.theme.factory ? 'factory' : level.theme.ice ? 'ice' : level.theme.volcano ? 'volcano' : level.theme.sweets ? 'sweets' : level.theme.underwater ? 'sea' : level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
-        WORLDS.push({ theme: level.theme, first: index, last: index, look });
+        const look = level.world ?? lookOf(level.theme);
+        WORLDS.push({ world, theme: level.theme, first: index, last: index, look });
     }
 });
