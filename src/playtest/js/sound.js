@@ -2600,19 +2600,50 @@ export class Sound {
         return { gain: out, end };
     }
 
-    // A snowball hitting you: a soft, low "pff" of snow
+    // A snowball hitting you: a soft, muffled, crunchy "fwump" of packed
+    // snow, then a little sprinkle of falling snow. Every part fades in over a
+    // few hundredths of a second, so there's no sharp pop or burst.
     splat() {
         if (!this.settings.sfx || !this.ctx) return;
         this.onEvent('splat');
         const t = this.ctx.currentTime;
-        const f = this.ctx.createBiquadFilter();
-        f.type = 'lowpass';
-        f.frequency.value = 1400;
-        const g = this.ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(0.7, t + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
-        this.noiseSource(t, 0.35).connect(f).connect(g).connect(this.sfxBus);
+        const envelope = (at, attack, peak, length) => {
+            const g = this.ctx.createGain();
+            g.gain.setValueAtTime(0.0001, at);
+            g.gain.exponentialRampToValueAtTime(peak, at + attack);
+            g.gain.exponentialRampToValueAtTime(0.0001, at + length);
+            return g;
+        };
+        // The "fwump": a low, soft body of muffled noise and a dropping thud
+        const body = this.ctx.createBiquadFilter();
+        body.type = 'lowpass';
+        body.frequency.setValueAtTime(700, t);
+        body.frequency.exponentialRampToValueAtTime(220, t + 0.25);
+        body.Q.value = 0.5;
+        this.noiseSource(t, 0.32).connect(body).connect(envelope(t, 0.03, 0.8, 0.3)).connect(this.sfxBus);
+        const thud = this.ctx.createOscillator();
+        thud.type = 'sine';
+        thud.frequency.setValueAtTime(120, t);
+        thud.frequency.exponentialRampToValueAtTime(55, t + 0.2);
+        thud.connect(envelope(t, 0.025, 0.35, 0.22)).connect(this.sfxBus);
+        thud.start(t);
+        thud.stop(t + 0.24);
+        // The crunch: a few quick, quiet grains of packed snow breaking apart
+        for (let k = 0; k < 6; k++) {
+            const at = t + 0.02 + k * 0.022 + Math.random() * 0.012;
+            const crunch = this.ctx.createBiquadFilter();
+            crunch.type = 'bandpass';
+            crunch.frequency.value = 1100 + Math.random() * 900;
+            crunch.Q.value = 1.2;
+            this.noiseSource(at, 0.05).connect(crunch).connect(envelope(at, 0.006, 0.12 + Math.random() * 0.08, 0.045)).connect(this.sfxBus);
+        }
+        // The sprinkle: soft, airy falling snow that fades away
+        const sprinkle = this.ctx.createBiquadFilter();
+        sprinkle.type = 'bandpass';
+        sprinkle.frequency.value = 3200;
+        sprinkle.Q.value = 0.7;
+        const at = t + 0.12;
+        this.noiseSource(at, 0.65).connect(sprinkle).connect(envelope(at, 0.08, 0.08, 0.6)).connect(this.sfxBus);
     }
 
     // A robot arm pushing you off its belt: a hollow metal "clonk"

@@ -1342,36 +1342,41 @@ function rustyMetalTexture(width, height, seed) {
     return texture;
 }
 
-// Robot Factory World floor: steel grating in a crisscross pattern. The
-// little diamond holes between the bars are see-through (alpha), so the dark
-// machines whirring far below show through them. They're far too small to
-// fall through and don't change how you walk.
+// Robot Factory World floor: steel grating. One tile is one maze cell
+// (4 units) with 3 x 3 big square holes, each about a quarter of a cell
+// (1 unit) wide, between bars a third of a unit thick. The holes are
+// see-through (alpha), so the machines whirring far below show through them.
+// They're only for looking: the floor is still solid, so nothing falls
+// through and walking is unchanged.
+const GRATE_HOLES = 3;
 function grateTexture(size) {
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = size;
     const g = canvas.getContext('2d');
     g.clearRect(0, 0, size, size);
-    const bars = 8;
-    const step = size / bars;
-    g.lineCap = 'square';
-    for (const [w, color] of [[step * 0.52, '#3e4247'], [step * 0.4, '#70767d'], [step * 0.12, '#a3a9b0']]) {
-        g.strokeStyle = color;
-        g.lineWidth = w;
-        for (let k = -bars; k <= bars * 2; k++) {
+    const step = size / GRATE_HOLES; // one hole + one bar
+    const bar = step * 0.25; // 1/3 unit of a 4/3 unit step -> 1 unit holes
+    // Bars centred on k * step, drawn once more past the edge so the tile wraps
+    const strips = (width, color) => {
+        g.fillStyle = color;
+        for (let k = 0; k <= GRATE_HOLES; k++) {
+            const at = k * step - width / 2;
+            g.fillRect(at, 0, width, size);
+            g.fillRect(0, at, size, width);
+        }
+    };
+    strips(bar, '#3e4247');
+    strips(bar * 0.7, '#70767d');
+    strips(bar * 0.2, '#a3a9b0');
+    // Little bolts where the bars cross
+    g.fillStyle = '#2d3034';
+    for (let i = 0; i <= GRATE_HOLES; i++) {
+        for (let j = 0; j <= GRATE_HOLES; j++) {
             g.beginPath();
-            g.moveTo(k * step, 0);
-            g.lineTo(k * step + size, size);
-            g.stroke();
-            g.beginPath();
-            g.moveTo(k * step, size);
-            g.lineTo(k * step + size, 0);
-            g.stroke();
+            g.arc(i * step, j * step, bar * 0.22, 0, Math.PI * 2);
+            g.fill();
         }
     }
-    // A solid frame bar round each tile, so it reads as grating panels
-    g.strokeStyle = '#5a6067';
-    g.lineWidth = step * 0.35;
-    g.strokeRect(0, 0, size, size);
     const texture = new THREE.CanvasTexture(canvas);
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     return texture;
@@ -1994,8 +1999,8 @@ export class Maze {
         if (factory) {
             // See-through grating: the holes are cut out (alphaTest), so the
             // machine hall below shows through them
-            const map = grateTexture(128);
-            map.repeat.set(this.width / 2, this.depth / 2);
+            const map = grateTexture(256);
+            map.repeat.set(this.width / 4, this.depth / 4);
             floorMaterial = new THREE.MeshStandardMaterial({ map, alphaTest: 0.5, roughness: 0.5, metalness: 0.6, side: THREE.DoubleSide });
         } else if (ice) {
             const map = snowTexture(256, 53);
@@ -2049,7 +2054,7 @@ export class Maze {
             }
             const geometry = new THREE.ExtrudeGeometry(outline, { depth: 0.2, bevelEnabled: false });
             geometry.rotateX(Math.PI / 2);
-            floorMaterial.map?.repeat.set(0.5, 0.5);
+            floorMaterial.map?.repeat.set(factory ? 0.25 : 0.5, factory ? 0.25 : 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
             floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : 0x0b0e18 })]);
         } else {
