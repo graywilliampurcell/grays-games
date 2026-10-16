@@ -440,6 +440,7 @@ function checkSpikeAndDoor() {
                 : maze.theme.sweets ? 'Ouch! A broken candy cane sent you back to the start.'
                 : maze.theme.volcano ? 'Ouch! A hot coal sent you back to the start.'
                 : maze.theme.ice ? 'Ouch! An icicle sent you back to the start.'
+                : maze.theme.factory ? 'Ouch! A zapper sent you back to the start.'
                 : 'Ouch! A spike sent you back to the start.');
     }
 
@@ -453,6 +454,7 @@ function checkSpikeAndDoor() {
             : maze.theme.underwater || maze.theme.ice ? 'Ouch! You fell in the crack. Back to the start.'
                 : maze.theme.sweets ? 'Ouch! You fell in the chocolate. Back to the start.'
                 : maze.theme.volcano ? 'Ouch! You fell in the lava. Back to the start.'
+                : maze.theme.factory ? 'Ouch! You fell in the gap. Back to the start.'
                 : 'Whoops! You fell off. Back to the start.');
     }
 

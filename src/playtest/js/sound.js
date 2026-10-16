@@ -20,6 +20,10 @@ const VENT_VOLUME = 0.75; // steam vents (hiss and puff), 3/4 of their first lou
 // a little quieter than its sneaky melody (Gray, 2026-10-15)
 const BELL_LEVEL = 0.06;
 const TWINKLE_LEVEL = 0.09;
+// Robot Factory World's clanks and beeps play in the music (the Music
+// switch turns them off), a little under the melody
+const CLANK_LEVEL = 0.07;
+const BEEP_LEVEL = 0.05;
 // How long the device voice gets to start before the game's own voice sound plays instead
 const SPEECH_START_TIMEOUT = 700;
 
@@ -2002,6 +2006,32 @@ const TUNES = {
         lead: { wave: 'sawtooth', level: 0.1, length: 0.08, brightness: 1500 },
         jingles: { bells: [0, 3, 6], twinkles: { 7: 98, 23: 95, 39: 103, 55: 100 } },
     },
+    // Level 81, welcome to Robot Factory World: sneaky, a little spooky but
+    // more sneaky than spooky. E minor at 96 bpm, creeping up and down in
+    // short tiptoe notes, with a spooky B-flat (the note right between E
+    // and E an octave up) sneaking in and a dark ending on B. Factory sounds
+    // in the background (factory): a metal clank on beats 2 and 6 and little
+    // robot beeps here and there.
+    factorysneak: {
+        tempo: 96,
+        bars: [[40, 'min'], [40, 'min'], [46, 'maj'], [45, 'min'], [40, 'min'], [43, 'maj'], [46, 'maj'], [47, 'maj']],
+        bass: [0, null, null, 0, null, 0, null, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: true,
+        melody: [
+            64, null, 67, null, 66, null, 63, null,
+            64, null, null, null, 59, null, null, null,
+            70, null, 69, null, 70, null, 74, null,
+            72, null, null, null, 69, null, null, null,
+            64, null, 67, null, 71, null, 70, null,
+            67, null, 66, null, 62, null, null, null,
+            70, null, 65, null, 64, null, 58, null,
+            59, null, null, 63, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.13, length: 0.12, brightness: 1300 },
+        factory: { clanks: [2, 6], beeps: { 5: 88, 13: 93, 21: 91, 37: 88, 45: 95, 53: 93, 61: 84 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -2186,6 +2216,35 @@ export class Sound {
             const twinkle = tune.jingles.twinkles[step];
             if (twinkle) this.twinkle(hz(twinkle), t);
         }
+        // Robot Factory World's background: metal clanks and robot beeps
+        if (tune.factory) {
+            if (tune.factory.clanks.includes(beat)) this.clank(t);
+            const beep = tune.factory.beeps[step];
+            if (beep) this.beep(hz(beep), t);
+        }
+    }
+
+    // A metal clank, like a hammer on a pipe far off in the factory: a
+    // short knock of noise with two ringing, out-of-tune metal tones
+    clank(t) {
+        const src = this.noiseSource(t, 0.08);
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 2200;
+        filter.Q.value = 2.5;
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(CLANK_LEVEL * 1.4, t + 0.003);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+        src.connect(filter).connect(gain).connect(this.musicBus);
+        this.pluck(431, t, CLANK_LEVEL, 0.28, 'sine', 3000);
+        this.pluck(1187, t, CLANK_LEVEL * 0.6, 0.18, 'sine', 4000);
+    }
+
+    // A little robot beep: two quick square-wave blips
+    beep(freq, t) {
+        this.pluck(freq, t, BEEP_LEVEL, 0.06, 'square', 4000);
+        this.pluck(freq, t + 0.09, BEEP_LEVEL * 0.8, 0.05, 'square', 4000);
     }
 
     // A quick shake of sleigh bells: a few bright, ringing taps close together

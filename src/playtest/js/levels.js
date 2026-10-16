@@ -45,6 +45,11 @@ const VOLCANO = { wall: 0x0d0b0c, floor: 0x141012, sky: 0x4a0d08, volcano: true 
 // looks), a night sky with green and purple northern lights, snowy owls and
 // falling snow; the spikes are icicles hanging from igloo arches (see Maze.js)
 const ICE = { wall: 0x6fb6f0, floor: 0xeef4fb, sky: 0x0a1633, ice: true };
+// Levels 81-90, Robot Factory World: walls of rusty orange metal with pipes
+// and little puffs of steam, a floor of crisscross metal grating with dark
+// machines whirring far below, no ceiling, and a sky of giant gears turning
+// slowly up high; the spikes are electric zappers (see Maze.js)
+const FACTORY = { wall: 0xb5582a, floor: 0x5a6067, sky: 0x56606e, factory: true };
 
 export const LEVELS = [
     {
@@ -4077,6 +4082,7 @@ export const LEVELS = [
         music: 'icefinale',
         spike2Radius: 0.72,
         finale: 'You beat Ice World!',
+        nextLabel: 'Start Robot Factory World',
         layout: [
         '#################################################',
         '#           #        TTT                        #',
@@ -4129,6 +4135,76 @@ export const LEVELS = [
         '#################################################',
         ],
     },
+    {
+        name: 'Level 81',
+        // Welcome to Robot Factory World. `SEEDS=3000 node
+        // tools/find-factory-level.mjs level81 32 21001`, seed 21456. 13 x 13
+        // corridors. Correct path 102 cells (start west in row 8, door east
+        // in row 7); 32 dead ends 2 cells deep, plus the sneaky zapper's. X:
+        // the sneaky zapper, in the last cell of a 3-deep one-turn dead end
+        // off path cell 2. F: the Big Giant Gap, 5 cells long (path cells
+        // 52-56, the left column, crossed heading north), crossed on the
+        // flattened tire at Level 27's fast-leaf speed. No backward belt, no
+        // zapper on the path. Music: sneaky, a little spooky, with factory
+        // clanks and beeps.
+        theme: FACTORY,
+        music: 'factorysneak',
+        layout: [
+        '#####################################################',
+        '#                       #   #       #       #       #',
+        '#                       #   #       #       #       #',
+        '#                       #   #       #       #       #',
+        '#   #################   #   #   #####   #####   #####',
+        '#FFF#           #   #       #                   #   #',
+        '#FFF#           #   #       #                   #   #',
+        '#FFF#           #   #       #                   #   #',
+        '#FFF#   #####   #   #   #####   #############   #   #',
+        '#FFF#       #   #   #           #                   #',
+        '#FFF#       #   #   #           #                   #',
+        '#FFF#       #   #   #           #                   #',
+        '#FFF#####   #   #   #####   #####   #################',
+        '#FFF#       #           #       #                   #',
+        '#FFF#       #           #       #                   #',
+        '#FFF#       #           #       #                   #',
+        '#FFF#   #########   #   #########################   #',
+        '#FFF#           #   #               #               #',
+        '#FFF#           #   #               #               #',
+        '#FFF#           #   #               #               #',
+        '#FFF#   #########   #########   #   #   #   #########',
+        '#FFF#           #   #           #   #   #       #   #',
+        '#FFF#           #   #           #   #   #       #   #',
+        '#FFF#           #   #           #   #   #       #   #',
+        '#   #   #############   #####################   #   #',
+        '#   #   #   #                       #   #       #   #',
+        '#   #   #   #                       #   #       #   #',
+        '#   #   #   #                       #   #       #   #',
+        '#   #   #   #########   #########   #   #   #####   #',
+        '#           #   #       #               #   #       #',
+        '#           # X #       #               #   #       D',
+        '#           #   #       #               #   #       #',
+        '#############   #########   #####   #####   #   #####',
+        '#               #           #       #   #   #   #   #',
+        '# S             #           #       #   #   #   #   #',
+        '#               #           #       #   #   #   #   #',
+        '#####   #################   #########   #   #   #   #',
+        '#               #                   #       #   #   #',
+        '#               #                   #       #   #   #',
+        '#               #                   #       #   #   #',
+        '#   #####################   #############   #   #   #',
+        '#           #       #   #           #   #   #       #',
+        '#           #       #   #           #   #   #       #',
+        '#           #       #   #           #   #   #       #',
+        '#   #########   #   #   #   #########   #   #####   #',
+        '#   #           #   #   #           #           #   #',
+        '#   #           #   #   #           #           #   #',
+        '#   #           #   #   #           #           #   #',
+        '#   #   #########   #   #   #################   #   #',
+        '#               #                   #               #',
+        '#               #                   #               #',
+        '#               #                   #               #',
+        '#####################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with
@@ -4139,7 +4215,7 @@ LEVELS.forEach((level, index) => {
     if (last && last.theme === level.theme) {
         last.last = index;
     } else {
-        const look = level.theme.ice ? 'ice' : level.theme.volcano ? 'volcano' : level.theme.sweets ? 'sweets' : level.theme.underwater ? 'sea' : level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
+        const look = level.theme.factory ? 'factory' : level.theme.ice ? 'ice' : level.theme.volcano ? 'volcano' : level.theme.sweets ? 'sweets' : level.theme.underwater ? 'sea' : level.theme.moon ? 'moon' : level.theme.space ? 'space' : level.theme.jungle ? 'jungle' : 'candy';
         WORLDS.push({ theme: level.theme, first: index, last: index, look });
     }
 });

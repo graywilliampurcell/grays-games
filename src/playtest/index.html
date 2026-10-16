@@ -319,6 +319,22 @@
                 linear-gradient(180deg, #0a1633 0, #0a1633 60%, #6fb6f0 60%, #6fb6f0 72%, #eef4fb 72%);
         }
 
+        /* Robot Factory World: a big bronze gear in a gray sky, rusty orange
+           wall, metal grating floor */
+        .item.look-factory {
+            background-color: #56606e;
+            background-image:
+                radial-gradient(circle, #56606e 0 14%, transparent 15%),
+                radial-gradient(circle, #9a7438 0 36%, transparent 37%),
+                radial-gradient(circle, transparent 0 46%, #56606e 47%),
+                repeating-conic-gradient(#9a7438 0 12deg, transparent 12deg 30deg),
+                repeating-linear-gradient(45deg, #3e4247 0 2px, #8a9098 2px 7px),
+                linear-gradient(180deg, #56606e 0, #56606e 52%, #b5582a 52%);
+            background-size: 62% 62%, 62% 62%, 62% 62%, 62% 62%, 100% 26%, 100% 100%;
+            background-position: 12% 4%, 12% 4%, 12% 4%, 12% 4%, bottom, center;
+            background-repeat: no-repeat;
+        }
+
         /* Locked: plain gray with only a lock, nothing about what's inside */
         .item.locked {
             background-image: none;

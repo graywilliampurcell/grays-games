@@ -1269,6 +1269,226 @@ function sledTexture() {
     return new THREE.CanvasTexture(canvas);
 }
 
+// ---- Robot Factory World (Levels 81-90) ----
+
+// Robot Factory World walls: rusty orange metal plates with rivets along
+// their seams, rust streaks, and pipes running along them (painted on; the
+// little puffs of steam from the pipes are added in addFactorySteam)
+function rustyMetalTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#b5582a';
+    g.fillRect(0, 0, width, height);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    // Rust blotches, darker and lighter
+    for (let i = 0; i < (width * height) / 260; i++) {
+        const x = random() * width;
+        const y = random() * height;
+        const radius = 3 + random() * 14;
+        const dark = random() < 0.6;
+        const blotch = g.createRadialGradient(x, y, 0, x, y, radius);
+        blotch.addColorStop(0, dark ? 'rgba(90,35,12,0.45)' : 'rgba(230,130,60,0.35)');
+        blotch.addColorStop(1, 'rgba(0,0,0,0)');
+        g.fillStyle = blotch;
+        g.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+    }
+    // Rust running down in streaks
+    for (let i = 0; i < width / 6; i++) {
+        const x = random() * width;
+        const y = random() * height;
+        const grad = g.createLinearGradient(x, y, x, y + 40);
+        grad.addColorStop(0, 'rgba(110,40,10,0.45)');
+        grad.addColorStop(1, 'rgba(110,40,10,0)');
+        g.fillStyle = grad;
+        g.fillRect(x, y, 1.5 + random() * 2, 40);
+    }
+    // Plate seams with rivets
+    const plate = 64;
+    for (let y = 0; y < height; y += plate) {
+        g.fillStyle = 'rgba(50,20,8,0.8)';
+        g.fillRect(0, y, width, 2);
+        for (let x = 6; x < width; x += 16) {
+            g.fillStyle = 'rgba(60,24,8,0.9)';
+            g.beginPath();
+            g.arc(x, y + 7, 2.4, 0, Math.PI * 2);
+            g.fill();
+            g.fillStyle = 'rgba(255,190,130,0.6)';
+            g.beginPath();
+            g.arc(x - 0.6, y + 6.4, 1, 0, Math.PI * 2);
+            g.fill();
+        }
+    }
+    g.fillStyle = 'rgba(50,20,8,0.8)';
+    g.fillRect(0, 0, 2, height);
+    // Pipes running along the wall: round-looking bands with a shine on top
+    for (const [y, size, color] of [[height * 0.3, 14, [120, 120, 124]], [height * 0.62, 10, [150, 80, 40]], [height * 0.8, 8, [96, 98, 104]]]) {
+        const grad = g.createLinearGradient(0, y - size / 2, 0, y + size / 2);
+        const [cr, cg, cb] = color;
+        grad.addColorStop(0, `rgb(${cr * 0.5},${cg * 0.5},${cb * 0.5})`);
+        grad.addColorStop(0.3, `rgb(${Math.min(255, cr * 1.6)},${Math.min(255, cg * 1.6)},${Math.min(255, cb * 1.6)})`);
+        grad.addColorStop(0.7, `rgb(${cr},${cg},${cb})`);
+        grad.addColorStop(1, `rgb(${cr * 0.35},${cg * 0.35},${cb * 0.35})`);
+        g.fillStyle = grad;
+        g.fillRect(0, y - size / 2, width, size);
+        // Joints (collars) along each pipe
+        g.fillStyle = 'rgba(40,30,25,0.7)';
+        for (let x = 20; x < width; x += 48) g.fillRect(x, y - size / 2 - 1.5, 4, size + 3);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Robot Factory World floor: steel grating in a crisscross pattern. The
+// little diamond holes between the bars are see-through (alpha), so the dark
+// machines whirring far below show through them. They're far too small to
+// fall through and don't change how you walk.
+function grateTexture(size) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.clearRect(0, 0, size, size);
+    const bars = 8;
+    const step = size / bars;
+    g.lineCap = 'square';
+    for (const [w, color] of [[step * 0.52, '#3e4247'], [step * 0.4, '#70767d'], [step * 0.12, '#a3a9b0']]) {
+        g.strokeStyle = color;
+        g.lineWidth = w;
+        for (let k = -bars; k <= bars * 2; k++) {
+            g.beginPath();
+            g.moveTo(k * step, 0);
+            g.lineTo(k * step + size, size);
+            g.stroke();
+            g.beginPath();
+            g.moveTo(k * step, size);
+            g.lineTo(k * step + size, 0);
+            g.stroke();
+        }
+    }
+    // A solid frame bar round each tile, so it reads as grating panels
+    g.strokeStyle = '#5a6067';
+    g.lineWidth = step * 0.35;
+    g.strokeRect(0, 0, size, size);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// The machine hall far under the grating: dark machine housings, belts and
+// a few small blinking status lights (just to look at)
+function machineFloorTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#121418';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < 40; k++) {
+        const w = 10 + random() * 40;
+        const h = 10 + random() * 40;
+        const x = random() * size;
+        const y = random() * size;
+        g.fillStyle = random() < 0.5 ? '#23272d' : '#1b1e23';
+        g.fillRect(x, y, w, h);
+        g.strokeStyle = '#2f343b';
+        g.lineWidth = 1;
+        g.strokeRect(x, y, w, h);
+    }
+    for (let k = 0; k < 30; k++) {
+        g.fillStyle = ['#ff8a1f', '#3dff6e', '#ff3d3d', '#ffd23a'][k % 4];
+        g.fillRect(random() * size, random() * size, 2, 2);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// The side walls of the big gap: dark steel with yellow-and-black hazard
+// stripes just under the floor's edge, fading to black far down
+function pitWallTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 512;
+    const g = canvas.getContext('2d');
+    const grad = g.createLinearGradient(0, 0, 0, 512);
+    grad.addColorStop(0, '#4a4e55');
+    grad.addColorStop(0.5, '#24272c');
+    grad.addColorStop(1, '#0d0e10');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 64, 512);
+    for (let x = -64; x < 128; x += 16) {
+        g.fillStyle = '#f2c230';
+        g.beginPath();
+        g.moveTo(x, 0);
+        g.lineTo(x + 8, 0);
+        g.lineTo(x + 8 + 12, 12);
+        g.lineTo(x + 12, 12);
+        g.fill();
+    }
+    for (let y = 30; y < 512; y += 40) {
+        g.fillStyle = 'rgba(0,0,0,0.4)';
+        g.fillRect(0, y, 64, 2);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    return texture;
+}
+
+// The flattened tire's rubber: black with a chunky tread pattern
+function treadTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 32;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#1c1c1e';
+    g.fillRect(0, 0, 256, 32);
+    g.fillStyle = '#323236';
+    for (let x = 0; x < 256; x += 16) {
+        g.fillRect(x, 4, 7, 10);
+        g.fillRect(x + 8, 18, 7, 10);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// A gear's flat shape: teeth round the rim, a round hole in the middle and
+// a ring of lightening holes
+function gearShape(radius, teeth) {
+    const shape = new THREE.Shape();
+    const inner = radius * 0.86;
+    for (let k = 0; k < teeth; k++) {
+        const a = (k / teeth) * Math.PI * 2;
+        const w = (Math.PI * 2) / teeth;
+        const pts = [[inner, a], [radius, a + w * 0.15], [radius, a + w * 0.45], [inner, a + w * 0.6]];
+        pts.forEach(([d, t], n) => {
+            const x = Math.cos(t) * d;
+            const y = Math.sin(t) * d;
+            if (k === 0 && n === 0) shape.moveTo(x, y);
+            else shape.lineTo(x, y);
+        });
+    }
+    shape.closePath();
+    const hub = new THREE.Path();
+    hub.absarc(0, 0, radius * 0.18, 0, Math.PI * 2, true);
+    shape.holes.push(hub);
+    for (let k = 0; k < 6; k++) {
+        const a = (k / 6) * Math.PI * 2;
+        const hole = new THREE.Path();
+        hole.absarc(Math.cos(a) * radius * 0.52, Math.sin(a) * radius * 0.52, radius * 0.16, 0, Math.PI * 2, true);
+        shape.holes.push(hole);
+    }
+    return shape;
+}
+
+// The flattened tire (Level 81 on) moves at Level 27's fast-leaf speed
+// (FAST_PLATFORM_SPEED, from an 'F' gap)
+const PISTON_PERIOD = 1.6; // the machines under the gap: one pump up and down
+
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
@@ -1650,8 +1870,12 @@ export class Maze {
         const sweets = this.theme.sweets;
         const volcano = this.theme.volcano;
         const ice = this.theme.ice;
+        const factory = this.theme.factory;
         let wallMaterial;
-        if (ice) {
+        if (factory) {
+            const metal = rustyMetalTexture(128, 512, 71);
+            wallMaterial = new THREE.MeshStandardMaterial({ map: metal, roughness: 0.55, metalness: 0.45, emissiveMap: metal, emissive: 0xffffff, emissiveIntensity: 0.25 });
+        } else if (ice) {
             const blocks = iceBlockTexture(128, 512, 47);
             wallMaterial = new THREE.MeshStandardMaterial({ map: blocks, emissiveMap: blocks, emissive: 0x4aa8ff, emissiveIntensity: 0.55, roughness: 0.15, metalness: 0.1 });
         } else if (volcano) {
@@ -1695,7 +1919,13 @@ export class Maze {
 
         // Floor
         let floorMaterial;
-        if (ice) {
+        if (factory) {
+            // See-through grating: the holes are cut out (alphaTest), so the
+            // machine hall below shows through them
+            const map = grateTexture(128);
+            map.repeat.set(this.width / 2, this.depth / 2);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, alphaTest: 0.5, roughness: 0.5, metalness: 0.6, side: THREE.DoubleSide });
+        } else if (ice) {
             const map = snowTexture(256, 53);
             map.repeat.set(this.width / 8, this.depth / 8);
             // A soft blue glow so the snow in the walls' shadows looks cold blue, not gray
@@ -1749,7 +1979,7 @@ export class Maze {
             geometry.rotateX(Math.PI / 2);
             floorMaterial.map?.repeat.set(0.5, 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -1768,6 +1998,350 @@ export class Maze {
         if (sweets) this.addCandySky();
         if (volcano) this.addAsh();
         if (ice) this.addIceSky();
+        if (factory) {
+            this.addMachineHall();
+            this.addFactorySteam(count);
+            this.addGearSky();
+        }
+    }
+
+    // ---- Robot Factory World (Level 81 on) ----
+
+    // The machine hall under the grating: a dark floor of machines about 3
+    // below, with gears lying flat and whirring round. Seen only through the
+    // grating's little holes; just to look at. Cut away under each big gap
+    // (the gap has its own deep pit).
+    addMachineHall() {
+        const margin = 2;
+        const outline = new THREE.Shape([new THREE.Vector2(-margin, -margin), new THREE.Vector2(this.width + margin, -margin), new THREE.Vector2(this.width + margin, this.depth + margin), new THREE.Vector2(-margin, this.depth + margin)]);
+        for (const { gap: g } of this.platforms) {
+            outline.holes.push(new THREE.Path([new THREE.Vector2(g.minX, g.minZ), new THREE.Vector2(g.minX, g.maxZ), new THREE.Vector2(g.maxX, g.maxZ), new THREE.Vector2(g.maxX, g.minZ)]));
+        }
+        const geometry = new THREE.ShapeGeometry(outline);
+        geometry.rotateX(Math.PI / 2);
+        const map = machineFloorTexture(256, 89);
+        map.repeat.set(1 / 12, 1 / 12);
+        const hall = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ map, side: THREE.DoubleSide }));
+        hall.position.y = -3;
+        this.root.add(hall);
+        // Whirring gears, lying flat
+        const inGap = (x, z) => this.platforms.some(({ gap: g }) => x > g.minX - 1.6 && x < g.maxX + 1.6 && z > g.minZ - 1.6 && z < g.maxZ + 1.6);
+        const gearGeometry = new THREE.ExtrudeGeometry(gearShape(1.3, 14), { depth: 0.25, bevelEnabled: false });
+        gearGeometry.rotateX(-Math.PI / 2);
+        const gearMaterial = new THREE.MeshStandardMaterial({ color: 0x5a5f66, metalness: 0.7, roughness: 0.4, emissive: 0x1a1c20, emissiveIntensity: 1 });
+        const brass = new THREE.MeshStandardMaterial({ color: 0x8a6a3a, metalness: 0.7, roughness: 0.45, emissive: 0x20160a, emissiveIntensity: 1 });
+        this.hallGears = [];
+        let r = 97;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const count = Math.round((this.width * this.depth) / 45);
+        for (let k = 0; k < count; k++) {
+            const x = random() * this.width;
+            const z = random() * this.depth;
+            if (inGap(x, z)) continue;
+            const gear = new THREE.Mesh(gearGeometry, k % 3 === 0 ? brass : gearMaterial);
+            const size = 0.6 + random() * 0.8;
+            gear.scale.set(size, 1, size);
+            gear.position.set(x, -2.9 + random() * 0.6, z);
+            gear.userData.speed = (random() < 0.5 ? -1 : 1) * (1.5 + random() * 3);
+            this.root.add(gear);
+            this.hallGears.push(gear);
+        }
+    }
+
+    // Little puffs of steam from the pipes on the walls (decoration only:
+    // they go straight through you and never push). Each puff comes out of a
+    // pipe on a wall face, drifts up and out a little and is gone, over and
+    // over, each on its own beat.
+    addFactorySteam() {
+        let r = 101;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const faces = [];
+        for (let x = 1; x < this.width - 1; x++) for (let z = 1; z < this.depth - 1; z++) {
+            if (this.grid[x][z] !== 1) continue;
+            for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (this.grid[x + dx]?.[z + dz] === 0) faces.push({ x, z, dx, dz });
+        }
+        const emitters = [];
+        const wanted = Math.round((this.width * this.depth) / 20);
+        for (let k = 0; k < wanted && faces.length; k++) {
+            const f = faces.splice(Math.floor(random() * faces.length), 1)[0];
+            emitters.push({ ...f, y: this.height * (random() < 0.5 ? 0.7 : 0.38), phase: random() });
+        }
+        const PER = 5;
+        const positions = new Float32Array(emitters.length * PER * 3);
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const material = new THREE.PointsMaterial({ color: 0xf4f4f4, size: 0.9, map: puffTexture(), transparent: true, opacity: 0.75, depthWrite: false });
+        this.wallSteam = { points: new THREE.Points(geometry, material), emitters, per: PER, time: 0 };
+        this.root.add(this.wallSteam.points);
+        this.updateFactorySteam(0);
+    }
+
+    updateFactorySteam(dt) {
+        const w = this.wallSteam;
+        w.time += dt;
+        const pos = w.points.geometry.attributes.position;
+        w.emitters.forEach((e, n) => {
+            for (let k = 0; k < w.per; k++) {
+                // Puffs come in little bursts: each one lives 1.2 s of every 3 s
+                const t = ((w.time / 3 + e.phase + k * 0.08) % 1) * 3;
+                const alive = t < 1.2;
+                const out = 0.5 + 0.05 + (alive ? t * 0.35 : 0);
+                const up = alive ? t * 0.6 : -50;
+                pos.setXYZ(n * w.per + k, e.x + 0.5 + e.dx * out, e.y + up, e.z + 0.5 + e.dz * out);
+            }
+        });
+        pos.needsUpdate = true;
+    }
+
+    // The sky: giant gears turning slowly, high up all round (just to look at)
+    addGearSky() {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        let r = 107;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        this.skyGears = [];
+        const steel = new THREE.MeshStandardMaterial({ color: 0x7d838c, metalness: 0.6, roughness: 0.45, emissive: 0x2a2d33, emissiveIntensity: 1, fog: false });
+        const bronze = new THREE.MeshStandardMaterial({ color: 0x9a7438, metalness: 0.6, roughness: 0.5, emissive: 0x3a2a12, emissiveIntensity: 1, fog: false });
+        for (let k = 0; k < 9; k++) {
+            const radius = 18 + random() * 26;
+            const geometry = new THREE.ExtrudeGeometry(gearShape(radius, 16 + Math.round(radius / 3)), { depth: 3, bevelEnabled: false });
+            geometry.translate(0, 0, -1.5);
+            const gear = new THREE.Mesh(geometry, k % 2 ? bronze : steel);
+            const holder = new THREE.Group();
+            const a = (k / 9) * Math.PI * 2 + random() * 0.4;
+            const d = 90 + random() * 90;
+            holder.position.set(cx + Math.cos(a) * d, 70 + random() * 80, cz + Math.sin(a) * d);
+            holder.lookAt(cx, 0, cz);
+            holder.add(gear);
+            gear.userData.speed = (k % 2 ? 1 : -1) * (0.05 + random() * 0.08);
+            this.root.add(holder);
+            this.skyGears.push(gear);
+        }
+        // One huge gear right overhead
+        const top = new THREE.Mesh(new THREE.ExtrudeGeometry(gearShape(60, 36), { depth: 4, bevelEnabled: false }), steel);
+        const holder = new THREE.Group();
+        holder.position.set(cx, 170, cz);
+        holder.lookAt(cx, 0, cz);
+        holder.add(top);
+        top.userData.speed = 0.03;
+        this.root.add(holder);
+        this.skyGears.push(top);
+    }
+
+    // Everything in Robot Factory World that moves just for looks (every frame)
+    updateFactory(dt) {
+        this.factoryTime = (this.factoryTime ?? 0) + dt;
+        for (const gear of this.hallGears || []) gear.rotation.y += gear.userData.speed * dt;
+        for (const gear of this.skyGears || []) gear.rotation.z += gear.userData.speed * dt;
+        if (this.wallSteam) this.updateFactorySteam(dt);
+        for (const z of this.zappers || []) this.updateZapper(z, dt);
+        for (const p of this.platforms) {
+            for (const piston of p.pistons || []) {
+                const t = ((this.factoryTime / PISTON_PERIOD + piston.phase) % 1) * Math.PI * 2;
+                piston.rod.position.y = piston.low + (Math.sin(t) * 0.5 + 0.5) * piston.travel;
+            }
+        }
+    }
+
+    // A zapper (Robot Factory World's spike): two copper posts on a hazard
+    // plate with electricity crackling between them, sparks flying and a blue
+    // glow. Touching it works like a spike (its plate is radius).
+    createZapper(position, radius) {
+        const group = new THREE.Group();
+        const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.75, 0.08, 24), new THREE.MeshStandardMaterial({ color: 0x2c2f34, metalness: 0.6, roughness: 0.5 }));
+        plate.position.y = 0.04;
+        group.add(plate);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.66, 0.05, 6, 32), new THREE.MeshStandardMaterial({ color: 0xf2c230, emissive: 0x6a5000, emissiveIntensity: 0.6 }));
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = 0.09;
+        group.add(ring);
+        const copper = new THREE.MeshStandardMaterial({ color: 0xc8743a, metalness: 0.8, roughness: 0.3 });
+        const coilMaterial = new THREE.MeshStandardMaterial({ color: 0x9fe8ff, emissive: 0x40c8ff, emissiveIntensity: 1.2 });
+        const tops = [];
+        for (const side of [-1, 1]) {
+            const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 0.95, 10), copper);
+            post.position.set(side * 0.38, 0.55, 0);
+            post.castShadow = true;
+            group.add(post);
+            for (let k = 0; k < 4; k++) {
+                const coil = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.025, 6, 16), copper);
+                coil.rotation.x = Math.PI / 2;
+                coil.position.set(side * 0.38, 0.35 + k * 0.14, 0);
+                group.add(coil);
+            }
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(0.12, 14, 10), coilMaterial);
+            ball.position.set(side * 0.38, 1.08, 0);
+            group.add(ball);
+            tops.push(ball.position.clone());
+        }
+        // Two crackling arcs between the posts' tops, redrawn every frame:
+        // each is a zigzag of short glowing bars
+        const arcs = [0, 1].map((k) => {
+            const material = new THREE.MeshBasicMaterial({ color: k ? 0xffffff : 0x8fe0ff });
+            const bars = [];
+            for (let n = 0; n < 8; n++) {
+                const bar = new THREE.Mesh(new THREE.BoxGeometry(k ? 0.025 : 0.045, k ? 0.025 : 0.045, 1), material);
+                group.add(bar);
+                bars.push(bar);
+            }
+            return bars;
+        });
+        const sparkGeometry = new THREE.BufferGeometry();
+        sparkGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(16 * 3), 3));
+        const sparks = new THREE.Points(sparkGeometry, new THREE.PointsMaterial({ color: 0xfff6a0, size: 0.07 }));
+        group.add(sparks);
+        const glow = new THREE.Mesh(new THREE.CircleGeometry(0.95, 24), new THREE.MeshBasicMaterial({ color: 0x40c8ff, transparent: true, opacity: 0.3, depthWrite: false }));
+        glow.rotation.x = -Math.PI / 2;
+        glow.position.y = 0.1;
+        group.add(glow);
+        group.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
+        group.position.copy(position);
+        group.position.y = 0;
+        // Face the posts across the corridor it stands in
+        const x = Math.floor(position.x);
+        const z = Math.floor(position.z);
+        if (this.grid[x]?.[z - 2] === 1 && this.grid[x]?.[z + 2] === 1) group.rotation.y = Math.PI / 2;
+        this.root.add(group);
+        this.zappers = this.zappers || [];
+        const zapper = { arcs, sparks, glow, tops, time: 0 };
+        this.zappers.push(zapper);
+        this.updateZapper(zapper, 0);
+    }
+
+    updateZapper(zapper, dt) {
+        zapper.time += dt;
+        const [a, b] = zapper.tops;
+        for (const bars of zapper.arcs) {
+            const points = [];
+            for (let k = 0; k <= bars.length; k++) {
+                const t = k / bars.length;
+                const jitter = k === 0 || k === bars.length ? 0 : 0.14;
+                points.push(new THREE.Vector3(a.x + (b.x - a.x) * t, a.y + Math.sin(t * Math.PI) * 0.12 + (Math.random() - 0.5) * jitter, (Math.random() - 0.5) * jitter));
+            }
+            bars.forEach((bar, k) => {
+                const from = points[k];
+                const to = points[k + 1];
+                bar.position.copy(from).add(to).multiplyScalar(0.5);
+                bar.scale.z = from.distanceTo(to);
+                bar.lookAt(bar.parent ? bar.parent.localToWorld(to.clone()) : to);
+            });
+        }
+        const sp = zapper.sparks.geometry.attributes.position;
+        for (let k = 0; k < sp.count; k++) {
+            const from = k % 2 ? a : b;
+            sp.setXYZ(k, from.x + (Math.random() - 0.5) * 0.5, from.y + (Math.random() - 0.4) * 0.5, (Math.random() - 0.5) * 0.5);
+        }
+        sp.needsUpdate = true;
+        zapper.glow.material.opacity = 0.2 + Math.random() * 0.25;
+    }
+
+    // The big gap (Level 81): deep steel sides with hazard stripes, and far
+    // below, giant machines with pistons pumping up and down (just to look
+    // at; falling in sends you back to the start)
+    createMachinePit(p) {
+        const g = p.gap;
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        const group = new THREE.Group();
+        const depth = 16;
+        const w = g.maxX - g.minX;
+        const d = g.maxZ - g.minZ;
+        for (const [len, x, z, turn] of [[w, cx, g.minZ, 0], [w, cx, g.maxZ, 0], [d, g.minX, cz, Math.PI / 2], [d, g.maxX, cz, Math.PI / 2]]) {
+            const map = pitWallTexture();
+            map.repeat.set(len / 3, 1);
+            const side = new THREE.Mesh(new THREE.PlaneGeometry(len, depth), new THREE.MeshBasicMaterial({ map, side: THREE.DoubleSide }));
+            side.position.set(x, -0.2 - depth / 2, z);
+            side.rotation.y = turn;
+            group.add(side);
+        }
+        const bottomY = -0.2 - depth;
+        const floorMap = machineFloorTexture(128, 113);
+        floorMap.repeat.set(w / 8, d / 8);
+        const bottom = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshBasicMaterial({ map: floorMap }));
+        bottom.rotation.x = -Math.PI / 2;
+        bottom.position.set(cx, bottomY + 0.01, cz);
+        group.add(bottom);
+        // Yellow-and-black hazard edges where the grating stops
+        const width = p.alongX ? d : w;
+        const yellow = new THREE.MeshStandardMaterial({ color: 0xf2c230, emissive: 0x5a4400, emissiveIntensity: 0.6 });
+        for (const end of [0, p.span]) {
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(width, 0.05, 0.14), yellow);
+            if (p.alongX) {
+                strip.rotation.y = Math.PI / 2;
+                strip.position.set(g.minX + end + (end ? 0.07 : -0.07), 0.02, cz);
+            } else {
+                strip.position.set(cx, 0.02, g.minZ + end + (end ? 0.07 : -0.07));
+            }
+            group.add(strip);
+        }
+        // The machines: a row of big housings along the gap, each with a
+        // chrome piston pumping up and down out of it, out of step with its
+        // neighbours, and a few blinking lights
+        const housing = new THREE.MeshStandardMaterial({ color: 0x3a3f46, metalness: 0.5, roughness: 0.6, emissive: 0x111316, emissiveIntensity: 1 });
+        const chrome = new THREE.MeshStandardMaterial({ color: 0xd0d6de, metalness: 0.9, roughness: 0.2, emissive: 0x30343a, emissiveIntensity: 1 });
+        const capMaterial = new THREE.MeshStandardMaterial({ color: 0xf2c230, emissive: 0xb08a10, emissiveIntensity: 0.8 });
+        const lamp = new THREE.MeshBasicMaterial({ color: 0xff8a1f });
+        p.pistons = [];
+        const n = Math.max(2, Math.floor(p.span / 3));
+        for (let k = 0; k < n; k++) {
+            const along = (k + 0.5) * (p.span / n);
+            const across = width / 2 + (k % 2 ? 0.35 : -0.35);
+            const x = p.alongX ? g.minX + along : g.minX + across;
+            const z = p.alongX ? g.minZ + across : g.minZ + along;
+            const box = new THREE.Mesh(new THREE.BoxGeometry(2.2, 3, 2.2), housing);
+            box.position.set(x, bottomY + 1.5, z);
+            group.add(box);
+            const light = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.05), lamp);
+            light.position.set(x, bottomY + 2.4, z + 1.13);
+            group.add(light);
+            const rod = new THREE.Group();
+            const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 8, 16), chrome);
+            shaft.position.y = -4;
+            rod.add(shaft);
+            const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.5, 20), capMaterial);
+            rod.add(cap);
+            rod.position.set(x, 0, z);
+            group.add(rod);
+            p.pistons.push({ rod, low: bottomY + 3.2, travel: 5.5, phase: k / n + (k % 2) * 0.5 });
+        }
+        this.root.add(group);
+    }
+
+    // The flattened tire (Level 81): a big black tire lying flat, squashed,
+    // with its tread on the outside and a gray metal wheel in the middle. It
+    // works exactly like Level 36's hover disc, at Level 27's fast-leaf speed.
+    createTire(p) {
+        const g = p.gap;
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        const outer = Math.min(width - 0.1, PLATFORM_LENGTH + 0.3) / 2;
+        const tube = 0.42;
+        const group = new THREE.Group();
+        const map = treadTexture();
+        map.repeat.set(6, 1);
+        const rubber = new THREE.MeshStandardMaterial({ map, color: 0xffffff, roughness: 0.95 });
+        const tire = new THREE.Mesh(new THREE.TorusGeometry(outer - tube, tube, 14, 48), rubber);
+        tire.rotation.x = Math.PI / 2;
+        tire.scale.z = 0.42; // squashed flat (the torus's thickness is its z before turning)
+        tire.position.y = -0.16;
+        tire.castShadow = true;
+        tire.receiveShadow = true;
+        group.add(tire);
+        const wheel = new THREE.Mesh(new THREE.CylinderGeometry(outer - tube * 1.4, outer - tube * 1.4, 0.16, 32), new THREE.MeshStandardMaterial({ color: 0x5c6168, metalness: 0.4, roughness: 0.6 }));
+        wheel.position.y = -0.1;
+        wheel.receiveShadow = true;
+        group.add(wheel);
+        const nut = new THREE.MeshStandardMaterial({ color: 0x4a4f56, metalness: 0.8, roughness: 0.3 });
+        const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.06, 16), nut);
+        hub.position.y = 0;
+        group.add(hub);
+        for (let k = 0; k < 5; k++) {
+            const a = (k / 5) * Math.PI * 2;
+            const bolt = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.06, 8), nut);
+            bolt.position.set(Math.cos(a) * 0.4, 0, Math.sin(a) * 0.4);
+            group.add(bolt);
+        }
+        this.root.add(group);
+        p.object = group;
     }
 
     // Volcano World sky: ash falling all the time like snowflakes over the
@@ -2363,6 +2937,7 @@ export class Maze {
     // Move the things flying through the sky, and under the platform gap (called every frame)
     update(dt) {
         if (this.ash) this.updateAsh(dt);
+        if (this.theme.factory) this.updateFactory(dt);
         if (this.auroras) this.updateAuroras(dt);
         for (const cam of this.cameras || []) {
             cam.time += dt;
@@ -2561,6 +3136,7 @@ export class Maze {
         if (this.theme.sweets) return this.createCandyCane(position, radius);
         if (this.theme.volcano) return this.createHotCoal(position, radius);
         if (this.theme.ice) return this.createIcicle(position, radius);
+        if (this.theme.factory) return this.createZapper(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -4280,6 +4856,12 @@ export class Maze {
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
     createPlatform(p) {
+        if (this.theme.factory) {
+            this.createMachinePit(p);
+            this.createTire(p);
+            this.showPlatform(p);
+            return;
+        }
         if (p.sled) {
             this.createIceCrack(p);
             this.createSled(p);
