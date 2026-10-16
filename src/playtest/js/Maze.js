@@ -1016,6 +1016,10 @@ const SNOWBALL_SPEED = 14;
 const SNOWBALL_REACH = 1.2;
 const SNOWBALL_RADIUS = 1.3;
 const SNOWMAN_WINDUP = 0.5;
+// With two snowmen (Level 79 on), every second one throws SNOWMAN_OFFSET
+// seconds out of step, so their timers run on their own
+const SNOWMAN_OFFSET = 1.25;
+const snowmanStartTimer = (index) => SNOWMAN_THROW_TIME - (index % 2) * SNOWMAN_OFFSET;
 
 // Ice World's thin ice (Level 73 on): one corridor cell of dark, cracked ice
 // on the path. Once any part of you has been on it for THIN_ICE_TIME seconds
@@ -1397,7 +1401,7 @@ export class Maze {
             t.center = new THREE.Vector3((t.minX + t.maxX) / 2, 0, (t.minZ + t.maxZ) / 2);
             return t;
         });
-        this.snowmen = groupBlocks([...hallBlocks, ...snowmanBlocks]).map((blocks) => this.setUpSnowman(blocks, snowmanBlocks, hallTargets));
+        this.snowmen = groupBlocks([...hallBlocks, ...snowmanBlocks]).map((blocks, index) => this.setUpSnowman(blocks, snowmanBlocks, hallTargets, index));
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
         if (doorBlocks.length) {
@@ -1420,13 +1424,13 @@ export class Maze {
     // One snowman's hallway (Ice World): `blocks` are its 'N' and 'M' blocks.
     // Along the hallway, u runs from 0 at its entrance (the start's end) to
     // `length` at the end wall behind him; across it, v runs from 0 to its width.
-    setUpSnowman(blocks, snowmanBlocks, targets) {
+    setUpSnowman(blocks, snowmanBlocks, targets, index = 0) {
         const xs = blocks.map((b) => b.x);
         const zs = blocks.map((b) => b.z);
         const s = {
             minX: Math.min(...xs), maxX: Math.max(...xs) + 1,
             minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
-            timer: SNOWMAN_THROW_TIME, balls: [],
+            index, timer: snowmanStartTimer(index), balls: [],
         };
         const mine = new Set(blocks.map((b) => `${b.x},${b.z}`));
         s.solid = snowmanBlocks.filter((b) => mine.has(`${b.x},${b.z}`));
@@ -1439,8 +1443,10 @@ export class Maze {
         s.entrance = s.sign > 0 ? lo : hi;
         s.length = hi - lo;
         s.width = s.alongX ? s.maxZ - s.minZ : s.maxX - s.minX;
-        const middle = new THREE.Vector3((s.minX + s.maxX) / 2, 0, (s.minZ + s.maxZ) / 2);
-        s.target = targets.reduce((a, b) => (b.distanceTo(middle) < a.distanceTo(middle) ? b : a)).clone();
+        // Its 'P' is the one nearest its entrance (with two snowmen, the
+        // other one's can be nearer its middle)
+        const entry = this.hallPoint(s, 0, s.width / 2);
+        s.target = targets.reduce((a, b) => (b.distanceTo(entry) < a.distanceTo(entry) ? b : a)).clone();
         // His middle, and the way he faces (toward the start)
         s.center = new THREE.Vector3(
             s.solid.reduce((t, b) => t + b.x + 0.5, 0) / s.solid.length, 0,
@@ -1570,7 +1576,7 @@ export class Maze {
     // Back to the start: no snowballs in the air, timers start again
     resetSnowmen() {
         for (const s of this.snowmen) {
-            s.timer = SNOWMAN_THROW_TIME;
+            s.timer = snowmanStartTimer(s.index);
             s.balls = [];
             this.showSnowman(s);
         }

@@ -1947,6 +1947,31 @@ const TUNES = {
         lead: { wave: 'square', level: 0.12, length: 0.07, brightness: 1800 },
         jingles: { bells: [2, 7], twinkles: { 14: 93, 30: 96, 46: 100, 62: 93 } },
     },
+    // Level 79 (two snowmen): a call and its answer, like two snowmen
+    // throwing back and forth: a low four-note toss, then the same toss an
+    // octave up from the other end, and a sneaky little tiptoe between them.
+    // E minor, a soft triangle lead; sleigh bells on beats 1 and 5 and
+    // twinkles (jingles).
+    twosnowmen: {
+        tempo: 108,
+        bars: [[40, 'min'], [40, 'min'], [36, 'maj'], [35, 'maj'], [40, 'min'], [45, 'min'], [35, 'maj'], [40, 'min']],
+        bass: [0, null, 0, null, 0, null, null, null],
+        bassLength: 0.14,
+        stabs: [],
+        ticks: false,
+        melody: [
+            64, null, 67, null, 71, null, 64, null,
+            76, null, 79, null, 83, null, 76, null,
+            72, null, 71, 69, null, 67, null, null,
+            75, null, 78, null, 71, null, null, null,
+            64, null, 67, null, 71, null, 74, null,
+            76, null, 79, null, 81, null, 84, null,
+            83, 81, null, 79, null, 78, null, 75,
+            76, null, null, 71, 64, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.14, length: 0.09, brightness: 1600 },
+        jingles: { bells: [1, 5], twinkles: { 12: 95, 28: 99, 44: 91, 60: 95 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

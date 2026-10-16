@@ -3986,6 +3986,73 @@ export const LEVELS = [
         '#                        TTT                    #',
         '#################################################',
         ],
+    },    {
+        name: 'Level 79',
+        // Two snowmen. `SEEDS=3000 node tools/find-ice-level.mjs level79
+        // 20 1`, seed 157. 12 x 12 corridors. Correct path 81 cells (start
+        // west in row 2, door east in row 9); 20 dead ends, every one 3
+        // cells deep, plus the sneaky icicle's. X: the sneaky icicle, in
+        // the last cell of a 3-deep one-turn dead end off path cell 1. N/M/P:
+        // two snowmen, one with his hallway path cells 52-55 heading north
+        // (the path turning west out of its last cell), the other with his
+        // hallway path cells 68-71 heading east along the top row (the path
+        // turning south). O: the 3-cell crack, path cells 74-76 heading
+        // south. Y: the big icicle curtain (icicle arch) across a straight
+        // dead end off path cell 33. No path icicle, no thin ice. Music:
+        // just sneaky, with wintery jingles.
+        theme: ICE,
+        music: 'twosnowmen',
+        layout: [
+        '#################################################',
+        '#       #           #       #NNNNNNNNNNNNNNM#   #',
+        '#     X #           #       #NNNNNNNNNNNNNNM#   #',
+        '#       #           #       #NNNNNNNNNNNNNNN#   #',
+        '#   #############   #   #   #   #########   #   #',
+        '#   #           #       #       #    NMM#   #   #',
+        '#   #           #       #     P #    NNN#   #   #',
+        '#   #           #       #       #    NNN#   #   #',
+        '#   #   #########   #############   #NNN#   #   #',
+        '#               #                   #NNN#       #',
+        '# S             #                   #NNN#       #',
+        '#               #                   #NNN#       #',
+        '#############   #########   #########NNN#   #####',
+        '#               #       #           #NNN#OOO#   #',
+        '#               #       #           #NNN#OOO#   #',
+        '#               #       #           #NNN#OOO#   #',
+        '#   #   #########   #################NNN#OOO#   #',
+        '#   #   #       #   #           #    NNN#OOO#   #',
+        '#   #   #       #   #           # P  NNN#OOO#   #',
+        '#   #   #       #   #           #    NNN#OOO#   #',
+        '#   #   #   #   #   #   #########   #####OOO#   #',
+        '#   #       #                   #       #OOO#   #',
+        '#   #       #                   #       #OOO#   #',
+        '#   #       #                   #       #OOO#   #',
+        '#####################   #####   #####   #   #   #',
+        '#       #       #           #   #       #       #',
+        '#       #       #           #   #       #       #',
+        '#       #       #           #   #       #       #',
+        '#   #####   #   #   #####   #####   #########   #',
+        '#           #       #       #   #   #       #   #',
+        '#           #       #       #   #   #       #   #',
+        '#           #       #       #   #   #       #   #',
+        '#####   #####################   #   #####   #   #',
+        '#   #                   #       #           #   #',
+        '#   #                   #       #           #   #',
+        '#   #                   #       #           #   #',
+        '#   #   #   #########   #   #########   #####   #',
+        '#       #           #   #       #       #       #',
+        '#       #           #   #       #       #       D',
+        '#       #           #   #       #       #       #',
+        '#####################   #   #   #   #####   #   #',
+        '#                       #   #       #       #   #',
+        '#                       #   #       #       #   #',
+        '#                       #   #       #       #   #',
+        '#############   #########   #################   #',
+        '#                                       #       #',
+        '#          Y                            #       #',
+        '#                                       #       #',
+        '#################################################',
+        ],
     },
 ];
 
