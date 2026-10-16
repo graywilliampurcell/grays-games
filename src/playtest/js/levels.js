@@ -3921,6 +3921,72 @@ export const LEVELS = [
         '#################################################',
         ],
     },
+    {
+        name: 'Level 78',
+        // Lots of thin ice. `SEEDS=3000 node tools/find-ice-level.mjs level78
+        // 20 27001`, seed 27095. 12 x 12 corridors. Correct path 84 cells
+        // (start west in row 4, door east in the top row); 20 dead ends,
+        // every one 3 cells deep. T: five thin ice cells, three on the path
+        // (path cell 14 in the top row heading east, path cell 37 heading
+        // south, path cell 54 in the bottom row heading east) and two in the
+        // middle cell of a dead end (off path cells 28 and 50). N/M/P: one
+        // snowman, his hallway path cells 40-43 heading north, the path
+        // turning west out of its last cell. No sled, no icicles. Music:
+        // just sneaky, with wintery jingles.
+        theme: ICE,
+        music: 'thinicetiptoe',
+        layout: [
+        '#################################################',
+        '#                    TTT        #               #',
+        '#                    TTT        #               D',
+        '#                    TTT        #               #',
+        '#############   #############   #   #############',
+        '#                   #           #       #       #',
+        '#                   #           #       #       #',
+        '#                   #           #       #       #',
+        '#############   #   #   #############   #   #   #',
+        '#   #           #   #               #       #   #',
+        '#   #           #   #               #       #   #',
+        '#   #           #   #               #       #   #',
+        '#   #############   #############   #########   #',
+        '#               #   #    TTT    #       #       #',
+        '#               #   #    TTT    #       #       #',
+        '#               #   #    TTT    #       #       #',
+        '#########   #   #   #########   #####   #   #####',
+        '#           #       #                   #       #',
+        '# S         #       #                   #       #',
+        '#           #       #                   #       #',
+        '#   #################   #   #################   #',
+        '#   #   #       #       #       #               #',
+        '#   #   #       #       #       #               #',
+        '#   #   #       #       #       #               #',
+        '#   #   #####   #   #########   #   #############',
+        '#   #       #   #           #   #               #',
+        '#   #       #   #           #   #               #',
+        '#   #       #   #           #   #               #',
+        '#   #####   #   #########   #############   #   #',
+        '#   #                NMM#           #       #   #',
+        '#   #                NNN#           #       #   #',
+        '#   #                NNN#           #       #   #',
+        '#####   #   #####   #NNN#   #####   #   #####   #',
+        '#       #       #   #NNN#TTT#   #   #       #   #',
+        '#       #       #   #NNN#TTT#   #   #       #   #',
+        '#       #       #   #NNN#TTT#   #   #       #   #',
+        '#############   #   #NNN#   #   #####   #   #####',
+        '#               #   #NNN#   #   #       #       #',
+        '#               #   #NNN#   #   #       #       #',
+        '#               #   #NNN#   #   #       #       #',
+        '#############   #   #NNN#   #   #   #############',
+        '#    TTT        #   #NNN        #               #',
+        '#    TTT        #   #NNN  P     #               #',
+        '#    TTT        #   #NNN        #               #',
+        '#############   #################   #############',
+        '#                        TTT                    #',
+        '#                        TTT                    #',
+        '#                        TTT                    #',
+        '#################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with

@@ -1922,6 +1922,31 @@ const TUNES = {
         lead: { wave: 'triangle', level: 0.14, length: 0.15, brightness: 1600 },
         jingles: { bells: [0, 6], twinkles: { 6: 92, 22: 97, 38: 99, 54: 92 } },
     },
+    // Level 78, lots of thin ice: just sneaky, with wintery jingles. A minor
+    // at 114 bpm. Short, light tiptoe notes on the same spot, two by two,
+    // that suddenly skip away (don't stand still on thin ice!), and a little
+    // cracking slide down at the end of each phrase. A crisp square lead;
+    // sleigh bells on beats 2 and 7 and twinkles (jingles).
+    thinicetiptoe: {
+        tempo: 114,
+        bars: [[33, 'min'], [33, 'min'], [41, 'maj'], [40, 'maj'], [33, 'min'], [38, 'min'], [40, 'maj'], [33, 'min']],
+        bass: [0, null, null, 0, null, null, 0, null],
+        bassLength: 0.12,
+        stabs: [],
+        ticks: false,
+        melody: [
+            76, 76, null, 76, 76, null, 81, null,
+            79, null, 77, 76, 75, 74, null, null,
+            77, 77, null, 77, 77, null, 84, null,
+            83, null, 81, 80, 79, 78, null, null,
+            76, 76, null, 76, 76, null, 81, 83,
+            84, null, 83, null, 81, null, null, null,
+            80, 80, null, 80, 80, null, 76, null,
+            75, 74, 73, 72, 69, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.07, brightness: 1800 },
+        jingles: { bells: [2, 7], twinkles: { 14: 93, 30: 96, 46: 100, 62: 93 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

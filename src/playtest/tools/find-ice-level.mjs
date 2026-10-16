@@ -9,6 +9,7 @@
 //   SEEDS=1500 node tools/find-ice-level.mjs level75 24 1      # two sled rides + the sneaky icicle (Level 75 = seed 791)
 //   SEEDS=1500 node tools/find-ice-level.mjs level76 24 18001  # path icicle + snowman + one sled ride + the sneaky icicle (Level 76 = seed 18452)
 //   SEEDS=3000 node tools/find-ice-level.mjs level77 20 20001  # every dead end 3 deep: big icicle curtain + one sled ride + one thin ice (Level 77 = seed 20016)
+//   SEEDS=3000 node tools/find-ice-level.mjs level78 20 1      # every dead end 3 deep: 3 thin ice on the path + 2 in dead ends + one snowman
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 12 x 12, so run many first seeds in parallel.
@@ -22,8 +23,8 @@
 // wall of the hallway's last cell, away from the side the path turns to), 'P'
 // the middle of the path cell just before the hallway (a snowball that hits
 // you in the hallway's first cell pushes you back there), 'T' a thin ice
-// cell (one plain path cell in a straight stretch; stand on it ~2 s and it
-// breaks).
+// cell (one plain path cell in a straight stretch, or the middle cell of a
+// dead end; stand on it ~2 s and it breaks).
 //
 // Rules for every level: 12 x 12, one solution path from the west edge to the
 // east edge, start and door on opposite edges, a layout clearly different
@@ -48,6 +49,7 @@ const RULES = {
     level75: { name: 'Level 75', depth: 2, deadEnds: 24, sneaky: true, gaps: 2 },
     level76: { name: 'Level 76', depth: 2, deadEnds: 24, sneaky: true, pathCane: true, snowmen: 1, gaps: 1, placeTries: 50 },
     level77: { name: 'Level 77', depth: 3, deadEnds: 20, bigCane: true, gaps: 1, thinIce: 1, placeTries: 20 },
+    level78: { name: 'Level 78', depth: 3, deadEnds: 20, snowmen: 1, thinIce: 3, deadEndIce: 2, placeTries: 50 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -329,6 +331,17 @@ function place(path, hung, random) {
         out.bigCane = options[Math.floor(random() * options.length)];
         spans.push([out.bigCane.at, out.bigCane.at]);
     }
+    // Thin ice in dead ends: the middle cell of a dead end (never the icicle
+    // curtain's), its opening spaced like any other obstacle's
+    out.deadEndIce = [];
+    for (let t = 0; t < (rule.deadEndIce ?? 0); t++) {
+        const options = hung.chains.map((chain, c) => ({ chain, at: hung.roots[c] }))
+            .filter(({ chain, at }) => chain !== out.bigCane?.chain && fits([at, at]));
+        if (options.length === 0) return null;
+        const d = options[Math.floor(random() * options.length)];
+        out.deadEndIce.push(d);
+        spans.push([d.at, d.at]);
+    }
     return out;
 }
 
@@ -384,6 +397,7 @@ for (const g of placed.rivers) for (const b of gapBlocks([...Array(GAP_CELLS).ke
 if (hung.sneaky && placed.pathCane !== undefined) put([4 * path[placed.pathCane].i + 2, 4 * path[placed.pathCane].j + 2], 'Z');
 if (placed.bigCane) put(rowBlock(path[placed.bigCane.at], placed.bigCane.chain[0]), 'Y');
 for (const n of placed.thinIce) for (const b of gapBlocks([path[n]])) put(b, 'T');
+for (const d of placed.deadEndIce) for (const b of gapBlocks([d.chain[1]])) put(b, 'T');
 for (const h of placed.snowmen) {
     for (const b of gapBlocks([...Array(SNOWMAN_CELLS).keys()].map((d) => path[h + d]))) put(b, 'N');
     const end = path[h + SNOWMAN_CELLS - 1];
@@ -409,4 +423,5 @@ placed.rivers.forEach((g) => console.log(`crack: path cells ${g + 1}-${g + GAP_C
 if (placed.pathCane !== undefined) console.log(`path icicle: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
 placed.snowmen.forEach((h) => console.log(`snowman: hallway path cells ${h + 1}-${h + SNOWMAN_CELLS} heading ${dir(h + 1)}, path turns ${dir(h + SNOWMAN_CELLS)} out of its last cell`));
 placed.thinIce.forEach((n) => console.log(`thin ice: path cell ${n + 1} (${key(path[n])}), heading ${dir(n)}`));
+placed.deadEndIce.forEach((d) => console.log(`thin ice in a dead end: dead end off path cell ${d.at + 1}, ice in its middle cell ${key(d.chain[1])}`));
 if (placed.bigCane) console.log(`big icicle curtain: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);
