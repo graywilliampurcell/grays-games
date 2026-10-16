@@ -2341,6 +2341,31 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.3, length: 0.09, brightness: 5200 },
     },
+    // Level 94, Everything World: Moon: happy but sneaky in Moon World's
+    // style (F minor, 132 bpm). Its hook floats: a long held high C that
+    // drifts down in slow steps like a hover disc gliding over a crater,
+    // then a quick bounce back up (low F, high F), on a hollow square lead
+    // over a bass that only plays on the off-beats, with soft ticks.
+    moontour: {
+        tempo: 132,
+        bars: [[41, 'min'], [44, 'maj'], [46, 'min'], [41, 'min'], [49, 'maj'], [44, 'maj'], [48, 'maj'], [41, 'min']],
+        bass: [null, 0, null, 7, null, 0, null, 'lead-in'],
+        bassLength: 0.1,
+        stabs: [2, 6],
+        stabLevel: 0.03,
+        ticks: true,
+        melody: [
+            84, null, null, null, 82, null, 80, null,
+            79, null, 77, null, 65, 77, null, null,
+            80, null, null, null, 79, null, 77, null,
+            75, null, 72, null, 68, null, null, null,
+            73, null, 77, null, 80, null, 77, null,
+            75, null, 72, null, 68, null, 72, null,
+            76, null, 79, null, 84, 82, 79, null,
+            77, null, 65, null, 65, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.08, length: 0.12, brightness: 3200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
