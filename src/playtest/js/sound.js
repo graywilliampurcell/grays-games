@@ -2084,6 +2084,32 @@ const TUNES = {
         lead: { wave: 'sawtooth', level: 0.12, length: 0.1, brightness: 1500 },
         factory: { clanks: [1, 5], beeps: { 7: 90, 15: 95, 23: 88, 31: 92, 47: 86, 55: 94 } },
     },
+    // Level 84, the robot arms: sneaky, a little spooky, a bit sneakier
+    // than Level 83. A minor at 100 bpm on a square wave. A stiff, jerky
+    // robot-arm melody: up in two big mechanical steps, a pause, back down
+    // the other side (like the arms switching sides), with a spooky
+    // E-flat (right between A and the A above) and an ending that sinks to
+    // a low G-sharp. Clanks on beats 3 and 7, robot beeps.
+    factoryarms: {
+        tempo: 100,
+        bars: [[45, 'min'], [45, 'min'], [41, 'maj'], [44, 'maj'], [45, 'min'], [51, 'maj'], [41, 'maj'], [44, 'maj']],
+        bass: [0, 0, null, null, 0, null, 0, null],
+        bassLength: 0.15,
+        stabs: [],
+        ticks: true,
+        melody: [
+            69, null, null, 76, null, null, 81, null,
+            null, null, 80, null, 76, null, 69, null,
+            75, null, 75, null, 74, null, 72, null,
+            71, null, null, null, 64, null, null, null,
+            69, null, null, 72, null, null, 75, null,
+            76, null, 75, null, 72, null, 69, null,
+            65, null, 69, null, 72, null, 71, null,
+            68, null, null, null, null, null, 56, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.09, brightness: 1600 },
+        factory: { clanks: [3, 7], beeps: { 1: 93, 11: 88, 25: 96, 33: 90, 43: 86, 57: 95 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -2587,6 +2613,26 @@ export class Sound {
         g.gain.exponentialRampToValueAtTime(0.7, t + 0.02);
         g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
         this.noiseSource(t, 0.35).connect(f).connect(g).connect(this.sfxBus);
+    }
+
+    // A robot arm pushing you off its belt: a hollow metal "clonk"
+    clonk() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('clonk');
+        const t = this.ctx.currentTime;
+        for (const [freq, level] of [[180, 0.35], [415, 0.18]]) {
+            const o = this.ctx.createOscillator();
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(freq, t);
+            o.frequency.exponentialRampToValueAtTime(freq * 0.7, t + 0.25);
+            const g = this.ctx.createGain();
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(level, t + 0.01);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+            o.connect(g).connect(this.sfxBus);
+            o.start(t);
+            o.stop(t + 0.32);
+        }
     }
 
     steam(t, length, from, to, freq) {

@@ -57,6 +57,9 @@ const GEYSER_HEAR_DISTANCE = 24;
 // first cell of its hallway this fast; its siren fades out over this distance
 const BELT_FLING_TIME = 0.5;
 const SIREN_HEAR_DISTANCE = 30;
+// A robot arm (Level 84 on) pushes you off its belt, back to the floor cell
+// just before it, taking this long
+const ARM_PUSH_TIME = 0.5;
 const VENT_HISS_TIME = 1;
 // A snowball (Ice World) pushes you one square back, taking this long; his
 // throw is heard this far away (quieter with distance)
@@ -225,6 +228,7 @@ function loadLevel(level, index) {
         spike2Radius: level.spike2Radius ?? LEVELS[index]?.spike2Radius,
         golden: !!(level.finale ?? LEVELS[index]?.finale),
         beltQuiet: level.beltQuiet ?? LEVELS[index]?.beltQuiet,
+        armInterval: level.armInterval ?? LEVELS[index]?.armInterval,
     });
     maze.build();
     collisionManager = new CollisionManager(maze.getMazeData());
@@ -390,6 +394,26 @@ function step(deltaTime) {
         if (event === 'fling' && !player.shove && !escaped) {
             player.startShove(belt.landing, BELT_FLING_TIME);
             testHooks?.emit('belt');
+        }
+    }
+    // Robot-arm belts (Robot Factory World, Level 84 on): the belt carries
+    // you forward (you can still walk and steer on it); arms slide back
+    // along one half at a time, and one that touches you pushes you back off
+    // the belt (not an Ouch). The arms stop while paused (this is the game step).
+    if (maze.armBelts.length && !player.shove && !player.carried && !escaped) {
+        const belt = maze.armBeltAt(player.position);
+        if (belt) {
+            const moved = player.position.clone().addScaledVector(belt.forward, maze.armBeltSpeed * deltaTime);
+            if (collisionManager.isPositionValid(moved, player.radius)) player.position.copy(moved);
+            player.camera.position.set(player.position.x, player.position.y + 1.6, player.position.z);
+        }
+    }
+    for (const { belt, event } of maze.updateArmBelts(deltaTime, player.position, player.radius)) {
+        if (event === 'arm') testHooks?.emit('arm');
+        if (event === 'push' && !player.shove && !escaped) {
+            player.startShove(belt.landing, ARM_PUSH_TIME);
+            sound.clonk();
+            testHooks?.emit('armPush');
         }
     }
     // Thin ice (Ice World, Level 73 on): stand on it too long and it breaks,

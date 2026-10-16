@@ -4,7 +4,8 @@
 //
 //   SEEDS=3000 node tools/find-factory-level.mjs level81 32 21001  # the sneaky zapper + one tire ride over a 5-cell gap (Level 81 = seed 21456)
 //   SEEDS=3000 node tools/find-factory-level.mjs level82 32 6001   # the sneaky zapper + one backward belt (Level 82 = seed 6810)
-//   SEEDS=3000 node tools/find-factory-level.mjs level83 32 1      # a path zapper + one backward belt (Level 83)
+//   SEEDS=3000 node tools/find-factory-level.mjs level83 30 1      # a path zapper + one backward belt (Level 83 = seed 79)
+//   SEEDS=3000 node tools/find-factory-level.mjs level84 30 1      # a robot-arm belt + one tire ride + the sneaky zapper (Level 84)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 13 x 13, so run many first seeds in parallel.
@@ -15,7 +16,10 @@
 // gap in the wall before its first cell), 'L' the middle of the first cell
 // of the belt's straight hallway, on the start's side (where the belt flings
 // you), 'X' the zapper on the path when there is no sneaky one ('Z' when
-// there is), 'Y' the big zapper filling a straight dead end's opening.
+// there is), 'Y' the big zapper filling a straight dead end's opening, 'A'
+// a robot-arm belt (6 corridor cells, counting the gap in the wall before
+// its first cell; it carries you forward), 'R' the middle of the floor cell
+// just before it (where an arm pushes you).
 //
 // Rules for every level: 13 x 13, one solution path from the west edge to the
 // east edge, start and door on opposite edges, a layout clearly different
@@ -29,7 +33,10 @@
 // hallway: plain path cells in a straight line, the path turning into its
 // first cell and out of its last; the belt is 4 cells of it, with at least
 // one floor cell of the hallway before it and one after it (Gray,
-// 2026-10-16), close to the start, in the middle or close to the end.
+// 2026-10-16), close to the start, in the middle or close to the end. A
+// robot-arm belt's hallway is the same kind of straight hallway; the belt is
+// 6 cells of it in the middle (as many floor cells before it as after it,
+// give or take one, and at least one each side).
 import { mulberry32, analyzeMaze, toLayout } from '../js/mazeCarver.js';
 import { LEVELS } from '../js/levels.js';
 
@@ -37,6 +44,9 @@ const RULES = {
     level81: { name: 'Level 81', depth: 2, deadEnds: 30, sneaky: true, gaps: 1 },
     level82: { name: 'Level 82', depth: 2, deadEnds: 30, sneaky: true, belts: 1 },
     level83: { name: 'Level 83', depth: 2, deadEnds: 30, pathCane: true, belts: 1, placeTries: 20 },
+    // straight: how often the path keeps going straight when it can (a long
+    // straight hallway for the arm belt is rare otherwise)
+    level84: { name: 'Level 84', depth: 2, deadEnds: 30, sneaky: true, gaps: 1, armBelts: 1, straight: 0.5, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -49,6 +59,7 @@ const COLS = 13;
 const ROWS = 13;
 const GAP_CELLS = 5; // the tire's gap is 5 corridor cells long
 const BELT_CELLS = 4; // a backward belt is 4 corridor cells long, after one floor cell
+const ARM_BELT_CELLS = 6; // a robot-arm belt is 6 corridor cells long, in the middle of its hallway
 const DEPTH = rule.depth;
 const PATH_LENGTH = COLS * ROWS - DEAD_ENDS * DEPTH - (rule.sneaky ? 3 : 0);
 const SEEDS = Number(process.env.SEEDS ?? 4000);
@@ -136,6 +147,11 @@ function layPath(random) {
         if (path.length === PATH_LENGTH) return last.i === COLS - 1 && (DEPTH === 3 ? leftoverSplits(used) : leftoverPairs(used, path));
         if (COLS - 1 - last.i > PATH_LENGTH - path.length) return false;
         const options = path.length === 1 ? [{ i: 1, j: start.j }] : shuffle(neighbours(last), random);
+        if (rule.straight && path.length > 1 && random() < rule.straight) {
+            const ahead = { i: 2 * last.i - path[path.length - 2].i, j: 2 * last.j - path[path.length - 2].j };
+            const k = options.findIndex((c) => key(c) === key(ahead));
+            if (k > 0) options.unshift(options.splice(k, 1)[0]);
+        }
         for (const next of options) {
             if (used.has(key(next))) continue;
             path.push(next);
@@ -285,7 +301,7 @@ function place(path, hung, random) {
     const spans = [];
     if (hung.sneaky) spans.push([hung.sneaky.index, hung.sneaky.index]);
     const fits = (span) => spans.every((s) => apart(s, span));
-    const out = { rivers: [], belts: [] };
+    const out = { rivers: [], belts: [], armBelts: [] };
     // Gaps: GAP_CELLS plain cells (so the path runs straight from g - 1 to g + GAP_CELLS)
     const cells = [...Array(GAP_CELLS).keys()];
     for (let r = 0; r < (rule.gaps ?? 0); r++) {
@@ -313,6 +329,28 @@ function place(path, hung, random) {
         if (options.length === 0) return null;
         const o = options[Math.floor(random() * options.length)];
         out.belts.push(o);
+        spans.push([o.h, o.e]);
+    }
+    // Robot-arm belts: a hallway h .. e like a backward belt's; the belt is
+    // cells b .. b + ARM_BELT_CELLS - 1 in its middle
+    for (let n = 0; n < (rule.armBelts ?? 0); n++) {
+        const options = [];
+        for (let h = 2; h < path.length - 2; h++) {
+            const dir = step(path[h], path[h + 1]);
+            if (step(path[h - 1], path[h]) === dir || !only(h)) continue;
+            let e = h + 1;
+            while (e + 1 < path.length - 1 && only(e) && step(path[e], path[e + 1]) === dir) e++;
+            if (!only(e) || e - h + 1 < ARM_BELT_CELLS + 2) continue;
+            if (!fits([h, e])) continue;
+            for (let b = h + 1; b + ARM_BELT_CELLS - 1 < e; b++) {
+                const before = b - h;
+                const after = e - (b + ARM_BELT_CELLS - 1);
+                if (Math.abs(before - after) <= 1) options.push({ h, e, b });
+            }
+        }
+        if (options.length === 0) return null;
+        const o = options[Math.floor(random() * options.length)];
+        out.armBelts.push(o);
         spans.push([o.h, o.e]);
     }
     // The zapper on the path: plain, with the path straight from k - 2 to
@@ -360,22 +398,27 @@ for (let seed = FIRST_SEED; seed < FIRST_SEED + SEEDS && !best; seed++) {
     const random = mulberry32(seed);
     const path = layPath(random);
     if (!path || path[0].j === PREVIOUS_START_ROW) { fail('path'); continue; }
-    const hung = hang(path, random);
+    let hung = hang(path, random);
     if (!hung) { fail('hang'); continue; }
     const startCell = path[0];
     const exitCell = path[path.length - 1];
-    const { solution, deadEnds, maxBranchDepth } = analyzeMaze(hung.links, startCell, exitCell);
-    if (solution.length !== PATH_LENGTH || deadEnds.length !== DEAD_ENDS + (rule.sneaky ? 1 : 0)) { fail('count'); continue; }
-    if (maxBranchDepth !== (rule.sneaky ? Math.max(3, DEPTH) : DEPTH)) { fail('depth'); continue; }
-    if (!deadEnds.every((d) => d.depth === DEPTH || (rule.sneaky && d.depth === 3))) continue;
-    const plainLayout = toLayout(hung.links, { startCell, exitCell, spikeCell: hung.sneaky?.s });
-    if (!differentEnough(shape(plainLayout))) { fail('same'); continue; }
-    if (hung.sneaky && spikeVisible(plainLayout, solution)) { fail('visible'); continue; }
-    // Placing is random, so a crowded level can ask for many tries
-    let placed = null;
-    for (let t = 0; t < (rule.placeTries ?? 1) && !placed; t++) placed = place(path, hung, random);
-    if (!placed) { fail('place'); continue; }
-    best = { seed, path, hung, placed, solution, deadEnds, startCell, exitCell };
+    const onPath = new Map(path.map((c, index) => [key(c), index]));
+    // Placing is random, so a crowded level can ask for many tries; with
+    // armBelts, each try also hangs the dead ends off new path cells (so a
+    // long hallway can be left clear)
+    for (let t = 0; t < (rule.placeTries ?? 1) && !best; t++) {
+        if (t > 0 && rule.armBelts) hung = link(path, hung.sneaky, hung.chains, onPath, random);
+        const { solution, deadEnds, maxBranchDepth } = analyzeMaze(hung.links, startCell, exitCell);
+        if (solution.length !== PATH_LENGTH || deadEnds.length !== DEAD_ENDS + (rule.sneaky ? 1 : 0)) { fail('count'); break; }
+        if (maxBranchDepth !== (rule.sneaky ? Math.max(3, DEPTH) : DEPTH)) { fail('depth'); break; }
+        if (!deadEnds.every((d) => d.depth === DEPTH || (rule.sneaky && d.depth === 3))) break;
+        const placed = place(path, hung, random);
+        if (!placed) { fail('place'); continue; }
+        const plainLayout = toLayout(hung.links, { startCell, exitCell, spikeCell: hung.sneaky?.s });
+        if (!differentEnough(shape(plainLayout))) { fail('same'); continue; }
+        if (hung.sneaky && spikeVisible(plainLayout, solution)) { fail('visible'); continue; }
+        best = { seed, path, hung, placed, solution, deadEnds, startCell, exitCell };
+    }
 }
 if (!best) {
     console.error('No maze found; loosen the rules.', JSON.stringify(why));
@@ -397,6 +440,14 @@ for (const { h, b: first } of placed.belts) {
     for (const c of [1, 2, 3]) put(dx ? [4 * before.i + (dx > 0 ? 4 : 0), 4 * before.j + c] : [4 * before.i + c, 4 * before.j + (dz > 0 ? 4 : 0)], 'B');
     put([4 * path[h].i + 2, 4 * path[h].j + 2], 'L');
 }
+for (const { b: first } of placed.armBelts) {
+    const belt = [...Array(ARM_BELT_CELLS).keys()].map((d) => path[first + d]);
+    for (const b of gapBlocks(belt)) put(b, 'A');
+    const before = path[first - 1];
+    const [dx, dz] = step(before, path[first]).split(',').map(Number);
+    for (const c of [1, 2, 3]) put(dx ? [4 * before.i + (dx > 0 ? 4 : 0), 4 * before.j + c] : [4 * before.i + c, 4 * before.j + (dz > 0 ? 4 : 0)], 'A');
+    put([4 * before.i + 2, 4 * before.j + 2], 'R');
+}
 
 console.log(layout.map((row) => `        '${row.join('')}',`).join('\n'));
 const dir = (n) => ({ '1,0': 'east', '-1,0': 'west', '0,1': 'south', '0,-1': 'north' })[step(path[n - 1], path[n])];
@@ -405,5 +456,6 @@ console.log(`\n${rule.name}: seed ${best.seed}, 13x13, start row ${best.startCel
 if (hung.sneaky) console.log(`sneaky zapper: dead end off path cell ${hung.sneaky.index + 1}, zapper in cell ${key(hung.sneaky.s)}`);
 placed.rivers.forEach((g) => console.log(`gap: path cells ${g + 1}-${g + GAP_CELLS}, crossed heading ${dir(g)}`));
 placed.belts.forEach(({ h, e, b }) => console.log(`belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + BELT_CELLS}, fling to cell ${key(path[h])}`));
+placed.armBelts.forEach(({ h, e, b }) => console.log(`arm belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + ARM_BELT_CELLS}, push to cell ${key(path[b - 1])}`));
 if (placed.pathCane !== undefined) console.log(`path zapper: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
 if (placed.bigCane) console.log(`big zapper: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);

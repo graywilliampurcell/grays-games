@@ -1498,6 +1498,23 @@ const BELT_WARNING_TIME = 2;
 const BELT_ON_TIME = 3;
 const BELT_SHOW_SPEED = 6; // how fast the belt's ridges race by while it's on (texture repeats per second)
 
+// A robot-arm belt (Level 84; Gray, 2026-10-16; starting values Gray will
+// judge): it carries you forward at ARM_BELT_SPEED (about 125% of walking,
+// which is about 7.5 a second); an arm ARM_LENGTH long on one half of the
+// belt appears at the far end every ARM_INTERVAL seconds (the first one
+// ARM_FIRST_TIME after the level starts), alternating right and left, and
+// slides back at ARM_SPEED (about walking speed); it is gone ARM_GONE from
+// the belt's start end. ARM_GAP: the sliver down the middle line no arm
+// covers.
+const ARM_BELT_SPEED = 9.3;
+const ARM_LENGTH = 3;
+const ARM_INTERVAL = 3;
+const ARM_FIRST_TIME = 1;
+const ARM_SPEED = 7.5;
+const ARM_GONE = 0.4;
+const ARM_GAP = 0.1;
+const ARM_APPEAR_TIME = 0.25;
+
 // The belt's rubber: dark, with raised ridges across it
 function beltTexture() {
     const canvas = document.createElement('canvas');
@@ -1528,7 +1545,9 @@ export class Maze {
     // spike2Radius: the second path spike's ('Z', Level 20) plate, the tighter squeeze
     // beltQuiet: how long a backward belt stays off and quiet before its
     // warning (Level 82: BELT_QUIET_TIME)
-    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS, spike2Radius = spikeRadius, golden = false, beltQuiet = BELT_QUIET_TIME } = {}) {
+    // armInterval: how often each robot-arm belt sends an arm (one number,
+    // or one per arm belt in layout order; ARM_INTERVAL normally)
+    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS, spike2Radius = spikeRadius, golden = false, beltQuiet = BELT_QUIET_TIME, armInterval = ARM_INTERVAL } = {}) {
         this.beltQuietTime = beltQuiet;
         this.spikeRadius = spikeRadius;
         this.spike2Radius = spike2Radius;
@@ -1577,6 +1596,10 @@ export class Maze {
         // where each one flings you ('L', the first cell of its hallway)
         const beltBlocks = [];
         const beltLandings = [];
+        // Robot-arm belts ('A' blocks; Level 84 on) and where an arm pushes
+        // you ('R', the floor cell just before the belt)
+        const armBlocks = [];
+        const armLandings = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -1603,6 +1626,8 @@ export class Maze {
                 if (ch === 'T') thinIceBlocks.push({ x, z });
                 if (ch === 'B') beltBlocks.push({ x, z });
                 if (ch === 'L') beltLandings.push(center);
+                if (ch === 'A') armBlocks.push({ x, z });
+                if (ch === 'R') armLandings.push(center);
             }
         }
         this.currents = [];
@@ -1672,6 +1697,9 @@ export class Maze {
             sm.startSide = this.reachableAvoiding(sm.lastCell);
         }
         this.belts = beltLandings.length ? groupBlocks(beltBlocks).map((blocks) => this.setUpBelt(blocks, beltLandings)) : [];
+        this.armBeltSpeed = ARM_BELT_SPEED;
+        this.armBelts = armLandings.length ? groupBlocks(armBlocks).map((blocks) => this.setUpArmBelt(blocks, armLandings)) : [];
+        this.armBelts.forEach((belt, index) => { belt.interval = Array.isArray(armInterval) ? armInterval[index] ?? ARM_INTERVAL : armInterval; });
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
         if (doorBlocks.length) {
@@ -1877,6 +1905,7 @@ export class Maze {
         for (const s of this.snowmen) this.createSnowman(s);
         for (const t of this.thinIce) this.createThinIce(t);
         for (const belt of this.belts) this.createBelt(belt);
+        for (const belt of this.armBelts) this.createArmBelt(belt);
         this.scene.add(this.root);
     }
 
@@ -2202,6 +2231,227 @@ export class Maze {
         // On: the ridges race backward, toward the start (-z in the belt's
         // own frame; the top face's v runs the other way to z)
         belt.map.offset.y = -belt.slide;
+    }
+
+    // ---- Robot-arm belts (Robot Factory World, Level 84 on) ----
+
+    // One robot-arm belt: its 'A' blocks (6 corridor cells, full width) and
+    // the 'R' an arm pushes you back to (the floor cell just before it).
+    // "Forward" is away from that cell, toward the exit.
+    setUpArmBelt(blocks, landings) {
+        const xs = blocks.map((b) => b.x);
+        const zs = blocks.map((b) => b.z);
+        const belt = {
+            minX: Math.min(...xs), maxX: Math.max(...xs) + 1,
+            minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
+            arms: [], timer: ARM_FIRST_TIME, side: 1, slide: 0,
+        };
+        belt.center = new THREE.Vector3((belt.minX + belt.maxX) / 2, 0, (belt.minZ + belt.maxZ) / 2);
+        belt.alongX = belt.maxX - belt.minX > belt.maxZ - belt.minZ;
+        belt.length = belt.alongX ? belt.maxX - belt.minX : belt.maxZ - belt.minZ;
+        belt.width = belt.alongX ? belt.maxZ - belt.minZ : belt.maxX - belt.minX;
+        belt.landing = landings.reduce((a, b) => (b.distanceTo(belt.center) < a.distanceTo(belt.center) ? b : a)).clone();
+        // Unit vectors: forward along the belt (toward the exit), and to its right
+        const back = belt.alongX ? Math.sign(belt.landing.x - belt.center.x) : Math.sign(belt.landing.z - belt.center.z);
+        belt.forward = belt.alongX ? new THREE.Vector3(-back, 0, 0) : new THREE.Vector3(0, 0, -back);
+        // Facing d (yaw 0 faces -z), the left is (d.z, -d.x), so the right is (-d.z, d.x)
+        belt.right = new THREE.Vector3(-belt.forward.z, 0, belt.forward.x);
+        return belt;
+    }
+
+    // Is the middle of the player on this belt (so it carries them)?
+    onArmBelt(belt, point) {
+        return point.x > belt.minX && point.x < belt.maxX && point.z > belt.minZ && point.z < belt.maxZ;
+    }
+
+    // The arm belt under the player's middle, if any
+    armBeltAt(point) {
+        return this.armBelts.find((belt) => this.onArmBelt(belt, point)) ?? null;
+    }
+
+    // Where an arm is: `s` = how far its start-side end is from the belt's
+    // start end, `side` = 1 for the right half, -1 for the left. Returns its
+    // rectangle on the floor.
+    armBox(belt, arm) {
+        const c = belt.center;
+        const along = -belt.length / 2 + arm.s + ARM_LENGTH / 2; // middle of the arm along the belt
+        const across = arm.side * (belt.width / 4 + ARM_GAP / 2); // middle of its half, a sliver off the middle line
+        const half = { along: ARM_LENGTH / 2, across: belt.width / 4 - ARM_GAP / 2 };
+        const x = c.x + belt.forward.x * along + belt.right.x * across;
+        const z = c.z + belt.forward.z * along + belt.right.z * across;
+        const hx = belt.alongX ? half.along : half.across;
+        const hz = belt.alongX ? half.across : half.along;
+        return { minX: x - hx, maxX: x + hx, minZ: z - hz, maxZ: z + hz, x, z };
+    }
+
+    // Run every arm belt (called every game step, so the arms stop while
+    // paused): the belt keeps running forward; a new arm appears at the far
+    // end every ARM_INTERVAL seconds, on alternating halves (right, left,
+    // right, ...), slides back toward the start at ARM_SPEED, and is gone
+    // just before the start end. An arm touching the player pushes them off
+    // the belt. Returns events: { belt, event: 'arm' | 'push' }.
+    updateArmBelts(dt, point, radius) {
+        const events = [];
+        for (const belt of this.armBelts) {
+            belt.slide += dt * ARM_BELT_SPEED;
+            belt.timer -= dt;
+            if (belt.timer <= 0) {
+                belt.timer += belt.interval;
+                belt.arms.push({ s: belt.length - ARM_LENGTH, side: belt.side, age: 0 });
+                belt.side = -belt.side;
+                events.push({ belt, event: 'arm' });
+            }
+            for (const arm of belt.arms) {
+                arm.age += dt;
+                arm.s -= ARM_SPEED * dt;
+            }
+            belt.arms = belt.arms.filter((arm) => {
+                if (arm.s > ARM_GONE) return true;
+                arm.object?.parent?.remove(arm.object);
+                return false;
+            });
+            for (const arm of belt.arms) {
+                const box = this.armBox(belt, arm);
+                const nx = Math.max(box.minX, Math.min(point.x, box.maxX));
+                const nz = Math.max(box.minZ, Math.min(point.z, box.maxZ));
+                if ((point.x - nx) ** 2 + (point.z - nz) ** 2 < radius * radius) events.push({ belt, arm, event: 'push' });
+            }
+            this.showArmBelt(belt);
+        }
+        return events;
+    }
+
+    // The arm belt: a dark rubber belt with ridges (like the backward belt,
+    // but running forward all the time) between rollers, with steel rails
+    // and a yellow arrow strip down the middle line
+    createArmBelt(belt) {
+        const group = new THREE.Group();
+        const { length, width } = belt;
+        // Built along z (+z = forward, toward the exit), then turned
+        const map = beltTexture();
+        map.repeat.set(1, length / 2);
+        belt.map = map;
+        const surface = new THREE.Mesh(new THREE.BoxGeometry(width - 0.1, 0.06, length), new THREE.MeshStandardMaterial({ map, roughness: 0.9 }));
+        surface.position.y = 0.01;
+        surface.receiveShadow = true;
+        group.add(surface);
+        const steel = new THREE.MeshStandardMaterial({ color: 0x8a9098, metalness: 0.7, roughness: 0.35 });
+        for (const end of [-1, 1]) {
+            const roller = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, width - 0.1, 12), steel);
+            roller.rotation.z = Math.PI / 2;
+            roller.position.set(0, 0.04, end * (length / 2 - 0.05));
+            group.add(roller);
+        }
+        for (const side of [-1, 1]) {
+            const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, length), steel);
+            rail.position.set(side * (width / 2 - 0.04), 0.07, 0);
+            group.add(rail);
+        }
+        // Little yellow arrows painted on the walls' rails, pointing forward
+        const arrow = new THREE.MeshStandardMaterial({ color: 0xf2c230, emissive: 0x5a4300, emissiveIntensity: 0.6 });
+        for (let k = 0; k < Math.floor(length / 4); k++) {
+            for (const side of [-1, 1]) {
+                const shape = new THREE.Shape();
+                shape.moveTo(-0.18, 0);
+                shape.lineTo(0.18, 0);
+                shape.lineTo(0, 0.3);
+                shape.closePath();
+                const mark = new THREE.Mesh(new THREE.ShapeGeometry(shape), arrow);
+                mark.rotation.x = -Math.PI / 2;
+                mark.rotation.z = Math.PI;
+                mark.position.set(side * (width / 2 - 0.04), 0.15, -length / 2 + 2 + k * 4);
+                group.add(mark);
+            }
+        }
+        // +z (local) must point forward
+        const turn = Math.atan2(belt.forward.x, belt.forward.z);
+        group.rotation.y = turn;
+        group.position.copy(belt.center);
+        this.root.add(group);
+        belt.object = group;
+        belt.steel = steel;
+        this.showArmBelt(belt);
+    }
+
+    // One robot arm, lying flat: a metal hand with three claw fingers at the
+    // start-side end (the end coming at you), a forearm, an elbow joint, an
+    // upper arm, and at the broken end a torn shoulder with sparking wires
+    // (just for looks; the whole thing pushes you). Built with +z forward.
+    createArm(belt, arm) {
+        const group = new THREE.Group();
+        const metal = new THREE.MeshStandardMaterial({ color: 0xb8bec6, metalness: 0.5, roughness: 0.4, emissive: 0x3a3e45, emissiveIntensity: 1 });
+        const dark = new THREE.MeshStandardMaterial({ color: 0x6a7079, metalness: 0.5, roughness: 0.5, emissive: 0x1e2126, emissiveIntensity: 1 });
+        const across = belt.width / 2 - ARM_GAP; // how wide the arm's half is
+        const L = ARM_LENGTH;
+        // Hand (start-side end, local z = -L/2): a palm and three fingers
+        const palm = new THREE.Mesh(new THREE.BoxGeometry(across * 0.8, 0.3, 0.5), metal);
+        palm.position.set(0, 0.2, -L / 2 + 0.55);
+        group.add(palm);
+        for (const f of [-1, 0, 1]) {
+            const finger = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.45), dark);
+            finger.position.set(f * across * 0.33, 0.14, -L / 2 + 0.2);
+            finger.rotation.y = f * 0.25;
+            group.add(finger);
+        }
+        // Forearm, elbow, upper arm: chunky cylinders lying along the belt
+        const fore = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.22, L * 0.38, 12), metal);
+        fore.rotation.x = Math.PI / 2;
+        fore.position.set(0, 0.28, -L / 2 + 0.8 + L * 0.19);
+        group.add(fore);
+        const elbow = new THREE.Mesh(new THREE.SphereGeometry(0.33, 14, 10), dark);
+        elbow.position.set(0, 0.3, -L / 2 + 0.8 + L * 0.38);
+        group.add(elbow);
+        const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, L * 0.3, 12), metal);
+        upper.rotation.x = Math.PI / 2;
+        upper.position.set(0, 0.32, L / 2 - 0.15 - L * 0.15);
+        group.add(upper);
+        // The broken end: a jagged torn rim and dangling wires
+        const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.12, 8), dark);
+        rim.rotation.x = Math.PI / 2;
+        rim.position.set(0, 0.32, L / 2 - 0.12);
+        group.add(rim);
+        const wireColors = [0xd83a2a, 0x2a7ad8, 0xf2c230];
+        wireColors.forEach((color, k) => {
+            const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 6), new THREE.MeshStandardMaterial({ color }));
+            wire.rotation.x = Math.PI / 2 + (k - 1) * 0.4;
+            wire.rotation.z = (k - 1) * 0.5;
+            wire.position.set((k - 1) * 0.12, 0.3 + (k - 1) * 0.05, L / 2 + 0.05);
+            group.add(wire);
+        });
+        // Sparks flickering at the wires' ends
+        const sparkGeometry = new THREE.BufferGeometry();
+        sparkGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(10 * 3), 3));
+        const sparks = new THREE.Points(sparkGeometry, new THREE.PointsMaterial({ color: 0xfff6a0, size: 0.09 }));
+        group.add(sparks);
+        const glow = new THREE.Mesh(new THREE.SphereGeometry(0.25, 10, 8), new THREE.MeshBasicMaterial({ color: 0x8fe0ff, transparent: true, opacity: 0.5, depthWrite: false }));
+        glow.position.set(0, 0.3, L / 2 + 0.25);
+        group.add(glow);
+        group.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+        arm.object = group;
+        arm.sparks = sparks;
+        arm.glow = glow;
+        this.root.add(group);
+    }
+
+    // Belt ridges race forward; arms slide (and pop up as they appear)
+    showArmBelt(belt) {
+        if (!belt.object) return;
+        belt.map.offset.y = belt.slide / 2;
+        const turn = Math.atan2(belt.forward.x, belt.forward.z);
+        for (const arm of belt.arms) {
+            if (!arm.object) this.createArm(belt, arm);
+            const box = this.armBox(belt, arm);
+            arm.object.position.set(box.x, 0, box.z);
+            arm.object.rotation.y = turn;
+            // It drops onto the belt as it appears, and sinks away as it goes
+            const grow = Math.min(1, arm.age / ARM_APPEAR_TIME);
+            const fade = Math.min(1, Math.max(0, (arm.s - ARM_GONE) / 0.6));
+            arm.object.scale.setScalar(Math.max(0.01, Math.min(grow, fade)));
+            const sp = arm.sparks.geometry.attributes.position;
+            for (let k = 0; k < sp.count; k++) sp.setXYZ(k, (Math.random() - 0.5) * 0.5, 0.3 + (Math.random() - 0.3) * 0.4, ARM_LENGTH / 2 + 0.15 + Math.random() * 0.35);
+            sp.needsUpdate = true;
+            arm.glow.material.opacity = 0.25 + Math.random() * 0.4;
+        }
     }
 
     // ---- Robot Factory World (Level 81 on) ----
