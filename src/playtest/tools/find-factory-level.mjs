@@ -5,8 +5,9 @@
 //   SEEDS=3000 node tools/find-factory-level.mjs level81 32 21001  # the sneaky zapper + one tire ride over a 5-cell gap (Level 81 = seed 21456)
 //   SEEDS=3000 node tools/find-factory-level.mjs level82 32 6001   # the sneaky zapper + one backward belt (Level 82 = seed 6810)
 //   SEEDS=3000 node tools/find-factory-level.mjs level83 30 1      # a path zapper + one backward belt (Level 83 = seed 79)
-//   SEEDS=3000 node tools/find-factory-level.mjs level84 30 1      # a robot-arm belt + one tire ride + the sneaky zapper (Level 84)
-//   SEEDS=3000 node tools/find-factory-level.mjs level85 30 1      # the big zapper + one backward belt (Level 85)
+//   SEEDS=3000 node tools/find-factory-level.mjs level84 30 15001  # a robot-arm belt + one tire ride + the sneaky zapper (Level 84 = seed 16106)
+//   SEEDS=3000 node tools/find-factory-level.mjs level85 28 18001  # the big zapper + one backward belt (Level 85 = seed 18354)
+//   SEEDS=3000 node tools/find-factory-level.mjs level86 30 1      # a path zapper + one tire ride + one backward belt (Level 86)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 13 x 13, so run many first seeds in parallel.
@@ -49,6 +50,7 @@ const RULES = {
     // straight hallway for the arm belt is rare otherwise)
     level84: { name: 'Level 84', depth: 2, deadEnds: 30, sneaky: true, gaps: 1, armBelts: 1, straight: 0.5, placeTries: 40 },
     level85: { name: 'Level 85', depth: 2, deadEnds: 30, bigCane: true, belts: 1, placeTries: 20 },
+    level86: { name: 'Level 86', depth: 2, deadEnds: 28, pathCane: true, gaps: 1, belts: 1, placeTries: 200 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

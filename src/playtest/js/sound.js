@@ -2137,6 +2137,32 @@ const TUNES = {
         lead: { wave: 'triangle', level: 0.17, length: 0.12, brightness: 1500 },
         factory: { clanks: [2, 6], beeps: { 5: 89, 13: 94, 29: 87, 37: 92, 45: 96, 61: 85 } },
     },
+    // Level 86, the tighter squeeze: sneaky, a little spooky, a bit sneakier
+    // than Level 85. B-flat minor at 116 bpm on a square wave. Short,
+    // pinched notes squeezed close together (half steps up and down, like
+    // edging sideways past the zapper), a quick zap-zap-zap up high, then a
+    // rolling run down like the tire ride, ending on a low A (one step
+    // under B-flat, unsettled). Clanks on beats 0 and 3, robot beeps.
+    factorysqueeze: {
+        tempo: 116,
+        bars: [[46, 'min'], [46, 'min'], [42, 'maj'], [45, 'maj'], [46, 'min'], [39, 'min'], [42, 'maj'], [45, 'maj']],
+        bass: [0, null, null, 0, 0, null, null, null],
+        bassLength: 0.1,
+        stabs: [],
+        ticks: true,
+        melody: [
+            70, 71, 70, null, 69, 70, null, null,
+            73, 74, 73, null, 72, 73, null, null,
+            82, 82, 82, null, 77, null, null, null,
+            76, null, 74, null, 73, null, 70, null,
+            70, 71, 70, null, 69, 70, null, null,
+            75, 76, 75, null, 74, 75, null, null,
+            78, null, 77, null, 75, null, 73, null,
+            70, null, 69, null, null, null, 57, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.08, brightness: 1700 },
+        factory: { clanks: [0, 3], beeps: { 9: 92, 17: 87, 31: 95, 41: 89, 49: 84, 63: 93 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
