@@ -4,12 +4,15 @@
 // earlier world, with that world's own obstacles.
 //
 //   SEEDS=3000 node tools/find-everything-level.mjs level91 36 15001 # Cotton Candy: a spike on the path + the big spike (Level 91 = seed 15599)
+//   SEEDS=3000 node tools/find-everything-level.mjs level92 36 1     # Space: a space door, a slippery spot, a moving-platform gap
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
 //
 // Layout letters (see js/Maze.js): 'S' start, 'D' door, 'X' the spike on
-// the path, 'Y' the big spike filling a straight dead end's opening.
+// the path, 'Y' the big spike filling a straight dead end's opening, 'G' a
+// space door (the wall gap between two path cells), 'I' a slippery strip
+// across a path cell, 'O' a 2-cell gap crossed on a moving platform.
 //
 // Rules for every level: 14 x 14, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -21,6 +24,7 @@ import { LEVELS } from '../js/levels.js';
 
 const RULES = {
     level91: { name: 'Level 91', depth: 2, deadEnds: 40, pathCane: true, bigCane: true, placeTries: 20 },
+    level92: { name: 'Level 92', depth: 2, deadEnds: 36, spaceDoor: true, slippery: 1, platforms: 1, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -303,7 +307,44 @@ function place(path, hung, random) {
     const spans = [];
     if (hung.sneaky) spans.push([hung.sneaky.index, hung.sneaky.index]);
     const fits = (span) => spans.every((s) => apart(s, span));
-    const out = { rivers: [], belts: [], armBelts: [] };
+    const out = { rivers: [], belts: [], armBelts: [], platforms: [], slippery: [] };
+    // Space platform gaps (Level 17's): two plain path cells g and g + 1,
+    // straight from g - 1 to g + 2, in the middle part of the path
+    for (let r = 0; r < (rule.platforms ?? 0); r++) {
+        const options = [];
+        for (let g = 2; g < path.length - 3; g++) if (plain(g) && plain(g + 1) && g >= path.length * 0.25 && g + 1 <= path.length * 0.8 && fits([g, g + 1])) options.push(g);
+        if (options.length === 0) return null;
+        const g = options[Math.floor(random() * options.length)];
+        out.platforms.push(g);
+        spans.push([g, g + 1]);
+    }
+    // The space door (Level 12's): the wall gap between path cells d and
+    // d + 1, path straight from d - 1 to d + 2, not by the start or the exit
+    if (rule.spaceDoor) {
+        const options = [];
+        for (let d = 1; d < path.length - 2; d++) {
+            const dir = step(path[d], path[d + 1]);
+            if (d < path.length * 0.25 || d > path.length * 0.8) continue;
+            if (step(path[d - 1], path[d]) === dir && step(path[d + 1], path[d + 2]) === dir && fits([d, d + 1])) options.push(d);
+        }
+        if (options.length === 0) return null;
+        out.door = options[Math.floor(random() * options.length)];
+        spans.push([out.door, out.door + 1]);
+    }
+    // Slippery spots (Level 13's): a plain path cell, kept well away from the
+    // door (at least 6 path cells between)
+    for (let n = 0; n < (rule.slippery ?? 0); n++) {
+        const options = [];
+        for (let k = 1; k < path.length - 1; k++) {
+            if (!plain(k) || !fits([k, k])) continue;
+            if (out.door !== undefined && (k <= out.door ? out.door - k : k - out.door - 1) < 7) continue;
+            options.push(k);
+        }
+        if (options.length === 0) return null;
+        const k = options[Math.floor(random() * options.length)];
+        out.slippery.push(k);
+        spans.push([k, k]);
+    }
     // Gaps: GAP_CELLS plain cells (so the path runs straight from g - 1 to g + GAP_CELLS)
     const cells = [...Array(GAP_CELLS).keys()];
     for (let r = 0; r < (rule.gaps ?? 0); r++) {
@@ -432,6 +473,16 @@ const layout = toLayout(hung.links, { startCell: best.startCell, exitCell: best.
 const put = ([x, z], ch) => { layout[z][x] = ch; };
 if (hung.sneaky && placed.pathCane !== undefined) put([4 * path[placed.pathCane].i + 2, 4 * path[placed.pathCane].j + 2], 'Z');
 if (placed.bigCane) put(rowBlock(path[placed.bigCane.at], placed.bigCane.chain[0]), 'Y');
+for (const g of placed.platforms) for (const b of gapBlocks([path[g], path[g + 1]])) put(b, 'O');
+for (const k of placed.slippery) {
+    const cell = path[k];
+    for (const d of [1, 2, 3]) put(cell.i !== path[k + 1].i ? [4 * cell.i + 2, 4 * cell.j + d] : [4 * cell.i + d, 4 * cell.j + 2], 'I');
+}
+if (placed.door !== undefined) {
+    const a = path[placed.door];
+    const b = path[placed.door + 1];
+    for (const d of [1, 2, 3]) put(a.i !== b.i ? [4 * Math.max(a.i, b.i), 4 * a.j + d] : [4 * a.i + d, 4 * Math.max(a.j, b.j)], 'G');
+}
 for (const g of placed.rivers) for (const b of gapBlocks([...Array(GAP_CELLS).keys()].map((d) => path[g + d]))) put(b, 'F');
 for (const { h, b: first } of placed.belts) {
     const belt = [...Array(BELT_CELLS).keys()].map((d) => path[first + d]);
@@ -456,6 +507,9 @@ const dir = (n) => ({ '1,0': 'east', '-1,0': 'west', '0,1': 'south', '0,-1': 'no
 console.log(`\n${rule.name}: seed ${best.seed}, 14x14, start row ${best.startCell.j} west, door row ${best.exitCell.j} east, ` +
     `path ${best.solution.length} cells, ${best.deadEnds.length} dead ends (depths ${best.deadEnds.map((d) => d.depth).join(',')})`);
 if (hung.sneaky) console.log(`sneaky spike: dead end off path cell ${hung.sneaky.index + 1}, zapper in cell ${key(hung.sneaky.s)}`);
+placed.platforms.forEach((g) => console.log(`platform gap: path cells ${g + 1}-${g + 2} (${key(path[g])} ${key(path[g + 1])}), crossed heading ${dir(g)}`));
+if (placed.door !== undefined) console.log(`space door: between path cells ${placed.door + 1} and ${placed.door + 2} (${key(path[placed.door])} -> ${key(path[placed.door + 1])}), heading ${dir(placed.door + 1)}`);
+placed.slippery.forEach((k) => console.log(`slippery spot: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}`));
 placed.rivers.forEach((g) => console.log(`gap: path cells ${g + 1}-${g + GAP_CELLS}, crossed heading ${dir(g)}`));
 placed.belts.forEach(({ h, e, b }) => console.log(`belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + BELT_CELLS}, fling to cell ${key(path[h])}`));
 placed.armBelts.forEach(({ h, e, b }) => console.log(`arm belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + ARM_BELT_CELLS}, push to cell ${key(path[b - 1])}`));

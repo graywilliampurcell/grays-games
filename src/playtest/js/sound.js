@@ -2292,6 +2292,30 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.32, length: 0.14, brightness: 4500 },
     },
+    // Level 92, Everything World: Space: a happy, floaty space tune (G
+    // major) in Space World's style, whose hook blasts off in a quick climb,
+    // floats at the top and drifts down like a platform, with one sneaky
+    // minor bar pair in the middle, on a soft sine lead over a rocking bass.
+    spacetour: {
+        tempo: 118,
+        bars: [[43, 'maj'], [36, 'maj'], [38, 'maj'], [43, 'maj'], [40, 'min'], [35, 'min'], [38, 'maj'], [43, 'maj']],
+        bass: [0, null, 7, null, 12, null, 7, null],
+        bassLength: 0.18,
+        stabs: [2, 6],
+        stabLevel: 0.03,
+        ticks: false,
+        melody: [
+            67, 71, 74, 79, null, null, 78, 79,
+            76, null, 72, null, 79, null, 76, null,
+            74, 78, 81, 86, null, null, 84, 81,
+            79, null, null, null, 74, null, null, null,
+            76, 79, 83, null, 81, null, 79, null,
+            78, null, 74, null, 71, null, 74, null,
+            74, 78, 81, null, 83, 86, 88, null,
+            91, null, null, null, 79, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.32, length: 0.22, brightness: 6000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
