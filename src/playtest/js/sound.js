@@ -1972,6 +1972,35 @@ const TUNES = {
         lead: { wave: 'triangle', level: 0.14, length: 0.09, brightness: 1600 },
         jingles: { bells: [1, 5], twinkles: { 12: 95, 28: 99, 44: 91, 60: 95 } },
     },
+    // Level 80, the Ice World finale: the sneakiest Ice World tune. B minor
+    // at 120 bpm. A bit of every Ice World level at once: the squeeze trill
+    // (B, C, B) past the path icicle, a sled zipping up a quick run and
+    // gliding down, two snowballs tossed back and forth an octave apart, and
+    // a tiptoe over thin ice that cracks on a low thud. The second half does
+    // it again a fourth higher and closer together, creeps down by half
+    // steps, and ends hanging on a sneaky, unresolved C-sharp. A biting
+    // sawtooth lead, ticking, a busy off-beat bass; sleigh bells on beats 0,
+    // 3 and 6 and twinkles (jingles).
+    icefinale: {
+        tempo: 120,
+        bars: [[35, 'min'], [35, 'min'], [43, 'maj'], [42, 'maj'], [35, 'min'], [40, 'min'], [43, 'maj'], [42, 'maj']],
+        bass: [0, null, 0, null, null, 0, null, 0],
+        bassLength: 0.12,
+        stabs: [],
+        ticks: true,
+        melody: [
+            71, 72, 71, null, 74, 78, 83, 86,
+            83, null, 78, null, 74, null, null, null,
+            59, null, 71, null, 59, null, 71, null,
+            66, null, 67, null, 66, null, 47, null,
+            76, 77, 76, null, 79, 83, 88, 91,
+            88, 83, 79, 76, null, null, 64, 76,
+            75, 74, 73, 72, 71, 70, 69, null,
+            null, null, 73, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.1, length: 0.08, brightness: 1500 },
+        jingles: { bells: [0, 3, 6], twinkles: { 7: 98, 23: 95, 39: 103, 55: 100 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
