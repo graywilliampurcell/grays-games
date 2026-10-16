@@ -2215,6 +2215,32 @@ const TUNES = {
         lead: { wave: 'triangle', level: 0.17, length: 0.08, brightness: 1500 },
         factory: { clanks: [2, 5], beeps: { 3: 94, 19: 88, 29: 92, 37: 85, 51: 96, 61: 89 } },
     },
+    // Level 89, two backward belts: sneaky, a bit sneakier than Level 88.
+    // F minor at 108 bpm on a sawtooth. A phrase walks up and then gets
+    // flung back down in a fast run (the first belt), then the same thing
+    // again lower and later (the second belt, half a cycle behind); a
+    // two-note siren for the warnings, and it ends low on an E (one step
+    // under F, unsettled). Clanks on beats 0 and 4, robot beeps.
+    factorytwobelts: {
+        tempo: 108,
+        bars: [[41, 'min'], [41, 'min'], [37, 'maj'], [36, 'maj'], [41, 'min'], [46, 'min'], [37, 'maj'], [36, 'maj']],
+        bass: [0, null, null, null, 0, null, 0, null],
+        bassLength: 0.14,
+        stabs: [],
+        ticks: true,
+        melody: [
+            65, 68, 70, 72, 77, 75, 72, 68,
+            65, null, null, null, null, null, null, null,
+            null, null, 61, 65, 68, 70, 73, 72,
+            68, 65, 61, null, null, null, null, null,
+            72, 73, 72, 73, 72, null, null, null,
+            68, 70, 68, 70, 68, null, null, null,
+            77, null, 75, null, 72, null, 68, null,
+            65, null, null, null, 64, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.11, length: 0.1, brightness: 1400 },
+        factory: { clanks: [0, 4], beeps: { 5: 91, 21: 86, 33: 94, 45: 88, 53: 83, 59: 95 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

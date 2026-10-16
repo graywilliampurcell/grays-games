@@ -1501,6 +1501,10 @@ const PISTON_PERIOD = 1.6; // the machines under the gap: one pump up and down
 const BELT_QUIET_TIME = 4;
 const BELT_WARNING_TIME = 2;
 const BELT_ON_TIME = 3;
+// With two backward belts (Level 89 on), every second one starts its cycle
+// BELT_OFFSET seconds later (half a cycle), so the two belts' timers are
+// independent and don't warn or run in step
+const BELT_OFFSET = 3.5;
 const BELT_SHOW_SPEED = 6; // how fast the belt's ridges race by while it's on (texture repeats per second)
 
 // A robot-arm belt (Level 84; Gray, 2026-10-16; starting values Gray will
@@ -1705,6 +1709,7 @@ export class Maze {
             sm.startSide = this.reachableAvoiding(sm.lastCell);
         }
         this.belts = beltLandings.length ? groupBlocks(beltBlocks).map((blocks) => this.setUpBelt(blocks, beltLandings)) : [];
+        this.belts.forEach((belt, index) => { belt.timer += (index % 2) * BELT_OFFSET; });
         this.armBeltSpeed = ARM_BELT_SPEED;
         this.armBelts = armLandings.length ? groupBlocks(armBlocks).map((blocks) => this.setUpArmBelt(blocks, armLandings)) : [];
         this.armBelts.forEach((belt, index) => {

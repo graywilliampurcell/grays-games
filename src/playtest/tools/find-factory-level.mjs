@@ -10,6 +10,7 @@
 //   SEEDS=3000 node tools/find-factory-level.mjs level86 30 1      # a path zapper + one tire ride + one backward belt (Level 86 = seed 35)
 //   SEEDS=300 node tools/find-factory-level.mjs level87 24 1       # every dead end 3 deep + the big zapper + one tire ride + one backward belt (Level 87 = seed 21)
 //   SEEDS=3000 node tools/find-factory-level.mjs level88 22 1      # every dead end 3 deep + two robot-arm belts + the sneaky zapper (Level 88 = seed 3)
+//   SEEDS=3000 node tools/find-factory-level.mjs level89 22 1      # every dead end 3 deep + two backward belts + the big zapper + one tire ride (Level 89 = seed 12)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 13 x 13, so run many first seeds in parallel.
@@ -57,6 +58,9 @@ const RULES = {
     // can't be cut into 3-cell dead ends (13 x 13 at 3 deep needs it)
     level87: { name: 'Level 87', depth: 3, deadEnds: 18, bigCane: true, gaps: 1, belts: 1, placeTries: 200, prune: true },
     level88: { name: 'Level 88', depth: 3, deadEnds: 18, sneaky: true, armBelts: 2, straight: 0.5, placeTries: 200, prune: true },
+    // relink: each placing try hangs the dead ends off new path cells, like
+    // armBelts (two belt hallways must be left clear)
+    level89: { name: 'Level 89', depth: 3, deadEnds: 18, bigCane: true, gaps: 1, belts: 2, straight: 0.5, placeTries: 200, prune: true, relink: true },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -445,7 +449,7 @@ for (let seed = FIRST_SEED; seed < FIRST_SEED + SEEDS && !best; seed++) {
     // armBelts, each try also hangs the dead ends off new path cells (so a
     // long hallway can be left clear)
     for (let t = 0; t < (rule.placeTries ?? 1) && !best; t++) {
-        if (t > 0 && rule.armBelts) hung = link(path, hung.sneaky, hung.chains, onPath, random);
+        if (t > 0 && (rule.armBelts || rule.relink)) hung = link(path, hung.sneaky, hung.chains, onPath, random);
         const { solution, deadEnds, maxBranchDepth } = analyzeMaze(hung.links, startCell, exitCell);
         if (solution.length !== PATH_LENGTH || deadEnds.length !== DEAD_ENDS + (rule.sneaky ? 1 : 0)) { fail('count'); break; }
         if (maxBranchDepth !== (rule.sneaky ? Math.max(3, DEPTH) : DEPTH)) { fail('depth'); break; }
