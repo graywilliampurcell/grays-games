@@ -2032,6 +2032,32 @@ const TUNES = {
         lead: { wave: 'square', level: 0.13, length: 0.12, brightness: 1300 },
         factory: { clanks: [2, 6], beeps: { 5: 88, 13: 93, 21: 91, 37: 88, 45: 95, 53: 93, 61: 84 } },
     },
+    // Level 82, the first backward belt: sneaky, a little spooky, a bit
+    // sneakier than Level 81. G minor at 104 bpm. The melody creeps forward
+    // a few steps, then gets carried back down a quick run (like the belt
+    // flinging you back), and tries again; a spooky D-flat (right between
+    // G and the G above) slips in, and it ends hanging on a low F-sharp.
+    // Clanks on beats 0 and 4, a rattling double clank on 6, and robot beeps.
+    factorybelt: {
+        tempo: 104,
+        bars: [[43, 'min'], [43, 'min'], [49, 'maj'], [50, 'maj'], [43, 'min'], [46, 'maj'], [49, 'maj'], [42, 'maj']],
+        bass: [0, null, 0, null, null, 0, 0, null],
+        bassLength: 0.14,
+        stabs: [],
+        ticks: true,
+        melody: [
+            67, null, 69, null, 70, null, 72, null,
+            74, 72, 70, 69, 67, null, null, null,
+            73, null, 74, null, 73, null, 70, null,
+            69, null, null, null, 62, null, null, null,
+            67, null, 69, null, 70, null, 74, 77,
+            79, 77, 74, 72, 70, 69, 67, null,
+            73, null, 72, null, 70, null, 67, null,
+            66, null, null, null, null, null, 54, null,
+        ],
+        lead: { wave: 'triangle', level: 0.17, length: 0.13, brightness: 1700 },
+        factory: { clanks: [0, 4, 6], beeps: { 3: 91, 19: 86, 27: 93, 35: 89, 51: 96, 59: 86 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -2388,6 +2414,52 @@ export class Sound {
         g.setValueAtTime(Math.max(0.0001, g.value), t);
         g.exponentialRampToValueAtTime(0.0001, t + 0.08);
         handle.end = t;
+    }
+
+    // A backward belt's warning siren (Robot Factory World, Level 82 on):
+    // like a far-off tornado siren, a wailing tone that rises and falls and
+    // fades up and down twice in 2 seconds. As loud as the other sound
+    // effects, never louder; quieter the further you are (volume 0-1).
+    // Obeys the Sound effects switch.
+    siren(volume = 1, length = 2) {
+        if (!this.settings.sfx || !this.ctx || volume <= 0.01) return null;
+        this.onEvent('siren');
+        const t = this.ctx.currentTime;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 1800;
+        const oscs = [['sawtooth', 1], ['sine', 2]].map(([type, mult]) => {
+            const osc = this.ctx.createOscillator();
+            osc.type = type;
+            osc.frequency.setValueAtTime(330 * mult, t);
+            return osc;
+        });
+        const swells = 2;
+        const each = length / swells;
+        for (let k = 0; k < swells; k++) {
+            const at = t + k * each;
+            g.gain.exponentialRampToValueAtTime(0.0001, at + 0.01);
+            g.gain.exponentialRampToValueAtTime(0.28 * volume, at + each * 0.5);
+            g.gain.exponentialRampToValueAtTime(0.0001, at + each * 0.98);
+            oscs.forEach((osc, n) => {
+                const mult = n + 1;
+                osc.frequency.setValueAtTime(330 * mult, at);
+                osc.frequency.exponentialRampToValueAtTime(700 * mult, at + each * 0.5);
+                osc.frequency.exponentialRampToValueAtTime(330 * mult, at + each * 0.98);
+            });
+        }
+        const mix = this.ctx.createGain();
+        mix.gain.value = 0.5;
+        oscs[0].connect(filter).connect(g);
+        oscs[1].connect(mix).connect(g);
+        g.connect(this.sfxBus);
+        for (const osc of oscs) {
+            osc.start(t);
+            osc.stop(t + length + 0.05);
+        }
+        return { gain: g, end: t + length };
     }
 
     // A lava geyser erupting (Volcano World): a deep, rushing roar, quieter

@@ -78,6 +78,7 @@ export function installTestHooks(game) {
             vents: maze.vents.map((v) => ({ minX: v.minX, maxX: v.maxX, minZ: v.minZ, maxZ: v.maxZ, phase: v.phase, timer: round(v.timer), audible: v.audible !== false, target: { x: v.target.x, z: v.target.z } })),
             snowmen: maze.snowmen.map((s) => ({ minX: s.minX, maxX: s.maxX, minZ: s.minZ, maxZ: s.maxZ, alongX: s.alongX, sign: s.sign, entrance: s.entrance, length: s.length, timer: round(s.timer), balls: s.balls.map((b) => round(b.u)), target: { x: s.target.x, z: s.target.z }, center: { x: s.center.x, z: s.center.z }, hearing: round(s.hearing ?? 0), rolling: (s.rolls ?? []).length })),
             thinIce: maze.thinIce.map((t) => ({ minX: t.minX, maxX: t.maxX, minZ: t.minZ, maxZ: t.maxZ, time: round(t.time) })),
+            belts: maze.belts.map((b) => ({ minX: b.minX, maxX: b.maxX, minZ: b.minZ, maxZ: b.maxZ, alongX: b.alongX, back: b.back, phase: b.phase, timer: round(b.timer), landing: { x: b.landing.x, z: b.landing.z }, red: { x: round(b.redPosition?.x ?? 0), z: round(b.redPosition?.z ?? 0) } })),
             geysers: maze.geysers.map((g) => ({ minX: g.minX, maxX: g.maxX, minZ: g.minZ, maxZ: g.maxZ, phase: g.phase, timer: round(g.timer), waiting: g.waiting, rise: round(g.rise) })),
             spaceDoor: maze.spaceDoor ? { phase: maze.spaceDoor.phase, shut: round(maze.spaceDoor.shut), solid: maze.spaceDoor.solid } : null,
             platform: maze.platform ? platformState(maze.platform) : null,

@@ -53,6 +53,10 @@ const CARAMEL_SPEED = 0.5;
 const VENT_PUSH_TIME = 0.45;
 // How far away an erupting lava geyser can be heard (it gets quieter with distance)
 const GEYSER_HEAR_DISTANCE = 24;
+// A backward belt (Robot Factory World, Level 82 on) flings you back to the
+// first cell of its hallway this fast; its siren fades out over this distance
+const BELT_FLING_TIME = 0.5;
+const SIREN_HEAR_DISTANCE = 30;
 const VENT_HISS_TIME = 1;
 // A snowball (Ice World) pushes you one square back, taking this long; his
 // throw is heard this far away (quieter with distance)
@@ -220,6 +224,7 @@ function loadLevel(level, index) {
         spikeRadius: level.spikeRadius ?? LEVELS[index]?.spikeRadius,
         spike2Radius: level.spike2Radius ?? LEVELS[index]?.spike2Radius,
         golden: !!(level.finale ?? LEVELS[index]?.finale),
+        beltQuiet: level.beltQuiet ?? LEVELS[index]?.beltQuiet,
     });
     maze.build();
     collisionManager = new CollisionManager(maze.getMazeData());
@@ -369,6 +374,22 @@ function step(deltaTime) {
             player.startShove(target, SNOWBALL_PUSH_TIME);
             sound.splat();
             testHooks?.emit('snowball');
+        }
+    }
+    // Backward belts (Robot Factory World, Level 82 on): each runs on a
+    // fixed cycle, off and quiet, then a warning (yellow lights blink twice
+    // and the red light's siren swells twice), then on, racing backward.
+    // Touching it while it's on flings you back to the back of its hallway
+    // (not an Ouch). The cycle stops while paused (this is the game step).
+    for (const { belt, event } of maze.updateBelts(deltaTime, player.position, player.radius)) {
+        if (event === 'warning') {
+            sound.siren(Math.max(0, 1 - horizontalDistance(player.position, belt.redPosition) / SIREN_HEAR_DISTANCE));
+            testHooks?.emit('beltWarning');
+        }
+        if (event === 'on') testHooks?.emit('beltOn');
+        if (event === 'fling' && !player.shove && !escaped) {
+            player.startShove(belt.landing, BELT_FLING_TIME);
+            testHooks?.emit('belt');
         }
     }
     // Thin ice (Ice World, Level 73 on): stand on it too long and it breaks,

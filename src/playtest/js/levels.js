@@ -10,6 +10,9 @@
 //   the 'V', the middle of the side dead end's first cell). Candy World
 //   (Level 52 on): 'O' is a chocolate river with a bouncy marshmallow on
 //   each bank, and 'C' is sticky caramel (a whole corridor cell, half speed)
+//   Robot Factory World (Level 82 on): 'B' a backward belt and 'L' where it
+//   flings you (the middle of the first cell of its hallway); beltQuiet sets
+//   how long it stays off and quiet before its warning (see Maze.js)
 // Found with tools/find-level.mjs. theme: colors and the fluffy look, see Maze.js.
 // music: the level's tune (see sound.js), a little sneakier each level.
 // spikeRadius: size of the spike's plate (default 0.75; see Maze.js).
@@ -4202,6 +4205,77 @@ export const LEVELS = [
         '#               #                   #               #',
         '#               #                   #               #',
         '#               #                   #               #',
+        '#####################################################',
+        ],
+    },
+    {
+        name: 'Level 82',
+        // The first backward belt. `SEEDS=3000 node
+        // tools/find-factory-level.mjs level82 32 6001`, seed 6810. 13 x 13
+        // corridors. Correct path 102 cells (start west in row 9, door east
+        // in row 0); 32 dead ends 2 cells deep, plus the sneaky zapper's. X:
+        // the sneaky zapper, in the last cell of a 3-deep one-turn dead end
+        // off path cell 1. B: the backward belt, 4 cells (path cells 37-40)
+        // in the middle of a straight 6-cell hallway (path cells 36-41,
+        // heading west, row 9), one floor cell before and after it. L: where
+        // it flings you, the middle of the hallway's first cell (path cell
+        // 36). Cycle: off and quiet 4 s, warning 2 s, on 3 s. No tire ride,
+        // no zapper on the path.
+        theme: FACTORY,
+        music: 'factorybelt',
+        layout: [
+        '#####################################################',
+        '#                                                   #',
+        '#                                                   D',
+        '#                                                   #',
+        '#########   #   #####   #   #   #   #########   #   #',
+        '#           #   #       #   #   #       #       #   #',
+        '#           #   #       #   #   #       #       #   #',
+        '#           #   #       #   #   #       #       #   #',
+        '#########   #   #########   #   #################   #',
+        '#           #   #   #   #   #   #               #   #',
+        '#           #   #   #   #   #   #               #   #',
+        '#           #   #   #   #   #   #               #   #',
+        '#########   #####   #   #################   #   #####',
+        '#               #   #   #   #   #       #   #       #',
+        '#               #   #   #   #   #       #   #       #',
+        '#               #   #   #   #   #       #   #       #',
+        '#########   #   #   #   #   #   #   #####   #   #   #',
+        '#           #   #       #   #   #           #   #   #',
+        '#           #   #       #   #   #           #   #   #',
+        '#           #   #       #   #   #           #   #   #',
+        '#########   #####   #   #   #   #   #####   #   #   #',
+        '#           #       #               #       #   #   #',
+        '#           #       #               #       #   #   #',
+        '#           #       #               #       #   #   #',
+        '#########   #   #################################   #',
+        '#           #   #           #   #       #           #',
+        '#           #   #           #   #       #           #',
+        '#           #   #           #   #       #           #',
+        '#########   #   #   #####   #   #   #   #   #########',
+        '#   #       #       #           #   #   #   #       #',
+        '#   #       #       #           #   #   #   #       #',
+        '#   #       #       #           #   #   #   #       #',
+        '#   #   #   #########   #########   #   #   #   #####',
+        '#   #   #               #           #       #       #',
+        '#   #   #               #           #       #       #',
+        '#   #   #               #           #       #       #',
+        '#   #####################   #################   #   #',
+        '#               #       #    BBBBBBBBBBBBBBBB   #   #',
+        '# S             #       #    BBBBBBBBBBBBBBBB L #   #',
+        '#               #       #    BBBBBBBBBBBBBBBB   #   #',
+        '#   #########   #   #   #########################   #',
+        '#           #   #   #                   #           #',
+        '#         X #   #   #                   #           #',
+        '#           #   #   #                   #           #',
+        '#############   #   #########   #####   #   #########',
+        '#               #           #   #   #   #           #',
+        '#               #           #   #   #   #           #',
+        '#               #           #   #   #   #           #',
+        '#########   #########   #   #   #   #   #########   #',
+        '#                       #   #   #                   #',
+        '#                       #   #   #                   #',
+        '#                       #   #   #                   #',
         '#####################################################',
         ],
     },

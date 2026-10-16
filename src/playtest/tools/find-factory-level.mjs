@@ -2,8 +2,8 @@
 // its rules, and prints it as a js/levels.js layout. Made from
 // find-ice-level.mjs (Levels 71-80), at 13 x 13.
 //
-//   SEEDS=1500 node tools/find-factory-level.mjs level81 30 1   # the sneaky zapper + one tire ride over a 5-cell gap
-//   SEEDS=1500 node tools/find-factory-level.mjs level82 30 1   # the sneaky zapper + one backward belt
+//   SEEDS=3000 node tools/find-factory-level.mjs level81 32 21001  # the sneaky zapper + one tire ride over a 5-cell gap (Level 81 = seed 21456)
+//   SEEDS=3000 node tools/find-factory-level.mjs level82 32 6001   # the sneaky zapper + one backward belt (Level 82 = seed 6810)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 13 x 13, so run many first seeds in parallel.

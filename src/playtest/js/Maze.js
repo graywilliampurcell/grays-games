@@ -1489,12 +1489,47 @@ function gearShape(radius, teeth) {
 // (FAST_PLATFORM_SPEED, from an 'F' gap)
 const PISTON_PERIOD = 1.6; // the machines under the gap: one pump up and down
 
+// A backward belt's timer (Level 82; Gray, 2026-10-16): off and quiet
+// (BELT_QUIET_TIME, or the level's beltQuiet), then the warning for
+// BELT_WARNING_TIME (lights blink twice, two siren swells; still off), then
+// on for BELT_ON_TIME
+const BELT_QUIET_TIME = 4;
+const BELT_WARNING_TIME = 2;
+const BELT_ON_TIME = 3;
+const BELT_SHOW_SPEED = 6; // how fast the belt's ridges race by while it's on (texture repeats per second)
+
+// The belt's rubber: dark, with raised ridges across it
+function beltTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#222326';
+    g.fillRect(0, 0, 64, 64);
+    for (let y = 0; y < 64; y += 16) {
+        g.fillStyle = '#3a3c41';
+        g.fillRect(0, y, 64, 6);
+        g.fillStyle = '#4c4f55';
+        g.fillRect(0, y, 64, 2);
+    }
+    g.fillStyle = 'rgba(242,194,48,0.85)';
+    g.fillRect(0, 0, 4, 64);
+    g.fillRect(60, 0, 4, 64);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
     // golden: the finale's door (Level 10) is gold instead of brown
     // spike2Radius: the second path spike's ('Z', Level 20) plate, the tighter squeeze
-    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS, spike2Radius = spikeRadius, golden = false } = {}) {
+    // beltQuiet: how long a backward belt stays off and quiet before its
+    // warning (Level 82: BELT_QUIET_TIME)
+    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS, spike2Radius = spikeRadius, golden = false, beltQuiet = BELT_QUIET_TIME } = {}) {
+        this.beltQuietTime = beltQuiet;
         this.spikeRadius = spikeRadius;
         this.spike2Radius = spike2Radius;
         this.golden = golden;
@@ -1538,6 +1573,10 @@ export class Maze {
         const hallTargets = [];
         // Thin ice ('T' blocks, one corridor cell each; Ice World, Level 73 on)
         const thinIceBlocks = [];
+        // Backward belts ('B' blocks; Robot Factory World, Level 82 on) and
+        // where each one flings you ('L', the first cell of its hallway)
+        const beltBlocks = [];
+        const beltLandings = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -1562,6 +1601,8 @@ export class Maze {
                 if (ch === 'M') snowmanBlocks.push({ x, z });
                 if (ch === 'P') hallTargets.push(center);
                 if (ch === 'T') thinIceBlocks.push({ x, z });
+                if (ch === 'B') beltBlocks.push({ x, z });
+                if (ch === 'L') beltLandings.push(center);
             }
         }
         this.currents = [];
@@ -1630,6 +1671,7 @@ export class Maze {
             sm.steps = this.stepsFrom(sm.blocks);
             sm.startSide = this.reachableAvoiding(sm.lastCell);
         }
+        this.belts = beltLandings.length ? groupBlocks(beltBlocks).map((blocks) => this.setUpBelt(blocks, beltLandings)) : [];
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
         if (doorBlocks.length) {
@@ -1834,6 +1876,7 @@ export class Maze {
         for (const g of this.geysers) this.createGeyser(g);
         for (const s of this.snowmen) this.createSnowman(s);
         for (const t of this.thinIce) this.createThinIce(t);
+        for (const belt of this.belts) this.createBelt(belt);
         this.scene.add(this.root);
     }
 
@@ -2003,6 +2046,162 @@ export class Maze {
             this.addFactorySteam(count);
             this.addGearSky();
         }
+    }
+
+    // ---- Backward belts (Robot Factory World, Level 82 on) ----
+
+    // One backward belt: its 'B' blocks (4 corridor cells, full width) and
+    // the 'L' it flings you to (the middle of the first cell of its straight
+    // hallway, on the start's side). "Backward" is toward the start: found by
+    // walking the floor from the start without stepping on the belt, like a
+    // platform's start edge.
+    setUpBelt(blocks, landings) {
+        const xs = blocks.map((b) => b.x);
+        const zs = blocks.map((b) => b.z);
+        const belt = {
+            minX: Math.min(...xs), maxX: Math.max(...xs) + 1,
+            minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
+            phase: 'quiet', timer: this.beltQuietTime, time: 0, slide: 0,
+        };
+        belt.center = new THREE.Vector3((belt.minX + belt.maxX) / 2, 0, (belt.minZ + belt.maxZ) / 2);
+        belt.alongX = belt.maxX - belt.minX > belt.maxZ - belt.minZ;
+        belt.landing = landings.reduce((a, b) => (b.distanceTo(belt.center) < a.distanceTo(belt.center) ? b : a)).clone();
+        // The start's side is the end the landing is on
+        belt.back = belt.alongX ? Math.sign(belt.landing.x - belt.center.x) : Math.sign(belt.landing.z - belt.center.z);
+        return belt;
+    }
+
+    // Is any part of the player (a circle of `radius`) on the belt?
+    onBelt(belt, point, radius) {
+        return point.x + radius > belt.minX && point.x - radius < belt.maxX && point.z + radius > belt.minZ && point.z - radius < belt.maxZ;
+    }
+
+    // Run every belt's cycle (called every game step, so it stops while
+    // paused): off and quiet, then the warning (still off), then on. While
+    // it's on, anyone touching it is flung back. Returns events:
+    // { belt, event: 'warning' | 'on' | 'off' | 'fling' }.
+    updateBelts(dt, point, radius) {
+        const events = [];
+        for (const belt of this.belts) {
+            belt.time += dt;
+            belt.timer -= dt;
+            if (belt.timer <= 0) {
+                if (belt.phase === 'quiet') {
+                    Object.assign(belt, { phase: 'warning', timer: belt.timer + BELT_WARNING_TIME });
+                    events.push({ belt, event: 'warning' });
+                } else if (belt.phase === 'warning') {
+                    Object.assign(belt, { phase: 'on', timer: belt.timer + BELT_ON_TIME });
+                    events.push({ belt, event: 'on' });
+                } else {
+                    Object.assign(belt, { phase: 'quiet', timer: belt.timer + this.beltQuietTime });
+                    events.push({ belt, event: 'off' });
+                }
+            }
+            if (belt.phase === 'on') {
+                belt.slide += dt * BELT_SHOW_SPEED;
+                if (this.onBelt(belt, point, radius)) events.push({ belt, event: 'fling' });
+            }
+            this.showBelt(belt);
+        }
+        return events;
+    }
+
+    // The belt: a dark rubber belt with raised ridges between two rollers,
+    // metal rails along both walls, and on each side a yellow warning light
+    // on the wall at each end; on the left side (facing along the belt from
+    // the start's side) a big red siren light next to the near yellow one
+    createBelt(belt) {
+        const group = new THREE.Group();
+        const length = belt.alongX ? belt.maxX - belt.minX : belt.maxZ - belt.minZ;
+        const width = belt.alongX ? belt.maxZ - belt.minZ : belt.maxX - belt.minX;
+        // Built along z (the belt's long side, +z = away from the start), then turned
+        const map = beltTexture();
+        map.repeat.set(1, length / 2);
+        belt.map = map;
+        const surface = new THREE.Mesh(new THREE.BoxGeometry(width - 0.1, 0.06, length), new THREE.MeshStandardMaterial({ map, roughness: 0.9 }));
+        surface.position.y = 0.01;
+        surface.receiveShadow = true;
+        group.add(surface);
+        const steel = new THREE.MeshStandardMaterial({ color: 0x8a9098, metalness: 0.7, roughness: 0.35 });
+        for (const end of [-1, 1]) {
+            const roller = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, width - 0.1, 12), steel);
+            roller.rotation.z = Math.PI / 2;
+            roller.position.set(0, 0.04, end * (length / 2 - 0.05));
+            group.add(roller);
+        }
+        const yellowOff = 0x1a1606;
+        belt.yellows = [];
+        for (const side of [-1, 1]) {
+            const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, length), steel);
+            rail.position.set(side * (width / 2 - 0.04), 0.07, 0);
+            group.add(rail);
+            for (const end of [-1, 1]) {
+                const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.16, 14, 10), new THREE.MeshStandardMaterial({ color: 0x3a3214, emissive: yellowOff, emissiveIntensity: 1, roughness: 0.4 }));
+                lamp.scale.x = 0.6;
+                lamp.position.set(side * (width / 2 - 0.02), 2.3, end * (length / 2 - 0.6));
+                group.add(lamp);
+                // A glow round it while it's lit
+                const halo = new THREE.Mesh(new THREE.SphereGeometry(0.42, 14, 10), new THREE.MeshBasicMaterial({ color: 0xffd23a, transparent: true, opacity: 0.35, depthWrite: false }));
+                halo.position.copy(lamp.position);
+                halo.visible = false;
+                group.add(halo);
+                lamp.userData.halo = halo;
+                const plate = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.46, 0.46), steel);
+                plate.position.set(side * (width / 2 + 0.02), 2.3, end * (length / 2 - 0.6));
+                group.add(plate);
+                belt.yellows.push(lamp);
+            }
+        }
+        // Facing +z (away from the start) the left is -x... unless the turn
+        // below mirrors it, so pick the side after turning (see `left`)
+        const towardEnd = new THREE.Vector3(0, 0, 1);
+        const turn = belt.alongX ? (belt.back > 0 ? -Math.PI / 2 : Math.PI / 2) : (belt.back > 0 ? Math.PI : 0);
+        towardEnd.applyAxisAngle(new THREE.Vector3(0, 1, 0), turn);
+        // Left of facing direction d (x, z) with yaw 0 facing -z is (d.z, -d.x)
+        const leftWorld = new THREE.Vector3(towardEnd.z, 0, -towardEnd.x);
+        const leftLocal = leftWorld.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), -turn);
+        const leftSide = Math.sign(leftLocal.x) || -1;
+        const red = new THREE.Mesh(new THREE.SphereGeometry(0.3, 18, 12), new THREE.MeshStandardMaterial({ color: 0x3a0c0c, emissive: 0x200404, emissiveIntensity: 1, roughness: 0.4 }));
+        red.scale.x = 0.6;
+        red.position.set(leftSide * (width / 2 - 0.02), 2.3, -(length / 2 - 0.6) + 0.75);
+        group.add(red);
+        const redHalo = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 12), new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0, depthWrite: false }));
+        redHalo.position.copy(red.position);
+        group.add(redHalo);
+        belt.redHalo = redHalo;
+        const redPlate = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.8, 0.8), steel);
+        redPlate.position.set(leftSide * (width / 2 + 0.02), 2.3, -(length / 2 - 0.6) + 0.75);
+        group.add(redPlate);
+        belt.red = red;
+        belt.redPosition = new THREE.Vector3();
+        group.rotation.y = turn;
+        group.position.copy(belt.center);
+        this.root.add(group);
+        group.updateMatrixWorld(true);
+        red.getWorldPosition(belt.redPosition);
+        belt.object = group;
+        this.showBelt(belt);
+    }
+
+    // Lights and belt movement for the belt's current phase
+    showBelt(belt) {
+        if (!belt.object) return;
+        // Warning: the yellow lights blink twice (on for the first half of
+        // each second) and the red siren light swells with the siren
+        const warn = belt.phase === 'warning';
+        const into = warn ? BELT_WARNING_TIME - belt.timer : 0;
+        const blink = warn && into % 1 < 0.5;
+        for (const lamp of belt.yellows) {
+            lamp.material.emissive.setHex(blink ? 0xffd23a : 0x1a1606);
+            lamp.userData.halo.visible = blink;
+        }
+        const swell = warn ? Math.sin((into % 1) * Math.PI) : 0;
+        belt.red.material.emissive.setRGB(0.12 + 0.88 * swell, 0.02 + 0.12 * swell, 0.02 + 0.12 * swell);
+        belt.redHalo.material.opacity = 0.45 * swell;
+        belt.redHalo.visible = swell > 0.01;
+        // On: the ridges race backward, toward the start (-z in the belt's
+        // own frame; the top face's v runs the other way to z)
+        belt.map.offset.y = -belt.slide;
     }
 
     // ---- Robot Factory World (Level 81 on) ----
