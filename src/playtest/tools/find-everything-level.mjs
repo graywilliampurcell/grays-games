@@ -11,6 +11,7 @@
 //   SEEDS=1000 node tools/find-everything-level.mjs level96 34 1     # Candy: a 4-cell chocolate river, two caramel spots, a path cane, the sneaky cane
 //   SEEDS=1000 node tools/find-everything-level.mjs level97 18 1     # Volcano: a 4-cell balloon-ride lava gap, a geyser, a steam vent, a path coal
 //   SEEDS=1000 node tools/find-everything-level.mjs level98 22 1     # Ice: a 3-cell sled crack, a snowman, a thin ice, a path icicle, the sneaky icicle
+//   SEEDS=1000 node tools/find-everything-level.mjs level99 18 1     # Robot Factory: an arm belt, a backward belt, a tire-ride gap, a path zapper, the big zapper
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -67,6 +68,10 @@ const RULES = {
     // ice on the path, an icicle on the path ('Z', since there's a sneaky
     // icicle 'X'), the sneaky icicle; every dead end 3 deep
     level98: { name: 'Level 98', depth: 3, deadEnds: 22, sneaky: true, pathCane: true, platforms: 1, platformCells: 3, snowmen: 1, thinIce: 1, prune: true, placeTries: 20 },
+    // Robot Factory: one robot-arm belt ('A' + 'R'), one backward belt ('B' +
+    // 'L'), one tire ride over a gap ('F'), a zapper on the path, the big
+    // zapper filling a straight 3-cell dead end; every dead end 3 deep
+    level99: { name: 'Level 99', depth: 3, deadEnds: 18, pathCane: true, bigCane: true, gaps: 1, belts: 1, armBelts: 1, straight: 0.6, placeTries: 200, prune: true, relink: true },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

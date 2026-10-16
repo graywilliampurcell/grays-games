@@ -2473,6 +2473,33 @@ const TUNES = {
         lead: { wave: 'square', level: 0.09, length: 0.11, brightness: 1300 },
         jingles: { bells: [0, 4], twinkles: { 9: 95, 29: 90, 41: 93, 58: 98 } },
     },
+    // Level 99, Everything World: Robot Factory: sneaky with just a little
+    // spooky, "what's around the corner". C-sharp minor at 88 bpm on a soft
+    // square lead. Tiptoe steps creep up, stop dead, then peek one note
+    // higher (around the corner?); a spooky G (right between C-sharp and the
+    // C-sharp above) creeps in now and then; a low walking bass on every
+    // other beat, and it ends hanging on a low B-sharp under the home note.
+    // Factory clanks on beats 1 and 5 and robot beeps in the background.
+    factorytour: {
+        tempo: 88,
+        bars: [[37, 'min'], [37, 'min'], [33, 'maj'], [42, 'min'], [37, 'min'], [43, 'maj'], [44, 'maj'], [44, 'maj']],
+        bass: [0, null, 0, null, 0, null, 7, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            61, null, 63, null, 64, null, null, null,
+            null, null, 68, null, null, null, null, null,
+            64, null, 66, null, 67, null, null, null,
+            null, null, 73, null, 71, null, null, null,
+            61, 64, 61, 67, null, null, null, null,
+            null, null, 66, null, 64, null, 61, null,
+            68, null, null, 67, null, null, 66, null,
+            60, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.13, brightness: 1200 },
+        factory: { clanks: [1, 5], beeps: { 6: 90, 14: 95, 26: 87, 38: 93, 46: 85, 54: 96, 62: 88 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
