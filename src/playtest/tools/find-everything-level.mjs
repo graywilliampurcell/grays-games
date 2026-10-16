@@ -10,6 +10,7 @@
 //   SEEDS=1000 node tools/find-everything-level.mjs level95 36 1     # Underwater: a water current, a 3-cell bubble-ride crack, a path urchin, the big urchin
 //   SEEDS=1000 node tools/find-everything-level.mjs level96 34 1     # Candy: a 4-cell chocolate river, two caramel spots, a path cane, the sneaky cane
 //   SEEDS=1000 node tools/find-everything-level.mjs level97 18 1     # Volcano: a 4-cell balloon-ride lava gap, a geyser, a steam vent, a path coal
+//   SEEDS=1000 node tools/find-everything-level.mjs level98 22 1     # Ice: a 3-cell sled crack, a snowman, a thin ice, a path icicle, the sneaky icicle
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -26,7 +27,12 @@
 // a 4-cell 'O' gap is a chocolate river with a marshmallow on each bank,
 // and in Volcano World's look a lava gap crossed by balloon. 'H' a steam
 // vent filling a path cell, with 'Q' in the middle of the cell before it
-// (where a puff pushes you); 'K' a lava geyser filling a path cell.
+// (where a puff pushes you); 'K' a lava geyser filling a path cell. In Ice
+// World's look a 3-cell 'O' gap is an icy crack crossed on the zip-line
+// sled. 'N' a snowman's hallway (SNOWMAN_CELLS straight path cells), 'M'
+// the snowman (two blocks against the far end wall of its last cell), 'P'
+// the middle of the path cell before the hallway (where a snowball pushes
+// you); 'T' a thin ice cell (rule.thinIce: how many, on the path).
 //
 // Rules for every level: 14 x 14, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -57,6 +63,10 @@ const RULES = {
     // lava geyser ('K'), one steam vent ('H' + 'Q'), a hot coal on the path;
     // every dead end 3 deep from here on
     level97: { name: 'Level 97', depth: 3, deadEnds: 18, pathCane: true, platforms: 1, platformCells: 4, vents: 1, geysers: 1, prune: true, placeTries: 20 },
+    // Ice: one sled ride over a 3-cell icy crack ('O'), one snowman, one thin
+    // ice on the path, an icicle on the path ('Z', since there's a sneaky
+    // icicle 'X'), the sneaky icicle; every dead end 3 deep
+    level98: { name: 'Level 98', depth: 3, deadEnds: 22, sneaky: true, pathCane: true, platforms: 1, platformCells: 3, snowmen: 1, thinIce: 1, prune: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -69,6 +79,7 @@ const COLS = 14;
 const ROWS = 14;
 const GAP_CELLS = 5; // the tire's gap is 5 corridor cells long
 const BELT_CELLS = 4; // a backward belt is 4 corridor cells long, after one floor cell
+const SNOWMAN_CELLS = 4; // a snowman's hallway is 4 corridor cells long
 const ARM_BELT_CELLS = 6; // a robot-arm belt is 6 corridor cells long, in the middle of its hallway
 const DEPTH = rule.depth;
 const PLATFORM_CELLS = rule.platformCells ?? 2; // a platform gap's length in corridor cells
@@ -526,6 +537,38 @@ function place(path, hung, random) {
         out.geysers.push(k);
         spans.push([k, k]);
     }
+    // Snowmen (Level 72's): a hallway h .. h + SNOWMAN_CELLS - 1 with only
+    // the path through it, straight all the way, and the path turning out of
+    // its last cell
+    out.snowmen = [];
+    for (let s = 0; s < (rule.snowmen ?? 0); s++) {
+        const options = [];
+        const end = SNOWMAN_CELLS - 1;
+        for (let h = 2; h + end + 1 < path.length - 1; h++) {
+            const cells = [...Array(SNOWMAN_CELLS).keys()].map((d) => h + d);
+            if (!cells.every(only)) continue;
+            if (!cells.slice(1).every((n) => step(path[n - 1], path[n]) === step(path[h], path[h + 1]))) continue;
+            if (step(path[h + end], path[h + end + 1]) === step(path[h], path[h + 1])) continue;
+            if (fits([h, h + end])) options.push(h);
+        }
+        if (options.length === 0) return null;
+        const h = options[Math.floor(random() * options.length)];
+        out.snowmen.push(h);
+        spans.push([h, h + end]);
+    }
+    // Thin ice on the path (Level 73's): a plain cell, the path straight
+    // from n - 2 to n + 2
+    out.thinIce = [];
+    for (let t = 0; t < (rule.thinIce ?? 0); t++) {
+        const options = [];
+        for (let n = 3; n < path.length - 3; n++) {
+            if (plain(n) && step(path[n - 2], path[n - 1]) === step(path[n - 1], path[n]) && step(path[n + 1], path[n + 2]) === step(path[n], path[n + 1]) && fits([n, n])) options.push(n);
+        }
+        if (options.length === 0) return null;
+        const n = options[Math.floor(random() * options.length)];
+        out.thinIce.push(n);
+        spans.push([n, n]);
+    }
     // Caramel spots (Level 52's): plain path cells
     for (let n = 0; n < (rule.caramelPath ?? 0); n++) {
         const options = [];
@@ -606,6 +649,21 @@ for (const k of placed.vents) {
     put([4 * path[k - 1].i + 2, 4 * path[k - 1].j + 2], 'Q');
 }
 for (const k of placed.geysers) for (const b of gapBlocks([path[k]])) put(b, 'K');
+for (const n of placed.thinIce) for (const b of gapBlocks([path[n]])) put(b, 'T');
+for (const h of placed.snowmen) {
+    for (const b of gapBlocks([...Array(SNOWMAN_CELLS).keys()].map((d) => path[h + d]))) put(b, 'N');
+    const end = path[h + SNOWMAN_CELLS - 1];
+    const [dx, dz] = step(path[h], path[h + 1]).split(',').map(Number);
+    const [tx, tz] = step(end, path[h + SNOWMAN_CELLS]).split(',').map(Number);
+    // The row against the end wall, and the two blocks of it away from the turn
+    const ex = dx > 0 ? 4 * end.i + 3 : dx < 0 ? 4 * end.i + 1 : null;
+    const ez = dz > 0 ? 4 * end.j + 3 : dz < 0 ? 4 * end.j + 1 : null;
+    for (const c of [2, tx + tz > 0 ? 1 : 3]) {
+        if (ex !== null) put([ex, 4 * end.j + c], 'M');
+        else put([4 * end.i + c, ez], 'M');
+    }
+    put([4 * path[h - 1].i + 2, 4 * path[h - 1].j + 2], 'P');
+}
 for (const k of placed.slippery) {
     const cell = path[k];
     for (const d of [1, 2, 3]) put(cell.i !== path[k + 1].i ? [4 * cell.i + 2, 4 * cell.j + d] : [4 * cell.i + d, 4 * cell.j + 2], 'I');
@@ -647,6 +705,8 @@ placed.belts.forEach(({ h, e, b }) => console.log(`belt: hallway path cells ${h 
 placed.armBelts.forEach(({ h, e, b }) => console.log(`arm belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + ARM_BELT_CELLS}, push to cell ${key(path[b - 1])}`));
 placed.vents.forEach((k) => console.log(`steam vent: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}, pushes back into path cell ${k}`));
 placed.geysers.forEach((k) => console.log(`lava geyser: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}`));
+placed.snowmen.forEach((h) => console.log(`snowman: hallway path cells ${h + 1}-${h + SNOWMAN_CELLS} heading ${dir(h + 1)}, path turns ${dir(h + SNOWMAN_CELLS)} out of its last cell`));
+placed.thinIce.forEach((n) => console.log(`thin ice: path cell ${n + 1} (${key(path[n])}), heading ${dir(n)}`));
 if (placed.caramel.length) console.log(`caramel on the path: cells ${[...placed.caramel].sort((a, b) => a - b).map((c) => `${c + 1} (${key(path[c])}, heading ${dir(c)})`).join(', ')}`);
 if (placed.pathCane !== undefined) console.log(`path spike: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
 if (placed.current) console.log(`water current: path cell ${placed.current.index + 1} (${key(path[placed.current.index])}), heading ${dir(placed.current.index)}, shoves into ${key(placed.current.into)}`);

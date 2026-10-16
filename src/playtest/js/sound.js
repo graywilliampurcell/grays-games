@@ -2446,6 +2446,33 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.11, length: 0.12, brightness: 1100 },
     },
+    // Level 98, Everything World: Ice: just sneaky like Ice World's tunes,
+    // with wintery jingles, a little tour of its dangers. B minor at 100 bpm:
+    // a fast zip down the scale (the sled), a low note rolling over and over
+    // and getting closer (the snowman), careful tiptoe steps that suddenly
+    // drop (the thin ice), then two notes squeezing together (edging past
+    // the icicle), ending on a hanging note. A soft square lead; sleigh
+    // bells on beats 0 and 4 and a twinkle after each danger (jingles).
+    icetour: {
+        tempo: 100,
+        bars: [[35, 'min'], [35, 'min'], [31, 'maj'], [33, 'maj'], [35, 'min'], [28, 'min'], [30, 'maj'], [30, 'maj']],
+        bass: [0, null, null, null, 7, null, null, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: false,
+        melody: [
+            83, 81, 79, 78, 76, 74, 73, 71,
+            null, null, 66, null, null, null, null, null,
+            59, null, 59, 61, 59, null, 59, 62,
+            59, 64, 59, 66, 59, null, null, null,
+            74, null, null, 76, null, null, 78, null,
+            null, null, 66, null, null, null, null, null,
+            71, null, 79, null, 73, null, 78, null,
+            74, null, 76, null, 75, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.09, length: 0.11, brightness: 1300 },
+        jingles: { bells: [0, 4], twinkles: { 9: 95, 29: 90, 41: 93, 58: 98 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

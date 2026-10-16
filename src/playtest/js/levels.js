@@ -5416,6 +5416,85 @@ export const LEVELS = [
         '#########################################################',
         ],
     },
+    {
+        name: 'Level 98',
+        // Everything World: Ice. `SEEDS=1 node tools/find-everything-level.mjs
+        // level98 24 4`, seed 4. 14 x 14 corridors. Correct path 121 cells
+        // (start west in row 12, door east in the bottom row); 24 dead ends,
+        // every one 3 cells deep, plus the sneaky icicle's: off the start
+        // cell it goes 3 cells, turns once, and the icicle (X) sits in its
+        // last cell, out of sight of the path. Z: the icicle on the path,
+        // path cell 43 (heading east), with Level 8's squeeze (spike2Radius
+        // 0.7, as in Level 96). O: a 3-cell icy crack with its zip-line sled
+        // (silent), path cells 59-61 (heading west). N/M/P: the snowman's
+        // hallway, path cells 83-86 heading south down the east edge, the
+        // path turning west out of its last cell. T: one thin ice, path cell
+        // 118 (the bottom row, heading east). No big icicle. Ice World's
+        // look; a just-sneaky tune with wintery jingles.
+        theme: ICE,
+        world: 'everything',
+        music: 'icetour',
+        spike2Radius: 0.7,
+        layout: [
+        '#########################################################',
+        '#       #       #                                       #',
+        '#       #       #                                     P #',
+        '#       #       #                                       #',
+        '#   #   #   #   #   #################################   #',
+        '#   #       #       #                               #NNN#',
+        '#   #       #       #                               #NNN#',
+        '#   #       #       #                               #NNN#',
+        '#   #################   #########   #   #########   #NNN#',
+        '#        OOOOOOOOOOO    #       #   #           #   #NNN#',
+        '#        OOOOOOOOOOO    #       #   #           #   #NNN#',
+        '#        OOOOOOOOOOO    #       #   #           #   #NNN#',
+        '#########################   #   #   #############   #NNN#',
+        '#       #                   #   #       #           #NNN#',
+        '#       #                   #   #       #           #NNN#',
+        '#       #                   #   #       #           #NNN#',
+        '#####   #############   #   #############   #   #####NNN#',
+        '#   #                   #                   #   #    NNN#',
+        '#   #                   #         Z         #   #    NNN#',
+        '#   #                   #                   #   #    NMM#',
+        '#   #####   #################################   #   #####',
+        '#   #       #                           #       #       #',
+        '#   #       #                           #       #       #',
+        '#   #       #                           #       #       #',
+        '#   #   #####   #############   #####   #############   #',
+        '#       #       #           #       #   #       #       #',
+        '#       #       #           #       #   #       #       #',
+        '#       #       #           #       #   #       #       #',
+        '#####   #   #############   #   #   #########   #   #####',
+        '#       #   #                   #       #   #           #',
+        '#       #   #                   #       #   #           #',
+        '#       #   #                   #       #   #           #',
+        '#   #####   #   #####   #################   #########   #',
+        '#           #   #               #   #       #           #',
+        '#           #   #               #   #       #           #',
+        '#           #   #               #   #       #           #',
+        '#   #   #########   #########   #   #   #####   #   #####',
+        '#   #           #       #       #   #       #   #       #',
+        '#   #           #       #       #   #       #   #       #',
+        '#   #           #       #       #   #       #   #       #',
+        '#   #####################   #####   #   #   #   #####   #',
+        '#   #                           #       #       #   #   #',
+        '#   #                           #       #       #   #   #',
+        '#   #                           #       #       #   #   #',
+        '#   #   #####################   #####   #####   #   #####',
+        '#   #   #       #           #       #       #       #   #',
+        '#   #   #       #           #       #       #       #   #',
+        '#   #   #       #           #       #       #       #   #',
+        '#####   #   #####   #################   #   #########   #',
+        '#       #                               #       #       #',
+        '# S     #                               #       #       #',
+        '#       #                               #       #       #',
+        '#   #########   #################################   #####',
+        '#           #                            TTT            #',
+        '#         X #                            TTT            D',
+        '#           #                            TTT            #',
+        '#########################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
