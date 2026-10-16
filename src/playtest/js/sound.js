@@ -2241,6 +2241,32 @@ const TUNES = {
         lead: { wave: 'sawtooth', level: 0.11, length: 0.1, brightness: 1400 },
         factory: { clanks: [0, 4], beeps: { 5: 91, 21: 86, 33: 94, 45: 88, 53: 83, 59: 95 } },
     },
+    // Level 90, the Robot Factory World finale: the sneakiest factory tune.
+    // E-flat minor at 124 bpm on a sawtooth. It creeps up a half step at a
+    // time, freezes, then two quick arm-like jabs (one, then a faster one),
+    // a falling flung run for the backward belts, a tight two-note squeeze,
+    // and it ends on a low D (a half step under E-flat, unsettled). Clanks
+    // on beats 0, 3 and 6, lots of robot beeps.
+    factoryfinale: {
+        tempo: 124,
+        bars: [[39, 'min'], [39, 'min'], [35, 'maj'], [34, 'maj'], [39, 'min'], [44, 'min'], [35, 'maj'], [34, 'maj']],
+        bass: [0, null, 0, 0, null, 0, null, 0],
+        bassLength: 0.12,
+        stabs: [],
+        ticks: true,
+        melody: [
+            63, 64, 65, 66, 67, null, null, null,
+            67, null, 70, null, 67, 70, 67, 70,
+            null, null, 75, 74, 70, 67, 66, 63,
+            58, null, null, null, null, null, null, null,
+            66, 67, 66, 67, null, null, 66, 67,
+            70, 71, 70, null, 75, null, 71, null,
+            70, null, 67, null, 66, null, 63, null,
+            62, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.11, length: 0.09, brightness: 1300 },
+        factory: { clanks: [0, 3, 6], beeps: { 3: 96, 11: 89, 19: 93, 27: 86, 35: 97, 43: 90, 51: 84, 59: 94 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

@@ -11,6 +11,7 @@
 //   SEEDS=300 node tools/find-factory-level.mjs level87 24 1       # every dead end 3 deep + the big zapper + one tire ride + one backward belt (Level 87 = seed 21)
 //   SEEDS=3000 node tools/find-factory-level.mjs level88 22 1      # every dead end 3 deep + two robot-arm belts + the sneaky zapper (Level 88 = seed 3)
 //   SEEDS=3000 node tools/find-factory-level.mjs level89 22 1      # every dead end 3 deep + two backward belts + the big zapper + one tire ride (Level 89 = seed 12)
+//   SEEDS=3000 node tools/find-factory-level.mjs level90 18 24001  # the finale: every dead end 3 deep + two robot-arm belts + two backward belts + a path zapper + the big zapper (Level 90 = seed 24001)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 13 x 13, so run many first seeds in parallel.
@@ -61,6 +62,7 @@ const RULES = {
     // relink: each placing try hangs the dead ends off new path cells, like
     // armBelts (two belt hallways must be left clear)
     level89: { name: 'Level 89', depth: 3, deadEnds: 18, bigCane: true, gaps: 1, belts: 2, straight: 0.5, placeTries: 200, prune: true, relink: true },
+    level90: { name: 'Level 90', depth: 3, deadEnds: 18, pathCane: true, bigCane: true, belts: 2, armBelts: 2, straight: 0.6, placeTries: 400, prune: true, relink: true },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
