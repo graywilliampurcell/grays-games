@@ -5182,6 +5182,85 @@ export const LEVELS = [
         '#########################################################',
         ],
     },
+    {
+        name: 'Level 95',
+        // Everything World: Underwater. `SEEDS=1000 node
+        // tools/find-everything-level.mjs level95 34 6001`, seed 6018. 14 x 14
+        // corridors. Correct path 128 cells (start west in row 4, door east in
+        // row 4); 34 dead ends, each 2 cells deep. O: the crack with its
+        // bubble (Level 42's ride) over path cells 70-72, straight up the
+        // second column, heading north. W: the water current over path cell
+        // 83 (the path runs straight west through it), shoving you north into
+        // its own 2-cell side dead end (V); no urchin in that one. Y: the big
+        // urchin just inside a straight dead end going east off path cell 95
+        // (the west column), in plain sight. X: the urchin on the path, path
+        // cell 98 (bottom row, heading east), plate 0.67 like Level 7's spike
+        // (Level 54's squeeze). No sneaky urchin. Underwater World's look; a
+        // sneaky reef tune.
+        theme: UNDERWATER,
+        world: 'everything',
+        music: 'reeftour',
+        spikeRadius: 0.67,
+        layout: [
+        '#########################################################',
+        '#                       #   #   #                       #',
+        '#                       #   #   #                       #',
+        '#                       #   #   #                       #',
+        '#   #########   #   #   #   #   #   #   #############   #',
+        '#   #   #       #   #   #   #   #   #       #   #       #',
+        '#   #   #       #   #   #   #   #   #       #   #       #',
+        '#   #   #       #   #   #   #   #   #       #   #       #',
+        '#   #   #########   #####   #   #########   #   #   #####',
+        '#   #   #                           #       #           #',
+        '#   #   #                           #       #           #',
+        '#   #   #                           #       #           #',
+        '#   #   #################   #####   #   #############   #',
+        '#       #   #       #       #           #               #',
+        '#       #   #     V #       #           #               #',
+        '#       #   #       #       #           #               #',
+        '#####   #   #####   #########   #########   #############',
+        '#       #        WWW        #   #       #   #           #',
+        '# S     #        WWW        #   #       #   #           D',
+        '#       #        WWW        #   #       #   #           #',
+        '#############   #########   #####   #####   #   #   #####',
+        '#               #           #               #   #       #',
+        '#               #           #               #   #       #',
+        '#               #           #               #   #       #',
+        '#   #############   #####   #   #   #########   #########',
+        '#   #               #       #   #           #           #',
+        '#   #               #       #   #           #           #',
+        '#   #               #       #   #           #           #',
+        '#   #   #   #####   #############   #####   #########   #',
+        '#   #   #       #   #   #   #   #       #       #       #',
+        '#   #   #       #   #   #   #   #       #       #       #',
+        '#   #   #       #   #   #   #   #       #       #       #',
+        '#   #   #########   #   #   #   #############   #   #   #',
+        '#   #OOO#       #   #   #   #   #   #       #   #   #   #',
+        '#   #OOO#       #   #   #   #   #   #       #   #   #   #',
+        '#   #OOO#       #   #   #   #   #   #       #   #   #   #',
+        '#   #OOO#   #########   #   #   #   #   #####   #####   #',
+        '#   #OOO#           #           #               #   #   #',
+        '#   #OOO#           #           #               #   #   #',
+        '#   #OOO#           #           #               #   #   #',
+        '#   #OOO#   #####   #   #####   #####   #####   #   #   #',
+        '#   #OOO#   #   #       #   #   #   #   #       #   #   #',
+        '#   #OOO#   #   #       #   #   #   #   #       #   #   #',
+        '#   #OOO#   #   #       #   #   #   #   #       #   #   #',
+        '#   #   #   #   #########   #   #   #   #########   #   #',
+        '#   #       #   #           #       #       #           #',
+        '#   #       #   #           #       #       #           #',
+        '#   #       #   #           #       #       #           #',
+        '#   #########   #   #   #####   #########   #   #########',
+        '#           #       #       #               #       #   #',
+        '#    Y      #       #       #               #       #   #',
+        '#           #       #       #               #       #   #',
+        '#   #########   #####   #   #####################   #   #',
+        '#               #       #                               #',
+        '#         X     #       #                               #',
+        '#               #       #                               #',
+        '#########################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with

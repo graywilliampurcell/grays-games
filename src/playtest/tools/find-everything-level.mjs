@@ -7,6 +7,7 @@
 //   SEEDS=3000 node tools/find-everything-level.mjs level92 36 1     # Space: a space door, a slippery spot, a moving-platform gap
 //   SEEDS=3000 node tools/find-everything-level.mjs level93 34 1201  # Jungle: two river gaps (one fast leaf), a path bush, the sneaky bush (Level 93 = seed 1215)
 //   SEEDS=3000 node tools/find-everything-level.mjs level94 36 1     # Moon: two 3-cell giant-crater gaps (hover discs), a path crater, the big crater
+//   SEEDS=1000 node tools/find-everything-level.mjs level95 36 1     # Underwater: a water current, a 3-cell bubble-ride crack, a path urchin, the big urchin
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -16,7 +17,9 @@
 // space door (the wall gap between two path cells), 'I' a slippery strip
 // across a path cell, 'O' a 2-cell gap crossed on a moving platform (or a
 // leaf; rule.platformCells sets its length, 3 for the Moon's hover discs), 'F' the same with a fast leaf (rule.fast: which gaps along the
-// path), 'Z' the spike on the path when there's also a sneaky one ('X').
+// path), 'Z' the spike on the path when there's also a sneaky one ('X'),
+// 'W' a water current over a path cell (rule.current) and 'V' the middle of
+// its side dead end's first cell, where the shove ends.
 //
 // Rules for every level: 14 x 14, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -35,6 +38,10 @@ const RULES = {
     // Moon: two giant craters (3-cell gaps, each with its own hover disc like
     // Level 36's), a small crater on the path, the big crater
     level94: { name: 'Level 94', depth: 2, deadEnds: 36, pathCane: true, bigCane: true, platforms: 2, platformCells: 3, prunePairs: true, placeTries: 20 },
+    // Underwater: one water current (Level 41's: a straight path cell with a
+    // 2-cell dead end off to the side, not the big urchin's), one bubble ride
+    // over a 3-cell crack ('O'), an urchin on the path, the big urchin
+    level95: { name: 'Level 95', depth: 2, deadEnds: 36, current: true, pathCane: true, bigCane: true, platforms: 1, platformCells: 3, prunePairs: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -462,6 +469,22 @@ function place(path, hung, random) {
         out.bigCane = options[Math.floor(random() * options.length)];
         spans.push([out.bigCane.at, out.bigCane.at]);
     }
+    // The water current (Level 41's): path cell k with the path straight
+    // through it and exactly one dead end (2 cells, not the big urchin's)
+    // branching off sideways, in the middle part of the path
+    if (rule.current) {
+        const options = [];
+        for (let k = 2; k < path.length - 2; k++) {
+            if (step(path[k - 1], path[k]) !== step(path[k], path[k + 1]) || links[path[k].i][path[k].j].length !== 3) continue;
+            if (k < path.length * 0.2 || k > path.length * 0.8 || !fits([k, k])) continue;
+            const c = hung.chains.findIndex((chain, n) => hung.roots[n] === k);
+            if (c < 0 || hung.chains[c].length !== 2 || hung.chains[c] === out.bigCane?.chain) continue;
+            options.push({ index: k, into: hung.chains[c][0] });
+        }
+        if (options.length === 0) return null;
+        out.current = options[Math.floor(random() * options.length)];
+        spans.push([out.current.index, out.current.index]);
+    }
     return out;
 }
 
@@ -520,6 +543,11 @@ const layout = toLayout(hung.links, { startCell: best.startCell, exitCell: best.
 const put = ([x, z], ch) => { layout[z][x] = ch; };
 if (hung.sneaky && placed.pathCane !== undefined) put([4 * path[placed.pathCane].i + 2, 4 * path[placed.pathCane].j + 2], 'Z');
 if (placed.bigCane) put(rowBlock(path[placed.bigCane.at], placed.bigCane.chain[0]), 'Y');
+if (placed.current) {
+    const cell = path[placed.current.index];
+    for (const b of gapBlocks([cell])) put(b, 'W');
+    put([4 * placed.current.into.i + 2, 4 * placed.current.into.j + 2], 'V');
+}
 const platformOrder = [...placed.platforms].sort((a, b) => a - b);
 for (const g of placed.platforms) for (const b of gapBlocks([path[g], path[g + PLATFORM_CELLS - 1]])) put(b, (rule.fast ?? []).includes(platformOrder.indexOf(g)) ? 'F' : 'O');
 for (const k of placed.slippery) {
@@ -562,4 +590,5 @@ placed.rivers.forEach((g) => console.log(`gap: path cells ${g + 1}-${g + GAP_CEL
 placed.belts.forEach(({ h, e, b }) => console.log(`belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + BELT_CELLS}, fling to cell ${key(path[h])}`));
 placed.armBelts.forEach(({ h, e, b }) => console.log(`arm belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + ARM_BELT_CELLS}, push to cell ${key(path[b - 1])}`));
 if (placed.pathCane !== undefined) console.log(`path spike: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
+if (placed.current) console.log(`water current: path cell ${placed.current.index + 1} (${key(path[placed.current.index])}), heading ${dir(placed.current.index)}, shoves into ${key(placed.current.into)}`);
 if (placed.bigCane) console.log(`big spike: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);

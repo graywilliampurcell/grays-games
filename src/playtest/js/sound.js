@@ -2366,6 +2366,32 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.08, length: 0.12, brightness: 3200 },
     },
+    // Level 95, Everything World: Underwater: sneaky in Underwater World's
+    // style (G minor, 104 bpm), with a little more bounce than the reef's
+    // own tunes, since it's a tour. A creeping half-step drift (G, F-sharp,
+    // G) like swaying with a current, little high "bloop" notes popping up
+    // like bubbles, one slow bubble-ride climb and a sour C-sharp (the
+    // tritone) poke like brushing an urchin, on a soft round sine lead over
+    // a lazy bass with ticks.
+    reeftour: {
+        tempo: 104,
+        bars: [[43, 'min'], [43, 'min'], [39, 'maj'], [38, 'maj'], [43, 'min'], [48, 'min'], [39, 'maj'], [38, 'maj']],
+        bass: [0, null, null, 7, null, 0, null, 'lead-in'],
+        bassLength: 0.16,
+        stabs: [],
+        ticks: true,
+        melody: [
+            67, null, 66, 67, null, null, 79, null,
+            70, null, 69, null, 67, null, null, 82,
+            63, null, 62, 63, null, null, 75, null,
+            62, null, null, 73, null, 74, null, null,
+            67, null, 70, null, 74, null, 79, null,
+            72, null, 75, null, 79, null, 84, null,
+            75, 74, 72, 70, 69, null, 66, null,
+            67, null, null, null, 79, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.3, length: 0.14, brightness: 2600 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
