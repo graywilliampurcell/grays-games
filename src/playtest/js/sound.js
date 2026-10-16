@@ -1819,6 +1819,32 @@ const TUNES = {
         lead: { wave: 'sawtooth', level: 0.1, length: 0.12, brightness: 800 },
         jingles: { bells: [1, 5], twinkles: { 6: 89, 22: 94, 38: 92, 54: 97 } },
     },
+    // Level 74, the big icicle: just sneaky, with wintery jingles. G minor
+    // at 110 bpm. Each phrase opens with one high note and then drips down
+    // in single drops with a pause between, like water off an icicle, then
+    // tiptoes back up; the second half drips faster and lands low. A soft
+    // triangle lead; sleigh bells on beats 0 and 4 and a high twinkle in the
+    // middle of each phrase (jingles).
+    icicledrip: {
+        tempo: 110,
+        bars: [[43, 'min'], [43, 'min'], [39, 'maj'], [38, 'maj'], [43, 'min'], [36, 'min'], [39, 'maj'], [38, 'maj']],
+        bass: [0, null, null, 0, null, null, 0, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: false,
+        melody: [
+            79, null, null, 74, null, null, 70, null,
+            67, null, 69, null, 70, null, null, null,
+            79, null, null, 75, null, null, 72, null,
+            74, null, 75, null, 74, null, null, null,
+            82, null, 79, null, 77, null, 74, null,
+            75, 74, 72, null, 70, null, null, null,
+            74, null, 72, null, 70, null, 69, null,
+            67, null, null, 66, 67, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.14, length: 0.16, brightness: 1400 },
+        jingles: { bells: [0, 4], twinkles: { 10: 91, 26: 94, 42: 89, 58: 96 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

@@ -4,7 +4,8 @@
 //
 //   SEEDS=1500 node tools/find-ice-level.mjs level71 24 4501   # the sneaky icicle + one sled ride over a 3-cell crack (Level 71 = seed 5855)
 //   SEEDS=1500 node tools/find-ice-level.mjs level72 24 4501   # one snowman + one sled ride (Level 72 = seed 4716)
-//   SEEDS=1500 node tools/find-ice-level.mjs level73 24 4501   # one thin ice + one path icicle (Level 73)
+//   SEEDS=1500 node tools/find-ice-level.mjs level73 24 36001  # one thin ice + one path icicle (Level 73 = seed 36145)
+//   SEEDS=1500 node tools/find-ice-level.mjs level74 24 19501  # one big icicle curtain + one snowman + one thin ice (Level 74 = seed 19681)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 12 x 12, so run many first seeds in parallel.
@@ -40,6 +41,7 @@ const RULES = {
     level71: { name: 'Level 71', depth: 2, deadEnds: 24, sneaky: true, gaps: 1 },
     level72: { name: 'Level 72', depth: 2, deadEnds: 24, gaps: 1, snowmen: 1 },
     level73: { name: 'Level 73', depth: 2, deadEnds: 24, pathCane: true, thinIce: 1 },
+    level74: { name: 'Level 74', depth: 2, deadEnds: 24, bigCane: true, snowmen: 1, thinIce: 1 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

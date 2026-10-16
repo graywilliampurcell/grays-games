@@ -3203,6 +3203,7 @@ export class Maze {
         if (this.theme.underwater) return this.createBigUrchin(row);
         if (this.theme.sweets) return this.createBigCandyCane(row);
         if (this.theme.volcano) return this.createBigHotCoal(row);
+        if (this.theme.ice) return this.createBigIcicle(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -3345,6 +3346,60 @@ export class Maze {
         glow.rotation.x = -Math.PI / 2;
         glow.position.y = 0.02;
         group.add(glow);
+        if (!row.spansX) group.rotation.y = Math.PI / 2;
+        group.position.copy(row.position);
+        group.position.y = 0;
+        this.root.add(group);
+    }
+
+    // Ice World's spike row (Level 74): the icicle arch. An igloo arch of ice
+    // bricks wall to wall, as deep as a spike row, with a curtain of icicles
+    // hanging from it all the way across: long ones nearly to the snow in the
+    // middle and at the sides, so there's no way past
+    createBigIcicle(row) {
+        const group = new THREE.Group();
+        const half = SPIKE_ROW_WIDTH / 2;
+        const legHeight = 2.1;
+        const brick = (shade) => new THREE.MeshStandardMaterial({ color: new THREE.Color(0.82 * shade, 0.93 * shade, 1), emissive: 0x3a8ad0, emissiveIntensity: 0.35, roughness: 0.25 });
+        const shades = [1, 0.93, 0.97, 0.9, 1.02];
+        let n = 0;
+        for (const side of [-1, 1]) {
+            for (let y = 0; y < legHeight; y += 0.35) {
+                const b = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.32, 0.7), brick(shades[n++ % shades.length]));
+                b.position.set(side * (half - 0.14), y + 0.17, 0);
+                group.add(b);
+            }
+        }
+        const archRadius = half - 0.14;
+        const bricks = 11;
+        for (let k = 0; k < bricks; k++) {
+            const a = ((k + 0.5) / bricks) * Math.PI;
+            const b = new THREE.Mesh(new THREE.BoxGeometry(0.28, (Math.PI * archRadius) / bricks - 0.03, 0.7), brick(shades[n++ % shades.length]));
+            b.position.set(Math.cos(a) * archRadius, legHeight + Math.sin(a) * archRadius, 0);
+            b.rotation.z = a;
+            group.add(b);
+        }
+        // The curtain: two staggered rows of icicles across the whole arch
+        const iceMaterial = new THREE.MeshStandardMaterial({ color: 0xd8f6ff, emissive: 0x6fd0ff, emissiveIntensity: 0.6, roughness: 0.08, metalness: 0.1, transparent: true, opacity: 0.92 });
+        const count = 9;
+        for (const [dz, shift] of [[-0.16, 0], [0.16, 0.5]]) {
+            for (let k = 0; k < count; k++) {
+                const ox = -half + 0.32 + ((k + shift) / (count - 0.5)) * (2 * half - 0.64);
+                const y = legHeight + Math.sqrt(Math.max(0, archRadius * archRadius - ox * ox)) - 0.1;
+                const tip = 0.15 + 0.25 * Math.abs(Math.sin(k * 2.3 + shift * 5));
+                const len = y - tip;
+                const icicle = new THREE.Mesh(new THREE.ConeGeometry(0.17, len, 10), iceMaterial);
+                icicle.rotation.x = Math.PI;
+                icicle.position.set(ox, y - len / 2, dz);
+                icicle.castShadow = true;
+                group.add(icicle);
+            }
+        }
+        // A frosty blue strip on the snow under it
+        const frost = new THREE.Mesh(new THREE.PlaneGeometry(SPIKE_ROW_WIDTH, SPIKE_ROW_DEPTH + 0.4), new THREE.MeshBasicMaterial({ color: 0x7fd6ff, transparent: true, opacity: 0.4, depthWrite: false }));
+        frost.rotation.x = -Math.PI / 2;
+        frost.position.y = 0.02;
+        group.add(frost);
         if (!row.spansX) group.rotation.y = Math.PI / 2;
         group.position.copy(row.position);
         group.position.y = 0;
