@@ -1845,6 +1845,32 @@ const TUNES = {
         lead: { wave: 'triangle', level: 0.14, length: 0.16, brightness: 1400 },
         jingles: { bells: [0, 4], twinkles: { 10: 91, 26: 94, 42: 89, 58: 96 } },
     },
+    // Level 75, two sleds: just sneaky, with wintery jingles. D minor at
+    // 120 bpm. Each phrase sneaks along on one low repeated note, then zips
+    // up a quick run like a sled on a zip line and hangs there, then slides
+    // back down; the second half does it twice, once per sled. A plucky
+    // square lead; sleigh bells on beats 2 and 6 and a twinkle at the top of
+    // each zip (jingles).
+    twinsleds: {
+        tempo: 120,
+        bars: [[38, 'min'], [38, 'min'], [34, 'maj'], [33, 'maj'], [38, 'min'], [41, 'maj'], [34, 'maj'], [33, 'maj']],
+        bass: [0, null, 0, null, null, null, 0, null],
+        bassLength: 0.14,
+        stabs: [],
+        ticks: false,
+        melody: [
+            62, null, 62, null, 62, 64, 65, 69,
+            74, null, null, null, 72, null, 69, null,
+            62, null, 62, null, 62, 65, 67, 70,
+            74, null, null, 72, 70, null, 69, null,
+            62, 65, 69, 74, null, null, 72, null,
+            65, 69, 72, 77, null, 74, null, null,
+            70, null, 69, null, 67, null, 65, null,
+            64, null, 61, null, 62, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.1, length: 0.1, brightness: 1800 },
+        jingles: { bells: [2, 6], twinkles: { 8: 93, 24: 94, 35: 93, 43: 98 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
