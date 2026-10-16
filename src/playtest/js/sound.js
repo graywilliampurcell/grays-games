@@ -1871,6 +1871,32 @@ const TUNES = {
         lead: { wave: 'square', level: 0.1, length: 0.1, brightness: 1800 },
         jingles: { bells: [2, 6], twinkles: { 8: 93, 24: 94, 35: 93, 43: 98 } },
     },
+    // Level 76, the tighter squeeze: just sneaky, with wintery jingles. C
+    // minor at 92 bpm. Each phrase opens wide and then squeezes in, the two
+    // notes stepping closer and closer like walls closing round an icicle,
+    // and ends with a tiny wobble (a half step up and back) as you slip past.
+    // A buzzy, dark sawtooth lead; sleigh bells on beats 1 and 5 and a
+    // twinkle as each squeeze ends (jingles).
+    tightsqueezeice: {
+        tempo: 92,
+        bars: [[36, 'min'], [36, 'min'], [32, 'maj'], [31, 'maj'], [36, 'min'], [41, 'min'], [32, 'maj'], [31, 'maj']],
+        bass: [0, null, null, 0, null, null, 0, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: false,
+        melody: [
+            60, null, 67, null, 62, null, 65, null,
+            63, 64, 63, null, null, null, 60, null,
+            68, null, 75, null, 70, null, 72, null,
+            71, 72, 71, null, null, null, 67, null,
+            72, null, 79, null, 74, null, 77, null,
+            75, 77, 75, null, 72, null, 68, null,
+            67, null, 68, null, 67, null, 65, null,
+            63, null, 62, null, 60, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.08, length: 0.13, brightness: 1100 },
+        jingles: { bells: [1, 5], twinkles: { 12: 91, 28: 96, 44: 98, 60: 91 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
