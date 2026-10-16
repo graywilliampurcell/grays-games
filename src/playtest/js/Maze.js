@@ -4301,6 +4301,7 @@ export class Maze {
         if (this.theme.sweets) return this.createBigCandyCane(row);
         if (this.theme.volcano) return this.createBigHotCoal(row);
         if (this.theme.ice) return this.createBigIcicle(row);
+        if (this.theme.factory) return this.createBigZapper(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -4501,6 +4502,78 @@ export class Maze {
         group.position.copy(row.position);
         group.position.y = 0;
         this.root.add(group);
+    }
+
+    // Robot Factory World's spike row (Level 85): the big zapper. A fence of
+    // four tall copper posts wall to wall on a hazard plate, as deep as a
+    // spike row, with electricity crackling between every pair of posts at
+    // two heights, sparks flying and a blue glow, so there's no way past.
+    // Its arcs flicker with the small zappers (this.zappers).
+    createBigZapper(row) {
+        const group = new THREE.Group();
+        const half = SPIKE_ROW_WIDTH / 2;
+        const plate = new THREE.Mesh(new THREE.BoxGeometry(SPIKE_ROW_WIDTH, 0.08, SPIKE_ROW_DEPTH), new THREE.MeshStandardMaterial({ color: 0x2c2f34, metalness: 0.6, roughness: 0.5 }));
+        plate.position.y = 0.04;
+        group.add(plate);
+        // Yellow hazard edges along both sides of the plate
+        const yellow = new THREE.MeshStandardMaterial({ color: 0xf2c230, emissive: 0x6a5000, emissiveIntensity: 0.6 });
+        for (const side of [-1, 1]) {
+            const edge = new THREE.Mesh(new THREE.BoxGeometry(SPIKE_ROW_WIDTH, 0.03, 0.08), yellow);
+            edge.position.set(0, 0.095, side * (SPIKE_ROW_DEPTH / 2 - 0.06));
+            group.add(edge);
+        }
+        const copper = new THREE.MeshStandardMaterial({ color: 0xc8743a, metalness: 0.8, roughness: 0.3 });
+        const coilMaterial = new THREE.MeshStandardMaterial({ color: 0x9fe8ff, emissive: 0x40c8ff, emissiveIntensity: 1.2 });
+        const height = 1.55;
+        const xs = [-half + 0.14, -0.45, 0.45, half - 0.14];
+        for (const x of xs) {
+            const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, height, 10), copper);
+            post.position.set(x, height / 2 + 0.08, 0);
+            post.castShadow = true;
+            group.add(post);
+            for (let k = 0; k < 7; k++) {
+                const coil = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.025, 6, 16), copper);
+                coil.rotation.x = Math.PI / 2;
+                coil.position.set(x, 0.3 + k * 0.18, 0);
+                group.add(coil);
+            }
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(0.13, 14, 10), coilMaterial);
+            ball.position.set(x, height + 0.14, 0);
+            group.add(ball);
+        }
+        const glow = new THREE.Mesh(new THREE.PlaneGeometry(SPIKE_ROW_WIDTH, SPIKE_ROW_DEPTH + 0.6), new THREE.MeshBasicMaterial({ color: 0x40c8ff, transparent: true, opacity: 0.3, depthWrite: false }));
+        glow.rotation.x = -Math.PI / 2;
+        glow.position.y = 0.1;
+        group.add(glow);
+        // Between each pair of posts, at the top and halfway up: two
+        // crackling arcs and a few sparks (the same as a small zapper's)
+        this.zappers = this.zappers || [];
+        for (let k = 0; k + 1 < xs.length; k++) {
+            for (const y of [height + 0.14, 0.85]) {
+                const tops = [new THREE.Vector3(xs[k], y, 0), new THREE.Vector3(xs[k + 1], y, 0)];
+                const arcs = [0, 1].map((n) => {
+                    const material = new THREE.MeshBasicMaterial({ color: n ? 0xffffff : 0x8fe0ff });
+                    const bars = [];
+                    for (let b = 0; b < 8; b++) {
+                        const bar = new THREE.Mesh(new THREE.BoxGeometry(n ? 0.025 : 0.045, n ? 0.025 : 0.045, 1), material);
+                        group.add(bar);
+                        bars.push(bar);
+                    }
+                    return bars;
+                });
+                const sparkGeometry = new THREE.BufferGeometry();
+                sparkGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(10 * 3), 3));
+                const sparks = new THREE.Points(sparkGeometry, new THREE.PointsMaterial({ color: 0xfff6a0, size: 0.07 }));
+                group.add(sparks);
+                this.zappers.push({ arcs, sparks, glow, tops, time: 0 });
+            }
+        }
+        if (!row.spansX) group.rotation.y = Math.PI / 2;
+        group.position.copy(row.position);
+        group.position.y = 0;
+        this.root.add(group);
+        group.updateMatrixWorld(true);
+        for (const z of this.zappers.slice(-6)) this.updateZapper(z, 0);
     }
 
     // Underwater World's spike row (Level 43): a big urchin right across the

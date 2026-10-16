@@ -4424,6 +4424,78 @@ export const LEVELS = [
         '#####################################################',
         ],
     },
+    {
+        name: 'Level 85',
+        // The big zapper. `SEEDS=3000 node tools/find-factory-level.mjs
+        // level85 28 18001`, seed 18354. 13 x 13 corridors. Correct path 113
+        // cells (start west in the bottom row, door east in the top row); 28
+        // dead ends 2 cells deep. Y: the big zapper filling the opening of a
+        // straight dead end going west off path cell 35 (top row), in plain
+        // view. B: the backward belt, 4 cells (path cells 97-100) in a
+        // straight 6-cell hallway (path cells 96-101, heading north, right
+        // column), one floor cell before and after it. L: where it flings
+        // you, the middle of the hallway's first cell (path cell 96). Cycle:
+        // off and quiet 2 s, warning 2 s, on 3 s. No tire ride, no robot-arm
+        // belt, no path or sneaky zapper.
+        theme: FACTORY,
+        music: 'factorybigzap',
+        beltQuiet: 2,
+        layout: [
+        '#####################################################',
+        '#               #       #       #   #   #           #',
+        '#      Y        #       #       #   #   #           D',
+        '#               #       #       #   #   #           #',
+        '#########   #   #####   #   #####   #   #########   #',
+        '#           #   #           #   #   #   #           #',
+        '#           #   #           #   #   #   #           #',
+        '#           #   #           #   #   #   #           #',
+        '#   #########   #   #####   #   #   #   #   #########',
+        '#       #   #   #       #   #           #           #',
+        '#       #   #   #       #   #           #           #',
+        '#       #   #   #       #   #           #           #',
+        '#####   #   #   #####   #   #####   #   #########   #',
+        '#   #   #           #   #           #       #   #   #',
+        '#   #   #           #   #           #       #   #   #',
+        '#   #   #           #   #           #       #   #   #',
+        '#   #   #####   #   #   #########   #####   #   #   #',
+        '#       #   #   #       #       #       #   #       #',
+        '#       #   #   #       #       #       #   #       #',
+        '#       #   #   #       #       #       #   #       #',
+        '#####   #   #   #########   #   #########   #####   #',
+        '#           #   #           #           #   #       #',
+        '#           #   #           #           #   #       #',
+        '#           #   #           #           #   #       #',
+        '#   #   #################   #########   #   #   #####',
+        '#   #       #       #   #   #       #       #       #',
+        '#   #       #       #   #   #       #       #       #',
+        '#   #       #       #   #   #       #       #       #',
+        '#   #########   #####   #   #   #   #############   #',
+        '#   #                   #   #   #   #           #BBB#',
+        '#   #                   #   #   #   #           #BBB#',
+        '#   #                   #   #   #   #           #BBB#',
+        '#   #   #########   #####   #   #   #   #####   #BBB#',
+        '#   #   #           #           #       #       #BBB#',
+        '#   #   #           #           #       #       #BBB#',
+        '#   #   #           #           #       #       #BBB#',
+        '#   #   #   #########   #################   #####BBB#',
+        '#       #           #   #       #       #       #BBB#',
+        '#       #           #   #       #       #       #BBB#',
+        '#       #           #   #       #       #       #BBB#',
+        '#####   #   #################   #####   #####   #BBB#',
+        '#       #           #       #                   #BBB#',
+        '#       #           #       #                   #BBB#',
+        '#       #           #       #                   #BBB#',
+        '#################   #   #####   #################BBB#',
+        '#       #       #       #   #           #           #',
+        '#       #       #       #   #           #         L #',
+        '#       #       #       #   #           #           #',
+        '#   #####   #########   #   #########   #   #   #####',
+        '#                           #               #       #',
+        '# S                         #               #       #',
+        '#                           #               #       #',
+        '#####################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels with the same theme, with

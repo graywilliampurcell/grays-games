@@ -2110,6 +2110,33 @@ const TUNES = {
         lead: { wave: 'square', level: 0.12, length: 0.09, brightness: 1600 },
         factory: { clanks: [3, 7], beeps: { 1: 93, 11: 88, 25: 96, 33: 90, 43: 86, 57: 95 } },
     },
+    // Level 85, the big zapper: sneaky, a little spooky, a bit sneakier
+    // than Level 84. F-sharp minor at 106 bpm on a triangle. It opens low
+    // with a slow humming buzz (the same low note four times, like a big
+    // power line), creeps up in small steps as if peeking at the big
+    // zapper, jumps back with a quick zap-zap high up, and sneaks away down
+    // to end on a low E-sharp (one step under F-sharp, unsettled). Clanks on
+    // beats 2 and 6, robot beeps in between.
+    factorybigzap: {
+        tempo: 106,
+        bars: [[42, 'min'], [42, 'min'], [38, 'maj'], [37, 'maj'], [42, 'min'], [47, 'min'], [38, 'maj'], [37, 'maj']],
+        bass: [0, null, 0, null, null, null, 0, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: true,
+        melody: [
+            66, null, 66, null, 66, null, 66, null,
+            67, null, 69, null, 70, null, null, null,
+            78, 78, null, null, 73, null, 69, null,
+            66, null, null, null, 65, null, null, null,
+            66, null, 66, null, 66, null, 66, null,
+            69, null, 71, null, 73, null, null, null,
+            81, 81, null, null, 78, null, 74, null,
+            73, null, 69, null, 65, null, 53, null,
+        ],
+        lead: { wave: 'triangle', level: 0.17, length: 0.12, brightness: 1500 },
+        factory: { clanks: [2, 6], beeps: { 5: 89, 13: 94, 29: 87, 37: 92, 45: 96, 61: 85 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

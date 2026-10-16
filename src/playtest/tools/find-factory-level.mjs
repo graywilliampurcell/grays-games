@@ -6,6 +6,7 @@
 //   SEEDS=3000 node tools/find-factory-level.mjs level82 32 6001   # the sneaky zapper + one backward belt (Level 82 = seed 6810)
 //   SEEDS=3000 node tools/find-factory-level.mjs level83 30 1      # a path zapper + one backward belt (Level 83 = seed 79)
 //   SEEDS=3000 node tools/find-factory-level.mjs level84 30 1      # a robot-arm belt + one tire ride + the sneaky zapper (Level 84)
+//   SEEDS=3000 node tools/find-factory-level.mjs level85 30 1      # the big zapper + one backward belt (Level 85)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 13 x 13, so run many first seeds in parallel.
@@ -47,6 +48,7 @@ const RULES = {
     // straight: how often the path keeps going straight when it can (a long
     // straight hallway for the arm belt is rare otherwise)
     level84: { name: 'Level 84', depth: 2, deadEnds: 30, sneaky: true, gaps: 1, armBelts: 1, straight: 0.5, placeTries: 40 },
+    level85: { name: 'Level 85', depth: 2, deadEnds: 30, bigCane: true, belts: 1, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
