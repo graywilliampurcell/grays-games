@@ -7,7 +7,8 @@
 //   SEEDS=3000 node tools/find-factory-level.mjs level83 30 1      # a path zapper + one backward belt (Level 83 = seed 79)
 //   SEEDS=3000 node tools/find-factory-level.mjs level84 30 15001  # a robot-arm belt + one tire ride + the sneaky zapper (Level 84 = seed 16106)
 //   SEEDS=3000 node tools/find-factory-level.mjs level85 28 18001  # the big zapper + one backward belt (Level 85 = seed 18354)
-//   SEEDS=3000 node tools/find-factory-level.mjs level86 30 1      # a path zapper + one tire ride + one backward belt (Level 86)
+//   SEEDS=3000 node tools/find-factory-level.mjs level86 30 1      # a path zapper + one tire ride + one backward belt (Level 86 = seed 35)
+//   SEEDS=300 node tools/find-factory-level.mjs level87 24 1       # every dead end 3 deep + the big zapper + one tire ride + one backward belt (Level 87 = seed 21)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 13 x 13, so run many first seeds in parallel.
@@ -28,7 +29,7 @@
 // from every other level. Spacing: at least 2 path cells between any two
 // obstacles on the path (a gap counts as its 5 cells, a belt as its whole
 // hallway) and between them and every obstacle dead end's opening. Dead ends
-// are 2 deep. Gaps sit on plain cells (only the path goes through them) in a
+// are 2 deep (3 deep from Level 87 on). Gaps sit on plain cells (only the path goes through them) in a
 // straight stretch visible on approach. The sneaky zapper: a dead end 3
 // cells deep with one 90 degree turn, leaving the path in its first 3 cells,
 // the zapper in its last cell, out of sight of the whole path. A belt's
@@ -51,6 +52,9 @@ const RULES = {
     level84: { name: 'Level 84', depth: 2, deadEnds: 30, sneaky: true, gaps: 1, armBelts: 1, straight: 0.5, placeTries: 40 },
     level85: { name: 'Level 85', depth: 2, deadEnds: 30, bigCane: true, belts: 1, placeTries: 20 },
     level86: { name: 'Level 86', depth: 2, deadEnds: 28, pathCane: true, gaps: 1, belts: 1, placeTries: 200 },
+    // prune: while laying the path, give up on it as soon as a walled-off patch
+    // can't be cut into 3-cell dead ends (13 x 13 at 3 deep needs it)
+    level87: { name: 'Level 87', depth: 3, deadEnds: 18, bigCane: true, gaps: 1, belts: 1, placeTries: 200, prune: true },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -139,6 +143,33 @@ function leftoverPairs(used, path) {
     return true;
 }
 
+// For rule.prune: every patch of unused cells the path's head can no longer
+// reach must already have a multiple of 3 cells, and the patches it can
+// reach must hold the rest of the path and touch the east edge
+function stillSplits(used, head, remaining) {
+    const seen = new Set(used);
+    const next = new Set(neighbours(head).map(key));
+    let room = 0;
+    let east = false;
+    for (let i = 0; i < COLS; i++) for (let j = 0; j < ROWS; j++) {
+        if (seen.has(`${i},${j}`)) continue;
+        let size = 0;
+        let reachable = false;
+        let touchesEast = false;
+        const stack = [{ i, j }];
+        seen.add(`${i},${j}`);
+        while (stack.length) {
+            const c = stack.pop();
+            size++;
+            if (next.has(key(c))) reachable = true;
+            if (c.i === COLS - 1) touchesEast = true;
+            for (const n of neighbours(c)) if (!seen.has(key(n))) { seen.add(key(n)); stack.push(n); }
+        }
+        if (reachable) { room += size; east ||= touchesEast; } else if (size % 3 !== 0) return false;
+    }
+    return room >= remaining && (east || head.i === COLS - 1);
+}
+
 // Random self-avoiding walk of exactly PATH_LENGTH cells, west edge to east edge
 function layPath(random) {
     const start = { i: 0, j: Math.floor(random() * ROWS) };
@@ -150,6 +181,7 @@ function layPath(random) {
         const last = path[path.length - 1];
         if (path.length === PATH_LENGTH) return last.i === COLS - 1 && (DEPTH === 3 ? leftoverSplits(used) : leftoverPairs(used, path));
         if (COLS - 1 - last.i > PATH_LENGTH - path.length) return false;
+        if (rule.prune && !stillSplits(used, last, PATH_LENGTH - path.length)) return false;
         const options = path.length === 1 ? [{ i: 1, j: start.j }] : shuffle(neighbours(last), random);
         if (rule.straight && path.length > 1 && random() < rule.straight) {
             const ahead = { i: 2 * last.i - path[path.length - 2].i, j: 2 * last.j - path[path.length - 2].j };

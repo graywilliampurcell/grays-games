@@ -2163,6 +2163,32 @@ const TUNES = {
         lead: { wave: 'square', level: 0.12, length: 0.08, brightness: 1700 },
         factory: { clanks: [0, 3], beeps: { 9: 92, 17: 87, 31: 95, 41: 89, 49: 84, 63: 93 } },
     },
+    // Level 87, longer wrong ways: sneaky, a bit sneakier than Level 86.
+    // D minor at 98 bpm on a sawtooth. Long winding phrases that wander off
+    // down a step at a time (like walking down a long wrong way), stop,
+    // and climb back the way they came; a low buzz of repeated notes for
+    // the big zapper, ending on a low C-sharp (one step under D,
+    // unsettled). Clanks on beats 1 and 4, robot beeps.
+    factorylong: {
+        tempo: 98,
+        bars: [[50, 'min'], [50, 'min'], [46, 'maj'], [45, 'maj'], [50, 'min'], [43, 'min'], [46, 'maj'], [45, 'maj']],
+        bass: [0, null, 0, null, null, 0, null, null],
+        bassLength: 0.12,
+        stabs: [],
+        ticks: true,
+        melody: [
+            74, null, 72, null, 70, null, 69, null,
+            67, null, 65, null, null, null, null, null,
+            65, null, 67, null, 69, null, 70, null,
+            72, null, 74, null, null, null, null, null,
+            62, 62, 62, null, 62, 62, null, null,
+            77, null, 76, null, 74, null, 72, null,
+            70, null, 69, null, 67, null, 65, null,
+            62, null, null, null, 61, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.1, length: 0.14, brightness: 1300 },
+        factory: { clanks: [1, 4], beeps: { 7: 90, 15: 86, 27: 93, 39: 88, 47: 95, 59: 84 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
