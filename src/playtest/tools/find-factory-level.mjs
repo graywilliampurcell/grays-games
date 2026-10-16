@@ -4,6 +4,7 @@
 //
 //   SEEDS=3000 node tools/find-factory-level.mjs level81 32 21001  # the sneaky zapper + one tire ride over a 5-cell gap (Level 81 = seed 21456)
 //   SEEDS=3000 node tools/find-factory-level.mjs level82 32 6001   # the sneaky zapper + one backward belt (Level 82 = seed 6810)
+//   SEEDS=3000 node tools/find-factory-level.mjs level83 32 1      # a path zapper + one backward belt (Level 83)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Good mazes are rare at 13 x 13, so run many first seeds in parallel.
@@ -13,7 +14,8 @@
 // Level 27's speed), 'B' a backward belt (4 corridor cells, counting the
 // gap in the wall before its first cell), 'L' the middle of the first cell
 // of the belt's straight hallway, on the start's side (where the belt flings
-// you).
+// you), 'X' the zapper on the path when there is no sneaky one ('Z' when
+// there is), 'Y' the big zapper filling a straight dead end's opening.
 //
 // Rules for every level: 13 x 13, one solution path from the west edge to the
 // east edge, start and door on opposite edges, a layout clearly different
@@ -34,6 +36,7 @@ import { LEVELS } from '../js/levels.js';
 const RULES = {
     level81: { name: 'Level 81', depth: 2, deadEnds: 30, sneaky: true, gaps: 1 },
     level82: { name: 'Level 82', depth: 2, deadEnds: 30, sneaky: true, belts: 1 },
+    level83: { name: 'Level 83', depth: 2, deadEnds: 30, pathCane: true, belts: 1, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -312,7 +315,33 @@ function place(path, hung, random) {
         out.belts.push(o);
         spans.push([o.h, o.e]);
     }
+    // The zapper on the path: plain, with the path straight from k - 2 to
+    // k + 1 (visible on approach), in the middle part of the path
+    if (rule.pathCane) {
+        const options = [];
+        for (let k = Math.ceil(path.length * 0.3); k <= Math.floor(path.length * 0.8); k++) {
+            if (plain(k) && step(path[k - 2], path[k - 1]) === step(path[k - 1], path[k]) && fits([k, k])) options.push(k);
+        }
+        if (options.length === 0) return null;
+        out.pathCane = options[Math.floor(random() * options.length)];
+        spans.push([out.pathCane, out.pathCane]);
+    }
+    // The big zapper: a straight dead end (all DEPTH cells in a line from its opening)
+    if (rule.bigCane) {
+        const options = hung.chains.map((chain, c) => ({ chain, at: hung.roots[c] }))
+            .filter(({ chain, at }) => chain.every((cell, n) => step(n === 0 ? path[at] : chain[n - 1], cell) === step(path[at], chain[0])) && fits([at, at]));
+        if (options.length === 0) return null;
+        out.bigCane = options[Math.floor(random() * options.length)];
+        spans.push([out.bigCane.at, out.bigCane.at]);
+    }
     return out;
+}
+
+// The big zapper's block: the dead end's first block in from the opening, across its middle
+function rowBlock(from, cell) {
+    const di = cell.i - from.i;
+    const dj = cell.j - from.j;
+    return [di === 0 ? 4 * cell.i + 2 : 4 * cell.i + (di > 0 ? 1 : 3), dj === 0 ? 4 * cell.j + 2 : 4 * cell.j + (dj > 0 ? 1 : 3)];
 }
 
 function gapBlocks(cells) {
@@ -354,8 +383,10 @@ if (!best) {
 }
 
 const { path, hung, placed } = best;
-const layout = toLayout(hung.links, { startCell: best.startCell, exitCell: best.exitCell, spikeCell: hung.sneaky?.s }).map((r) => r.split(''));
+const layout = toLayout(hung.links, { startCell: best.startCell, exitCell: best.exitCell, spikeCell: hung.sneaky ? hung.sneaky.s : placed.pathCane !== undefined ? path[placed.pathCane] : null }).map((r) => r.split(''));
 const put = ([x, z], ch) => { layout[z][x] = ch; };
+if (hung.sneaky && placed.pathCane !== undefined) put([4 * path[placed.pathCane].i + 2, 4 * path[placed.pathCane].j + 2], 'Z');
+if (placed.bigCane) put(rowBlock(path[placed.bigCane.at], placed.bigCane.chain[0]), 'Y');
 for (const g of placed.rivers) for (const b of gapBlocks([...Array(GAP_CELLS).keys()].map((d) => path[g + d]))) put(b, 'F');
 for (const { h, b: first } of placed.belts) {
     const belt = [...Array(BELT_CELLS).keys()].map((d) => path[first + d]);
@@ -374,3 +405,5 @@ console.log(`\n${rule.name}: seed ${best.seed}, 13x13, start row ${best.startCel
 if (hung.sneaky) console.log(`sneaky zapper: dead end off path cell ${hung.sneaky.index + 1}, zapper in cell ${key(hung.sneaky.s)}`);
 placed.rivers.forEach((g) => console.log(`gap: path cells ${g + 1}-${g + GAP_CELLS}, crossed heading ${dir(g)}`));
 placed.belts.forEach(({ h, e, b }) => console.log(`belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + BELT_CELLS}, fling to cell ${key(path[h])}`));
+if (placed.pathCane !== undefined) console.log(`path zapper: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
+if (placed.bigCane) console.log(`big zapper: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);

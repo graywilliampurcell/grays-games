@@ -2058,6 +2058,32 @@ const TUNES = {
         lead: { wave: 'triangle', level: 0.17, length: 0.13, brightness: 1700 },
         factory: { clanks: [0, 4, 6], beeps: { 3: 91, 19: 86, 27: 93, 35: 89, 51: 96, 59: 86 } },
     },
+    // Level 83, squeeze past the zapper: sneaky and buzzy, a bit sneakier
+    // than Level 82. C minor at 112 bpm on a sawtooth. It opens with quick
+    // repeated zaps on one note (bzz-bzz-bzz), tiptoes up the side of the
+    // tune like squeezing past, zaps again a step higher, and slides down to
+    // end on a low B (one step under C, unsettled). Clanks on beats 1 and 5,
+    // robot beeps in between.
+    factoryzap: {
+        tempo: 112,
+        bars: [[36, 'min'], [36, 'min'], [41, 'min'], [43, 'maj'], [36, 'min'], [44, 'maj'], [41, 'min'], [43, 'maj']],
+        bass: [0, null, null, 0, null, 0, null, null],
+        bassLength: 0.12,
+        stabs: [],
+        ticks: true,
+        melody: [
+            72, 72, 72, null, 75, null, 74, null,
+            72, null, 71, null, 72, null, null, null,
+            67, null, 68, null, 70, null, 72, null,
+            74, 74, 74, null, 71, null, null, null,
+            72, 72, 72, null, 77, null, 75, null,
+            74, null, 72, null, 70, null, 68, null,
+            67, null, 65, null, 63, null, 62, null,
+            59, null, null, null, null, null, 47, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.12, length: 0.1, brightness: 1500 },
+        factory: { clanks: [1, 5], beeps: { 7: 90, 15: 95, 23: 88, 31: 92, 47: 86, 55: 94 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
