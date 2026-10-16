@@ -1519,6 +1519,9 @@ const ARM_SPEED = 7.5;
 const ARM_GONE = 0.4;
 const ARM_GAP = 0.1;
 const ARM_APPEAR_TIME = 0.25;
+// With two arm belts (Level 88 on), every second one starts ARM_OFFSET
+// seconds later, so the two belts' arms don't come in step
+const ARM_OFFSET = 1.5;
 
 // The belt's rubber: dark, with raised ridges across it
 function beltTexture() {
@@ -1704,7 +1707,10 @@ export class Maze {
         this.belts = beltLandings.length ? groupBlocks(beltBlocks).map((blocks) => this.setUpBelt(blocks, beltLandings)) : [];
         this.armBeltSpeed = ARM_BELT_SPEED;
         this.armBelts = armLandings.length ? groupBlocks(armBlocks).map((blocks) => this.setUpArmBelt(blocks, armLandings)) : [];
-        this.armBelts.forEach((belt, index) => { belt.interval = Array.isArray(armInterval) ? armInterval[index] ?? ARM_INTERVAL : armInterval; });
+        this.armBelts.forEach((belt, index) => {
+            belt.interval = Array.isArray(armInterval) ? armInterval[index] ?? ARM_INTERVAL : armInterval;
+            belt.timer = ARM_FIRST_TIME + (index % 2) * ARM_OFFSET;
+        });
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
         if (doorBlocks.length) {
