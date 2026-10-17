@@ -446,6 +446,19 @@
             color: #9f9;
         }
 
+        /* The 6 7 switch (Level 67's "Six seven!"): a big 6 7 */
+        .item.toggle.big-switch {
+            font-size: 44px;
+            font-weight: 800;
+            letter-spacing: 6px;
+        }
+
+        .item.toggle.big-switch::after {
+            font-size: 22px;
+            letter-spacing: 0;
+            font-weight: normal;
+        }
+
         .slider-row {
             display: flex;
             align-items: center;
@@ -761,6 +774,7 @@
             <h3>Sound</h3>
             <div class="item toggle" data-act="toggle" data-setting="music">Music</div>
             <div class="item toggle" data-act="toggle" data-setting="sfx">Sound effects</div>
+            <div class="item toggle big-switch" data-act="toggle" data-setting="sixSeven">6 7</div>
             <div class="item" data-act="back">Back</div>
             <div id="version-line"></div>
         </div>

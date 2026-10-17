@@ -3574,9 +3574,16 @@ export class Sound {
     // says "Ouch!" (Iteration 13: no clapping or crowd). iPads (and devices with
     // no speaking voice) get the game's own voice-like "woo hoo" and "yay".
     // long: a world's finale (Levels 10 and 20) gets an extra-long cheer
-    cheer({ long = false } = {}) {
+    // sixSeven: Level 67's door says "Six seven!" instead (Iteration 130), in
+    // the same voice, as loud, and with the same no-voice fallback
+    cheer({ long = false, sixSeven = false } = {}) {
         if (!this.settings.sfx) return;
-        this.onEvent('cheer');
+        this.onEvent(sixSeven ? 'sixseven' : 'cheer');
+        if (sixSeven) {
+            const ownSix = () => this.playOwnVoice((t) => this.syntheticSixSeven(t));
+            if (!this.speak([['Six seven!', 1.5]], 1.05, ownSix)) ownSix();
+            return;
+        }
         const lines = long
             ? [['Woo hoo!', 1.4], ['Yay!', 1.7], ['Woo hoo!', 1.5], ['Yaaay!', 1.8], ['Woo hoo! Yay!', 1.6]]
             : [['Woo hoo!', 1.4], ['Yay!', 1.7]];
@@ -3596,6 +3603,63 @@ export class Sound {
             this.shout(t, word, word === 'yay' ? 330 : word === 'hoo' ? 320 : 300, 0, place);
             t += gaps[word];
         }
+    }
+
+    // The game's own "six seven!": hissy s's and a k, and voice-like vowels
+    // ("ih", "eh", "uh") through vowel filters, like the cheer's shouts
+    syntheticSixSeven(t) {
+        const out = this.ctx.createGain();
+        out.gain.value = CHEER_LEVEL * 1.5; // short sounds: a bit more so it's as loud as the cheer
+        out.connect(this.sfxBus);
+        const hiss = (at, length, freq, level) => {
+            const f = this.ctx.createBiquadFilter();
+            f.type = 'highpass';
+            f.frequency.value = freq;
+            const g = this.ctx.createGain();
+            g.gain.setValueAtTime(0.0001, at);
+            g.gain.exponentialRampToValueAtTime(level, at + length * 0.3);
+            g.gain.exponentialRampToValueAtTime(0.0001, at + length);
+            this.noiseSource(at, length + 0.02).connect(f).connect(g).connect(out);
+        };
+        // "s" - "ih" - "ks"
+        hiss(t, 0.14, 4500, 0.22);
+        this.vowel(t + 0.12, 0.16, 300, 1.25, [[390, 1990, 2550]], out);
+        hiss(t + 0.29, 0.03, 1800, 0.3); // the k's little click
+        hiss(t + 0.32, 0.12, 4500, 0.2);
+        // "s" - "eh" - "v" - "uh" - "n"
+        t += 0.56;
+        hiss(t, 0.13, 4500, 0.22);
+        this.vowel(t + 0.11, 0.2, 320, 1.3, [[580, 1800, 2500]], out);
+        this.vowel(t + 0.3, 0.06, 300, 1, [[250, 1400, 2400]], out, 0.4); // the v
+        this.vowel(t + 0.35, 0.22, 290, 0.85, [[520, 1300, 2400]], out);
+        this.vowel(t + 0.55, 0.16, 270, 0.9, [[260, 1700, 2600]], out, 0.5); // the n
+    }
+
+    // A voice-like buzz at `base` pitch (ending at base * glide) through the
+    // vowel filters [f1, f2, f3], for `dur` seconds
+    vowel(t, dur, base, glide, [[f1, f2, f3]], out, level = 1) {
+        const ctx = this.ctx;
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(base, t);
+        osc.frequency.exponentialRampToValueAtTime(base * glide, t + dur);
+        const voice = ctx.createGain();
+        voice.gain.setValueAtTime(0.0001, t);
+        voice.gain.exponentialRampToValueAtTime(0.09 * level, t + Math.min(0.03, dur * 0.3));
+        voice.gain.setValueAtTime(0.09 * level, t + dur * 0.7);
+        voice.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        for (const [freq, amount] of [[f1, 1], [f2, 0.6], [f3, 0.25]]) {
+            const f = ctx.createBiquadFilter();
+            f.type = 'bandpass';
+            f.Q.value = 7;
+            f.frequency.value = freq;
+            const g = ctx.createGain();
+            g.gain.value = amount * 3;
+            osc.connect(f).connect(g).connect(voice);
+        }
+        voice.connect(out);
+        osc.start(t);
+        osc.stop(t + dur + 0.02);
     }
 
     // One shouted "yay!" or "woo!": a voice-like buzz through vowel filters

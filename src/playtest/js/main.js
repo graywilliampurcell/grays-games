@@ -547,7 +547,8 @@ function checkSpikeAndDoor() {
         // The finale (Level 10): confetti, an extra-long cheer and its own end screen
         const finale = LEVELS[levelIndex]?.finale;
         beatLevel(levelIndex);
-        sound.cheer({ long: !!finale });
+        // Level 67: "Six seven!" instead of the cheer while the 6 7 switch is on
+        sound.cheer({ long: !!finale, sixSeven: !!LEVELS[levelIndex]?.sixSeven && settings.sixSeven });
         if (finale) showConfetti();
         // Level 100: fireworks bursting in the sky too
         if (LEVELS[levelIndex]?.fireworks) showFireworks();

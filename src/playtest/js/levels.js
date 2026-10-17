@@ -3225,6 +3225,9 @@ export const LEVELS = [
     },
     {
         name: 'Level 67',
+        // Its door says "Six seven!" instead of the cheer (Iteration 130; the
+        // 6 7 switch in Settings turns it off)
+        sixSeven: true,
         // The tighter squeeze. `node tools/find-volcano-level.mjs level67`,
         // seed 17475. 11 x 11 corridors. Correct path 81 cells (start west in
         // row 2, door east in row 6); 20 dead ends 2 cells deep. O: the

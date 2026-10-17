@@ -24,6 +24,7 @@ export const DEFAULT_SETTINGS = {
     size: 5, // 1-10: 5 = normal size, 10% bigger or smaller per step
     music: true,
     sfx: true, // sound effects
+    sixSeven: true, // Level 67's door says "Six seven!" (the 6 7 switch)
 };
 
 function read(key) {
@@ -54,6 +55,7 @@ export function loadSettings() {
         size: step(saved.size, DEFAULT_SETTINGS.size),
         music: typeof saved.music === 'boolean' ? saved.music : DEFAULT_SETTINGS.music,
         sfx: typeof saved.sfx === 'boolean' ? saved.sfx : DEFAULT_SETTINGS.sfx,
+        sixSeven: typeof saved.sixSeven === 'boolean' ? saved.sixSeven : DEFAULT_SETTINGS.sixSeven,
     };
 }
 
