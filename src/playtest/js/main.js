@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Player } from './Player.js';
-import { Maze, SPIN_WALL_TIME } from './Maze.js';
+import { Maze, SPIN_WALL_TIME, TRAPDOOR_WARNING_TIME } from './Maze.js';
 import { RoomMaze } from './RoomMaze.js';
 import { LEVELS } from './levels.js';
 import { InputManager } from './InputManager.js';
@@ -54,6 +54,8 @@ const CARAMEL_SPEED = 0.5;
 const VENT_PUSH_TIME = 0.45;
 // How far away an erupting lava geyser can be heard (it gets quieter with distance)
 const GEYSER_HEAR_DISTANCE = 24;
+// How far away a trapdoor's warning rumble can be heard
+const TRAPDOOR_HEAR_DISTANCE = 16;
 // A backward belt (Robot Factory World, Level 82 on) flings you back to the
 // first cell of its hallway this fast; its siren fades out over this distance
 const BELT_FLING_TIME = 0.5;
@@ -406,6 +408,27 @@ function step(deltaTime) {
             testHooks?.emit('spike', { what: 'geyser' });
             sound.ouch();
             showMessage('Ouch! The lava geyser sent you back to the start.');
+        }
+    }
+    // Trapdoors (Desert Pyramid World, Level 104 on): each one is shut for a
+    // while, shakes and rumbles for a second, then drops open, on its own
+    // timer; it can open right under you. Your center over an open one sends
+    // you back to the start.
+    for (const { trapdoor, event } of maze.updateTrapdoors(deltaTime, player.position)) {
+        const near = Math.max(0, 1 - horizontalDistance(player.position, trapdoor.center) / TRAPDOOR_HEAR_DISTANCE);
+        if (event === 'warning') {
+            sound.rumble(near, TRAPDOOR_WARNING_TIME);
+            testHooks?.emit('trapdoorWarning');
+        }
+        if (event === 'open') {
+            if (near > 0.01) sound.clonk();
+            testHooks?.emit('trapdoorOpen');
+        }
+        if (event === 'fall' && !escaped && !player.carried) {
+            backToStart();
+            testHooks?.emit('spike', { what: 'trapdoor' });
+            sound.ouch();
+            showMessage('Ouch! You fell through the trapdoor. Back to the start.');
         }
     }
     // Snowmen (Ice World, Level 72 on): each throws a snowball down his

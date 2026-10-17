@@ -5,6 +5,7 @@
 //   SEEDS=3000 node tools/find-desert-level.mjs level101 20 1   # the sneaky cactus + a button door
 //   SEEDS=1000 node tools/find-desert-level.mjs level102 22 1   # a flying carpet + a path cactus
 //   SEEDS=1000 node tools/find-desert-level.mjs level103 22 1   # a spinning secret wall + a button door
+//   SEEDS=1000 node tools/find-desert-level.mjs level104 22 1   # a trapdoor + a flying carpet + a big cactus
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -15,7 +16,8 @@
 // last cell of a 2-deep wrong way branching off the path before the door),
 // 'E' a spinning secret wall (the three blocks of the wall gap between two
 // path cells, with the path straight through it, so the corridor up to it
-// looks like it ends there).
+// looks like it ends there), 'K' a trapdoor (one corridor cell on the path
+// in a straight stretch; the same letter as Volcano World's lava geyser).
 //
 // Rules for every level: 10 x 10, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -35,6 +37,9 @@ const RULES = {
     // The first spinning wall: one spinning secret wall ('E') on the path,
     // the only way on to the door, and one button door ('J', button 'U')
     level103: { name: 'Level 103', depth: 2, deadEnds: 22, spinWall: true, buttonDoor: true, prunePairs: true, placeTries: 20 },
+    // The first trapdoor: one trapdoor ('K'), one 3-cell sand pit crossed on
+    // the carpet ('O') and one big cactus blocking a straight wrong way ('Y')
+    level104: { name: 'Level 104', depth: 2, deadEnds: 22, trapdoors: 1, platforms: 1, platformCells: 3, bigCane: true, prunePairs: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -525,9 +530,10 @@ function place(path, hung, random) {
         out.vents.push(k);
         spans.push([k - 1, k]);
     }
-    // Lava geysers (Level 63's): a plain cell in a straight stretch
+    // Lava geysers (Level 63's) and trapdoors (Level 104's): a plain cell in
+    // a straight stretch
     out.geysers = [];
-    for (let v = 0; v < (rule.geysers ?? 0); v++) {
+    for (let v = 0; v < (rule.geysers ?? rule.trapdoors ?? 0); v++) {
         const options = [];
         for (let k = 3; k < path.length - 2; k++) {
             if (plain(k) && step(path[k - 2], path[k - 1]) === step(path[k - 1], path[k]) && fits([k, k])) options.push(k);
@@ -716,7 +722,7 @@ placed.rivers.forEach((g) => console.log(`gap: path cells ${g + 1}-${g + GAP_CEL
 placed.belts.forEach(({ h, e, b }) => console.log(`belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + BELT_CELLS}, fling to cell ${key(path[h])}`));
 placed.armBelts.forEach(({ h, e, b }) => console.log(`arm belt: hallway path cells ${h + 1}-${e + 1} heading ${dir(h + 1)}, belt on path cells ${b + 1}-${b + ARM_BELT_CELLS}, push to cell ${key(path[b - 1])}`));
 placed.vents.forEach((k) => console.log(`steam vent: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}, pushes back into path cell ${k}`));
-placed.geysers.forEach((k) => console.log(`lava geyser: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}`));
+placed.geysers.forEach((k) => console.log(`${rule.trapdoors ? 'trapdoor' : 'lava geyser'}: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}`));
 placed.snowmen.forEach((h) => console.log(`snowman: hallway path cells ${h + 1}-${h + SNOWMAN_CELLS} heading ${dir(h + 1)}, path turns ${dir(h + SNOWMAN_CELLS)} out of its last cell`));
 placed.thinIce.forEach((n) => console.log(`thin ice: path cell ${n + 1} (${key(path[n])}), heading ${dir(n)}`));
 if (placed.caramel.length) console.log(`caramel on the path: cells ${[...placed.caramel].sort((a, b) => a - b).map((c) => `${c + 1} (${key(path[c])}, heading ${dir(c)})`).join(', ')}`);

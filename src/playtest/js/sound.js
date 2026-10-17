@@ -2794,6 +2794,38 @@ const TUNES = {
                 [38, 83, 0.5], [40, 84, 0.4], [42, 83, 0.6], [44, 80, 0.5], [54, 76, 1.6]],
         },
     },
+    // Level 104, the first trapdoor: sneaky and mysterious, more sneaky than
+    // mysterious. B "snake charmer" scale (B, C, D-sharp, E, F-sharp, G, A)
+    // at 104 bpm: quick tiptoe triplets on one note that stop and wait, then
+    // suddenly drop an octave (like falling through a trapdoor) and creep
+    // back up. Hand drums ("dum ... tek tek-tek") and a breathy flute, both
+    // quieter than the melody.
+    trapdoorcreep: {
+        tempo: 104,
+        bars: [[47, 'maj'], [47, 'maj'], [48, 'maj'], [47, 'maj'], [45, 'min'], [47, 'maj'], [48, 'maj'], [47, 'maj']],
+        bass: [0, null, 0, null, null, null, 0, null],
+        bassLength: 0.15,
+        stabs: [],
+        ticks: true,
+        melody: [
+            71, 71, 71, null, null, null, 72, null,
+            71, null, null, null, 59, null, null, null,
+            63, null, 64, null, 66, null, 67, null,
+            66, null, 64, null, 63, null, null, null,
+            75, 75, 75, null, null, null, 76, null,
+            75, null, null, null, 63, null, null, null,
+            64, null, 66, null, 67, 69, 67, null,
+            71, null, 72, null, 71, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.1, brightness: 1200 },
+        desert: {
+            dums: [0, 6],
+            teks: [2, 3, 5],
+            // [step, note, length in seconds]
+            flute: [[4, 83, 0.6], [6, 84, 0.4], [12, 78, 1.2], [26, 79, 0.8], [30, 78, 1.2],
+                [36, 87, 0.5], [38, 88, 0.4], [44, 83, 1.0], [52, 84, 0.6], [58, 83, 1.4]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -3351,6 +3383,39 @@ export class Sound {
         g.gain.exponentialRampToValueAtTime(0.9 * volume, t + 0.08);
         g.gain.exponentialRampToValueAtTime(0.0001, t + length);
         this.noiseSource(t, length + 0.05).connect(f).connect(g).connect(this.sfxBus);
+    }
+
+    // A trapdoor's warning (Desert Pyramid World, Level 104 on): a soft, low
+    // rumble, like stone and sand grinding under the floor, that swells and
+    // shudders for its 1 s warning. Quieter than the other sound effects and
+    // quieter the further you are (volume 0-1). Obeys the Sound effects switch.
+    rumble(volume = 1, length = 1) {
+        if (!this.settings.sfx || !this.ctx || volume <= 0.01) return;
+        this.onEvent('rumble');
+        const t = this.ctx.currentTime;
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'lowpass';
+        f.frequency.value = 220;
+        f.Q.value = 3;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.45 * volume, t + 0.25);
+        // A shudder: the rumble wobbles up and down quickly
+        for (let k = 1; k < 10; k++) g.gain.setTargetAtTime((k % 2 ? 0.25 : 0.45) * volume, t + 0.25 + (k * (length - 0.35)) / 10, 0.02);
+        g.gain.setTargetAtTime(0.0001, t + length - 0.1, 0.05);
+        this.noiseSource(t, length + 0.2).connect(f).connect(g).connect(this.sfxBus);
+        // and a deep hum under it
+        const o = this.ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(48, t);
+        o.frequency.linearRampToValueAtTime(56, t + length);
+        const og = this.ctx.createGain();
+        og.gain.setValueAtTime(0.0001, t);
+        og.gain.exponentialRampToValueAtTime(0.25 * volume, t + 0.3);
+        og.gain.setTargetAtTime(0.0001, t + length - 0.1, 0.05);
+        o.connect(og).connect(this.sfxBus);
+        o.start(t);
+        o.stop(t + length + 0.3);
     }
 
     // A snowman's own volume knob (Ice World): every rolling sound of his

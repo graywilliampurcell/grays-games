@@ -994,6 +994,19 @@ const GEYSER_SINK = 0.3;
 const GEYSER_BUBBLE = 1;
 const GEYSER_OFFSET = 1.5;
 
+// A trapdoor's timer (Desert Pyramid World, Level 104 on; 'K' blocks under
+// the desert theme): closed (plain floor) for TRAPDOOR_CLOSED_TIME, then a
+// TRAPDOOR_WARNING_TIME warning (it shakes, sand trickles through its edges
+// and it rumbles), then open (a dark hole) for TRAPDOOR_OPEN_TIME, round and
+// round on its own. Unlike a lava geyser it doesn't wait: it can open right
+// under you. Its two flaps swing down over TRAPDOOR_SWING seconds. A second
+// trapdoor runs TRAPDOOR_OFFSET seconds out of step with the first.
+export const TRAPDOOR_CLOSED_TIME = 3;
+export const TRAPDOOR_WARNING_TIME = 1;
+export const TRAPDOOR_OPEN_TIME = 2;
+const TRAPDOOR_SWING = 0.2;
+const TRAPDOOR_OFFSET = 1.5;
+
 // Ice World's crossing (Level 71 on): a sled hanging from a zip line over a
 // 3-cell icy crack. It's the crack's width and PLATFORM_LENGTH long, resting
 // at one edge. As soon as you're fully on it, it zooms across in SLED_TIME
@@ -1730,6 +1743,36 @@ function desertSandTexture(size, seed) {
     return texture;
 }
 
+// A trapdoor flap: old wooden planks (across the flap) with dark gaps and
+// grain lines
+function woodPlankTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const g = canvas.getContext('2d');
+    let r = 131;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    const planks = 5;
+    for (let k = 0; k < planks; k++) {
+        const x = (k * 128) / planks;
+        const shade = Math.floor(random() * 30);
+        g.fillStyle = `rgb(${150 + shade},${100 + shade},${55 + shade / 2})`;
+        g.fillRect(x, 0, 128 / planks, 128);
+        g.strokeStyle = 'rgba(80,45,15,0.35)';
+        g.lineWidth = 1;
+        for (let l = 0; l < 5; l++) {
+            const lx = x + 3 + random() * (128 / planks - 6);
+            g.beginPath();
+            for (let y = 0; y <= 128; y += 8) g.lineTo(lx + Math.sin(y * 0.08 + l) * 1.5, y);
+            g.stroke();
+        }
+        g.fillStyle = '#3a2410';
+        g.fillRect(x, 0, 2, 128);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
 // The button door's face: one big carved stone slab with a border, an eye
 // at the top and rows of pictures under it
 function doorSlabTexture() {
@@ -1909,6 +1952,16 @@ export class Maze {
             g.center = new THREE.Vector3((g.minX + g.maxX) / 2, 0, (g.minZ + g.maxZ) / 2);
             return g;
         });
+        // Desert Pyramid World uses 'K' for its trapdoors instead (Level 104 on),
+        // each on its own timer
+        this.trapdoors = [];
+        if (this.theme.desert) {
+            this.trapdoors = this.geysers.map((g, index) => ({
+                minX: g.minX, maxX: g.maxX, minZ: g.minZ, maxZ: g.maxZ, center: g.center,
+                phase: 'closed', timer: TRAPDOOR_CLOSED_TIME - (index % 2) * TRAPDOOR_OFFSET, open: 0,
+            }));
+            this.geysers = [];
+        }
         // Each thin ice cell keeps its own count of how long you've stood on it
         this.thinIce = groupBlocks(thinIceBlocks).map((blocks) => {
             const xs = blocks.map((b) => b.x);
@@ -2157,6 +2210,7 @@ export class Maze {
         for (const c of this.currents) this.createCurrent(c);
         for (const v of this.vents) this.createVent(v);
         for (const g of this.geysers) this.createGeyser(g);
+        for (const t of this.trapdoors) this.createTrapdoor(t);
         for (const s of this.snowmen) this.createSnowman(s);
         for (const t of this.thinIce) this.createThinIce(t);
         for (const belt of this.belts) this.createBelt(belt);
@@ -4419,6 +4473,143 @@ export class Maze {
         });
     }
 
+    // A trapdoor (Desert Pyramid World, Level 104 on): a square of two
+    // wooden flaps with iron straps and a ring, set flush in the sand floor
+    // across its whole corridor cell inside a sandstone frame, over a deep
+    // dark hole. While it warns, the flaps shake and sand trickles down
+    // through the cracks round its edges; when it opens the flaps swing down
+    // into the dark.
+    createTrapdoor(t) {
+        const sizeX = t.maxX - t.minX;
+        const sizeZ = t.maxZ - t.minZ;
+        const group = new THREE.Group();
+        group.position.set(t.center.x, 0, t.center.z);
+        // The hole: black at the bottom, with dark sandstone sides going down
+        const hole = new THREE.Group();
+        const black = new THREE.Mesh(new THREE.PlaneGeometry(sizeX - 0.1, sizeZ - 0.1), new THREE.MeshBasicMaterial({ color: 0x050302 }));
+        black.rotation.x = -Math.PI / 2;
+        black.position.y = 0.006;
+        hole.add(black);
+        const sideMaterial = new THREE.MeshBasicMaterial({ color: 0x2a1a0c, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
+        for (const [w, x, z, ry] of [[sizeX - 0.1, 0, -(sizeZ - 0.1) / 2, 0], [sizeX - 0.1, 0, (sizeZ - 0.1) / 2, 0], [sizeZ - 0.1, -(sizeX - 0.1) / 2, 0, Math.PI / 2], [sizeZ - 0.1, (sizeX - 0.1) / 2, 0, Math.PI / 2]]) {
+            // A thin dark band just inside each edge, so the hole looks deep
+            const band = new THREE.Mesh(new THREE.PlaneGeometry(w, 0.35), sideMaterial);
+            band.rotation.set(-Math.PI / 2, 0, ry);
+            band.position.set(x * 0.9, 0.008, z * 0.9);
+            hole.add(band);
+        }
+        group.add(hole);
+        // The sandstone frame round it
+        const frameMaterial = new THREE.MeshStandardMaterial({ color: 0x9a7038, roughness: 0.95 });
+        for (const [w, d, x, z] of [[sizeX, 0.1, 0, -sizeZ / 2 + 0.05], [sizeX, 0.1, 0, sizeZ / 2 - 0.05], [0.1, sizeZ, -sizeX / 2 + 0.05, 0], [0.1, sizeZ, sizeX / 2 - 0.05, 0]]) {
+            const bar = new THREE.Mesh(new THREE.BoxGeometry(w, 0.05, d), frameMaterial);
+            bar.position.set(x, 0.025, z);
+            group.add(bar);
+        }
+        // Two flaps, hinged on opposite sides, meeting in the middle
+        const wood = woodPlankTexture();
+        const flapMaterial = new THREE.MeshStandardMaterial({ map: wood, color: 0xc89a60, roughness: 0.85 });
+        const iron = new THREE.MeshStandardMaterial({ color: 0x3a3430, metalness: 0.6, roughness: 0.5 });
+        const flapW = sizeX - 0.2;
+        const flapD = (sizeZ - 0.2) / 2 - 0.02;
+        t.flaps = [-1, 1].map((side) => {
+            const hinge = new THREE.Group();
+            hinge.position.set(0, 0.03, side * (sizeZ / 2 - 0.1));
+            const flap = new THREE.Mesh(new THREE.BoxGeometry(flapW, 0.05, flapD), flapMaterial);
+            flap.position.z = -side * flapD / 2;
+            hinge.add(flap);
+            for (const sx of [-0.3, 0.3]) {
+                const strap = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.02, flapD * 0.9), iron);
+                strap.position.set(sx * flapW, 0.035, -side * flapD / 2);
+                hinge.add(strap);
+            }
+            const ring = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.02, 6, 14), iron);
+            ring.rotation.x = Math.PI / 2;
+            ring.position.set(0, 0.04, -side * (flapD - 0.18));
+            hinge.add(ring);
+            group.add(hinge);
+            return { hinge, side };
+        });
+        // Trickling sand: grains that fall from the floor round its edges and
+        // through the crack in the middle while it warns
+        const grains = 90;
+        const positions = new Float32Array(grains * 3);
+        const sandGeometry = new THREE.BufferGeometry();
+        sandGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        t.sand = new THREE.Points(sandGeometry, new THREE.PointsMaterial({ color: 0xe8c078, size: 0.06 }));
+        t.sand.visible = false;
+        t.grains = [];
+        for (let k = 0; k < grains; k++) {
+            // Where along the edges (or the middle crack) it falls
+            const edge = k % 5;
+            const u = (Math.random() - 0.5);
+            const x = edge === 0 ? -sizeX / 2 + 0.12 : edge === 1 ? sizeX / 2 - 0.12 : u * (sizeX - 0.3);
+            const z = edge === 2 ? -sizeZ / 2 + 0.12 : edge === 3 ? sizeZ / 2 - 0.12 : edge === 4 ? 0 : u * (sizeZ - 0.3);
+            t.grains.push({ x, z: edge < 2 ? u * (sizeZ - 0.3) : z, y: Math.random() * 0.14, speed: 0.15 + Math.random() * 0.2 });
+        }
+        group.add(t.sand);
+        t.group = group;
+        this.root.add(group);
+        this.showTrapdoor(t, 0);
+    }
+
+    // Run every trapdoor's timer (only while playing) and animate it, and say
+    // what happened: [{ trapdoor, event: 'warning' | 'open' | 'fall' }]. A
+    // fall means the player's center (`point`) is over an open trapdoor.
+    updateTrapdoors(dt, point) {
+        const events = [];
+        for (const t of this.trapdoors) {
+            t.timer -= dt;
+            if (t.timer <= 0) {
+                if (t.phase === 'closed') {
+                    Object.assign(t, { phase: 'warning', timer: t.timer + TRAPDOOR_WARNING_TIME });
+                    events.push({ trapdoor: t, event: 'warning' });
+                } else if (t.phase === 'warning') {
+                    Object.assign(t, { phase: 'open', timer: t.timer + TRAPDOOR_OPEN_TIME });
+                    events.push({ trapdoor: t, event: 'open' });
+                } else {
+                    Object.assign(t, { phase: 'closed', timer: t.timer + TRAPDOOR_CLOSED_TIME });
+                }
+            }
+            if (t.phase === 'open') t.open = Math.min(1, (TRAPDOOR_OPEN_TIME - t.timer) / TRAPDOOR_SWING, Math.max(0, t.timer) / TRAPDOOR_SWING);
+            else t.open = 0;
+            if (t.phase === 'open' && point && this.overTrapdoor(t, point)) events.push({ trapdoor: t, event: 'fall' });
+            this.showTrapdoor(t, dt);
+        }
+        return events;
+    }
+
+    // Is a point (the player's center) over this trapdoor's cell?
+    overTrapdoor(t, point) {
+        return point.x > t.minX && point.x < t.maxX && point.z > t.minZ && point.z < t.maxZ;
+    }
+
+    showTrapdoor(t, dt) {
+        if (!t.group) return;
+        const time = performance.now() / 1000;
+        const warning = t.phase === 'warning';
+        // Shut, the flaps lie flat; open, they hang straight down into the hole
+        for (const { hinge, side } of t.flaps) {
+            const shake = warning ? 0.025 * Math.sin(time * 55 + side * 1.7) : 0;
+            hinge.rotation.x = -side * (t.open * Math.PI / 2 * 0.98) + shake;
+            hinge.position.y = 0.03 + (warning ? 0.012 * Math.abs(Math.sin(time * 40 + side)) : 0);
+            hinge.visible = true;
+        }
+        // Sand trickles down while it warns (and a moment after it opens)
+        t.sand.visible = warning || (t.phase === 'open' && t.open < 1);
+        if (t.sand.visible) {
+            const positions = t.sand.geometry.attributes.position.array;
+            t.grains.forEach((g, k) => {
+                g.y -= g.speed * dt;
+                if (g.y < -0.02) g.y = 0.1 + Math.random() * 0.04;
+                positions[3 * k] = g.x + (warning ? 0.01 * Math.sin(time * 50 + k) : 0);
+                positions[3 * k + 1] = g.y;
+                positions[3 * k + 2] = g.z;
+            });
+            t.sand.geometry.attributes.position.needsUpdate = true;
+        }
+    }
+
     // Is any part of a circle `radius` round `point` in this geyser's cell?
     inGeyser(g, point, radius) {
         const dx = Math.max(g.minX - point.x, 0, point.x - g.maxX);
@@ -4564,6 +4755,7 @@ export class Maze {
         if (this.theme.volcano) return this.createBigHotCoal(row);
         if (this.theme.ice) return this.createBigIcicle(row);
         if (this.theme.factory) return this.createBigZapper(row);
+        if (this.theme.desert) return this.createBigCactus(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -6701,7 +6893,7 @@ export class Maze {
     // Desert Pyramid World's spike: a prickly green cactus (a tall column
     // with two arms, little spines all over) in a small mound of sand, as
     // wide as a spike's plate. Touching it works the same as a spike.
-    createCactus(position, radius) {
+    createCactus(position, radius, tall = 1) {
         const cactus = new THREE.Group();
         const green = new THREE.MeshStandardMaterial({ color: 0x3f8f3a, roughness: 0.7, emissive: 0x0f2a0c, emissiveIntensity: 0.5 });
         const spineMaterial = new THREE.MeshStandardMaterial({ color: 0xfff2c8, roughness: 0.5 });
@@ -6747,10 +6939,29 @@ export class Maze {
         const mound = new THREE.Mesh(new THREE.SphereGeometry(SPIKE_RADIUS, 20, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xd9a955, roughness: 1 }));
         mound.scale.y = 0.18;
         cactus.add(mound);
-        cactus.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
+        cactus.scale.set(radius / SPIKE_RADIUS, tall, radius / SPIKE_RADIUS);
         cactus.position.copy(position);
         cactus.position.y = 0;
         this.root.add(cactus);
+        return cactus;
+    }
+
+    // Desert Pyramid World's spike row (Level 104 on): a big cactus right
+    // across the corridor, wall to wall, as deep as a spike row: one tall
+    // cactus in the middle with a shorter one tucked in at each side, all on
+    // one long mound of sand, so there's no way past
+    createBigCactus(row) {
+        const across = row.spansX ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1);
+        for (const [offset, radius, tall] of [[0, 0.62, 1.55], [-1.05, 0.42, 1.05], [1.05, 0.42, 1.15]]) {
+            const cactus = this.createCactus(row.position.clone().addScaledVector(across, offset), radius, tall);
+            // Turn it so its arms reach along the row, toward the walls
+            if (!row.spansX) cactus.rotation.y = Math.PI / 2;
+        }
+        const mound = new THREE.Mesh(new THREE.BoxGeometry(SPIKE_ROW_WIDTH, 0.12, SPIKE_ROW_DEPTH), new THREE.MeshStandardMaterial({ color: 0xd9a955, roughness: 1 }));
+        mound.position.copy(row.position);
+        mound.position.y = 0.06;
+        if (!row.spansX) mound.rotation.y = Math.PI / 2;
+        this.root.add(mound);
     }
 
     // The button door: a carved stone slab filling the wall gap between two
