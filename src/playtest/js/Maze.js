@@ -1864,9 +1864,10 @@ export class Maze {
         const armLandings = [];
         // A button door ('J' blocks, the wall gap between two path cells;
         // Desert Pyramid World, Level 101 on) and its button ('U', the middle
-        // of the last cell of a wrong way)
-        const buttonDoorBlocks = [];
-        let buttonPosition = null;
+        // of the last cell of a wrong way). A second button door in the same
+        // level (Level 108) uses 'j' and its button 'u'.
+        const buttonDoorBlocks = [[], []];
+        const buttonPositions = [null, null];
         // A spinning secret wall ('E' blocks, the wall gap between two path
         // cells; Desert Pyramid World, Level 103 on)
         const spinBlocks = [];
@@ -1898,8 +1899,10 @@ export class Maze {
                 if (ch === 'L') beltLandings.push(center);
                 if (ch === 'A') armBlocks.push({ x, z });
                 if (ch === 'R') armLandings.push(center);
-                if (ch === 'J') buttonDoorBlocks.push({ x, z });
-                if (ch === 'U') buttonPosition = center;
+                if (ch === 'J') buttonDoorBlocks[0].push({ x, z });
+                if (ch === 'U') buttonPositions[0] = center;
+                if (ch === 'j') buttonDoorBlocks[1].push({ x, z });
+                if (ch === 'u') buttonPositions[1] = center;
                 if (ch === 'E') spinBlocks.push({ x, z });
             }
         }
@@ -2004,16 +2007,20 @@ export class Maze {
         this.mazeData = this.grid.map((col) => col.map((v) => new Array(this.height).fill(v)));
         // A snowman is solid, like a wall (bumping into him isn't an Ouch)
         for (const s of this.snowmen) for (const { x, z } of s.solid) this.mazeData[x][z].fill(1);
-        // The button door starts shut, solid like a wall
-        if (buttonDoorBlocks.length && buttonPosition) {
-            const xs = buttonDoorBlocks.map((b) => b.x);
-            const zs = buttonDoorBlocks.map((b) => b.z);
-            this.buttonDoor = {
-                blocks: buttonDoorBlocks, button: buttonPosition, pressed: false, open: 0, sink: 0, solid: false,
+        // Button doors start shut, solid like a wall
+        this.buttonDoors = [];
+        buttonDoorBlocks.forEach((blocks, index) => {
+            const button = buttonPositions[index];
+            if (!blocks.length || !button) return;
+            const xs = blocks.map((b) => b.x);
+            const zs = blocks.map((b) => b.z);
+            const door = {
+                blocks, button, pressed: false, open: 0, sink: 0, solid: false,
                 minX: Math.min(...xs), maxX: Math.max(...xs) + 1, minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
             };
-            this.setButtonDoorSolid(true);
-        }
+            this.buttonDoors.push(door);
+            this.setButtonDoorSolid(door, true);
+        });
         // The spinning wall is solid like any wall (walking into it spins it)
         if (spinBlocks.length) {
             const xs = spinBlocks.map((b) => b.x);
@@ -2215,7 +2222,7 @@ export class Maze {
         for (const t of this.thinIce) this.createThinIce(t);
         for (const belt of this.belts) this.createBelt(belt);
         for (const belt of this.armBelts) this.createArmBelt(belt);
-        if (this.buttonDoor) this.createButtonDoor();
+        for (const door of this.buttonDoors) this.createButtonDoor(door);
         if (this.spinWall) this.createSpinWall();
         this.scene.add(this.root);
     }
@@ -6968,8 +6975,7 @@ export class Maze {
     // path cells (solid like a wall while shut), with a stone frame, and its
     // button: a round stone plate in the floor with a carved sun, a gold rim
     // and a soft glow, so it can be spotted.
-    createButtonDoor() {
-        const door = this.buttonDoor;
+    createButtonDoor(door) {
         const spansX = door.maxX - door.minX > 1; // the gap runs along x (the door faces z)
         const across = door.blocks.length;
         const group = new THREE.Group();
@@ -7021,7 +7027,7 @@ export class Maze {
         plate.position.set(door.button.x, 0, door.button.z);
         this.root.add(plate);
         door.buttonMesh = button;
-        this.showButtonDoor();
+        this.showButtonDoor(door);
     }
 
     // The spinning secret wall: a block of wall that looks like the others,
@@ -7177,58 +7183,64 @@ export class Maze {
         if (this.spinWall) this.spinWall.spin = null;
     }
 
-    // Shut (solid) or open (walk-through) the button door's blocks
-    setButtonDoorSolid(solid) {
-        const door = this.buttonDoor;
+    // The first button door (most levels have just one)
+    get buttonDoor() {
+        return this.buttonDoors?.[0];
+    }
+
+    // Shut (solid) or open (walk-through) a button door's blocks
+    setButtonDoorSolid(door, solid) {
         if (door.solid === solid) return;
         door.solid = solid;
         for (const { x, z } of door.blocks) this.mazeData[x][z].fill(solid ? 1 : 0);
     }
 
     // Each game step (so it stops while paused): any part of the player on
-    // the button presses it (it sinks with a click) and the door slides down
-    // into the floor. It stays open until the player is sent back to the
-    // start. Returns what happened: 'press', then 'open' when it's open.
+    // a button presses it (it sinks with a click) and its own door slides
+    // down into the floor. It stays open until the player is sent back to
+    // the start. Returns what happened: 'press', then 'open' when it's open.
     updateButtonDoor(dt, point, radius) {
-        const door = this.buttonDoor;
         const events = [];
-        if (!door) return events;
-        if (!door.pressed && Math.hypot(point.x - door.button.x, point.z - door.button.z) < BUTTON_RADIUS + radius) {
-            door.pressed = true;
-            events.push('press');
-        }
-        if (door.pressed) {
-            door.sink = Math.min(1, door.sink + dt / BUTTON_SINK_TIME);
-            if (door.open < 1) {
-                door.open = Math.min(1, door.open + dt / BUTTON_DOOR_OPEN_TIME);
-                if (door.open === 1) events.push('open');
+        this.buttonDoors.forEach((door) => {
+            if (!door.pressed && Math.hypot(point.x - door.button.x, point.z - door.button.z) < BUTTON_RADIUS + radius) {
+                door.pressed = true;
+                events.push('press');
             }
-            if (door.open >= BUTTON_DOOR_PASSABLE_FROM) this.setButtonDoorSolid(false);
-        }
-        this.showButtonDoor();
+            if (door.pressed) {
+                door.sink = Math.min(1, door.sink + dt / BUTTON_SINK_TIME);
+                if (door.open < 1) {
+                    door.open = Math.min(1, door.open + dt / BUTTON_DOOR_OPEN_TIME);
+                    if (door.open === 1) events.push('open');
+                }
+                if (door.open >= BUTTON_DOOR_PASSABLE_FROM) this.setButtonDoorSolid(door, false);
+            }
+            this.showButtonDoor(door);
+        });
         return events;
     }
 
-    // Sent back to the start: the door shuts again and the button pops back up
+    // Sent back to the start: every door shuts again and its button pops back up
     resetButtonDoor() {
-        const door = this.buttonDoor;
-        if (!door) return;
-        Object.assign(door, { pressed: false, open: 0, sink: 0 });
-        this.setButtonDoorSolid(true);
-        this.showButtonDoor();
+        for (const door of this.buttonDoors) {
+            Object.assign(door, { pressed: false, open: 0, sink: 0 });
+            this.setButtonDoorSolid(door, true);
+            this.showButtonDoor(door);
+        }
     }
 
-    // Loading a saved spot after the button was pressed: the door's already open
-    setButtonPressed() {
-        const door = this.buttonDoor;
-        if (!door) return;
-        Object.assign(door, { pressed: true, open: 1, sink: 1 });
-        this.setButtonDoorSolid(false);
-        this.showButtonDoor();
+    // Loading a saved spot: the doors whose buttons were pressed are already
+    // open (saved as button: true for the first door, button2: true for the
+    // second)
+    setButtonPressed(progress = { button: true }) {
+        this.buttonDoors.forEach((door, index) => {
+            if (!(index === 0 ? progress.button : progress.button2)) return;
+            Object.assign(door, { pressed: true, open: 1, sink: 1 });
+            this.setButtonDoorSolid(door, false);
+            this.showButtonDoor(door);
+        });
     }
 
-    showButtonDoor() {
-        const door = this.buttonDoor;
+    showButtonDoor(door) {
         if (!door.slider) return;
         door.slider.position.y = -door.open * (this.height + 0.05);
         door.slider.visible = door.open < 1;

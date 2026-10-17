@@ -9,6 +9,7 @@
 //   SEEDS=1500 node tools/find-desert-level.mjs level105 24 1   # two trapdoors + a button door + the sneaky cactus
 //   SEEDS=1000 node tools/find-desert-level.mjs level106 22 1   # a path cactus + a flying carpet + a spinning secret wall
 //   SEEDS=1000 node tools/find-desert-level.mjs level107 14 1   # 3-deep dead ends: a button door + a big cactus + a trapdoor
+//   SEEDS=1000 node tools/find-desert-level.mjs level108 16 1   # 3-deep dead ends: two button doors + a flying carpet + the sneaky cactus
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -21,6 +22,7 @@
 // path cells, with the path straight through it, so the corridor up to it
 // looks like it ends there), 'K' a trapdoor (one corridor cell on the path
 // in a straight stretch; the same letter as Volcano World's lava geyser).
+// A second button door (Level 108) is 'j' with its button 'u'.
 //
 // Rules for every level: 10 x 10, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -51,6 +53,10 @@ const RULES = {
     // Level 107, longer wrong ways: every dead end 3 deep, one button door
     // (its button down a 3-deep wrong way), one big cactus, one trapdoor
     level107: { name: 'Level 107', depth: 3, deadEnds: 14, buttonDoor: true, bigCane: true, trapdoors: 1, prune: true, placeTries: 20 },
+    // Level 108, two button doors: every dead end 3 deep (the sneaky
+    // cactus's too), two button doors each with its own button down its own
+    // wrong way (before its door), one flying carpet, the sneaky cactus
+    level108: { name: 'Level 108', depth: 3, deadEnds: 16, sneaky: true, buttonDoor: true, buttonDoors: 2, platforms: 1, platformCells: 3, prune: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -399,21 +405,27 @@ function place(path, hung, random) {
     // straight from d - 1 to d + 2, not by the start or the exit; its button
     // is in the last cell of a 2-deep wrong way branching off the path at
     // most 16 cells before the door (so it can be reached without passing it)
-    if (rule.buttonDoor) {
+    // (rule.buttonDoors: how many, each with its own button and wrong way)
+    out.buttonDoors = [];
+    for (let n = 0; n < (rule.buttonDoor ? rule.buttonDoors ?? 1 : 0); n++) {
         const options = [];
+        const [low, high] = (rule.buttonDoors ?? 1) > 1 ? [0.2, 0.85] : [0.3, 0.8];
         for (let d = 1; d < path.length - 2; d++) {
             const dir = step(path[d], path[d + 1]);
-            if (d < path.length * 0.3 || d > path.length * 0.8) continue;
+            if (d < path.length * low || d > path.length * high) continue;
             if (step(path[d - 1], path[d]) !== dir || step(path[d + 1], path[d + 2]) !== dir || !fits([d, d + 1])) continue;
             hung.chains.forEach((chain, c) => {
                 const at = hung.roots[c];
-                if (chain.length === DEPTH && at < d && at >= d - 10 && chain !== out.bigCane?.chain) options.push({ door: d, chain, at });
+                if (chain.length === DEPTH && at < d && at >= d - 10 && chain !== out.bigCane?.chain && out.buttonDoors.every((b) => b.chain !== chain)) options.push({ door: d, chain, at });
             });
         }
         if (options.length === 0) return null;
-        out.buttonDoor = options[Math.floor(random() * options.length)];
-        spans.push([out.buttonDoor.door, out.buttonDoor.door + 1]);
+        const o = options[Math.floor(random() * options.length)];
+        out.buttonDoors.push(o);
+        spans.push([o.door, o.door + 1]);
     }
+    out.buttonDoors.sort((a, b) => a.door - b.door);
+    out.buttonDoor = out.buttonDoors[0];
     // The spinning secret wall: the wall gap between path cells w and w + 1,
     // with the path straight from w - 1 to w + 2 and nothing branching off
     // cells w and w + 1, so from either side the corridor seems to end at it
@@ -506,7 +518,7 @@ function place(path, hung, random) {
     // The big spike: a straight dead end (all DEPTH cells in a line from its opening)
     if (rule.bigCane) {
         const options = hung.chains.map((chain, c) => ({ chain, at: hung.roots[c] }))
-            .filter(({ chain, at }) => chain !== out.buttonDoor?.chain && chain.every((cell, n) => step(n === 0 ? path[at] : chain[n - 1], cell) === step(path[at], chain[0])) && fits([at, at]));
+            .filter(({ chain, at }) => out.buttonDoors.every((b) => b.chain !== chain) && chain.every((cell, n) => step(n === 0 ? path[at] : chain[n - 1], cell) === step(path[at], chain[0])) && fits([at, at]));
         if (options.length === 0) return null;
         out.bigCane = options[Math.floor(random() * options.length)];
         spans.push([out.bigCane.at, out.bigCane.at]);
@@ -696,13 +708,13 @@ if (placed.door !== undefined) {
     const b = path[placed.door + 1];
     for (const d of [1, 2, 3]) put(a.i !== b.i ? [4 * Math.max(a.i, b.i), 4 * a.j + d] : [4 * a.i + d, 4 * Math.max(a.j, b.j)], 'G');
 }
-if (placed.buttonDoor) {
-    const a = path[placed.buttonDoor.door];
-    const b = path[placed.buttonDoor.door + 1];
-    for (const d of [1, 2, 3]) put(a.i !== b.i ? [4 * Math.max(a.i, b.i), 4 * a.j + d] : [4 * a.i + d, 4 * Math.max(a.j, b.j)], 'J');
-    const end = placed.buttonDoor.chain[placed.buttonDoor.chain.length - 1];
-    put([4 * end.i + 2, 4 * end.j + 2], 'U');
-}
+placed.buttonDoors.forEach((door, n) => {
+    const a = path[door.door];
+    const b = path[door.door + 1];
+    for (const d of [1, 2, 3]) put(a.i !== b.i ? [4 * Math.max(a.i, b.i), 4 * a.j + d] : [4 * a.i + d, 4 * Math.max(a.j, b.j)], n ? 'j' : 'J');
+    const end = door.chain[door.chain.length - 1];
+    put([4 * end.i + 2, 4 * end.j + 2], n ? 'u' : 'U');
+});
 if (placed.spinWall !== undefined) {
     const a = path[placed.spinWall];
     const b = path[placed.spinWall + 1];
@@ -746,5 +758,5 @@ if (placed.caramel.length) console.log(`caramel on the path: cells ${[...placed.
 if (placed.pathCane !== undefined) console.log(`path spike: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
 if (placed.current) console.log(`water current: path cell ${placed.current.index + 1} (${key(path[placed.current.index])}), heading ${dir(placed.current.index)}, shoves into ${key(placed.current.into)}`);
 if (placed.bigCane) console.log(`big spike: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);
-if (placed.buttonDoor) console.log(`button door: between path cells ${placed.buttonDoor.door + 1} and ${placed.buttonDoor.door + 2} (${key(path[placed.buttonDoor.door])} -> ${key(path[placed.buttonDoor.door + 1])}), heading ${dir(placed.buttonDoor.door + 1)}; button wrong way off path cell ${placed.buttonDoor.at + 1} (${key(path[placed.buttonDoor.at])}), button in ${key(placed.buttonDoor.chain[placed.buttonDoor.chain.length - 1])}`);
+placed.buttonDoors.forEach((door, n) => console.log(`button door ${n ? 'j' : 'J'}: between path cells ${door.door + 1} and ${door.door + 2} (${key(path[door.door])} -> ${key(path[door.door + 1])}), heading ${dir(door.door + 1)}; button ${n ? 'u' : 'U'} wrong way off path cell ${door.at + 1} (${key(path[door.at])}), button in ${key(door.chain[door.chain.length - 1])}`));
 if (placed.spinWall !== undefined) console.log(`spinning wall: between path cells ${placed.spinWall + 1} and ${placed.spinWall + 2} (${key(path[placed.spinWall])} -> ${key(path[placed.spinWall + 1])}), heading ${dir(placed.spinWall + 1)}`);

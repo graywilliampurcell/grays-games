@@ -155,7 +155,7 @@ function init() {
     player.resetTo(maze.getStartPosition(), maze.getStartYaw());
     if (progress) {
         player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
-        if (progress.button) maze.setButtonPressed?.();
+        maze.setButtonPressed?.(progress);
     }
 
     // Input manager
@@ -830,7 +830,7 @@ function continueGame() {
     if (!progress) return newGame();
     startPlaying(progress.level);
     player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
-    if (progress.button) maze.setButtonPressed?.();
+    maze.setButtonPressed?.(progress);
 }
 
 // Main menu → New game: erase the saved spot and start Level 1 from its start.
@@ -896,8 +896,9 @@ function startOver() {
 // Save where Gray is (level, exact position, facing). After reaching the door,
 // save right next to it, facing it.
 function saveSpot() {
-    // Desert Pyramid World: whether the button door's button has been pressed
-    const button = maze.buttonDoor?.pressed ? { button: true } : {};
+    // Desert Pyramid World: whether each button door's button has been pressed
+    const doors = maze.buttonDoors ?? [];
+    const button = { ...(doors[0]?.pressed ? { button: true } : {}), ...(doors[1]?.pressed ? { button2: true } : {}) };
     if (escaped) {
         const { position, yaw } = maze.getDoorApproach();
         saveProgress({ level: levelIndex, x: position.x, z: position.z, yaw, pitch: 0, ...button });

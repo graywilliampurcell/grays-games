@@ -16,6 +16,7 @@
 //   Desert Pyramid World (Level 101 on): 'J' a button door (three blocks
 //   across the wall gap between two path cells, solid until its button is
 //   pressed) and 'U' its button (the middle of a wrong way's last cell)
+//   (a second button door in the same level: 'j' and its button 'u')
 // Found with tools/find-level.mjs. theme: colors and the fluffy look, see Maze.js.
 // music: the level's tune (see sound.js), a little sneakier each level.
 // spikeRadius: size of the spike's plate (default 0.75; see Maze.js).
@@ -6107,6 +6108,67 @@ export const LEVELS = [
         '#   #           #       #   #       #   #',
         '#   #           #       #   #       #   #',
         '#   #           #       #   #       #   #',
+        '#########################################',
+        ],
+    },
+    {
+        name: 'Level 108',
+        // Two button doors. `SEEDS=2000 node tools/find-desert-level.mjs
+        // level108 17 2001`, seed 2042. 10 x 10 corridors. Correct path 46
+        // cells (start west in row 3, door east in row 1); 17 wrong ways 3
+        // cells deep plus the sneaky cactus's 3-deep one (off path cell 2).
+        // Along the path: X the sneaky cactus; the first button's wrong way
+        // off path cell 14 (button U in its last cell); J the first button
+        // door between path cells 19 and 20 (heading east); the second
+        // button's wrong way off path cell 23 (button u); j the second
+        // button door between path cells 24 and 25 (heading north); O the
+        // flying carpet over a 3-cell sand pit, path cells 30-32 (heading
+        // west). No trapdoors, no spinning wall, no path or big cactus. Its
+        // own sneaky, mysterious tune with hand drums and a snake-charmer
+        // flute.
+        theme: DESERT,
+        music: 'twodoorcreep',
+        layout: [
+        '#########################################',
+        '#   #           #           #           #',
+        '#   #           #           #           #',
+        '#   #           #           #           #',
+        '#   #########   #   #################   #',
+        '#   #       #                           #',
+        '#   #     X #                           D',
+        '#   #       #                           #',
+        '#   #   #####   #########   #   #########',
+        '#   #   #               #   #           #',
+        '#   #   #               #   #           #',
+        '#   #   #               #   #           #',
+        '#   #   #   #########   #   #############',
+        '#       #       #       #       #       #',
+        '# S     #       #       #       #       #',
+        '#       #       #       #       #       #',
+        '#####   #########   #############   #   #',
+        '#   #   #       #   #               #   #',
+        '#   #   #       #   #               #   #',
+        '#   #   #       #   #               #   #',
+        '#   #   #   #####   #############   #jjj#',
+        '#   #       #        OOOOOOOOOOO    #   #',
+        '#   #       #        OOOOOOOOOOO    #   #',
+        '#   #       #        OOOOOOOOOOO    #   #',
+        '#   #   #####   #####################   #',
+        '#           #   #       J               #',
+        '#           #   #       J               #',
+        '#           #   #       J               #',
+        '#########   #   #   #########   #####   #',
+        '#           #   #           #       #   #',
+        '#           #   #           #       #   #',
+        '#           #   #           #       #   #',
+        '#   #   #############   #   #####   #   #',
+        '#   #               #   #       #   #   #',
+        '#   #               #   #       #   #   #',
+        '#   #               #   #       #   #   #',
+        '#   #########   #   #   #############   #',
+        '#   #           #                   #   #',
+        '#   #           #                 U # u #',
+        '#   #           #                   #   #',
         '#########################################',
         ],
     },

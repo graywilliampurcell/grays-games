@@ -2923,6 +2923,38 @@ const TUNES = {
                 [50, 84, 0.6], [53, 83, 0.6], [56, 80, 1.6]],
         },
     },
+    // Level 108, two button doors: sneaky and mysterious, more sneaky than
+    // mysterious. A "snake charmer" scale (A, B-flat, C-sharp, D, E, F, G)
+    // at 94 bpm: a quiet "knock, knock" on one low note, a creeping answer
+    // up the scale, then the same knock again one step higher (the second
+    // door) with an answer that slips back down. Hand drums ("dum ... tek")
+    // and a breathy flute, both quieter than the melody.
+    twodoorcreep: {
+        tempo: 94,
+        bars: [[45, 'maj'], [45, 'maj'], [46, 'maj'], [45, 'maj'], [50, 'min'], [50, 'min'], [46, 'maj'], [45, 'maj']],
+        bass: [0, null, null, 0, null, null, null, null],
+        bassLength: 0.16,
+        stabs: [],
+        ticks: true,
+        melody: [
+            69, 69, null, null, 70, 73, 74, null,
+            76, null, 74, null, 73, null, null, null,
+            69, 69, null, null, 70, 73, 74, null,
+            76, null, 77, null, 79, null, null, null,
+            74, 74, null, null, 76, 77, 79, null,
+            81, null, 79, null, 77, 76, 74, null,
+            73, null, 70, null, 69, null, null, null,
+            null, null, 69, null, 69, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.1, brightness: 1150 },
+        desert: {
+            dums: [0, 3],
+            teks: [6],
+            // [step, note, length in seconds]
+            flute: [[12, 85, 0.7], [28, 86, 0.9], [44, 88, 0.6], [47, 86, 0.6],
+                [52, 85, 1.4]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
