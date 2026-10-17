@@ -57,6 +57,10 @@ const RULES = {
     // cactus's too), two button doors each with its own button down its own
     // wrong way (before its door), one flying carpet, the sneaky cactus
     level108: { name: 'Level 108', depth: 3, deadEnds: 16, sneaky: true, buttonDoor: true, buttonDoors: 2, platforms: 1, platformCells: 3, prune: true, placeTries: 20 },
+    // Level 109, two carpets: every dead end 3 deep, two flying carpets (each
+    // over its own sand pit, in its own straight stretch), one button door,
+    // one trapdoor, one big cactus blocking a straight wrong way
+    level109: { name: 'Level 109', depth: 3, deadEnds: 16, buttonDoor: true, platforms: 2, platformCells: 3, trapdoors: 1, bigCane: true, prune: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

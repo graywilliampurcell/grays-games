@@ -2955,6 +2955,38 @@ const TUNES = {
                 [52, 85, 1.4]],
         },
     },
+    // Level 109, two carpets: sneaky and mysterious, more sneaky than
+    // mysterious. A "snake charmer" scale on F (F, G-flat, A, B-flat, C,
+    // D-flat, E-flat) at 108 bpm: a phrase that floats up and drifts back
+    // down like a carpet crossing, then the same flight again from higher up
+    // (the second carpet), with a sneaky tiptoe in between. Hand drums
+    // ("dum ... tek") and a breathy flute, both quieter than the melody.
+    twocarpetcreep: {
+        tempo: 108,
+        bars: [[41, 'maj'], [41, 'maj'], [42, 'maj'], [41, 'maj'], [46, 'min'], [46, 'min'], [42, 'maj'], [41, 'maj']],
+        bass: [0, null, null, null, null, 0, null, null],
+        bassLength: 0.17,
+        stabs: [],
+        ticks: true,
+        melody: [
+            65, null, 66, 69, 70, null, 72, null,
+            73, null, null, 72, 70, null, 69, null,
+            66, null, 65, null, null, 65, null, 65,
+            null, 66, null, 65, null, null, null, null,
+            70, null, 72, 73, 75, null, 77, null,
+            78, null, null, 77, 75, null, 73, null,
+            72, null, 70, null, 69, null, 66, null,
+            65, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.09, length: 0.11, brightness: 1000 },
+        desert: {
+            dums: [0, 5],
+            teks: [3, 7],
+            // [step, note, length in seconds]
+            flute: [[14, 84, 0.9], [26, 85, 0.6], [30, 84, 1.0], [46, 89, 0.8],
+                [58, 84, 1.6]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

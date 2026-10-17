@@ -1020,6 +1020,9 @@ const SLED_TIME = 1.5;
 // when a rest ends does it keep resting, till you're fully on or fully off.
 const CARPET_REST_TIME = 2;
 const CARPET_CROSS_TIME = 2;
+// A second carpet in the same level (Levels 109-110) runs CARPET_OFFSET
+// seconds out of step with the first, so the two cycles don't match.
+const CARPET_OFFSET = 1;
 const SLED_LANDING = 1.0;
 const ZIP_LINE_HEIGHT = 3.6; // the zip line, just under the tops of the walls (4)
 
@@ -1992,6 +1995,9 @@ export class Maze {
         });
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
+        this.platforms.filter((p) => p.carpet).forEach((p, index) => {
+            p.time = (index % 2) * CARPET_OFFSET;
+        });
         if (doorBlocks.length) {
             // shut: 0 = all the way open, 1 = all the way closed. It starts open.
             this.spaceDoor = { blocks: doorBlocks, shut: 0, phase: 'open', timer: SPACE_DOOR_OPEN_TIME, solid: false };
