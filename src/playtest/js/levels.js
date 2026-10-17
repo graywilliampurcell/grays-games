@@ -5811,6 +5811,65 @@ export const LEVELS = [
         '#########################################',
         ],
     },
+    {
+        name: 'Level 103',
+        // The first spinning wall. `SEEDS=600 node tools/find-desert-level.mjs
+        // level103 22 1`, seed 38. 10 x 10 corridors. Correct path 56 cells
+        // (start west in row 7, door east in row 1); 22 wrong ways, all 2
+        // cells deep. U: the button, in the last cell of the 2-deep wrong way
+        // going north off path cell 11. J: the button door, in the wall
+        // between path cells 21 and 22 (east column, heading north). E: the
+        // spinning secret wall with the golden beetle, in the wall between
+        // path cells 48 and 49 (top row, heading east): the corridor up to it
+        // seems to end there, and it's the only way on to the door. No
+        // cacti, no carpet, no trapdoors. Its own sneaky, mysterious tune
+        // with hand drums and a snake-charmer flute.
+        theme: DESERT,
+        music: 'beetlecreep',
+        layout: [
+        '#########################################',
+        '#                   E           #       #',
+        '#                   E           #       #',
+        '#                   E           #       #',
+        '#########   #################   #   #   #',
+        '#   #       #               #       #   #',
+        '#   #       #               #       #   D',
+        '#   #       #               #       #   #',
+        '#   #   #####   #########   #########   #',
+        '#       #       #               #       #',
+        '#       #       #               #       #',
+        '#       #       #               #       #',
+        '#####   #   #################   #########',
+        '#   #   #           #                   #',
+        '#   #   #           #                   #',
+        '#   #   #           #                   #',
+        '#   #   #   #########   #   #############',
+        '#                   #   #       #   #   #',
+        '#                   #   #       #   #   #',
+        '#                   #   #       #   #   #',
+        '#####   #################   #   #   #   #',
+        '#       #       #   #       #   #   #   #',
+        '#       #       # U #       #   #   #   #',
+        '#       #       #   #       #   #   #   #',
+        '#############   #   #########   #   #   #',
+        '#               #   #       #           #',
+        '#               #   #       #           #',
+        '#               #   #       #           #',
+        '#########   #   #   #####   #########   #',
+        '#       #   #                       #   #',
+        '# S     #   #                       #   #',
+        '#       #   #                       #   #',
+        '#   #   #   #####   #############   #JJJ#',
+        '#   #   #   #       #               #   #',
+        '#   #   #   #       #               #   #',
+        '#   #   #   #       #               #   #',
+        '#   #   #   #################   #####   #',
+        '#   #               #                   #',
+        '#   #               #                   #',
+        '#   #               #                   #',
+        '#########################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with

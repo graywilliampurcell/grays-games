@@ -4,6 +4,7 @@
 //
 //   SEEDS=3000 node tools/find-desert-level.mjs level101 20 1   # the sneaky cactus + a button door
 //   SEEDS=1000 node tools/find-desert-level.mjs level102 22 1   # a flying carpet + a path cactus
+//   SEEDS=1000 node tools/find-desert-level.mjs level103 22 1   # a spinning secret wall + a button door
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -11,7 +12,10 @@
 // Layout letters (see js/Maze.js): as in find-everything-level.mjs, plus
 // 'J' a button door (the three blocks of the wall gap between two path
 // cells, like the space door's 'G') and 'U' its button (the middle of the
-// last cell of a 2-deep wrong way branching off the path before the door).
+// last cell of a 2-deep wrong way branching off the path before the door),
+// 'E' a spinning secret wall (the three blocks of the wall gap between two
+// path cells, with the path straight through it, so the corridor up to it
+// looks like it ends there).
 //
 // Rules for every level: 10 x 10, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -28,6 +32,9 @@ const RULES = {
     // The first flying carpet: one 3-cell sand pit ('O', crossed on the
     // carpet) and one cactus on the path ('X', Level 53's squeeze gap)
     level102: { name: 'Level 102', depth: 2, deadEnds: 22, pathCane: true, platforms: 1, platformCells: 3, prunePairs: true, placeTries: 20 },
+    // The first spinning wall: one spinning secret wall ('E') on the path,
+    // the only way on to the door, and one button door ('J', button 'U')
+    level103: { name: 'Level 103', depth: 2, deadEnds: 22, spinWall: true, buttonDoor: true, prunePairs: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -391,6 +398,19 @@ function place(path, hung, random) {
         out.buttonDoor = options[Math.floor(random() * options.length)];
         spans.push([out.buttonDoor.door, out.buttonDoor.door + 1]);
     }
+    // The spinning secret wall: the wall gap between path cells w and w + 1,
+    // with the path straight from w - 1 to w + 2 and nothing branching off
+    // cells w and w + 1, so from either side the corridor seems to end at it
+    if (rule.spinWall) {
+        const options = [];
+        for (let w = 2; w < path.length - 3; w++) {
+            if (w < path.length * 0.25 || w > path.length * 0.85) continue;
+            if (plain(w) && plain(w + 1) && fits([w, w + 1])) options.push(w);
+        }
+        if (options.length === 0) return null;
+        out.spinWall = options[Math.floor(random() * options.length)];
+        spans.push([out.spinWall, out.spinWall + 1]);
+    }
     // Slippery spots (Level 13's): a plain path cell, kept well away from the
     // door (at least 6 path cells between)
     for (let n = 0; n < (rule.slippery ?? 0); n++) {
@@ -660,6 +680,11 @@ if (placed.buttonDoor) {
     const end = placed.buttonDoor.chain[placed.buttonDoor.chain.length - 1];
     put([4 * end.i + 2, 4 * end.j + 2], 'U');
 }
+if (placed.spinWall !== undefined) {
+    const a = path[placed.spinWall];
+    const b = path[placed.spinWall + 1];
+    for (const d of [1, 2, 3]) put(a.i !== b.i ? [4 * Math.max(a.i, b.i), 4 * a.j + d] : [4 * a.i + d, 4 * Math.max(a.j, b.j)], 'E');
+}
 for (const g of placed.rivers) for (const b of gapBlocks([...Array(GAP_CELLS).keys()].map((d) => path[g + d]))) put(b, 'F');
 for (const { h, b: first } of placed.belts) {
     const belt = [...Array(BELT_CELLS).keys()].map((d) => path[first + d]);
@@ -699,3 +724,4 @@ if (placed.pathCane !== undefined) console.log(`path spike: path cell ${placed.p
 if (placed.current) console.log(`water current: path cell ${placed.current.index + 1} (${key(path[placed.current.index])}), heading ${dir(placed.current.index)}, shoves into ${key(placed.current.into)}`);
 if (placed.bigCane) console.log(`big spike: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);
 if (placed.buttonDoor) console.log(`button door: between path cells ${placed.buttonDoor.door + 1} and ${placed.buttonDoor.door + 2} (${key(path[placed.buttonDoor.door])} -> ${key(path[placed.buttonDoor.door + 1])}), heading ${dir(placed.buttonDoor.door + 1)}; button wrong way off path cell ${placed.buttonDoor.at + 1} (${key(path[placed.buttonDoor.at])}), button in ${key(placed.buttonDoor.chain[placed.buttonDoor.chain.length - 1])}`);
+if (placed.spinWall !== undefined) console.log(`spinning wall: between path cells ${placed.spinWall + 1} and ${placed.spinWall + 2} (${key(path[placed.spinWall])} -> ${key(path[placed.spinWall + 1])}), heading ${dir(placed.spinWall + 1)}`);

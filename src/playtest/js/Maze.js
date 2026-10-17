@@ -1568,6 +1568,11 @@ const BUTTON_DOOR_PASSABLE_FROM = 0.8;
 const BUTTON_RADIUS = 0.6;
 const BUTTON_HEIGHT = 0.1; // how far it sticks up before it's pressed
 const BUTTON_SINK_TIME = 0.15;
+// The spinning secret wall (Level 103 on) turns around this fast (starting
+// value Gray will judge), carrying you to its other side
+export const SPIN_WALL_TIME = 1;
+// Walking into it: this close to its face, pushing toward it
+const SPIN_WALL_TOUCH = 0.08;
 
 // A little picture carved in stone, like ancient Egyptian writing, drawn at
 // (x, y) about `s` pixels tall: an eye, a bird, an ankh, water, a beetle, a
@@ -1819,6 +1824,9 @@ export class Maze {
         // of the last cell of a wrong way)
         const buttonDoorBlocks = [];
         let buttonPosition = null;
+        // A spinning secret wall ('E' blocks, the wall gap between two path
+        // cells; Desert Pyramid World, Level 103 on)
+        const spinBlocks = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -1849,6 +1857,7 @@ export class Maze {
                 if (ch === 'R') armLandings.push(center);
                 if (ch === 'J') buttonDoorBlocks.push({ x, z });
                 if (ch === 'U') buttonPosition = center;
+                if (ch === 'E') spinBlocks.push({ x, z });
             }
         }
         this.currents = [];
@@ -1951,6 +1960,17 @@ export class Maze {
                 minX: Math.min(...xs), maxX: Math.max(...xs) + 1, minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
             };
             this.setButtonDoorSolid(true);
+        }
+        // The spinning wall is solid like any wall (walking into it spins it)
+        if (spinBlocks.length) {
+            const xs = spinBlocks.map((b) => b.x);
+            const zs = spinBlocks.map((b) => b.z);
+            const w = { blocks: spinBlocks, minX: Math.min(...xs), maxX: Math.max(...xs) + 1, minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1, angle: 0, spin: null };
+            w.spansX = w.maxX - w.minX > 1; // the wall runs along x (you walk through it along z)
+            w.center = new THREE.Vector3((w.minX + w.maxX) / 2, 0, (w.minZ + w.maxZ) / 2);
+            w.across = spinBlocks.length;
+            for (const { x, z } of spinBlocks) this.mazeData[x][z].fill(1);
+            this.spinWall = w;
         }
     }
 
@@ -2142,6 +2162,7 @@ export class Maze {
         for (const belt of this.belts) this.createBelt(belt);
         for (const belt of this.armBelts) this.createArmBelt(belt);
         if (this.buttonDoor) this.createButtonDoor();
+        if (this.spinWall) this.createSpinWall();
         this.scene.add(this.root);
     }
 
@@ -6790,6 +6811,159 @@ export class Maze {
         this.root.add(plate);
         door.buttonMesh = button;
         this.showButtonDoor();
+    }
+
+    // The spinning secret wall: a block of wall that looks like the others,
+    // except for a big golden beetle carved on both faces that glows softly,
+    // so it can be spotted by looking carefully. It turns on its middle.
+    createSpinWall() {
+        const w = this.spinWall;
+        const across = w.across;
+        const pixels = 128 * across;
+        // The face: the walls' sandstone blocks, with the beetle in the middle
+        const face = document.createElement('canvas');
+        face.width = pixels;
+        face.height = 512;
+        const g = face.getContext('2d');
+        const stone = sandstoneTexture(128, 512, 83).image;
+        for (let k = 0; k < across; k++) g.drawImage(stone, k * 128, 0);
+        const glow = document.createElement('canvas');
+        glow.width = pixels;
+        glow.height = 512;
+        const e = glow.getContext('2d');
+        // (the stone glows as faintly as the other walls)
+        e.fillStyle = 'rgb(17,12,2)';
+        e.fillRect(0, 0, pixels, 512);
+        const beetle = (ctx, fill, line) => {
+            const s = 190;
+            ctx.save();
+            ctx.translate(pixels / 2, 280);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.fillStyle = fill;
+            ctx.strokeStyle = line;
+            ctx.lineWidth = 9;
+            // Six legs
+            ctx.beginPath();
+            for (const side of [-1, 1]) {
+                ctx.moveTo(side * s * 0.18, -s * 0.05);
+                ctx.lineTo(side * s * 0.42, -s * 0.2);
+                ctx.lineTo(side * s * 0.48, -s * 0.32);
+                ctx.moveTo(side * s * 0.2, s * 0.08);
+                ctx.lineTo(side * s * 0.46, s * 0.1);
+                ctx.moveTo(side * s * 0.18, s * 0.22);
+                ctx.lineTo(side * s * 0.4, s * 0.42);
+                ctx.lineTo(side * s * 0.44, s * 0.52);
+            }
+            ctx.stroke();
+            // Body, head and the two front feelers holding up a sun
+            ctx.beginPath();
+            ctx.ellipse(0, s * 0.1, s * 0.22, s * 0.3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.ellipse(0, -s * 0.27, s * 0.13, s * 0.09, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(-s * 0.08, -s * 0.33);
+            ctx.lineTo(-s * 0.16, -s * 0.48);
+            ctx.moveTo(s * 0.08, -s * 0.33);
+            ctx.lineTo(s * 0.16, -s * 0.48);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, -s * 0.6, s * 0.13, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            // The line down its back between the wings
+            ctx.beginPath();
+            ctx.moveTo(0, -s * 0.16);
+            ctx.lineTo(0, s * 0.38);
+            ctx.strokeStyle = 'rgba(90,50,0,0.8)';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+            ctx.restore();
+        };
+        // A dark cut round the beetle, like a carving, then the gold
+        g.save();
+        g.translate(3, 3);
+        beetle(g, 'rgba(100,60,20,0.8)', 'rgba(100,60,20,0.8)');
+        g.restore();
+        beetle(g, '#ffcf3a', '#c88a10');
+        beetle(e, '#e0a020', '#a06a00');
+        const faceMap = new THREE.CanvasTexture(face);
+        const glowMap = new THREE.CanvasTexture(glow);
+        const faceMaterial = new THREE.MeshStandardMaterial({ map: faceMap, emissiveMap: glowMap, emissive: 0xffffff, emissiveIntensity: 0.9, roughness: 0.85 });
+        const side = new THREE.MeshStandardMaterial({ map: sandstoneTexture(128, 512, 83), roughness: 0.9, emissive: 0x3a2808, emissiveIntensity: 0.3 });
+        const group = new THREE.Group();
+        group.position.copy(w.center);
+        this.root.add(group);
+        const turner = new THREE.Group();
+        group.add(turner);
+        // The box faces +z and -z when the wall runs along x
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(across, this.height, 0.98), [side, side, side, side, faceMaterial, faceMaterial]);
+        slab.position.y = this.height / 2;
+        slab.castShadow = true;
+        turner.add(slab);
+        if (!w.spansX) group.rotation.y = Math.PI / 2;
+        w.turner = turner;
+    }
+
+    // Walking into the spinning wall: the player's middle is in front of it,
+    // within touching distance of its face, and they're pushing toward it.
+    // Returns which side they're on (+1 or -1 along the way through), or 0.
+    spinWallTouch(position, radius, direction) {
+        const w = this.spinWall;
+        if (!w || w.spin) return 0;
+        const along = w.spansX ? position.x - w.center.x : position.z - w.center.z;
+        const through = w.spansX ? position.z - w.center.z : position.x - w.center.x;
+        const push = w.spansX ? direction.z : direction.x;
+        if (Math.abs(along) > w.across / 2) return 0;
+        if (Math.abs(through) > 0.5 + radius + SPIN_WALL_TOUCH) return 0;
+        const side = Math.sign(through) || 1;
+        return push * side < -0.5 ? side : 0;
+    }
+
+    // Start a spin: the wall turns around once (half a turn), carrying the
+    // player from `side` to the other side. They keep looking the same way,
+    // so at the end they face away from the wall.
+    startSpin(position, side, radius) {
+        const w = this.spinWall;
+        const rel = position.clone().sub(w.center);
+        rel.y = 0;
+        const normal = w.spansX ? new THREE.Vector3(0, 0, side) : new THREE.Vector3(side, 0, 0);
+        w.spin = { time: 0, from: rel, to: normal.clone().multiplyScalar(0.5 + radius + 0.05), normal, start: w.angle };
+    }
+
+    // One game step of a spin (so it stops while paused). Returns where the
+    // player is, and `done` with the cell middle beyond the wall to step to.
+    updateSpinWall(dt) {
+        const w = this.spinWall;
+        const sp = w?.spin;
+        if (!sp) return null;
+        sp.time = Math.min(SPIN_WALL_TIME, sp.time + dt);
+        const t = sp.time / SPIN_WALL_TIME;
+        const eased = t * t * (3 - 2 * t);
+        const theta = Math.PI * eased;
+        w.angle = sp.start + theta;
+        if (w.turner) w.turner.rotation.y = w.angle;
+        // Slide up against the middle of the face first, then turn with it
+        const rel = sp.from.clone().lerp(sp.to, Math.min(1, t * 4));
+        const c = Math.cos(theta);
+        const s = Math.sin(theta);
+        const turned = new THREE.Vector3(rel.x * c + rel.z * s, 0, -rel.x * s + rel.z * c);
+        const position = w.center.clone().add(turned);
+        if (sp.time < SPIN_WALL_TIME) return { position, done: false };
+        w.spin = null;
+        w.angle %= Math.PI * 2;
+        // Step off into the middle of the cell on the far side
+        const step = w.center.clone().addScaledVector(sp.normal, -2);
+        return { position, done: true, step };
+    }
+
+    // Sent back to the start (or a level loading): no spin in progress
+    resetSpinWall() {
+        if (this.spinWall) this.spinWall.spin = null;
     }
 
     // Shut (solid) or open (walk-through) the button door's blocks

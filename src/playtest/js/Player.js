@@ -103,6 +103,7 @@ export class Player {
         this.velocity.set(0, 0, 0);
         this.slide = null;
         this.shove = null;
+        this.spinning = false;
         this.euler.set(pitch, yaw, 0);
         this.camera.quaternion.setFromEuler(this.euler);
         this.camera.position.set(this.position.x, this.position.y + 1.6, this.position.z);
@@ -318,7 +319,8 @@ export class Player {
     }
 
     update(inputManager, collisionManager, deltaTime) {
-        if (this.frozen || this.paused) return;
+        // Being turned round by a spinning secret wall (main.js moves you)
+        if (this.frozen || this.paused || this.spinning) return;
 
         const controls = this.readControls();
         if (controls.turn || controls.tilt) {

@@ -2763,6 +2763,37 @@ const TUNES = {
                 [44, 86, 0.5], [46, 85, 0.4], [48, 82, 0.8], [52, 81, 0.5], [56, 76, 1.6]],
         },
     },
+    // Level 103, the first spinning wall: sneaky and mysterious, more sneaky
+    // than mysterious. E "snake charmer" scale (E, F, G-sharp, A, B, C, D) at
+    // 96 bpm: a low three-note sneak that stops and listens, answered by a
+    // turn round the top like the wall spinning. Hand drums ("dum-dum ...
+    // tek") and a breathy flute, both quieter than the melody.
+    beetlecreep: {
+        tempo: 96,
+        bars: [[40, 'maj'], [40, 'maj'], [41, 'maj'], [40, 'maj'], [40, 'maj'], [38, 'min'], [41, 'maj'], [40, 'maj']],
+        bass: [0, 0, null, null, 0, null, null, null],
+        bassLength: 0.16,
+        stabs: [],
+        ticks: true,
+        melody: [
+            64, null, 65, null, 64, null, null, null,
+            null, null, 68, null, 69, null, null, null,
+            71, 72, 71, null, 69, null, 68, null,
+            65, null, 64, null, null, null, null, null,
+            64, null, 65, null, 68, null, null, null,
+            72, null, 74, null, 72, 71, 72, null,
+            71, null, 68, null, 65, null, 68, null,
+            64, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.12, brightness: 1150 },
+        desert: {
+            dums: [0, 1],
+            teks: [4, 7],
+            // [step, note, length in seconds]
+            flute: [[6, 76, 0.6], [8, 77, 0.4], [10, 80, 1.0], [20, 77, 0.6], [26, 76, 1.4],
+                [38, 83, 0.5], [40, 84, 0.4], [42, 83, 0.6], [44, 80, 0.5], [54, 76, 1.6]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

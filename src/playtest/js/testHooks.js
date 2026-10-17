@@ -82,6 +82,8 @@ export function installTestHooks(game) {
             belts: maze.belts.map((b) => ({ minX: b.minX, maxX: b.maxX, minZ: b.minZ, maxZ: b.maxZ, alongX: b.alongX, back: b.back, phase: b.phase, timer: round(b.timer), landing: { x: b.landing.x, z: b.landing.z }, red: { x: round(b.redPosition?.x ?? 0), z: round(b.redPosition?.z ?? 0) } })),
             geysers: maze.geysers.map((g) => ({ minX: g.minX, maxX: g.maxX, minZ: g.minZ, maxZ: g.maxZ, phase: g.phase, timer: round(g.timer), waiting: g.waiting, rise: round(g.rise) })),
             buttonDoor: maze.buttonDoor ? { pressed: maze.buttonDoor.pressed, open: round(maze.buttonDoor.open), solid: maze.buttonDoor.solid, button: { x: maze.buttonDoor.button.x, z: maze.buttonDoor.button.z }, minX: maze.buttonDoor.minX, maxX: maze.buttonDoor.maxX, minZ: maze.buttonDoor.minZ, maxZ: maze.buttonDoor.maxZ } : null,
+            spinWall: maze.spinWall ? { minX: maze.spinWall.minX, maxX: maze.spinWall.maxX, minZ: maze.spinWall.minZ, maxZ: maze.spinWall.maxZ, spansX: maze.spinWall.spansX, center: { x: maze.spinWall.center.x, z: maze.spinWall.center.z }, angle: round(maze.spinWall.angle), spinning: !!maze.spinWall.spin, time: round(maze.spinWall.spin?.time ?? 0) } : null,
+            spinning: !!player.spinning,
             spaceDoor: maze.spaceDoor ? { phase: maze.spaceDoor.phase, shut: round(maze.spaceDoor.shut), solid: maze.spaceDoor.solid } : null,
             platform: maze.platform ? platformState(maze.platform) : null,
             platforms: maze.platforms.map(platformState),

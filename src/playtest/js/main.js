@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Player } from './Player.js';
-import { Maze } from './Maze.js';
+import { Maze, SPIN_WALL_TIME } from './Maze.js';
 import { RoomMaze } from './RoomMaze.js';
 import { LEVELS } from './levels.js';
 import { InputManager } from './InputManager.js';
@@ -76,6 +76,8 @@ const SNOWMAN_FADE_TIME = 1.0;
 const BALLOON_STEP_OUT_TIME = 0.4;
 // The button door's grinding sound lasts as long as it takes to open (Maze.js BUTTON_DOOR_OPEN_TIME)
 const BUTTON_DOOR_GRIND_TIME = 1;
+// After a spinning wall's turn, you step off into the middle of the cell beyond it
+const SPIN_STEP_OFF_TIME = 0.3;
 const lastOutsideCurrent = new THREE.Vector3();
 let frameCount = 0;
 let lastTime = performance.now();
@@ -324,6 +326,33 @@ function step(deltaTime) {
             sound.grind(BUTTON_DOOR_GRIND_TIME);
         }
         testHooks?.emit(event === 'press' ? 'button' : 'buttonDoorOpen');
+    }
+    // The spinning secret wall (Desert Pyramid World, Level 103 on): walk
+    // into the wall with the golden beetle and it turns round, carrying you
+    // to its other side, facing away from it. It works from both sides.
+    if (maze.spinWall) {
+        if (!maze.spinWall.spin && !player.shove && !player.carried && !escaped) {
+            const side = maze.spinWallTouch(player.position, player.radius, player.direction);
+            if (side) {
+                maze.startSpin(player.position, side, player.radius);
+                player.spinning = true;
+                player.velocity.set(0, 0, 0);
+                player.slide = null;
+                sound.grind(SPIN_WALL_TIME);
+                testHooks?.emit('spinStart');
+            }
+        }
+        const spin = maze.updateSpinWall(deltaTime);
+        if (spin) {
+            player.position.x = spin.position.x;
+            player.position.z = spin.position.z;
+            player.camera.position.set(player.position.x, player.position.y + 1.6, player.position.z);
+            if (spin.done) {
+                player.spinning = false;
+                player.startShove(spin.step, SPIN_STEP_OFF_TIME);
+                testHooks?.emit('spin');
+            }
+        }
     }
     // Slippery spots (Level 13 on): stepping onto one starts a slide
     const onSlippery = maze.onSlipperySpot(player.position);
@@ -676,6 +705,7 @@ function backToStart() {
     wasOnMarshmallow = null;
     maze.resetPlatform();
     maze.resetButtonDoor?.();
+    maze.resetSpinWall?.();
 }
 
 // Back to the start of the current level (also used by the test bot)
