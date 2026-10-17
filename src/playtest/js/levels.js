@@ -5607,7 +5607,8 @@ export const LEVELS = [
         // with a marshmallow on each bank; K a lava geyser (path cell 57);
         // N/M/P the snowman's 4-cell hallway (path cells 68-71); A/R the
         // robot-arm belt, 3 cells (path cells 80-82; Level 100 only) with one
-        // floor cell before and after it, an arm every 3 s. Each room is its
+        // floor cell before and after it, an arm every 2 s (Iteration 124;
+        // was 3 s). Each room is its
         // own Maze in its world's look (js/RoomMaze.js), with its own sneaky,
         // just a little spooky tune.
         theme: COTTON_CANDY,
@@ -5618,7 +5619,7 @@ export const LEVELS = [
         nextLabel: 'Start Pyramid World',
         fireworks: true,
         spikeRadius: 0.7,
-        armInterval: 3,
+        armInterval: 2,
         // Each room's block ranges (the middles of the walls between rooms)
         rooms: [
             { theme: COTTON_CANDY, music: 'roomcottoncandy', x: [0, 20.5], z: [0, 16.5] },
