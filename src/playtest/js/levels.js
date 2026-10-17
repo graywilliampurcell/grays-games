@@ -5929,6 +5929,66 @@ export const LEVELS = [
         '#########################################',
         ],
     },
+    {
+        name: 'Level 105',
+        // Two trapdoors and a hidden button. `SEEDS=1500 node
+        // tools/find-desert-level.mjs level105 24 1`, seed 53. 10 x 10
+        // corridors. Correct path 49 cells (start west in row 0, door east in
+        // row 7); 24 wrong ways 2 cells deep plus the sneaky cactus's 3-deep
+        // one. Along the path: X the sneaky cactus (3-deep wrong way off the
+        // start cell); K the first trapdoor, path cell 11 (top row, heading
+        // east); U the button, at the end of the 2-deep wrong way off path
+        // cell 30; J the button door, between path cells 34 and 35 (heading
+        // south); K the second trapdoor, path cell 41 (heading east), on its
+        // own timer. No path or big cactus, no carpet ride, no spinning wall.
+        // Its own sneaky, mysterious tune with hand drums and a snake-charmer
+        // flute.
+        theme: DESERT,
+        music: 'buttoncreep',
+        layout: [
+        '#########################################',
+        '#               #       #        KKK    #',
+        '# S             #       #        KKK    #',
+        '#               #       #        KKK    #',
+        '#   #####   #   #   #####   #########   #',
+        '#   #       #               #   #       #',
+        '#   #       #               #   #       #',
+        '#   #       #               #   #       #',
+        '#   #########   #   #   #####   #   #####',
+        '#       #       #   #       #   #       #',
+        '#     X #       #   #       #   #       #',
+        '#       #       #   #       #   #       #',
+        '#################   #########   #   #   #',
+        '#       #       #   #   #           #   #',
+        '#       #       #   #   #           #   #',
+        '#       #       #   #   #           #   #',
+        '#####   #####   #####   #   #####   #####',
+        '#                   #   #       #       #',
+        '#                   #   #       #       #',
+        '#                   #   #       #       #',
+        '#   #   #####   #   #   #####   #########',
+        '#   #   #   #   #   #               #   #',
+        '# U #   #   #   #   #               #   #',
+        '#   #   #   #   #   #               #   #',
+        '#####   #   #   #####   #########   #   #',
+        '#       #   #           #       #   #   #',
+        '#       #   #           #       #   #   #',
+        '#       #   #           #       #   #   #',
+        '#   #####   #############   #########   #',
+        '#   #        KKK    #                   #',
+        '#   #        KKK    #                   D',
+        '#   #        KKK    #                   #',
+        '#JJJ#   #########   #   #####   #   #   #',
+        '#   #   #                   #   #   #   #',
+        '#   #   #                   #   #   #   #',
+        '#   #   #                   #   #   #   #',
+        '#   #   #############   #   #   #   #   #',
+        '#               #       #   #   #   #   #',
+        '#               #       #   #   #   #   #',
+        '#               #       #   #   #   #   #',
+        '#########################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with

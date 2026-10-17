@@ -2826,6 +2826,39 @@ const TUNES = {
                 [36, 87, 0.5], [38, 88, 0.4], [44, 83, 1.0], [52, 84, 0.6], [58, 83, 1.4]],
         },
     },
+    // Level 105, two trapdoors and a hidden button: sneaky and mysterious,
+    // more sneaky than mysterious. G "snake charmer" scale (G, A-flat, B, C,
+    // D, E-flat, F) at 88 bpm, the slowest desert tune: it starts high and
+    // sneaks down step by step with long listening rests, then two soft
+    // "click-click" notes (like the hidden button) and a creep back up through
+    // A-flat. Hand drums ("dum ... dum-tek") and a breathy flute, both
+    // quieter than the melody.
+    buttoncreep: {
+        tempo: 88,
+        bars: [[43, 'maj'], [43, 'maj'], [44, 'maj'], [43, 'maj'], [41, 'min'], [43, 'maj'], [44, 'maj'], [43, 'maj']],
+        bass: [0, null, null, null, null, 0, 0, null],
+        bassLength: 0.17,
+        stabs: [],
+        ticks: true,
+        melody: [
+            79, null, null, 77, null, null, 75, null,
+            74, null, null, null, null, null, null, null,
+            67, 67, null, null, 68, null, 71, null,
+            72, null, 71, null, 68, null, null, null,
+            79, null, null, 77, null, null, 75, null,
+            74, null, 72, null, 71, null, null, null,
+            67, 67, null, null, 68, null, 71, null,
+            67, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.11, brightness: 1100 },
+        desert: {
+            dums: [0, 5],
+            teks: [6],
+            // [step, note, length in seconds]
+            flute: [[8, 86, 0.5], [10, 87, 0.4], [12, 86, 1.0], [24, 83, 0.6], [28, 80, 1.4],
+                [40, 89, 0.5], [42, 87, 0.4], [44, 86, 0.8], [50, 83, 0.5], [56, 79, 1.8]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

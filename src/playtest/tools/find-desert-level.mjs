@@ -6,6 +6,7 @@
 //   SEEDS=1000 node tools/find-desert-level.mjs level102 22 1   # a flying carpet + a path cactus
 //   SEEDS=1000 node tools/find-desert-level.mjs level103 22 1   # a spinning secret wall + a button door
 //   SEEDS=1000 node tools/find-desert-level.mjs level104 22 1   # a trapdoor + a flying carpet + a big cactus
+//   SEEDS=1500 node tools/find-desert-level.mjs level105 24 1   # two trapdoors + a button door + the sneaky cactus
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -40,6 +41,9 @@ const RULES = {
     // The first trapdoor: one trapdoor ('K'), one 3-cell sand pit crossed on
     // the carpet ('O') and one big cactus blocking a straight wrong way ('Y')
     level104: { name: 'Level 104', depth: 2, deadEnds: 22, trapdoors: 1, platforms: 1, platformCells: 3, bigCane: true, prunePairs: true, placeTries: 20 },
+    // Two trapdoors with a button door between them: a trapdoor, then the
+    // button's wrong way, then the other trapdoor (order: true)
+    level105: { name: 'Level 105', depth: 2, deadEnds: 20, sneaky: true, buttonDoor: true, trapdoors: 2, order: true, prunePairs: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -542,6 +546,12 @@ function place(path, hung, random) {
         const k = options[Math.floor(random() * options.length)];
         out.geysers.push(k);
         spans.push([k, k]);
+    }
+    // Level 105's order along the path: a trapdoor, the button's wrong way,
+    // then the other trapdoor
+    if (rule.order) {
+        const [first, second] = [...out.geysers].sort((a, b) => a - b);
+        if (!(first < out.buttonDoor.at && out.buttonDoor.at < second)) return null;
     }
     // Snowmen (Level 72's): a hallway h .. h + SNOWMAN_CELLS - 1 with only
     // the path through it, straight all the way, and the path turning out of
