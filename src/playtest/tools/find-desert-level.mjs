@@ -10,6 +10,8 @@
 //   SEEDS=1000 node tools/find-desert-level.mjs level106 22 1   # a path cactus + a flying carpet + a spinning secret wall
 //   SEEDS=1000 node tools/find-desert-level.mjs level107 14 1   # 3-deep dead ends: a button door + a big cactus + a trapdoor
 //   SEEDS=1000 node tools/find-desert-level.mjs level108 16 1   # 3-deep dead ends: two button doors + a flying carpet + the sneaky cactus
+//   SEEDS=1000 node tools/find-desert-level.mjs level109 17 1   # 3-deep dead ends: two flying carpets + a button door + a trapdoor + a big cactus
+//   SEEDS=1500 node tools/find-desert-level.mjs level110 14 214000   # the finale: carpet, trapdoor, trapdoor, carpet, spinning wall, in that order
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -61,6 +63,12 @@ const RULES = {
     // over its own sand pit, in its own straight stretch), one button door,
     // one trapdoor, one big cactus blocking a straight wrong way
     level109: { name: 'Level 109', depth: 3, deadEnds: 16, buttonDoor: true, platforms: 2, platformCells: 3, trapdoors: 1, bigCane: true, prune: true, placeTries: 20 },
+    // Level 110, the Pyramid World finale (Gray's design): every dead end 3
+    // deep; in this order along the path: a flying carpet, a trapdoor, a
+    // second trapdoor, a second flying carpet, the spinning secret wall, then
+    // at least 2 wrong ways before the golden door (finaleOrder). No cactus,
+    // no button door.
+    level110: { name: 'Level 110', depth: 3, deadEnds: 16, platforms: 2, platformCells: 3, trapdoors: 2, spinWall: true, finaleOrder: 2, prune: true, placeTries: 400 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -576,6 +584,14 @@ function place(path, hung, random) {
         const [first, second] = [...out.geysers].sort((a, b) => a - b);
         if (!(first < out.buttonDoor.at && out.buttonDoor.at < second)) return null;
     }
+    // Level 110's order along the path: carpet, trapdoor, trapdoor, carpet,
+    // spinning wall, then rule.finaleOrder wrong ways branching off after it
+    if (rule.finaleOrder) {
+        const [p0, p1] = [...out.platforms].sort((a, b) => a - b);
+        const [t0, t1] = [...out.geysers].sort((a, b) => a - b);
+        if (!(p0 < t0 && t1 < p1 && p1 < out.spinWall)) return null;
+        if (hung.roots.filter((at) => at > out.spinWall + 1).length < rule.finaleOrder) return null;
+    }
     // Snowmen (Level 72's): a hallway h .. h + SNOWMAN_CELLS - 1 with only
     // the path through it, straight all the way, and the path turning out of
     // its last cell
@@ -764,3 +780,4 @@ if (placed.current) console.log(`water current: path cell ${placed.current.index
 if (placed.bigCane) console.log(`big spike: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);
 placed.buttonDoors.forEach((door, n) => console.log(`button door ${n ? 'j' : 'J'}: between path cells ${door.door + 1} and ${door.door + 2} (${key(path[door.door])} -> ${key(path[door.door + 1])}), heading ${dir(door.door + 1)}; button ${n ? 'u' : 'U'} wrong way off path cell ${door.at + 1} (${key(path[door.at])}), button in ${key(door.chain[door.chain.length - 1])}`));
 if (placed.spinWall !== undefined) console.log(`spinning wall: between path cells ${placed.spinWall + 1} and ${placed.spinWall + 2} (${key(path[placed.spinWall])} -> ${key(path[placed.spinWall + 1])}), heading ${dir(placed.spinWall + 1)}`);
+if (rule.finaleOrder) console.log(`wrong ways after the spinning wall: off path cells ${hung.roots.filter((at) => at > placed.spinWall + 1).sort((a, b) => a - b).map((at) => at + 1).join(', ')}`);

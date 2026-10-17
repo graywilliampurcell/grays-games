@@ -6234,6 +6234,68 @@ export const LEVELS = [
         '#########################################',
         ],
     },
+    {
+        name: 'Level 110',
+        // The Pyramid World finale (Gray's design). `SEEDS=1500 node
+        // tools/find-desert-level.mjs level110 14 214000`, seed 214021. 10 x
+        // 10 corridors. Correct path 58 cells (start west in row 1, golden
+        // door east in row 1); 14 wrong ways, all 3 cells deep. In this order
+        // along the path: O the first flying carpet over a 3-cell sand pit,
+        // path cells 25-27 (heading west); K the first trapdoor, path cell 33
+        // (bottom row, heading east); K the second trapdoor, path cell 37
+        // (heading north); O the second flying carpet, path cells 40-42
+        // (heading south; 1 s out of step with the first); E the spinning
+        // secret wall between path cells 46 and 47 (heading north up the
+        // east side); then wrong ways branching off before the door. No
+        // cactus, no button door. Golden door, confetti, long cheer, "You
+        // beat Pyramid World!". Music: the sneakiest Pyramid World tune.
+        theme: DESERT,
+        music: 'pyramidfinale',
+        finale: 'You beat Pyramid World!',
+        layout: [
+        '#########################################',
+        '#           #       #   #       #       #',
+        '#           #       #   #       #       #',
+        '#           #       #   #       #       #',
+        '#   #########   #####   #####   #   #   #',
+        '#           #   #       #   #   #   #   #',
+        '# S         #   #       #   #   #   #   D',
+        '#           #   #       #   #   #   #   #',
+        '#########   #   #   #####   #   #####   #',
+        '#       #                   #           #',
+        '#       #                   #           #',
+        '#       #                   #           #',
+        '#   #   #########   #########   #########',
+        '#   #                       #   #       #',
+        '#   #                       #   #       #',
+        '#   #                       #   #       #',
+        '#####   #################   #   #   #   #',
+        '#       #               #   #       #   #',
+        '#       #               #   #       #   #',
+        '#       #               #   #       #   #',
+        '#   #   #   #   #####   #############   #',
+        '#   #       #   #       #   #       #   #',
+        '#   #       #   #       #   #       #   #',
+        '#   #       #   #       #   #       #   #',
+        '#   #   #####   #   #####   #   #   #   #',
+        '#   #       #   #   #       #KKK#OOO#   #',
+        '#   #       #   #   #       #KKK#OOO#   #',
+        '#   #       #   #   #       #KKK#OOO#   #',
+        '#########   #   #   #   #####   #OOO#EEE#',
+        '#       #   #   #           #   #OOO#   #',
+        '#       #   #   #           #   #OOO#   #',
+        '#       #   #   #           #   #OOO#   #',
+        '#####   #################   #   #OOO#   #',
+        '#   #        OOOOOOOOOOO    #   #OOO#   #',
+        '#   #        OOOOOOOOOOO    #   #OOO#   #',
+        '#   #        OOOOOOOOOOO    #   #OOO#   #',
+        '#   #####   #################   #   #   #',
+        '#                        KKK    #       #',
+        '#                        KKK    #       #',
+        '#                        KKK    #       #',
+        '#########################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with

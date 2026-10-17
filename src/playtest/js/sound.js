@@ -2987,6 +2987,40 @@ const TUNES = {
                 [58, 84, 1.6]],
         },
     },
+    // Level 110, the Pyramid World finale: the sneakiest Pyramid World tune.
+    // A "snake charmer" scale on C (C, D-flat, E, F, G, A-flat, B-flat) at
+    // 92 bpm on a sawtooth, with long held breaths. It follows the level: a
+    // phrase that floats up (the first carpet), two sudden drops (the two
+    // trapdoors), a higher float (the second carpet), then a slow grinding
+    // turn back and forth by half steps (the spinning wall), and it ends on
+    // a low B, a half step under C, unsettled. Quiet hand drums and a
+    // breathy flute underneath.
+    pyramidfinale: {
+        tempo: 92,
+        bars: [[36, 'maj'], [36, 'maj'], [37, 'maj'], [36, 'maj'], [41, 'min'], [41, 'min'], [37, 'maj'], [36, 'maj']],
+        bass: [0, null, null, null, 0, null, null, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            60, null, 61, 64, 65, null, 67, null,
+            68, null, null, null, 67, null, null, null,
+            72, null, null, 61, null, null, null, null,
+            72, null, null, 60, null, null, null, null,
+            67, null, 68, 70, 72, null, 73, null,
+            76, null, null, null, 73, null, 72, null,
+            68, 67, 68, 67, null, null, 61, 60,
+            59, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.09, length: 0.12, brightness: 900 },
+        desert: {
+            dums: [0, 4],
+            teks: [6],
+            // [step, note, length in seconds]
+            flute: [[10, 79, 1.2], [21, 73, 0.8], [29, 72, 0.8], [44, 84, 1.0],
+                [57, 71, 1.8]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
