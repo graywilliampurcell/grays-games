@@ -13,6 +13,9 @@
 //   Robot Factory World (Level 82 on): 'B' a backward belt and 'L' where it
 //   flings you (the middle of the first cell of its hallway); beltQuiet sets
 //   how long it stays off and quiet before its warning (see Maze.js)
+//   Desert Pyramid World (Level 101 on): 'J' a button door (three blocks
+//   across the wall gap between two path cells, solid until its button is
+//   pressed) and 'U' its button (the middle of a wrong way's last cell)
 // Found with tools/find-level.mjs. theme: colors and the fluffy look, see Maze.js.
 // music: the level's tune (see sound.js), a little sneakier each level.
 // spikeRadius: size of the spike's plate (default 0.75; see Maze.js).
@@ -53,6 +56,11 @@ const ICE = { wall: 0x6fb6f0, floor: 0xeef4fb, sky: 0x0a1633, ice: true };
 // machines whirring far below, no ceiling, and a sky of giant gears turning
 // slowly up high; the spikes are electric zappers (see Maze.js)
 const FACTORY = { wall: 0xb5582a, floor: 0x5a6067, sky: 0x56606e, factory: true };
+// Levels 101-110, Desert Pyramid World: walls of big sandy-yellow stone
+// blocks carved with pictures like ancient Egyptian writing, a floor of
+// golden sand with little wavy ripples, a bright blue sky with a hot sun and
+// pyramids and camels far away; the spikes are prickly cactuses (see Maze.js)
+const DESERT = { wall: 0xd9b46a, floor: 0xe8bf6a, sky: 0x5fb4ff, desert: true };
 
 export const LEVELS = [
     {
@@ -5607,6 +5615,7 @@ export const LEVELS = [
         look: 'everything',
         music: 'roomcottoncandy',
         finale: 'You beat 100 levels!',
+        nextLabel: 'Start Desert Pyramid World',
         fireworks: true,
         spikeRadius: 0.7,
         armInterval: 3,
@@ -5682,13 +5691,71 @@ export const LEVELS = [
         '#########################################################',
         ],
     },
+    {
+        name: 'Level 101',
+        // Welcome to Desert Pyramid World. `SEEDS=1000 node
+        // tools/find-desert-level.mjs level101 22 5001`, seed 5173. 10 x 10
+        // corridors. Correct path 53 cells (start west in row 5, door east in
+        // row 8); 22 wrong ways 2 cells deep, plus the sneaky cactus's. X: the
+        // sneaky cactus, in the last cell of a 3-deep one-turn dead end off
+        // path cell 3. J: the button door, a carved stone door in the wall
+        // between path cells 31 and 32 (heading east). U: its button, in the
+        // last cell of the 2-deep wrong way going north off path cell 28.
+        // No path or big cactus. A sneaky, mysterious tune with hand drums
+        // and a snake-charmer flute.
+        theme: DESERT,
+        music: 'desertsneak',
+        layout: [
+        '#########################################',
+        '#   #       #       #       #   #   #   #',
+        '#   #       #       #       #   #   #   #',
+        '#   #       #       #       #   #   #   #',
+        '#   #   #   #   #   #####   #   #   #   #',
+        '#       #       #   #           #   #   #',
+        '#       #       #   #           #   #   #',
+        '#       #       #   #           #   #   #',
+        '#####   #########   #   #   #####   #   #',
+        '#   #   #               #               #',
+        '#   #   #               #               #',
+        '#   #   #               #               #',
+        '#   #   #############   #############   #',
+        '#           #   #       #   #   #       #',
+        '#           #   #       #   # U #       #',
+        '#           #   #       #   #   #       #',
+        '#########   #   #########   #   #   #   #',
+        '#               #   #   #   #   #   #   #',
+        '#               # X #   #   #   #   #   #',
+        '#               #   #   #   #   #   #   #',
+        '#########   #####   #   #   #   #   #   #',
+        '#                   #               #   #',
+        '# S                 #               #   #',
+        '#                   #               #   #',
+        '#   #   #################   #############',
+        '#   #   #   #       #   #       J       #',
+        '#   #   #   #       #   #       J       #',
+        '#   #   #   #       #   #       J       #',
+        '#   #   #   #   #####   #############   #',
+        '#   #   #           #                   #',
+        '#   #   #           #                   #',
+        '#   #   #           #                   #',
+        '#############   #   #####   #############',
+        '#               #           #       #   #',
+        '#               #           #       #   D',
+        '#               #           #       #   #',
+        '#########   #####################   #   #',
+        '#                                       #',
+        '#                                       #',
+        '#                                       #',
+        '#########################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
 // the index of its first and last built level and its look. A level's world
 // is its theme, or its `world` name when it has one (Everything World,
 // Levels 91-100: each level wears an earlier world's theme).
-const lookOf = (theme) => theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
+const lookOf = (theme) => theme.desert ? 'desert' : theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
 // The look of one level's button: its own theme's look (Level 100: all of them)
 export const levelLook = (level) => level.look ?? lookOf(level.theme);
 export const WORLDS = [];

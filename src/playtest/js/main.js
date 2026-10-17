@@ -74,6 +74,8 @@ const SNOWMAN_HEAR_CELLS = 6;
 const SNOWMAN_FADE_TIME = 1.0;
 // The balloon lets you out (Volcano World): you step out onto the floor, taking this long
 const BALLOON_STEP_OUT_TIME = 0.4;
+// The button door's grinding sound lasts as long as it takes to open (Maze.js BUTTON_DOOR_OPEN_TIME)
+const BUTTON_DOOR_GRIND_TIME = 1;
 const lastOutsideCurrent = new THREE.Vector3();
 let frameCount = 0;
 let lastTime = performance.now();
@@ -147,7 +149,10 @@ function init() {
     // Player setup
     player = new Player(camera, settings);
     player.resetTo(maze.getStartPosition(), maze.getStartYaw());
-    if (progress) player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
+    if (progress) {
+        player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
+        if (progress.button) maze.setButtonPressed?.();
+    }
 
     // Input manager
     inputManager = new InputManager();
@@ -310,6 +315,16 @@ function step(deltaTime) {
     player.update(inputManager, collisionManager, deltaTime);
     // Space doors (Level 12 on) slide open and shut by themselves
     maze.updateSpaceDoor(deltaTime, player.position, player.radius);
+    // Button doors (Desert Pyramid World, Level 101 on): stepping on the
+    // button sinks it with a click and the stone door slides down into the
+    // floor; it stays open until you're sent back to the start
+    for (const event of maze.updateButtonDoor?.(deltaTime, player.position, player.radius) ?? []) {
+        if (event === 'press') {
+            sound.click();
+            sound.grind(BUTTON_DOOR_GRIND_TIME);
+        }
+        testHooks?.emit(event === 'press' ? 'button' : 'buttonDoorOpen');
+    }
     // Slippery spots (Level 13 on): stepping onto one starts a slide
     const onSlippery = maze.onSlipperySpot(player.position);
     if (onSlippery && !wasOnSlippery && player.startSlide(SLIDE_DISTANCE, SLIDE_MIN_SPEED)) testHooks?.emit('slide');
@@ -506,6 +521,7 @@ function checkSpikeAndDoor() {
                 : maze.theme.volcano ? 'Ouch! A hot coal sent you back to the start.'
                 : maze.theme.ice ? 'Ouch! An icicle sent you back to the start.'
                 : maze.theme.factory ? 'Ouch! A zapper sent you back to the start.'
+                : maze.theme.desert ? 'Ouch! A cactus sent you back to the start.'
                 : 'Ouch! A spike sent you back to the start.');
     }
 
@@ -655,6 +671,7 @@ function backToStart() {
     player.carried = false;
     wasOnMarshmallow = null;
     maze.resetPlatform();
+    maze.resetButtonDoor?.();
 }
 
 // Back to the start of the current level (also used by the test bot)
@@ -756,6 +773,7 @@ function continueGame() {
     if (!progress) return newGame();
     startPlaying(progress.level);
     player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
+    if (progress.button) maze.setButtonPressed?.();
 }
 
 // Main menu → New game: erase the saved spot and start Level 1 from its start.
@@ -821,16 +839,18 @@ function startOver() {
 // Save where Gray is (level, exact position, facing). After reaching the door,
 // save right next to it, facing it.
 function saveSpot() {
+    // Desert Pyramid World: whether the button door's button has been pressed
+    const button = maze.buttonDoor?.pressed ? { button: true } : {};
     if (escaped) {
         const { position, yaw } = maze.getDoorApproach();
-        saveProgress({ level: levelIndex, x: position.x, z: position.z, yaw, pitch: 0 });
+        saveProgress({ level: levelIndex, x: position.x, z: position.z, yaw, pitch: 0, ...button });
     } else if (maze.overGap(player.position)) {
         // On a moving platform: save the spot just before its gap on the start's side
         const { position, yaw } = maze.platformStartEdge(player.position);
-        saveProgress({ level: levelIndex, x: position.x, z: position.z, yaw, pitch: 0 });
+        saveProgress({ level: levelIndex, x: position.x, z: position.z, yaw, pitch: 0, ...button });
     } else {
         const facing = player.facing();
-        saveProgress({ level: levelIndex, x: player.position.x, z: player.position.z, yaw: facing.yaw, pitch: facing.pitch });
+        saveProgress({ level: levelIndex, x: player.position.x, z: player.position.z, yaw: facing.yaw, pitch: facing.pitch, ...button });
     }
 }
 

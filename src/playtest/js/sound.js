@@ -24,6 +24,11 @@ const TWINKLE_LEVEL = 0.09;
 // switch turns them off), a little under the melody
 const CLANK_LEVEL = 0.07;
 const BEEP_LEVEL = 0.05;
+// Desert Pyramid World's hand drums and snake-charmer flute play in the
+// music (the Music switch turns them off), in the background: quieter than
+// the sneaky melody (and, being music, quieter than the sound effects)
+const DRUM_LEVEL = 0.06;
+const FLUTE_LEVEL = 0.035;
 // How long the device voice gets to start before the game's own voice sound plays instead
 const SPEECH_START_TIMEOUT = 700;
 
@@ -2695,6 +2700,38 @@ const TUNES = {
         lead: { wave: 'square', level: 0.11, length: 0.13, brightness: 1200 },
         factory: { clanks: [1, 5], beeps: { 6: 91, 18: 96, 30: 88, 42: 94, 54: 86, 62: 97 } },
     },
+    // Level 101, welcome to Desert Pyramid World: sneaky and mysterious,
+    // more sneaky than mysterious. D "snake charmer" scale (D, E-flat, F-sharp,
+    // G, A, B-flat, C) at 100 bpm, tiptoeing in short square notes, with a
+    // mysterious step down to E-flat. In the background (desert): hand drums
+    // (a low "dum" and a bright "tek") and a breathy snake-charmer flute
+    // winding up and down, both quieter than the melody.
+    desertsneak: {
+        tempo: 100,
+        bars: [[38, 'maj'], [38, 'maj'], [39, 'maj'], [38, 'maj'], [38, 'maj'], [36, 'min'], [39, 'maj'], [38, 'maj']],
+        bass: [0, null, null, 0, null, 0, null, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: true,
+        melody: [
+            62, null, 63, null, 66, null, 63, null,
+            62, null, null, null, 57, null, null, null,
+            67, null, 66, null, 67, null, 69, null,
+            70, null, null, null, 69, null, null, null,
+            62, null, 63, null, 66, null, 67, null,
+            69, null, 70, null, 69, null, 66, null,
+            67, null, 63, null, 62, null, 63, null,
+            62, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.11, brightness: 1300 },
+        desert: {
+            dums: [0, 3],
+            teks: [2, 5, 6],
+            // [step, note, length in seconds]
+            flute: [[8, 74, 0.5], [10, 75, 0.35], [11, 78, 0.9], [14, 75, 0.5], [24, 74, 1.4],
+                [40, 81, 0.5], [42, 79, 0.35], [43, 78, 0.6], [45, 75, 0.35], [46, 74, 1.5]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -2947,6 +2984,81 @@ export class Sound {
             if (tune.factory.clanks.includes(beat)) this.clank(t);
             const beep = tune.factory.beeps[step];
             if (beep) this.beep(hz(beep), t);
+        }
+        // Desert Pyramid World's background: hand drums and a snake-charmer flute
+        if (tune.desert) {
+            if (tune.desert.dums.includes(beat)) this.dum(t);
+            if (tune.desert.teks.includes(beat)) this.tek(t);
+            for (const [at, note, length] of tune.desert.flute) if (at === step) this.flute(hz(note), t, length);
+        }
+    }
+
+    // A hand drum's low "dum": a soft thump that drops in pitch
+    dum(t) {
+        const o = this.ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(140, t);
+        o.frequency.exponentialRampToValueAtTime(72, t + 0.18);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(DRUM_LEVEL * 2.2, t + 0.006);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+        o.connect(g).connect(this.noteOut);
+        o.start(t);
+        o.stop(t + 0.27);
+    }
+
+    // A hand drum's bright "tek": a quick slap on the drum's rim
+    tek(t) {
+        const src = this.noiseSource(t, 0.06);
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 3200;
+        filter.Q.value = 1.6;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(DRUM_LEVEL, t + 0.003);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+        src.connect(filter).connect(g).connect(this.noteOut);
+        this.pluck(520, t, DRUM_LEVEL * 0.4, 0.05, 'triangle', 3000);
+    }
+
+    // A snake-charmer flute note: a breathy, reedy tone that slides up into
+    // its note and wobbles (vibrato), held for `length` seconds
+    flute(freq, t, length) {
+        const ctx = this.ctx;
+        const o = ctx.createOscillator();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(freq * 0.94, t);
+        o.frequency.exponentialRampToValueAtTime(freq, t + 0.07);
+        const wobble = ctx.createOscillator();
+        wobble.frequency.value = 5.5;
+        const depth = ctx.createGain();
+        depth.gain.value = freq * 0.012;
+        wobble.connect(depth).connect(o.frequency);
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 2600;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(FLUTE_LEVEL, t + 0.06);
+        g.gain.setValueAtTime(FLUTE_LEVEL, t + length * 0.7);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + length);
+        o.connect(filter).connect(g).connect(this.noteOut);
+        // A little breath
+        const breath = this.noiseSource(t, length);
+        const bf = ctx.createBiquadFilter();
+        bf.type = 'bandpass';
+        bf.frequency.value = freq * 2;
+        bf.Q.value = 3;
+        const bg = ctx.createGain();
+        bg.gain.setValueAtTime(0.0001, t);
+        bg.gain.exponentialRampToValueAtTime(FLUTE_LEVEL * 0.35, t + 0.05);
+        bg.gain.exponentialRampToValueAtTime(0.0001, t + length);
+        breath.connect(bf).connect(bg).connect(this.noteOut);
+        for (const n of [o, wobble]) {
+            n.start(t);
+            n.stop(t + length + 0.02);
         }
     }
 
@@ -3323,6 +3435,65 @@ export class Sound {
             sg.gain.exponentialRampToValueAtTime(0.0001, at + 0.035);
             src.connect(high).connect(sg).connect(this.sfxBus);
         }
+    }
+
+    // A button door's button (Desert Pyramid World) sinking: a stone click
+    click() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('click');
+        const t = this.ctx.currentTime + 0.005;
+        const src = this.noiseSource(t, 0.05);
+        const high = this.ctx.createBiquadFilter();
+        high.type = 'bandpass';
+        high.frequency.value = 2600;
+        high.Q.value = 1.2;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.45, t + 0.002);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+        src.connect(high).connect(g).connect(this.sfxBus);
+        const o = this.ctx.createOscillator();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(260, t);
+        o.frequency.exponentialRampToValueAtTime(150, t + 0.08);
+        const og = this.ctx.createGain();
+        og.gain.setValueAtTime(0.0001, t);
+        og.gain.exponentialRampToValueAtTime(0.3, t + 0.004);
+        og.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+        o.connect(og).connect(this.sfxBus);
+        o.start(t);
+        o.stop(t + 0.12);
+    }
+
+    // A heavy stone door sliding down into the floor: a low grinding rumble
+    // for `length` seconds, ending in a soft thud
+    grind(length = 1) {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('grind');
+        const t = this.ctx.currentTime + 0.02;
+        const src = this.noiseSource(t, length + 0.1);
+        const low = this.ctx.createBiquadFilter();
+        low.type = 'lowpass';
+        low.frequency.value = 420;
+        low.Q.value = 2;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.55, t + 0.12);
+        // Little scrapes and bumps as it goes
+        for (let k = 1; k < 8; k++) g.gain.setTargetAtTime(k % 2 ? 0.35 : 0.6, t + (k * length) / 8, 0.03);
+        g.gain.setTargetAtTime(0.0001, t + length - 0.05, 0.04);
+        src.connect(low).connect(g).connect(this.sfxBus);
+        const o = this.ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(90, t + length - 0.05);
+        o.frequency.exponentialRampToValueAtTime(45, t + length + 0.25);
+        const og = this.ctx.createGain();
+        og.gain.setValueAtTime(0.0001, t + length - 0.05);
+        og.gain.exponentialRampToValueAtTime(0.5, t + length);
+        og.gain.exponentialRampToValueAtTime(0.0001, t + length + 0.3);
+        o.connect(og).connect(this.sfxBus);
+        o.start(t + length - 0.06);
+        o.stop(t + length + 0.32);
     }
 
     clonk() {

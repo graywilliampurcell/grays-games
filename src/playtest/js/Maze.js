@@ -1550,6 +1550,201 @@ function beltTexture() {
 }
 
 
+// ---- Desert Pyramid World (Levels 101-110) ----
+
+// A button door (Desert Pyramid World, Level 101 on) slides down into the
+// floor this fast once its button is pressed (starting value Gray will
+// judge); you can walk through once it's this far open
+const BUTTON_DOOR_OPEN_TIME = 1;
+const BUTTON_DOOR_PASSABLE_FROM = 0.8;
+// The button: a round stone plate this wide; any part of you on it presses it
+const BUTTON_RADIUS = 0.6;
+const BUTTON_HEIGHT = 0.1; // how far it sticks up before it's pressed
+const BUTTON_SINK_TIME = 0.15;
+
+// A little picture carved in stone, like ancient Egyptian writing, drawn at
+// (x, y) about `s` pixels tall: an eye, a bird, an ankh, water, a beetle, a
+// reed, a snake, a sun. Dark cut lines with a light edge, like a carving.
+function carveGlyph(g, kind, x, y, s) {
+    g.save();
+    g.translate(x, y);
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    for (const [dx, dy, color] of [[0.8, 0.8, 'rgba(255,236,190,0.55)'], [0, 0, 'rgba(110,70,25,0.8)']]) {
+        g.save();
+        g.translate(dx, dy);
+        g.strokeStyle = color;
+        g.fillStyle = color;
+        g.lineWidth = Math.max(1.2, s / 9);
+        g.beginPath();
+        if (kind === 0) { // eye
+            g.ellipse(0, 0, s * 0.45, s * 0.2, 0, 0, Math.PI * 2);
+            g.moveTo(s * 0.08, 0);
+            g.arc(0, 0, s * 0.08, 0, Math.PI * 2);
+            g.moveTo(-s * 0.1, s * 0.2);
+            g.quadraticCurveTo(-s * 0.15, s * 0.45, s * 0.05, s * 0.45);
+            g.stroke();
+        } else if (kind === 1) { // bird
+            g.moveTo(-s * 0.3, s * 0.4);
+            g.lineTo(-s * 0.1, s * 0.1);
+            g.quadraticCurveTo(-s * 0.15, -s * 0.3, s * 0.1, -s * 0.35);
+            g.lineTo(s * 0.3, -s * 0.3);
+            g.moveTo(-s * 0.1, s * 0.1);
+            g.quadraticCurveTo(s * 0.35, s * 0.05, s * 0.2, -s * 0.15);
+            g.moveTo(0, s * 0.15);
+            g.lineTo(0, s * 0.45);
+            g.stroke();
+        } else if (kind === 2) { // ankh
+            g.ellipse(0, -s * 0.25, s * 0.14, s * 0.2, 0, 0, Math.PI * 2);
+            g.moveTo(-s * 0.3, 0);
+            g.lineTo(s * 0.3, 0);
+            g.moveTo(0, -s * 0.05);
+            g.lineTo(0, s * 0.45);
+            g.stroke();
+        } else if (kind === 3) { // water
+            for (const row of [-0.2, 0.15]) {
+                g.moveTo(-s * 0.4, row * s);
+                for (let k = 1; k <= 8; k++) g.lineTo(-s * 0.4 + (k * s * 0.8) / 8, row * s + (k % 2 ? -s * 0.08 : s * 0.08));
+            }
+            g.stroke();
+        } else if (kind === 4) { // beetle
+            g.ellipse(0, s * 0.05, s * 0.2, s * 0.28, 0, 0, Math.PI * 2);
+            g.moveTo(s * 0.12, -s * 0.3);
+            g.arc(0, -s * 0.3, s * 0.12, 0, Math.PI * 2);
+            for (const side of [-1, 1]) {
+                g.moveTo(side * s * 0.2, -s * 0.05);
+                g.lineTo(side * s * 0.4, -s * 0.2);
+                g.moveTo(side * s * 0.2, s * 0.2);
+                g.lineTo(side * s * 0.4, s * 0.38);
+            }
+            g.stroke();
+        } else if (kind === 5) { // reed
+            g.moveTo(0, s * 0.45);
+            g.lineTo(0, -s * 0.2);
+            g.moveTo(0, -s * 0.2);
+            g.quadraticCurveTo(s * 0.25, -s * 0.3, s * 0.05, -s * 0.48);
+            g.moveTo(0, s * 0.1);
+            g.lineTo(-s * 0.15, -s * 0.05);
+            g.stroke();
+        } else if (kind === 6) { // snake
+            g.moveTo(-s * 0.4, s * 0.3);
+            g.bezierCurveTo(-s * 0.1, s * 0.5, -s * 0.2, -s * 0.1, s * 0.1, 0);
+            g.bezierCurveTo(s * 0.35, s * 0.1, s * 0.3, -s * 0.35, s * 0.1, -s * 0.38);
+            g.stroke();
+        } else { // sun
+            g.arc(0, 0, s * 0.2, 0, Math.PI * 2);
+            for (let k = 0; k < 8; k++) {
+                const a = (k * Math.PI) / 4;
+                g.moveTo(Math.cos(a) * s * 0.3, Math.sin(a) * s * 0.3);
+                g.lineTo(Math.cos(a) * s * 0.44, Math.sin(a) * s * 0.44);
+            }
+            g.stroke();
+        }
+        g.restore();
+    }
+    g.restore();
+}
+
+// Desert Pyramid World walls: big sandy-yellow stone blocks with carved
+// pictures, like ancient Egyptian writing, in rows on some of the blocks
+function sandstoneTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#d9b46a';
+    g.fillRect(0, 0, width, height);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    const rows = 4;
+    const rowH = height / rows;
+    for (let row = 0; row < rows; row++) {
+        const y = row * rowH;
+        const offset = row % 2 ? width / 2 : 0;
+        for (let x = -width; x < width * 2; x += width) {
+            const bx = x + offset;
+            // Each block a slightly different sandy shade
+            const shade = random() * 30 - 15;
+            g.fillStyle = `rgb(${217 + shade},${180 + shade},${106 + shade * 0.6})`;
+            g.fillRect(bx + 1.5, y + 1.5, width - 3, rowH - 3);
+            // Weathered spots
+            for (let k = 0; k < 40; k++) {
+                g.fillStyle = random() < 0.5 ? 'rgba(160,115,55,0.18)' : 'rgba(255,235,180,0.18)';
+                g.fillRect(bx + random() * width, y + random() * rowH, 1 + random() * 3, 1 + random() * 2);
+            }
+        }
+        // Mortar lines: the long joint under the row and the joints between blocks
+        g.fillStyle = 'rgba(120,85,40,0.75)';
+        g.fillRect(0, y, width, 2);
+        g.fillRect(offset % width, y, 2, rowH);
+        if (offset) g.fillRect(0, y, 2, rowH);
+        // Carved pictures on about every other block
+        if (random() < 0.75) {
+            for (let k = 0; k < 2; k++) for (let m = 0; m < 2; m++) carveGlyph(g, Math.floor(random() * 8), (width * (k + 0.5)) / 2, y + (rowH * (m + 0.5)) / 2, rowH * 0.3);
+        }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Desert Pyramid World floor: golden sand with little wavy ripples (just
+// for looks)
+function desertSandTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#e8bf6a';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < (size * size) / 8; i++) {
+        const shade = random() * 40 - 20;
+        g.fillStyle = `rgba(${232 + shade},${190 + shade},${106 + shade},0.5)`;
+        g.fillRect(random() * size, random() * size, 1 + random() * 1.5, 1 + random() * 1.5);
+    }
+    // Ripples: a light crest and a shadow just under it
+    for (let y = 6; y < size; y += 16) {
+        for (const [dy, color] of [[0, 'rgba(255,230,160,0.55)'], [2.5, 'rgba(170,120,50,0.35)']]) {
+            g.strokeStyle = color;
+            g.lineWidth = 2;
+            g.beginPath();
+            for (let x = 0; x <= size; x += 4) g.lineTo(x, y + dy + Math.sin((x / size) * Math.PI * 6 + y * 0.7) * 3);
+            g.stroke();
+        }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// The button door's face: one big carved stone slab with a border, an eye
+// at the top and rows of pictures under it
+function doorSlabTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 320;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#c99a4e';
+    g.fillRect(0, 0, 256, 320);
+    let r = 211;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < 900; k++) {
+        g.fillStyle = random() < 0.5 ? 'rgba(130,85,35,0.18)' : 'rgba(255,230,170,0.18)';
+        g.fillRect(random() * 256, random() * 320, 1 + random() * 3, 1 + random() * 2);
+    }
+    g.strokeStyle = 'rgba(100,62,22,0.85)';
+    g.lineWidth = 6;
+    g.strokeRect(12, 12, 232, 296);
+    g.strokeStyle = 'rgba(255,230,170,0.5)';
+    g.lineWidth = 2;
+    g.strokeRect(18, 18, 220, 284);
+    carveGlyph(g, 0, 128, 70, 110);
+    for (let row = 0; row < 3; row++) for (let k = 0; k < 4; k++) carveGlyph(g, (row * 4 + k + 1) % 8, 50 + k * 52, 150 + row * 55, 40);
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+}
+
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
@@ -1612,6 +1807,11 @@ export class Maze {
         // you ('R', the floor cell just before the belt)
         const armBlocks = [];
         const armLandings = [];
+        // A button door ('J' blocks, the wall gap between two path cells;
+        // Desert Pyramid World, Level 101 on) and its button ('U', the middle
+        // of the last cell of a wrong way)
+        const buttonDoorBlocks = [];
+        let buttonPosition = null;
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -1640,6 +1840,8 @@ export class Maze {
                 if (ch === 'L') beltLandings.push(center);
                 if (ch === 'A') armBlocks.push({ x, z });
                 if (ch === 'R') armLandings.push(center);
+                if (ch === 'J') buttonDoorBlocks.push({ x, z });
+                if (ch === 'U') buttonPosition = center;
             }
         }
         this.currents = [];
@@ -1733,6 +1935,16 @@ export class Maze {
         this.mazeData = this.grid.map((col) => col.map((v) => new Array(this.height).fill(v)));
         // A snowman is solid, like a wall (bumping into him isn't an Ouch)
         for (const s of this.snowmen) for (const { x, z } of s.solid) this.mazeData[x][z].fill(1);
+        // The button door starts shut, solid like a wall
+        if (buttonDoorBlocks.length && buttonPosition) {
+            const xs = buttonDoorBlocks.map((b) => b.x);
+            const zs = buttonDoorBlocks.map((b) => b.z);
+            this.buttonDoor = {
+                blocks: buttonDoorBlocks, button: buttonPosition, pressed: false, open: 0, sink: 0, solid: false,
+                minX: Math.min(...xs), maxX: Math.max(...xs) + 1, minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
+            };
+            this.setButtonDoorSolid(true);
+        }
     }
 
     // One snowman's hallway (Ice World): `blocks` are its 'N' and 'M' blocks.
@@ -1922,6 +2134,7 @@ export class Maze {
         for (const t of this.thinIce) this.createThinIce(t);
         for (const belt of this.belts) this.createBelt(belt);
         for (const belt of this.armBelts) this.createArmBelt(belt);
+        if (this.buttonDoor) this.createButtonDoor();
         this.scene.add(this.root);
     }
 
@@ -1959,8 +2172,11 @@ export class Maze {
         const volcano = this.theme.volcano;
         const ice = this.theme.ice;
         const factory = this.theme.factory;
+        const desert = this.theme.desert;
         let wallMaterial;
-        if (factory) {
+        if (desert) {
+            wallMaterial = new THREE.MeshStandardMaterial({ map: sandstoneTexture(128, 512, 83), roughness: 0.9, emissive: 0x3a2808, emissiveIntensity: 0.3 });
+        } else if (factory) {
             const metal = rustyMetalTexture(128, 512, 71);
             wallMaterial = new THREE.MeshStandardMaterial({ map: metal, roughness: 0.55, metalness: 0.45, emissiveMap: metal, emissive: 0xffffff, emissiveIntensity: 0.25 });
         } else if (ice) {
@@ -2007,7 +2223,11 @@ export class Maze {
 
         // Floor
         let floorMaterial;
-        if (factory) {
+        if (desert) {
+            const map = desertSandTexture(256, 89);
+            map.repeat.set(this.width / 8, this.depth / 8);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
+        } else if (factory) {
             // See-through grating: the holes are cut out (alphaTest), so the
             // machine hall below shows through them
             const map = grateTexture(256);
@@ -2086,6 +2306,7 @@ export class Maze {
         if (sweets) this.addCandySky();
         if (volcano) this.addAsh();
         if (ice) this.addIceSky();
+        if (desert) this.addDesertSky();
         if (factory) {
             this.addMachineHall();
             this.addFactorySteam(count);
@@ -3403,6 +3624,7 @@ export class Maze {
     update(dt) {
         if (this.ash) this.updateAsh(dt);
         if (this.theme.factory) this.updateFactory(dt);
+        if (this.camels) this.placeCamels(dt);
         if (this.auroras) this.updateAuroras(dt);
         for (const cam of this.cameras || []) {
             cam.time += dt;
@@ -3602,6 +3824,7 @@ export class Maze {
         if (this.theme.volcano) return this.createHotCoal(position, radius);
         if (this.theme.ice) return this.createIcicle(position, radius);
         if (this.theme.factory) return this.createZapper(position, radius);
+        if (this.theme.desert) return this.createCactus(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -6140,6 +6363,289 @@ export class Maze {
         door.slider.visible = door.shut > 0;
         const color = door.phase === 'open' ? 'open' : door.phase === 'closed' ? 'closed' : 'moving';
         door.light.material.color.setHex(SPACE_DOOR_LIGHTS[color]);
+    }
+
+    // ---- Desert Pyramid World (Level 101 on) ----
+
+    // A bright blue sky with a hot sun, and real pyramids and camels far
+    // away in the desert. Decoration only: far outside the maze, nothing to
+    // bump into.
+    addDesertSky() {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        const sun = new THREE.Mesh(new THREE.SphereGeometry(16, 24, 16), new THREE.MeshBasicMaterial({ color: 0xfff6c0, fog: false }));
+        sun.position.set(cx + 70, 95, cz - 210);
+        this.root.add(sun);
+        for (const [size, opacity] of [[26, 0.35], [40, 0.15]]) {
+            const glow = new THREE.Mesh(new THREE.SphereGeometry(size, 24, 16), new THREE.MeshBasicMaterial({ color: 0xffd860, transparent: true, opacity, fog: false, depthWrite: false }));
+            glow.position.copy(sun.position);
+            this.root.add(glow);
+        }
+        // Rolling dunes on the horizon all round
+        const duneMaterial = new THREE.MeshStandardMaterial({ color: 0xe0b464, roughness: 1, fog: false });
+        let r = 131;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        for (let k = 0; k < 18; k++) {
+            const a = (k / 18) * Math.PI * 2 + random() * 0.2;
+            const d = 200 + random() * 60;
+            const dune = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), duneMaterial);
+            dune.scale.set(60 + random() * 40, 8 + random() * 10, 30 + random() * 20);
+            dune.position.set(cx + Math.cos(a) * d, -2, cz + Math.sin(a) * d);
+            dune.rotation.y = -a;
+            this.root.add(dune);
+        }
+        // Pyramids: sandy stone with a shady side, the biggest with a golden tip
+        const stone = new THREE.MeshStandardMaterial({ color: 0xd8ad62, roughness: 0.95, flatShading: true, fog: false });
+        const gold = new THREE.MeshStandardMaterial({ color: 0xffd34a, metalness: 0.7, roughness: 0.3, emissive: 0x6a4a00, emissiveIntensity: 0.6, fog: false });
+        for (const [a, d, size] of [[Math.PI + 0.03, 230, 90], [Math.PI - 0.09, 285, 60], [-Math.PI / 2 + 0.05, 240, 80], [-Math.PI / 2 - 0.1, 290, 50], [0.04, 250, 72], [Math.PI / 2 + 0.06, 260, 76]]) {
+            const pyramid = new THREE.Mesh(new THREE.ConeGeometry(size, size * 0.95, 4), stone);
+            pyramid.position.set(cx + Math.cos(a) * d, size * 0.45, cz + Math.sin(a) * d);
+            pyramid.rotation.y = Math.PI / 4 + a;
+            this.root.add(pyramid);
+            if (size >= 72) {
+                const tip = new THREE.Mesh(new THREE.ConeGeometry(size * 0.12, size * 0.12 * 0.95, 4), gold);
+                tip.position.set(pyramid.position.x, size * 0.9, pyramid.position.z);
+                tip.rotation.y = pyramid.rotation.y;
+                this.root.add(tip);
+            }
+        }
+        // A camel caravan walking slowly along the dunes far away
+        this.camels = [];
+        const fur = new THREE.MeshStandardMaterial({ color: 0x9a6a3a, roughness: 1, fog: false });
+        // ...on top of a long dune, so they show over the maze's walls
+        const ridge = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 10, 0, Math.PI * 2, 0, Math.PI / 2), duneMaterial);
+        ridge.scale.set(70, 11, 26);
+        ridge.position.set(cx + Math.cos(Math.PI - 0.06) * 165, -2, cz + Math.sin(Math.PI - 0.06) * 165);
+        ridge.rotation.y = Math.PI / 2 + 0.06;
+        this.root.add(ridge);
+        for (let k = 0; k < 4; k++) {
+            const camel = this.makeCamel(fur);
+            camel.scale.setScalar(2.4);
+            camel.userData.angle = Math.PI - 0.12 + k * 0.06;
+            camel.userData.distance = 165;
+            camel.userData.step = k * 1.3;
+            camel.userData.home = camel.userData.angle;
+            this.root.add(camel);
+            this.camels.push(camel);
+        }
+        this.placeCamels(0);
+    }
+
+    // One camel, about 5 units tall: a body with a hump, a long neck and
+    // head, and four legs that swing as it walks
+    makeCamel(fur) {
+        const camel = new THREE.Group();
+        const part = (geometry, x, y, z) => {
+            const m = new THREE.Mesh(geometry, fur);
+            m.position.set(x, y, z);
+            camel.add(m);
+            return m;
+        };
+        part(new THREE.SphereGeometry(1, 14, 10), 0, 3.2, 0).scale.set(1.9, 0.9, 0.8);
+        part(new THREE.SphereGeometry(0.8, 14, 10), 0, 4.1, 0).scale.set(1, 0.9, 0.8);
+        part(new THREE.CylinderGeometry(0.25, 0.35, 2, 8), 2.0, 4.0, 0).rotation.z = -0.6;
+        part(new THREE.SphereGeometry(0.4, 10, 8), 2.7, 4.9, 0).scale.set(1.5, 0.8, 0.8);
+        camel.userData.legs = [[-1.1, 0.35], [-1.1, -0.35], [1.1, 0.35], [1.1, -0.35]].map(([x, z], k) => {
+            const hip = new THREE.Group();
+            hip.position.set(x, 2.8, z);
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.12, 2.8, 6), fur);
+            leg.position.y = -1.4;
+            hip.add(leg);
+            hip.userData.phase = k % 3 ? 0 : Math.PI;
+            camel.add(hip);
+            return hip;
+        });
+        return camel;
+    }
+
+    placeCamels(dt) {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        for (const camel of this.camels) {
+            const u = camel.userData;
+            // Back and forth along the ridge, slowly
+            u.time = (u.time ?? 0) + dt;
+            u.angle = u.home + Math.sin(u.time * 0.03) * 0.1;
+            u.step += dt * 2.2;
+            const a = u.angle;
+            camel.position.set(cx + Math.cos(a) * u.distance, 8.5, cz + Math.sin(a) * u.distance);
+            // Facing the way it's walking along the ridge
+            camel.rotation.y = -a - Math.PI / 2 + (Math.cos(u.time * 0.03) < 0 ? Math.PI : 0);
+            for (const hip of u.legs) hip.rotation.z = Math.sin(u.step + hip.userData.phase) * 0.35;
+        }
+    }
+
+    // Desert Pyramid World's spike: a prickly green cactus (a tall column
+    // with two arms, little spines all over) in a small mound of sand, as
+    // wide as a spike's plate. Touching it works the same as a spike.
+    createCactus(position, radius) {
+        const cactus = new THREE.Group();
+        const green = new THREE.MeshStandardMaterial({ color: 0x3f8f3a, roughness: 0.7, emissive: 0x0f2a0c, emissiveIntensity: 0.5 });
+        const spineMaterial = new THREE.MeshStandardMaterial({ color: 0xfff2c8, roughness: 0.5 });
+        const spineGeometry = new THREE.ConeGeometry(0.018, 0.14, 4);
+        const addSpines = (part, r, h, count) => {
+            for (let k = 0; k < count; k++) {
+                const a = k * 2.39996;
+                const y = -h / 2 + ((k + 0.5) / count) * h;
+                const dir = new THREE.Vector3(Math.cos(a), 0.25, Math.sin(a)).normalize();
+                const spine = new THREE.Mesh(spineGeometry, spineMaterial);
+                spine.position.set(Math.cos(a) * r, y, Math.sin(a) * r).addScaledVector(dir, 0.05);
+                spine.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+                part.add(spine);
+            }
+        };
+        const column = (r, h) => {
+            const g = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 12), green);
+            body.castShadow = true;
+            const top = new THREE.Mesh(new THREE.SphereGeometry(r, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), green);
+            top.position.y = h / 2;
+            g.add(body, top);
+            addSpines(g, r, h, Math.round(h * 60));
+            return g;
+        };
+        const trunk = column(0.24, 1.3);
+        trunk.position.y = 0.65;
+        cactus.add(trunk);
+        // Two arms, each an elbow out to the side then up
+        for (const [side, y, h] of [[1, 0.6, 0.45], [-1, 0.85, 0.35]]) {
+            const out = column(0.13, 0.3);
+            out.rotation.z = -side * Math.PI / 2;
+            out.position.set(side * 0.36, y, 0);
+            const up = column(0.13, h);
+            up.position.set(side * 0.5, y + h / 2, 0);
+            cactus.add(out, up);
+        }
+        // A little pink flower on top
+        const flower = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), new THREE.MeshStandardMaterial({ color: 0xff6fa8, emissive: 0x5a1030, emissiveIntensity: 0.5 }));
+        flower.position.y = 1.55;
+        cactus.add(flower);
+        // A mound of sand round its foot, as wide as the plate
+        const mound = new THREE.Mesh(new THREE.SphereGeometry(SPIKE_RADIUS, 20, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xd9a955, roughness: 1 }));
+        mound.scale.y = 0.18;
+        cactus.add(mound);
+        cactus.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
+        cactus.position.copy(position);
+        cactus.position.y = 0;
+        this.root.add(cactus);
+    }
+
+    // The button door: a carved stone slab filling the wall gap between two
+    // path cells (solid like a wall while shut), with a stone frame, and its
+    // button: a round stone plate in the floor with a carved sun, a gold rim
+    // and a soft glow, so it can be spotted.
+    createButtonDoor() {
+        const door = this.buttonDoor;
+        const spansX = door.maxX - door.minX > 1; // the gap runs along x (the door faces z)
+        const across = door.blocks.length;
+        const group = new THREE.Group();
+        group.position.set((door.minX + door.maxX) / 2, 0, (door.minZ + door.maxZ) / 2);
+        if (!spansX) group.rotation.y = Math.PI / 2;
+        this.root.add(group);
+        const slider = new THREE.Group();
+        const face = new THREE.MeshStandardMaterial({ map: doorSlabTexture(), roughness: 0.85, emissive: 0x3a2808, emissiveIntensity: 0.35 });
+        const side = new THREE.MeshStandardMaterial({ color: 0xb98a44, roughness: 0.9 });
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(across, this.height, 0.8), [side, side, side, side, face, face]);
+        slab.position.y = this.height / 2;
+        slab.castShadow = true;
+        slider.add(slab);
+        group.add(slider);
+        // Stone posts each side and a lintel over the top
+        const frame = new THREE.MeshStandardMaterial({ color: 0xa8783a, roughness: 0.9 });
+        for (const sx of [-1, 1]) {
+            const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, this.height + 0.3, 1.05), frame);
+            post.position.set(sx * (across / 2 + 0.05), (this.height + 0.3) / 2, 0);
+            group.add(post);
+        }
+        const lintel = new THREE.Mesh(new THREE.BoxGeometry(across + 0.5, 0.35, 1.1), frame);
+        lintel.position.y = this.height + 0.15;
+        group.add(lintel);
+        door.slider = slider;
+
+        const plate = new THREE.Group();
+        const sunMap = (() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 128;
+            const g = canvas.getContext('2d');
+            g.fillStyle = '#c9a060';
+            g.fillRect(0, 0, 128, 128);
+            carveGlyph(g, 7, 64, 64, 100);
+            return new THREE.CanvasTexture(canvas);
+        })();
+        const top = new THREE.MeshStandardMaterial({ map: sunMap, roughness: 0.8, emissive: 0x2a1a04, emissiveIntensity: 0.4 });
+        const stoneSide = new THREE.MeshStandardMaterial({ color: 0xa88850, roughness: 0.9 });
+        const button = new THREE.Mesh(new THREE.CylinderGeometry(BUTTON_RADIUS, BUTTON_RADIUS, BUTTON_HEIGHT, 28), [stoneSide, top, stoneSide]);
+        button.position.y = BUTTON_HEIGHT / 2;
+        plate.add(button);
+        const rim = new THREE.Mesh(
+            new THREE.RingGeometry(BUTTON_RADIUS + 0.02, BUTTON_RADIUS + 0.14, 32),
+            new THREE.MeshStandardMaterial({ color: 0xffcf3a, metalness: 0.7, roughness: 0.3, emissive: 0xa06a00, emissiveIntensity: 0.8 })
+        );
+        rim.rotation.x = -Math.PI / 2;
+        rim.position.y = 0.012;
+        plate.add(rim);
+        plate.position.set(door.button.x, 0, door.button.z);
+        this.root.add(plate);
+        door.buttonMesh = button;
+        this.showButtonDoor();
+    }
+
+    // Shut (solid) or open (walk-through) the button door's blocks
+    setButtonDoorSolid(solid) {
+        const door = this.buttonDoor;
+        if (door.solid === solid) return;
+        door.solid = solid;
+        for (const { x, z } of door.blocks) this.mazeData[x][z].fill(solid ? 1 : 0);
+    }
+
+    // Each game step (so it stops while paused): any part of the player on
+    // the button presses it (it sinks with a click) and the door slides down
+    // into the floor. It stays open until the player is sent back to the
+    // start. Returns what happened: 'press', then 'open' when it's open.
+    updateButtonDoor(dt, point, radius) {
+        const door = this.buttonDoor;
+        const events = [];
+        if (!door) return events;
+        if (!door.pressed && Math.hypot(point.x - door.button.x, point.z - door.button.z) < BUTTON_RADIUS + radius) {
+            door.pressed = true;
+            events.push('press');
+        }
+        if (door.pressed) {
+            door.sink = Math.min(1, door.sink + dt / BUTTON_SINK_TIME);
+            if (door.open < 1) {
+                door.open = Math.min(1, door.open + dt / BUTTON_DOOR_OPEN_TIME);
+                if (door.open === 1) events.push('open');
+            }
+            if (door.open >= BUTTON_DOOR_PASSABLE_FROM) this.setButtonDoorSolid(false);
+        }
+        this.showButtonDoor();
+        return events;
+    }
+
+    // Sent back to the start: the door shuts again and the button pops back up
+    resetButtonDoor() {
+        const door = this.buttonDoor;
+        if (!door) return;
+        Object.assign(door, { pressed: false, open: 0, sink: 0 });
+        this.setButtonDoorSolid(true);
+        this.showButtonDoor();
+    }
+
+    // Loading a saved spot after the button was pressed: the door's already open
+    setButtonPressed() {
+        const door = this.buttonDoor;
+        if (!door) return;
+        Object.assign(door, { pressed: true, open: 1, sink: 1 });
+        this.setButtonDoorSolid(false);
+        this.showButtonDoor();
+    }
+
+    showButtonDoor() {
+        const door = this.buttonDoor;
+        if (!door.slider) return;
+        door.slider.position.y = -door.open * (this.height + 0.05);
+        door.slider.visible = door.open < 1;
+        door.buttonMesh.position.y = BUTTON_HEIGHT / 2 - door.sink * (BUTTON_HEIGHT - 0.02);
     }
 
     // Is a point within `margin` of any spike? (The round spike counts from the

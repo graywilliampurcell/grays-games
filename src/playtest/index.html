@@ -365,6 +365,21 @@
             background-repeat: no-repeat;
         }
 
+        /* Desert Pyramid World: a hot sun in a blue sky over a sandy
+           pyramid, golden sand */
+        .item.look-desert {
+            background-color: #5fb4ff;
+            background-image:
+                radial-gradient(circle at 80% 18%, #fff6c0 0 9%, #ffd860 12%, transparent 18%),
+                linear-gradient(135deg, transparent 50%, #b98a44 50%),
+                linear-gradient(225deg, transparent 50%, #e2b466 50%),
+                repeating-linear-gradient(170deg, #e8bf6a 0 5px, #d4a552 5px 8px),
+                linear-gradient(180deg, #5fb4ff 0, #9fd4ff 68%, #e8bf6a 68%);
+            background-size: 100% 100%, 30% 32%, 30% 32%, 100% 32%, 100% 100%;
+            background-position: center, 20% 68%, 50% 68%, bottom, center;
+            background-repeat: no-repeat;
+        }
+
         /* Locked: plain gray with only a lock, nothing about what's inside */
         .item.locked {
             background-image: none;
