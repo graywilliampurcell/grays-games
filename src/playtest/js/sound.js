@@ -2891,6 +2891,38 @@ const TUNES = {
                 [45, 86, 0.5], [47, 87, 0.4], [49, 86, 0.8], [60, 74, 1.4]],
         },
     },
+    // Level 107, longer wrong ways: sneaky and mysterious, more sneaky than
+    // mysterious. E "snake charmer" scale (E, F, G-sharp, A, B, C, D) at
+    // 82 bpm: a long tiptoe walk up, one note at a time, that stops at the
+    // top as if it hit a dead end, then tiptoes all the way back down and
+    // tries another way. Hand drums ("dum ... tek-tek") and a breathy flute,
+    // both quieter than the melody.
+    longwaycreep: {
+        tempo: 82,
+        bars: [[40, 'maj'], [40, 'maj'], [41, 'maj'], [40, 'maj'], [45, 'min'], [40, 'maj'], [41, 'maj'], [40, 'maj']],
+        bass: [0, null, null, null, 0, null, null, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: true,
+        melody: [
+            64, null, 65, null, 68, null, 69, null,
+            71, null, 72, null, 74, null, 76, null,
+            77, null, null, null, null, null, null, null,
+            76, 74, 72, 71, 69, 68, 65, null,
+            64, null, null, null, 68, null, 65, null,
+            64, null, 65, null, 68, null, 71, null,
+            72, null, 71, null, null, null, 68, null,
+            65, null, 64, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.12, length: 0.12, brightness: 1100 },
+        desert: {
+            dums: [0],
+            teks: [5, 7],
+            // [step, note, length in seconds]
+            flute: [[18, 88, 0.8], [21, 89, 0.5], [23, 88, 1.2], [36, 80, 1.0],
+                [50, 84, 0.6], [53, 83, 0.6], [56, 80, 1.6]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

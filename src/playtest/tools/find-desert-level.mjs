@@ -8,6 +8,7 @@
 //   SEEDS=1000 node tools/find-desert-level.mjs level104 22 1   # a trapdoor + a flying carpet + a big cactus
 //   SEEDS=1500 node tools/find-desert-level.mjs level105 24 1   # two trapdoors + a button door + the sneaky cactus
 //   SEEDS=1000 node tools/find-desert-level.mjs level106 22 1   # a path cactus + a flying carpet + a spinning secret wall
+//   SEEDS=1000 node tools/find-desert-level.mjs level107 14 1   # 3-deep dead ends: a button door + a big cactus + a trapdoor
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -47,6 +48,9 @@ const RULES = {
     level105: { name: 'Level 105', depth: 2, deadEnds: 20, sneaky: true, buttonDoor: true, trapdoors: 2, order: true, prunePairs: true, placeTries: 20 },
     // Level 106: a path cactus, a flying carpet and a spinning secret wall
     level106: { name: 'Level 106', depth: 2, deadEnds: 22, pathCane: true, platforms: 1, platformCells: 3, spinWall: true, prunePairs: true, placeTries: 20 },
+    // Level 107, longer wrong ways: every dead end 3 deep, one button door
+    // (its button down a 3-deep wrong way), one big cactus, one trapdoor
+    level107: { name: 'Level 107', depth: 3, deadEnds: 14, buttonDoor: true, bigCane: true, trapdoors: 1, prune: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -502,7 +506,7 @@ function place(path, hung, random) {
     // The big spike: a straight dead end (all DEPTH cells in a line from its opening)
     if (rule.bigCane) {
         const options = hung.chains.map((chain, c) => ({ chain, at: hung.roots[c] }))
-            .filter(({ chain, at }) => chain.every((cell, n) => step(n === 0 ? path[at] : chain[n - 1], cell) === step(path[at], chain[0])) && fits([at, at]));
+            .filter(({ chain, at }) => chain !== out.buttonDoor?.chain && chain.every((cell, n) => step(n === 0 ? path[at] : chain[n - 1], cell) === step(path[at], chain[0])) && fits([at, at]));
         if (options.length === 0) return null;
         out.bigCane = options[Math.floor(random() * options.length)];
         spans.push([out.bigCane.at, out.bigCane.at]);
