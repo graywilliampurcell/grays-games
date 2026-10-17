@@ -5989,6 +5989,68 @@ export const LEVELS = [
         '#########################################',
         ],
     },
+    {
+        name: 'Level 106',
+        // The tighter squeeze. `SEEDS=1000 node tools/find-desert-level.mjs
+        // level106 20 1`, seed 2. 10 x 10 corridors. Correct path 60 cells
+        // (start west in row 7, door east in row 9); 20 wrong ways, all 2
+        // cells deep. Along the path: O the sand pit over path cells 34-36
+        // (top row, crossed heading east), with the flying carpet (rests 2 s
+        // at each edge, crosses in 2 s, never waits); X the cactus on the
+        // path, path cell 45 (heading west), with Level 54's squeeze gap
+        // (spikeRadius 0.67, about 15% tighter than Level 102's); E the
+        // spinning secret wall with the golden beetle, in the wall between
+        // path cells 52 and 53 (row 7, heading west), the only way on to the
+        // door. No button door, no trapdoors, no sneaky or big cactus. Its
+        // own sneaky, mysterious tune with hand drums and a snake-charmer
+        // flute.
+        theme: DESERT,
+        music: 'squeezecreep',
+        spikeRadius: 0.67,
+        layout: [
+        '#########################################',
+        '#   #   #   #       #    OOOOOOOOOOO    #',
+        '#   #   #   #       #    OOOOOOOOOOO    #',
+        '#   #   #   #       #    OOOOOOOOOOO    #',
+        '#   #   #   #   #####   #############   #',
+        '#   #   #           #       #           #',
+        '#   #   #           #       #           #',
+        '#   #   #           #       #           #',
+        '#   #   #####   #   #####   #########   #',
+        '#       #       #       #       #       #',
+        '#       #       #       #       #       #',
+        '#       #       #       #       #       #',
+        '#   #   #   #   #####   #####   #   #####',
+        '#   #       #       #           #       #',
+        '#   #       #       #           #       #',
+        '#   #       #       #           #       #',
+        '#   #################   #############   #',
+        '#   #       #   #       #               #',
+        '#   #       #   #       #     X         #',
+        '#   #       #   #       #               #',
+        '#   #   #####   #########   #####   #####',
+        '#   #           #               #       #',
+        '#   #           #               #       #',
+        '#   #           #               #       #',
+        '#   #   #   #############   #   #########',
+        '#       #   #   #   #       #           #',
+        '#       #   #   #   #       #           #',
+        '#       #   #   #   #       #           #',
+        '#########   #   #   #############   #   #',
+        '#       #       #           E       #   #',
+        '# S     #       #           E       #   #',
+        '#       #       #           E       #   #',
+        '#   #   #   #########   #################',
+        '#   #   #       #                       #',
+        '#   #   #       #                       #',
+        '#   #   #       #                       #',
+        '#   #   #   #   #   #####   #   #########',
+        '#   #       #   #   #       #           #',
+        '#   #       #   #   #       #           D',
+        '#   #       #   #   #       #           #',
+        '#########################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with

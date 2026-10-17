@@ -2859,6 +2859,38 @@ const TUNES = {
                 [40, 89, 0.5], [42, 87, 0.4], [44, 86, 0.8], [50, 83, 0.5], [56, 79, 1.8]],
         },
     },
+    // Level 106, the tighter squeeze: sneaky and mysterious, more sneaky
+    // than mysterious. D "snake charmer" scale (D, E-flat, F-sharp, G, A,
+    // B-flat, C) at 100 bpm: pairs of notes from far apart that squeeze in
+    // toward each other (high, low, a bit less high, a bit less low...),
+    // stop and listen, then a slow creep down. Hand drums ("dum-dum ...
+    // tek") and a breathy flute, both quieter than the melody.
+    squeezecreep: {
+        tempo: 100,
+        bars: [[38, 'maj'], [38, 'maj'], [39, 'maj'], [38, 'maj'], [43, 'min'], [38, 'maj'], [39, 'maj'], [38, 'maj']],
+        bass: [0, null, null, 0, null, null, null, null],
+        bassLength: 0.15,
+        stabs: [],
+        ticks: true,
+        melody: [
+            74, null, 63, null, 72, null, 66, null,
+            70, null, 67, null, 69, null, null, null,
+            null, null, 69, 70, 69, null, 66, null,
+            63, null, 62, null, null, null, null, null,
+            74, null, 63, null, 72, null, 66, null,
+            70, null, 67, null, 69, null, null, null,
+            78, null, 75, null, 74, null, 70, null,
+            69, null, 66, null, 62, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.1, brightness: 1200 },
+        desert: {
+            dums: [0, 3],
+            teks: [6],
+            // [step, note, length in seconds]
+            flute: [[13, 81, 0.5], [16, 82, 0.4], [18, 81, 0.9], [28, 78, 1.0],
+                [45, 86, 0.5], [47, 87, 0.4], [49, 86, 0.8], [60, 74, 1.4]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

@@ -7,6 +7,7 @@
 //   SEEDS=1000 node tools/find-desert-level.mjs level103 22 1   # a spinning secret wall + a button door
 //   SEEDS=1000 node tools/find-desert-level.mjs level104 22 1   # a trapdoor + a flying carpet + a big cactus
 //   SEEDS=1500 node tools/find-desert-level.mjs level105 24 1   # two trapdoors + a button door + the sneaky cactus
+//   SEEDS=1000 node tools/find-desert-level.mjs level106 22 1   # a path cactus + a flying carpet + a spinning secret wall
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -44,6 +45,8 @@ const RULES = {
     // Two trapdoors with a button door between them: a trapdoor, then the
     // button's wrong way, then the other trapdoor (order: true)
     level105: { name: 'Level 105', depth: 2, deadEnds: 20, sneaky: true, buttonDoor: true, trapdoors: 2, order: true, prunePairs: true, placeTries: 20 },
+    // Level 106: a path cactus, a flying carpet and a spinning secret wall
+    level106: { name: 'Level 106', depth: 2, deadEnds: 22, pathCane: true, platforms: 1, platformCells: 3, spinWall: true, prunePairs: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
