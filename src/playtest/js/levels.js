@@ -5615,7 +5615,7 @@ export const LEVELS = [
         look: 'everything',
         music: 'roomcottoncandy',
         finale: 'You beat 100 levels!',
-        nextLabel: 'Start Desert Pyramid World',
+        nextLabel: 'Start Pyramid World',
         fireworks: true,
         spikeRadius: 0.7,
         armInterval: 3,
