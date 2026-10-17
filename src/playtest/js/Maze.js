@@ -1000,6 +1000,13 @@ const GEYSER_OFFSET = 1.5;
 // (you can look around but not steer or step off), then sets you down on the
 // floor SLED_LANDING past the far edge and rests there.
 const SLED_TIME = 1.5;
+// Desert Pyramid World's crossing (Level 102 on): a flying carpet over a
+// 3-cell sand pit. It runs on its own fixed cycle that never waits for you:
+// it rests at one edge CARPET_REST_TIME, crosses in CARPET_CROSS_TIME, rests
+// at the other edge, crosses back, and so on. Only if you're partly on it
+// when a rest ends does it keep resting, till you're fully on or fully off.
+const CARPET_REST_TIME = 2;
+const CARPET_CROSS_TIME = 2;
 const SLED_LANDING = 1.0;
 const ZIP_LINE_HEIGHT = 3.6; // the zip line, just under the tops of the walls (4)
 
@@ -2287,7 +2294,7 @@ export class Maze {
             geometry.rotateX(Math.PI / 2);
             floorMaterial.map?.repeat.set(factory ? 0.25 : 0.5, factory ? 0.25 : 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : desert ? 0x8a6428 : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -4973,6 +4980,7 @@ export class Maze {
         const chocolate = !!this.theme.sweets;
         const balloon = !!this.theme.volcano;
         const sled = !!this.theme.ice;
+        const carpet = !!this.theme.desert;
         const width = alongX ? gap.maxZ - gap.minZ : gap.maxX - gap.minX;
         // Candy World: the marshmallow on each bank, and where its bounce lands
         const pads = chocolate ? [
@@ -4988,6 +4996,7 @@ export class Maze {
             pads,
             balloon, // Volcano World: a lava gap crossed in a hot-air balloon, high above the maze
             sled, // Ice World: an icy crack crossed on a sled hanging from a zip line
+            carpet, // Desert Pyramid World: a sand pit crossed on a flying carpet that keeps its own cycle
             phase: 'rest', // sled: 'rest' | 'zip' (carrying you) | 'float' (empty, coming to you); balloon: 'rest' | 'wait' (you're in, the burner's about to fire) | 'rise' | 'cross' | 'down' | 'float' (empty, coming to you)
             time: 0, // balloon: seconds into the phase
             lift: 0, // balloon: how high it is
@@ -5014,6 +5023,11 @@ export class Maze {
         this.resetSnowmen();
         this.resetThinIce();
         for (const p of this.platforms) {
+            // The flying carpet keeps its cycle (a reset to the start doesn't change it)
+            if (p.carpet) {
+                p.riding = false;
+                continue;
+            }
             Object.assign(p, { at: p.startAt, target: p.startAt, riding: false, wait: 0, mustLeave: false, push: 0, pushing: false, phase: 'rest', time: 0, lift: 0 });
             if (p.balloon) this.setRideView(p, null, 0);
             this.showPlatform(p);
@@ -5080,6 +5094,9 @@ export class Maze {
         if (p.balloon && ['rise', 'cross', 'down'].includes(p.phase)) return false;
         // The sled: never while it's zooming you across
         if (p.sled && p.phase === 'zip') return false;
+        // The carpet: never while it's carrying you; stepping into the pit
+        // while it's flying (you can only get on while it rests) is a fall
+        if (p.carpet && p.phase === 'cross') return !p.riding;
         const { along } = this.gapCoords(point, p);
         return along < p.at || along > p.at + PLATFORM_LENGTH;
     }
@@ -5119,6 +5136,7 @@ export class Maze {
         if (p.chocolate) return null; // nothing moves: the marshmallows bounce you (see marshmallowAt)
         if (p.balloon) return this.updateBalloon(p, dt, position, velocity, radius);
         if (p.sled) return this.updateSled(p, dt, position, velocity, radius);
+        if (p.carpet) return this.updateCarpet(p, dt, position, velocity, radius);
         const { along, across, width } = this.gapCoords(position, p);
         const inRange = across >= 0 && across < width;
         const fullyOn = inRange && along - radius >= p.at && along + radius <= p.at + PLATFORM_LENGTH;
@@ -5322,10 +5340,78 @@ export class Maze {
         return event;
     }
 
+    // Run one flying carpet (Desert Pyramid World, Level 102 on). It rests
+    // at one edge of the sand pit for CARPET_REST_TIME, then crosses in
+    // CARPET_CROSS_TIME (starting and stopping smoothly), rests at the other
+    // edge, crosses back, and so on, whether or not you're on it. If you're
+    // fully on when a rest ends, it carries you: you can look around but
+    // can't steer, step off or fall. If you're only partly on, it keeps
+    // resting till you're fully on or fully off. At the far edge you step
+    // off yourself; stay on and it carries you back. Returns 'depart' (it
+    // flies off with you), 'arrive' (it's across with you) or null.
+    updateCarpet(p, dt, position, velocity, radius) {
+        const g = p.gap;
+        const { along, across, width } = this.gapCoords(position, p);
+        const inRange = across >= 0 && across < width;
+        const fullyOn = inRange && along - radius >= p.at && along + radius <= p.at + PLATFORM_LENGTH;
+        const touching = inRange && along + radius > p.at && along - radius < p.at + PLATFORM_LENGTH;
+        const ease = (t) => t * t * (3 - 2 * t);
+        const hold = () => {
+            const a = p.at + p.offset;
+            if (p.alongX) position.set(g.minX + a, position.y, g.minZ + p.across);
+            else position.set(g.minX + p.across, position.y, g.minZ + a);
+            velocity.set(0, 0, 0);
+        };
+        let event = null;
+        p.time += dt;
+        p.clock = (p.clock ?? 0) + dt;
+        if (p.phase === 'rest') {
+            // On the resting carpet you can't walk off its pit end into the
+            // pit; you step off at the edge it's resting at
+            if (touching) {
+                const lo = p.at === p.low ? -Infinity : p.at + radius;
+                const hi = p.at === p.low ? p.at + PLATFORM_LENGTH - radius : Infinity;
+                const clamped = Math.max(lo, Math.min(hi, along));
+                if (clamped !== along) {
+                    if (p.alongX) {
+                        position.x += clamped - along;
+                        velocity.x = 0;
+                    } else {
+                        position.z += clamped - along;
+                        velocity.z = 0;
+                    }
+                }
+            }
+            // Partly on when the rest ends: keep resting till you're fully on or off
+            if (p.time >= CARPET_REST_TIME && !(touching && !fullyOn)) {
+                Object.assign(p, { phase: 'cross', time: 0, from: p.at, target: p.at === p.low ? p.high : p.low });
+                if (fullyOn) {
+                    Object.assign(p, { riding: true, offset: along - p.at, across });
+                    event = 'depart';
+                    hold();
+                }
+            }
+        } else if (p.phase === 'cross') {
+            const t = Math.min(1, p.time / CARPET_CROSS_TIME);
+            p.at = p.from + (p.target - p.from) * ease(t);
+            if (p.riding) hold();
+            if (t >= 1) {
+                p.at = p.target;
+                Object.assign(p, { phase: 'rest', time: 0 });
+                if (p.riding) {
+                    p.riding = false;
+                    event = 'arrive';
+                }
+            }
+        }
+        this.showPlatform(p);
+        return event;
+    }
+
     // How high the balloon you're riding is (null when you're not in the air in one)
     // (the sled zooming you across counts too, at no height: you can only look)
     rideLift() {
-        const p = this.platforms.find((q) => (q.balloon && ['rise', 'cross', 'down'].includes(q.phase)) || (q.sled && q.phase === 'zip'));
+        const p = this.platforms.find((q) => (q.balloon && ['rise', 'cross', 'down'].includes(q.phase)) || (q.sled && q.phase === 'zip') || (q.carpet && q.riding));
         return p ? p.lift : null;
     }
 
@@ -5629,6 +5715,12 @@ export class Maze {
             this.showPlatform(p);
             return;
         }
+        if (p.carpet) {
+            this.createSandPit(p);
+            this.createCarpet(p);
+            this.showPlatform(p);
+            return;
+        }
         if (p.balloon) {
             this.createLavaPit(p);
             this.createBalloon(p);
@@ -5717,6 +5809,107 @@ export class Maze {
         this.root.add(group);
         p.object = group;
         this.showPlatform(p);
+    }
+
+    // Desert Pyramid World (Level 102 on): the sand pit. Sandstone walls go
+    // straight down to golden sand far below, with a few stones lying on it.
+    createSandPit(p) {
+        const g = p.gap;
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        const sizeX = g.maxX - g.minX;
+        const sizeZ = g.maxZ - g.minZ;
+        const bottomY = -12;
+        const depth = -bottomY - 0.2;
+        let r = 53;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        for (const [w, d, x, z, along] of [
+            [sizeX, 0.05, cx, g.minZ, sizeX], [sizeX, 0.05, cx, g.maxZ, sizeX],
+            [0.05, sizeZ, g.minX, cz, sizeZ], [0.05, sizeZ, g.maxX, cz, sizeZ],
+        ]) {
+            const map = sandstoneTexture(128, 512, 97);
+            map.repeat.set(along / 4, depth / 4);
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(w, depth, d),
+                new THREE.MeshStandardMaterial({ map, color: 0x9a7038, roughness: 0.95 }));
+            wall.position.set(x, -0.2 - depth / 2, z);
+            this.root.add(wall);
+        }
+        const sandMap = desertSandTexture(256, 61);
+        sandMap.repeat.set(sizeX / 4, sizeZ / 4);
+        const bottom = new THREE.Mesh(new THREE.PlaneGeometry(sizeX, sizeZ),
+            new THREE.MeshStandardMaterial({ map: sandMap, color: 0xe0b060, roughness: 1, emissive: 0x3a2808, emissiveIntensity: 0.5 }));
+        bottom.rotation.x = -Math.PI / 2;
+        bottom.position.set(cx, bottomY, cz);
+        this.root.add(bottom);
+        const stone = new THREE.MeshStandardMaterial({ color: 0xb08850, roughness: 1, flatShading: true });
+        for (let k = 0; k < 8; k++) {
+            const size = 0.15 + random() * 0.3;
+            const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(size, 0), stone);
+            rock.position.set(g.minX + 0.3 + random() * (sizeX - 0.6), bottomY + size * 0.4, g.minZ + 0.3 + random() * (sizeZ - 0.6));
+            rock.rotation.set(random() * 3, random() * 3, random() * 3);
+            this.root.add(rock);
+        }
+    }
+
+    // The flying carpet: a deep red rug with a golden border, a pattern of
+    // golden diamonds, and golden tassels on its two ends. It's the pit's
+    // width and PLATFORM_LENGTH long (its z is the pit's long side).
+    createCarpet(p) {
+        const g = p.gap;
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+        const c = canvas.getContext('2d');
+        c.fillStyle = '#8e1424';
+        c.fillRect(0, 0, 128, 128);
+        c.strokeStyle = '#f2c14e';
+        c.lineWidth = 8;
+        c.strokeRect(6, 6, 116, 116);
+        c.lineWidth = 2;
+        c.strokeRect(16, 16, 96, 96);
+        c.fillStyle = '#1f3a8a';
+        c.fillRect(18, 18, 92, 92);
+        c.fillStyle = '#f2c14e';
+        for (const [x, y, s] of [[64, 64, 22], [36, 36, 9], [92, 36, 9], [36, 92, 9], [92, 92, 9]]) {
+            c.beginPath();
+            c.moveTo(x, y - s);
+            c.lineTo(x + s, y);
+            c.lineTo(x, y + s);
+            c.lineTo(x - s, y);
+            c.closePath();
+            c.fill();
+        }
+        c.fillStyle = '#8e1424';
+        c.beginPath();
+        c.moveTo(64, 52);
+        c.lineTo(76, 64);
+        c.lineTo(64, 76);
+        c.lineTo(52, 64);
+        c.closePath();
+        c.fill();
+        const map = new THREE.CanvasTexture(canvas);
+        const group = new THREE.Group();
+        const geometry = new THREE.PlaneGeometry(width - 0.2, PLATFORM_LENGTH, 6, 12);
+        geometry.rotateX(-Math.PI / 2);
+        const cloth = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map, roughness: 0.9, side: THREE.DoubleSide, emissive: 0x2a0a0a, emissiveIntensity: 0.4 }));
+        cloth.receiveShadow = true;
+        cloth.castShadow = true;
+        group.add(cloth);
+        p.cloth = cloth;
+        p.clothBase = Array.from({ length: geometry.attributes.position.count }, (_, k) => geometry.attributes.position.getY(k));
+        const gold = new THREE.MeshStandardMaterial({ color: 0xf2c14e, metalness: 0.4, roughness: 0.4 });
+        for (const side of [-1, 1]) {
+            for (let k = 0; k < 7; k++) {
+                const tassel = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, 0.22, 6), gold);
+                tassel.rotation.x = Math.PI / 2;
+                tassel.position.set(-(width - 0.4) / 2 + (k * (width - 0.4)) / 6, 0, side * (PLATFORM_LENGTH / 2 + 0.1));
+                group.add(tassel);
+            }
+        }
+        if (p.alongX) group.rotation.y = Math.PI / 2;
+        this.root.add(group);
+        p.object = group;
     }
 
     // Moon World (Level 36 on): a giant crater under the gap, with steep gray
@@ -6291,7 +6484,16 @@ export class Maze {
             p.ball.scale.set(bulge, bulge, squash); // the ball's z is the gap's long side
             p.ball.position.y = BUBBLE_RADIUS * bulge;
         }
-        const y = p.balloon ? p.lift : 0;
+        // The flying carpet hovers just over the floor, bobbing gently
+        const y = p.balloon ? p.lift : p.carpet ? 0.06 + 0.04 * Math.sin((p.clock ?? 0) * 3) : 0;
+        if (p.carpet && p.cloth) {
+            // Its cloth ripples a little, more while it flies
+            const pos = p.cloth.geometry.attributes.position;
+            const base = p.clothBase;
+            const amount = p.phase === 'cross' ? 0.05 : 0.02;
+            for (let k = 0; k < pos.count; k++) pos.setY(k, base[k] + amount * Math.sin((p.clock ?? 0) * 6 + pos.getZ(k) * 2.5));
+            pos.needsUpdate = true;
+        }
         if (p.alongX) p.object.position.set(g.minX + middle, y, (g.minZ + g.maxZ) / 2);
         else p.object.position.set((g.minX + g.maxX) / 2, y, g.minZ + middle);
     }

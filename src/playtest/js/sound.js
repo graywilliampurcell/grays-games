@@ -2732,6 +2732,37 @@ const TUNES = {
                 [40, 81, 0.5], [42, 79, 0.35], [43, 78, 0.6], [45, 75, 0.35], [46, 74, 1.5]],
         },
     },
+    // Level 102, the first flying carpet: sneaky and mysterious, more sneaky
+    // than mysterious. A "snake charmer" scale (A, B-flat, C-sharp, D, E, F,
+    // G) at 92 bpm: soft tiptoeing pairs of notes that creep up, then a slow
+    // curl down through B-flat. Hand drums ("dum ... tek-tek") and a breathy
+    // flute that floats like the carpet, both quieter than the melody.
+    carpetcreep: {
+        tempo: 92,
+        bars: [[45, 'maj'], [45, 'maj'], [46, 'maj'], [45, 'maj'], [43, 'min'], [45, 'maj'], [46, 'maj'], [45, 'maj']],
+        bass: [0, null, null, null, 0, null, 0, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            69, 70, null, null, 69, 70, null, null,
+            73, null, 74, null, 73, null, null, null,
+            70, null, 69, null, null, null, 64, null,
+            65, null, 64, null, null, null, null, null,
+            69, 70, null, null, 73, 74, null, null,
+            76, null, 77, null, 76, null, 74, null,
+            73, null, 70, null, 69, null, 70, null,
+            69, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.1, brightness: 1250 },
+        desert: {
+            dums: [0, 4],
+            teks: [3, 6, 7],
+            // [step, note, length in seconds]
+            flute: [[12, 81, 0.6], [14, 82, 0.4], [16, 85, 1.0], [22, 82, 0.8], [28, 81, 1.4],
+                [44, 86, 0.5], [46, 85, 0.4], [48, 82, 0.8], [52, 81, 0.5], [56, 76, 1.6]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

@@ -484,6 +484,8 @@ function step(deltaTime) {
     // The sled is silent (Gray, 2026-10-16), so its "shh" can't be mistaken
     // for anything else.
     if (platformEvent === 'depart' && maze.theme.volcano) sound.whoosh(0.8);
+    // The flying carpet (Desert Pyramid World): a soft swish as it takes off with you
+    if (platformEvent === 'depart' && maze.theme.desert) sound.whoosh(0.6, 0.5);
     const lift = maze.rideLift();
     player.carried = lift !== null;
     if (lift !== null) player.camera.position.set(player.position.x, player.position.y + 1.6 + lift, player.position.z);
@@ -536,6 +538,7 @@ function checkSpikeAndDoor() {
                 : maze.theme.sweets ? 'Ouch! You fell in the chocolate. Back to the start.'
                 : maze.theme.volcano ? 'Ouch! You fell in the lava. Back to the start.'
                 : maze.theme.factory ? 'Ouch! You fell in the gap. Back to the start.'
+                : maze.theme.desert ? 'Ouch! You fell in the sand pit. Back to the start.'
                 : 'Whoops! You fell off. Back to the start.');
     }
 

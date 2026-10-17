@@ -3,6 +3,7 @@
 // find-everything-level.mjs (Levels 91-99), at 10 x 10.
 //
 //   SEEDS=3000 node tools/find-desert-level.mjs level101 20 1   # the sneaky cactus + a button door
+//   SEEDS=1000 node tools/find-desert-level.mjs level102 22 1   # a flying carpet + a path cactus
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -24,6 +25,9 @@ const RULES = {
     // Welcome to Desert Pyramid World: the sneaky cactus ('X') and one
     // button door ('J') with its button ('U') down a wrong way
     level101: { name: 'Level 101', depth: 2, deadEnds: 20, sneaky: true, buttonDoor: true, prunePairs: true, placeTries: 20 },
+    // The first flying carpet: one 3-cell sand pit ('O', crossed on the
+    // carpet) and one cactus on the path ('X', Level 53's squeeze gap)
+    level102: { name: 'Level 102', depth: 2, deadEnds: 22, pathCane: true, platforms: 1, platformCells: 3, prunePairs: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
