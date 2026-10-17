@@ -5579,6 +5579,109 @@ export const LEVELS = [
         '#########################################################',
         ],
     },
+    {
+        name: 'Level 100',
+        // The Everything World finale. `node tools/find-level100.mjs 1
+        // 20000`, seed 7002. One 14 x 14 maze in 9 rooms, a 3 x 3 grid:
+        // columns 5 / 4 / 5 cells wide, rows 4 / 5 / 5 cells tall. The
+        // correct path (85 cells) starts west in row 3 and walks through the
+        // rooms in order, entering each once: Cotton Candy, Space, Jungle
+        // (top row, heading east), Moon, Underwater, Candy (middle row,
+        // heading west), Volcano, Ice, Robot Factory (bottom row, heading
+        // east) to the golden door east in row 10. 37 wrong ways, every one
+        // 3 cells deep and inside the room it branches from. One danger per
+        // room, along the path: X the spike, path cell 7 (plate 0.7, Level
+        // 8's squeeze); G the space door between path cells 10 and 11; O a
+        // 2-cell river with a giant leaf (path cells 15-16, Level 22's
+        // speed); O a 3-cell giant crater with a hover platform (path cells
+        // 30-32); O a 3-cell crack crossed in a bubble (path cells 38-40);
+        // O the chocolate river, 3 cells (path cells 46-48; Level 100 only)
+        // with a marshmallow on each bank; K a lava geyser (path cell 57);
+        // N/M/P the snowman's 4-cell hallway (path cells 68-71); A/R the
+        // robot-arm belt, 3 cells (path cells 80-82; Level 100 only) with one
+        // floor cell before and after it, an arm every 3 s. Each room is its
+        // own Maze in its world's look (js/RoomMaze.js), with its own sneaky,
+        // just a little spooky tune.
+        theme: COTTON_CANDY,
+        world: 'everything',
+        look: 'everything',
+        music: 'roomcottoncandy',
+        finale: 'You beat 100 levels!',
+        fireworks: true,
+        spikeRadius: 0.7,
+        armInterval: 3,
+        // Each room's block ranges (the middles of the walls between rooms)
+        rooms: [
+            { theme: COTTON_CANDY, music: 'roomcottoncandy', x: [0, 20.5], z: [0, 16.5] },
+            { theme: SPACE, music: 'roomspace', x: [20.5, 36.5], z: [0, 16.5] },
+            { theme: JUNGLE, music: 'roomjungle', x: [36.5, 57], z: [0, 16.5] },
+            { theme: MOON, music: 'roommoon', x: [36.5, 57], z: [16.5, 36.5] },
+            { theme: UNDERWATER, music: 'roomsea', x: [20.5, 36.5], z: [16.5, 36.5] },
+            { theme: CANDY, music: 'roomsweets', x: [0, 20.5], z: [16.5, 36.5] },
+            { theme: VOLCANO, music: 'roomvolcano', x: [0, 20.5], z: [36.5, 57] },
+            { theme: ICE, music: 'roomice', x: [20.5, 36.5], z: [36.5, 57] },
+            { theme: FACTORY, music: 'roomfactory', x: [36.5, 57], z: [36.5, 57] },
+        ],
+        layout: [
+        '#########################################################',
+        '#                           G           #           #   #',
+        '#             X             G           #           #   #',
+        '#                           G           #           #   #',
+        '#   #   #############   #   #   #   #   #########   #   #',
+        '#   #               #   #   #   #   #    OOOOOOO    #   #',
+        '#   #               #   #   #   #   #    OOOOOOO    #   #',
+        '#   #               #   #   #   #   #    OOOOOOO    #   #',
+        '#   #   #############   #   #   #   #   #########   #   #',
+        '#   #               #   #   #   #   #   #       #       #',
+        '#   #               #   #   #   #   #   #       #       #',
+        '#   #               #   #   #   #   #   #       #       #',
+        '#####   #############   #   #   #   #   #####   #   #####',
+        '#                   #   #   #   #   #       #           #',
+        '# S                 #   #   #   #   #       #           #',
+        '#                   #   #   #   #   #       #           #',
+        '#####################################################   #',
+        '#                   #                   #           #   #',
+        '#                   #                   #           #   #',
+        '#                   #                   #           #   #',
+        '#   #   #############   #   #   #   #   #   #########   #',
+        '#   #OOO#   #   #   #OOO#   #   #   #OOO#               #',
+        '#   #OOO#   #   #   #OOO#   #   #   #OOO#               #',
+        '#   #OOO#   #   #   #OOO#   #   #   #OOO#               #',
+        '#   #OOO#   #   #   #OOO#   #   #   #OOO#   #   #   #####',
+        '#   #OOO#   #   #   #OOO#   #   #   #OOO#   #   #       #',
+        '#   #OOO#   #   #   #OOO#   #   #   #OOO#   #   #       #',
+        '#   #OOO#   #   #   #OOO#   #   #   #OOO#   #   #       #',
+        '#   #OOO#   #   #   #OOO#   #   #   #OOO#   #   #####   #',
+        '#   #OOO#   #   #   #OOO#   #   #   #OOO#   #       #   #',
+        '#   #OOO#   #   #   #OOO#   #   #   #OOO#   #       #   #',
+        '#   #OOO#   #   #   #OOO#   #   #   #OOO#   #       #   #',
+        '#   #   #   #   #   #   #############   #   #############',
+        '#   #                               #                   #',
+        '#   #                               #                   #',
+        '#   #                               #                   #',
+        '#   #####################################################',
+        '#               #   #NNNNNNNNNNNNNNM#           #       #',
+        '#               #   #NNNNNNNNNNNNNNM#           #       #',
+        '#               #   #NNNNNNNNNNNNNNN#           #       #',
+        '#   #############   #   #########   #########   #   #   #',
+        '#               #   #       #                   #AAA#   #',
+        '#               #   # P     #                   #AAA#   D',
+        '#               #   #       #                   #AAA#   #',
+        '#   #############   #   #   #   #   #########   #AAA#   #',
+        '#KKK#   #       #   #   #   #   #   #       #   #AAA#   #',
+        '#KKK#   #       #   #   #   #   #   #       #   #AAA#   #',
+        '#KKK#   #       #   #   #   #   #   #       #   #AAA#   #',
+        '#   #   #####   #   #   #   #   #   #####   #   #AAA#   #',
+        '#   #       #   #       #   #   #   #   #       #AAA#   #',
+        '#   #       #   #       #   #   #   #   #       #AAA#   #',
+        '#   #       #   #       #   #   #   #   #       #AAA#   #',
+        '#   #####   #   #   #   #########   #   #####   #AAA#   #',
+        '#                   #           #   #               #   #',
+        '#                   #           #   #             R #   #',
+        '#                   #           #   #               #   #',
+        '#########################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
@@ -5586,8 +5689,8 @@ export const LEVELS = [
 // is its theme, or its `world` name when it has one (Everything World,
 // Levels 91-100: each level wears an earlier world's theme).
 const lookOf = (theme) => theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
-// The look of one level's button: its own theme's look
-export const levelLook = (level) => lookOf(level.theme);
+// The look of one level's button: its own theme's look (Level 100: all of them)
+export const levelLook = (level) => level.look ?? lookOf(level.theme);
 export const WORLDS = [];
 LEVELS.forEach((level, index) => {
     const last = WORLDS[WORLDS.length - 1];

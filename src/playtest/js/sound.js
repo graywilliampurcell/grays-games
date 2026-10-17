@@ -2500,6 +2500,201 @@ const TUNES = {
         lead: { wave: 'square', level: 0.11, length: 0.13, brightness: 1200 },
         factory: { clanks: [1, 5], beeps: { 6: 90, 14: 95, 26: 87, 38: 93, 46: 85, 54: 96, 62: 88 } },
     },
+    // Level 100, the Everything World finale: each of its 9 rooms has its own
+    // tune in its world's style, every one sneaky with just a little spooky
+    // ("what's around the corner"; more sneaky than spooky). Walking into a
+    // room crossfades to its tune (Sound.crossfadeTo).
+    // Room 1, Cotton Candy: E minor on Cotton Candy World's bell-like
+    // triangle; tiptoes up, then a spooky B-flat peeks in before it creeps on.
+    roomcottoncandy: {
+        tempo: 104,
+        bars: [[40, 'min'], [40, 'min'], [36, 'maj'], [35, 'maj'], [40, 'min'], [45, 'min'], [36, 'maj'], [35, 'maj']],
+        bass: [0, null, 7, null, 0, null, null, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: true,
+        melody: [
+            64, null, 67, null, 71, null, null, null,
+            70, null, null, null, 67, null, 64, null,
+            72, null, 71, null, 67, null, null, null,
+            66, null, null, null, 63, null, null, null,
+            64, 67, null, 71, null, 76, null, null,
+            74, null, 72, null, 69, null, null, null,
+            72, null, null, 71, null, null, 70, null,
+            71, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.24, length: 0.14, brightness: 3500 },
+    },
+    // Room 2, Space: A minor, floaty and slow on Space World's soft sine,
+    // drifting down then hanging on a strange G-sharp.
+    roomspace: {
+        tempo: 96,
+        bars: [[45, 'min'], [45, 'min'], [41, 'maj'], [40, 'maj'], [45, 'min'], [38, 'min'], [41, 'maj'], [40, 'maj']],
+        bass: [0, null, null, null, 7, null, null, null],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            76, null, null, 72, null, null, 69, null,
+            null, null, 75, null, null, null, null, null,
+            77, null, 76, null, 72, null, null, null,
+            68, null, null, null, 71, null, null, null,
+            69, null, 72, null, 76, null, 81, null,
+            80, null, null, null, 77, null, 74, null,
+            72, null, null, null, 69, null, null, null,
+            68, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.28, length: 0.3, brightness: 2000 },
+    },
+    // Room 3, Jungle: D minor with a drum-like bass, sneaking through the
+    // leaves, a spooky slide down at the end.
+    roomjungle: {
+        tempo: 108,
+        bars: [[38, 'min'], [38, 'min'], [34, 'maj'], [36, 'maj'], [38, 'min'], [43, 'min'], [45, 'maj'], [45, 'maj']],
+        bass: [0, null, 0, 7, 0, null, 0, null],
+        bassLength: 0.16,
+        stabs: [],
+        ticks: true,
+        melody: [
+            62, null, 65, 62, null, null, 69, null,
+            68, null, null, null, 65, null, null, null,
+            70, null, 69, null, 65, null, 62, null,
+            64, null, null, null, 61, null, null, null,
+            62, 65, 69, null, 74, null, null, null,
+            73, null, 70, null, 67, null, null, null,
+            69, null, 68, null, 67, null, 66, null,
+            61, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.26, length: 0.12, brightness: 2600 },
+    },
+    // Room 4, Moon: F-sharp minor on Moon World's square lead, slow steps
+    // and long, empty pauses like the quiet of space.
+    roommoon: {
+        tempo: 92,
+        bars: [[42, 'min'], [42, 'min'], [38, 'maj'], [37, 'maj'], [42, 'min'], [47, 'min'], [38, 'maj'], [37, 'maj']],
+        bass: [0, null, null, null, 0, null, 7, null],
+        bassLength: 0.22,
+        stabs: [],
+        ticks: true,
+        melody: [
+            66, null, null, null, 69, null, null, null,
+            73, null, 72, null, null, null, null, null,
+            74, null, 73, null, 69, null, 66, null,
+            65, null, null, null, null, null, 61, null,
+            66, null, 69, null, 66, null, 72, null,
+            71, null, null, null, 69, null, null, null,
+            74, null, null, 73, null, null, 72, null,
+            73, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.1, length: 0.14, brightness: 1300 },
+    },
+    // Room 5, Underwater: G minor on a soft sine, rising like bubbles and
+    // sinking back, with one spooky F-sharp.
+    roomsea: {
+        tempo: 90,
+        bars: [[43, 'min'], [43, 'min'], [39, 'maj'], [38, 'maj'], [43, 'min'], [36, 'min'], [39, 'maj'], [38, 'maj']],
+        bass: [0, null, null, 7, null, null, 0, null],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            67, null, 70, null, 74, null, null, null,
+            73, null, null, null, 70, null, 67, null,
+            null, null, 75, null, 74, null, 70, null,
+            66, null, null, null, 62, null, null, null,
+            67, null, null, 70, null, null, 74, null,
+            79, null, 78, null, 74, null, null, null,
+            75, null, 74, null, 73, null, null, null,
+            74, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.3, length: 0.28, brightness: 1800 },
+    },
+    // Room 6, Candy: C minor on Candy World's bright triangle, a sneaky
+    // skip that climbs to a high note and creeps back down.
+    roomsweets: {
+        tempo: 100,
+        bars: [[36, 'min'], [36, 'min'], [44, 'maj'], [43, 'maj'], [36, 'min'], [41, 'min'], [44, 'maj'], [43, 'maj']],
+        bass: [0, null, 7, null, 0, null, null, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: true,
+        melody: [
+            72, null, 75, null, 72, null, 79, null,
+            78, null, null, null, 75, null, null, null,
+            80, null, 79, null, 75, null, 72, null,
+            71, null, null, null, 67, null, null, null,
+            72, null, null, 75, null, 79, null, 84,
+            83, null, null, null, 80, null, 77, null,
+            75, null, 74, null, 73, null, null, null,
+            74, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.24, length: 0.12, brightness: 4000 },
+    },
+    // Room 7, Volcano: E-flat minor on Volcano World's dark square lead,
+    // three little puffs, then a slow sneaky climb.
+    roomvolcano: {
+        tempo: 112,
+        bars: [[39, 'min'], [39, 'min'], [35, 'maj'], [34, 'maj'], [39, 'min'], [44, 'min'], [35, 'maj'], [34, 'maj']],
+        bass: [0, null, 7, null, 0, null, null, null],
+        bassLength: 0.28,
+        stabs: [],
+        ticks: true,
+        melody: [
+            63, null, 63, null, 63, 66, null, null,
+            70, null, 69, null, null, null, null, null,
+            71, null, 70, null, 66, null, 63, null,
+            62, null, null, null, 58, null, null, null,
+            63, null, 66, null, 70, null, 75, null,
+            74, null, null, null, 71, null, null, null,
+            70, null, 69, null, 68, null, 67, null,
+            70, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.12, brightness: 1100 },
+    },
+    // Room 8, Ice: F minor on Ice World's soft square lead, high and
+    // careful, with its wintery jingles (sleigh bells and twinkles).
+    roomice: {
+        tempo: 96,
+        bars: [[41, 'min'], [41, 'min'], [37, 'maj'], [36, 'maj'], [41, 'min'], [46, 'min'], [37, 'maj'], [36, 'maj']],
+        bass: [0, null, null, null, 7, null, null, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            77, null, null, 80, null, null, 84, null,
+            83, null, null, null, 80, null, null, null,
+            null, null, 77, null, 76, null, null, null,
+            79, null, null, null, 72, null, null, null,
+            77, null, 80, null, 77, null, 83, null,
+            82, null, null, null, 77, null, null, null,
+            80, null, null, 79, null, null, 78, null,
+            79, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.09, length: 0.11, brightness: 1300 },
+        jingles: { bells: [0, 4], twinkles: { 13: 96, 30: 94, 45: 99, 60: 91 } },
+    },
+    // Room 9, Robot Factory: B minor, low creeping steps that stop and peek
+    // around the corner, with Robot Factory World's clanks and beeps.
+    roomfactory: {
+        tempo: 86,
+        bars: [[35, 'min'], [35, 'min'], [31, 'maj'], [30, 'maj'], [35, 'min'], [40, 'min'], [31, 'maj'], [30, 'maj']],
+        bass: [0, null, 0, null, 0, null, 7, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            59, null, 62, null, 66, null, null, null,
+            null, null, 65, null, null, null, null, null,
+            67, null, 66, null, 62, null, 59, null,
+            58, null, null, null, null, null, 54, null,
+            59, 62, 59, 65, null, null, null, null,
+            null, null, 64, null, 62, null, 59, null,
+            66, null, null, 65, null, null, 64, null,
+            58, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.13, brightness: 1200 },
+        factory: { clanks: [1, 5], beeps: { 6: 91, 18: 96, 30: 88, 42: 94, 54: 86, 62: 97 } },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -2535,6 +2730,8 @@ export class Sound {
         this.tuneName = 'happy';
         this.nextNoteTime = 0;
         this.timer = null;
+        // Tunes still fading out after a crossfade: { tune, step, next, gain, until }
+        this.fading = [];
 
         const unlock = () => this.unlock();
         for (const type of ['keydown', 'pointerdown', 'touchend']) {
@@ -2563,6 +2760,11 @@ export class Sound {
             this.sfxBus.connect(this.limiter);
             this.musicBus = this.ctx.createGain();
             this.musicBus.connect(this.limiter);
+            // The tune playing now goes through its own gain, so a new tune
+            // can fade in while the old one fades out (Level 100's rooms)
+            this.tuneGain = this.ctx.createGain();
+            this.tuneGain.connect(this.musicBus);
+            this.noteOut = this.tuneGain;
             this.noise = this.makeNoise();
             this.applySettings();
             // iPad: a sound has to start during the tap that switches sound on.
@@ -2616,6 +2818,7 @@ export class Sound {
 
     // Switch to a level's tune (starts from its beginning)
     setTune(name) {
+        this.endFades();
         const tune = TUNES[name] || TUNES.happy;
         if (tune === this.tune) return;
         this.tune = tune;
@@ -2624,10 +2827,47 @@ export class Sound {
         if (this.timer) this.onEvent('music');
     }
 
+    // Level 100: the next room's tune takes over with a smooth crossfade
+    // (`time` seconds): it starts from its beginning, fading in, while the
+    // old tune keeps playing and fades out. Without music playing yet, it's
+    // a plain switch.
+    crossfadeTo(name, time = 1) {
+        const tune = TUNES[name] || TUNES.happy;
+        if (tune === this.tune) return;
+        if (!this.ctx || !this.timer) return this.setTune(name);
+        const now = this.ctx.currentTime;
+        const old = { tune: this.tune, step: this.musicStep, next: this.nextNoteTime, gain: this.tuneGain, until: now + time };
+        old.gain.gain.cancelScheduledValues(now);
+        old.gain.gain.setValueAtTime(old.gain.gain.value, now);
+        old.gain.gain.linearRampToValueAtTime(0, now + time);
+        this.fading.push(old);
+        this.tuneGain = this.ctx.createGain();
+        this.tuneGain.gain.setValueAtTime(0, now);
+        this.tuneGain.gain.linearRampToValueAtTime(1, now + time);
+        this.tuneGain.connect(this.musicBus);
+        this.noteOut = this.tuneGain;
+        this.tune = tune;
+        this.tuneName = TUNES[name] ? name : 'happy';
+        this.musicStep = 0;
+        this.onEvent('music');
+    }
+
+    // Stop any tune still fading out, and play the current one at full level
+    endFades() {
+        for (const f of this.fading) setTimeout(() => f.gain.disconnect(), 500);
+        this.fading = [];
+        if (this.tuneGain) {
+            const now = this.ctx.currentTime;
+            this.tuneGain.gain.cancelScheduledValues(now);
+            this.tuneGain.gain.setValueAtTime(1, now);
+        }
+    }
+
     stopMusic() {
         this.musicWanted = false;
         clearInterval(this.timer);
         this.timer = null;
+        if (this.ctx) this.endFades();
     }
 
     startScheduler() {
@@ -2644,6 +2884,24 @@ export class Sound {
     bookNotes() {
         const now = this.ctx.currentTime;
         if (this.ctx.state !== 'running') this.wake();
+        // Tunes fading out (a crossfade) keep playing until they're silent
+        for (const f of this.fading) {
+            const fSteps = f.tune.bars.length * 8;
+            const fLength = 60 / f.tune.tempo / 2;
+            this.noteOut = f.gain;
+            while (f.next < now) {
+                f.step = (f.step + 1) % fSteps;
+                f.next += fLength;
+            }
+            while (f.next < Math.min(now + MUSIC_LOOKAHEAD, f.until)) {
+                this.playStep(f.tune, f.step % fSteps, f.next);
+                f.step = (f.step + 1) % fSteps;
+                f.next += fLength;
+            }
+        }
+        this.noteOut = this.tuneGain;
+        for (const f of this.fading) if (now > f.until + 0.5) f.gain.disconnect();
+        this.fading = this.fading.filter((f) => now <= f.until + 0.5);
         const tune = this.tune;
         const steps = tune.bars.length * 8;
         const stepLength = 60 / tune.tempo / 2;
@@ -2704,7 +2962,7 @@ export class Sound {
         gain.gain.setValueAtTime(0.0001, t);
         gain.gain.exponentialRampToValueAtTime(CLANK_LEVEL * 1.4, t + 0.003);
         gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
-        src.connect(filter).connect(gain).connect(this.musicBus);
+        src.connect(filter).connect(gain).connect(this.noteOut);
         this.pluck(431, t, CLANK_LEVEL, 0.28, 'sine', 3000);
         this.pluck(1187, t, CLANK_LEVEL * 0.6, 0.18, 'sine', 4000);
     }
@@ -2728,7 +2986,7 @@ export class Sound {
             gain.gain.setValueAtTime(0.0001, at);
             gain.gain.exponentialRampToValueAtTime(BELL_LEVEL * (k === 0 ? 1.6 : 1), at + 0.004);
             gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.1);
-            src.connect(filter).connect(gain).connect(this.musicBus);
+            src.connect(filter).connect(gain).connect(this.noteOut);
             // A little bell ring on top
             this.pluck(5200 + k * 330, at, BELL_LEVEL * 0.5, 0.09, 'sine', 9000);
         }
@@ -2753,7 +3011,7 @@ export class Sound {
         gain.gain.setValueAtTime(0.0001, t);
         gain.gain.exponentialRampToValueAtTime(level, t + 0.008);
         gain.gain.exponentialRampToValueAtTime(0.0001, t + length);
-        osc.connect(filter).connect(gain).connect(this.musicBus);
+        osc.connect(filter).connect(gain).connect(this.noteOut);
         osc.start(t);
         osc.stop(t + length + 0.02);
     }
@@ -2766,7 +3024,7 @@ export class Sound {
         const gain = this.ctx.createGain();
         gain.gain.setValueAtTime(0.12, t);
         gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
-        src.connect(filter).connect(gain).connect(this.musicBus);
+        src.connect(filter).connect(gain).connect(this.noteOut);
     }
 
     // ---- Sound effects ----
@@ -3037,6 +3295,36 @@ export class Sound {
     }
 
     // A robot arm pushing you off its belt: a hollow metal "clonk"
+    // A firework bursting (Level 100's ending): a sharp crack, then a
+    // crackle of tiny sparkles. A sound effect, so the Sound effects switch
+    // turns it off.
+    pop() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('pop');
+        const t = this.ctx.currentTime + 0.01;
+        const crack = this.noiseSource(t, 0.25);
+        const low = this.ctx.createBiquadFilter();
+        low.type = 'lowpass';
+        low.frequency.value = 1800;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.5, t + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+        crack.connect(low).connect(g).connect(this.sfxBus);
+        for (let k = 0; k < 7; k++) {
+            const at = t + 0.12 + Math.random() * 0.5;
+            const src = this.noiseSource(at, 0.04);
+            const high = this.ctx.createBiquadFilter();
+            high.type = 'highpass';
+            high.frequency.value = 5000;
+            const sg = this.ctx.createGain();
+            sg.gain.setValueAtTime(0.0001, at);
+            sg.gain.exponentialRampToValueAtTime(0.12, at + 0.003);
+            sg.gain.exponentialRampToValueAtTime(0.0001, at + 0.035);
+            src.connect(high).connect(sg).connect(this.sfxBus);
+        }
+    }
+
     clonk() {
         if (!this.settings.sfx || !this.ctx) return;
         this.onEvent('clonk');

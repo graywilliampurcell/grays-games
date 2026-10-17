@@ -86,13 +86,17 @@ export function installTestHooks(game) {
             platforms: maze.platforms.map(platformState),
             spikeRows: maze.spikeRows.map((r) => ({ x: r.position.x, z: r.position.z, spansX: r.spansX })),
             door: { x: maze.doorPosition.x, z: maze.doorPosition.z },
+            // Level 100: which room the player is in (0-8, in path order)
+            room: maze.active ?? null,
             start: { x: start.x, z: start.z, yaw: round(maze.getStartYaw()) },
         };
     }
 
     // Replace the maze with a new layout (same format as levels.js)
     function loadLayout(rows, name = 'Custom', index = -1) {
-        game.loadLevel({ name, layout: rows, theme: LEVELS[index]?.theme, spikeRadius: LEVELS[index]?.spikeRadius, spike2Radius: LEVELS[index]?.spike2Radius }, index);
+        // Level 100's rooms come along with its own layout
+        const rooms = rows === LEVELS[index]?.layout ? LEVELS[index].rooms : undefined;
+        game.loadLevel({ name, layout: rows, theme: LEVELS[index]?.theme, spikeRadius: LEVELS[index]?.spikeRadius, spike2Radius: LEVELS[index]?.spike2Radius, rooms }, index);
         layout = rows.slice();
         document.getElementById('level').textContent = name;
         restore();

@@ -493,6 +493,16 @@
             margin: 0 0 12px;
         }
 
+        /* Fireworks for Level 100's ending: over the game, under the confetti */
+        #fireworks {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 49;
+        }
+
         /* Confetti for the finale: falls over everything, can't be tapped */
         #confetti {
             position: fixed;
@@ -757,6 +767,7 @@
         </div>
     </div>
     <div id="thanks" hidden><h1>Thanks for playing!</h1></div>
+    <canvas id="fireworks" hidden></canvas>
     <div id="confetti" hidden></div>
     <script type="module" src="./js/main.js"></script>
 </body>

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Player } from './Player.js';
 import { Maze } from './Maze.js';
+import { RoomMaze } from './RoomMaze.js';
 import { LEVELS } from './levels.js';
 import { InputManager } from './InputManager.js';
 import { CollisionManager } from './CollisionManager.js';
@@ -98,6 +99,8 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
+    // Level 100's rooms are each drawn only inside their own walls
+    renderer.localClippingEnabled = true;
     document.body.appendChild(renderer.domElement);
 
     // Lighting
@@ -222,22 +225,19 @@ function loadLevel(level, index) {
     // The old level's snowmen stop being heard
     for (const s of maze?.snowmen ?? []) s.voice?.gain.disconnect();
     maze?.dispose();
-    const theme = level.theme || LEVELS[0].theme;
-    maze = new Maze(scene, level.layout, theme, {
+    const options = {
         spikeRadius: level.spikeRadius ?? LEVELS[index]?.spikeRadius,
         spike2Radius: level.spike2Radius ?? LEVELS[index]?.spike2Radius,
         golden: !!(level.finale ?? LEVELS[index]?.finale),
         beltQuiet: level.beltQuiet ?? LEVELS[index]?.beltQuiet,
         armInterval: level.armInterval ?? LEVELS[index]?.armInterval,
-    });
+    };
+    // Level 100: one maze in 9 rooms, each in its own world's look
+    maze = level.rooms ? new RoomMaze(scene, level, options) : new Maze(scene, level.layout, level.theme || LEVELS[0].theme, options);
     maze.build();
     collisionManager = new CollisionManager(maze.getMazeData());
-    scene.background.set(theme.sky);
-    scene.fog.color.set(theme.sky);
+    showSky(maze.theme);
     wasInCurrent = null;
-    // Under the sea the water goes hazy blue in the distance
-    scene.fog.near = theme.underwater ? 40 : 200;
-    scene.fog.far = theme.underwater ? 220 : 500;
 
     const cx = maze.width / 2;
     const cz = maze.depth / 2;
@@ -248,7 +248,26 @@ function loadLevel(level, index) {
     sun.shadow.camera.updateProjectionMatrix();
 
     document.getElementById('level').textContent = level.name;
-    sound?.setTune(level.music || LEVELS[index]?.music);
+    sound?.setTune(maze.music || level.music || LEVELS[index]?.music);
+}
+
+// The sky color and fog of a world's look
+function showSky(theme) {
+    scene.background.set(theme.sky);
+    scene.fog.color.set(theme.sky);
+    // Under the sea the water goes hazy blue in the distance
+    scene.fog.near = theme.underwater ? 40 : 200;
+    scene.fog.far = theme.underwater ? 220 : 500;
+}
+
+// Level 100: walking into the next room changes the sky to that room's, and
+// its tune takes over with a smooth crossfade of about 1 second
+const ROOM_CROSSFADE = 1;
+function checkRoom() {
+    if (!maze.updateRoom?.(player.position)) return;
+    showSky(maze.theme);
+    sound.crossfadeTo(maze.music, ROOM_CROSSFADE);
+    testHooks?.emit('room', { index: maze.active, music: maze.music });
 }
 
 function onWindowResize() {
@@ -455,6 +474,7 @@ function step(deltaTime) {
     if (lift !== null) player.camera.position.set(player.position.x, player.position.y + 1.6 + lift, player.position.z);
     if (platformEvent === 'land') player.startShove(maze.landing, BALLOON_STEP_OUT_TIME);
     checkSpikeAndDoor();
+    checkRoom();
 
     // Update camera to follow player
     camera.position.copy(player.camera.position);
@@ -513,6 +533,8 @@ function checkSpikeAndDoor() {
         beatLevel(levelIndex);
         sound.cheer({ long: !!finale });
         if (finale) showConfetti();
+        // Level 100: fireworks bursting in the sky too
+        if (LEVELS[levelIndex]?.fireworks) showFireworks();
         // "You did it!" (Start the next level / Quit), the finale's screen, or "More levels coming soon!"
         menu.showFinish(LEVELS[levelIndex + 1]?.name, finale, LEVELS[levelIndex]?.nextLabel);
         testHooks?.emit('escape');
@@ -541,6 +563,80 @@ function showConfetti() {
         layer.hidden = true;
         layer.innerHTML = '';
     }, 6500);
+}
+
+// Fireworks bursting in the sky over the screen for a few seconds (Level
+// 100's ending). Each burst pops (a sound effect, so the Sound effects
+// switch turns the pops off).
+const FIREWORKS_TIME = 7;
+function showFireworks() {
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.hidden = false;
+    const colors = ['#ff4f9a', '#4fc3ff', '#ffd84a', '#7dff6a', '#c79bff', '#ffffff', '#ff9f4a'];
+    const bursts = [];
+    const sparks = [];
+    // Rockets go up from the bottom and burst in the top half, one after another
+    for (let k = 0; k < 16; k++) bursts.push({ at: 0.15 + k * 0.4 + Math.random() * 0.25, x: 0.12 + Math.random() * 0.76, y: 0.12 + Math.random() * 0.33, color: colors[k % colors.length], done: false });
+    const start = performance.now();
+    let last = start;
+    testHooks?.emit('fireworks');
+    cancelAnimationFrame(showFireworks.frame);
+    const frame = (now) => {
+        const t = (now - start) / 1000;
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        // Fade the old frame a little, so sparks leave short trails
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'lighter';
+        for (const b of bursts) {
+            if (b.done || t < b.at - 0.6) continue;
+            const x = b.x * canvas.width;
+            const y = b.y * canvas.height;
+            if (t < b.at) {
+                // The rocket climbing
+                const k = 1 - (b.at - t) / 0.6;
+                ctx.fillStyle = '#ffe9b0';
+                ctx.beginPath();
+                ctx.arc(x, canvas.height - (canvas.height - y) * k, 3, 0, Math.PI * 2);
+                ctx.fill();
+                continue;
+            }
+            b.done = true;
+            sound.pop();
+            const size = Math.min(canvas.width, canvas.height);
+            for (let n = 0; n < 70; n++) {
+                const a = (n / 70) * Math.PI * 2;
+                const speed = size * (0.32 + Math.random() * 0.16);
+                sparks.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, life: 1.2 + Math.random() * 0.5, color: Math.random() < 0.2 ? '#ffffff' : b.color });
+            }
+        }
+        for (const s of sparks) {
+            s.life -= dt;
+            s.vx *= 1 - dt * 1.6;
+            s.vy = s.vy * (1 - dt * 1.6) + dt * 60;
+            s.x += s.vx * dt;
+            s.y += s.vy * dt;
+            if (s.life <= 0) continue;
+            ctx.globalAlpha = Math.min(1, s.life);
+            ctx.fillStyle = s.color;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, 2.4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        for (let n = sparks.length - 1; n >= 0; n--) if (sparks[n].life <= 0) sparks.splice(n, 1);
+        if (t < FIREWORKS_TIME || sparks.length) {
+            showFireworks.frame = requestAnimationFrame(frame);
+        } else {
+            canvas.hidden = true;
+        }
+    };
+    showFireworks.frame = requestAnimationFrame(frame);
 }
 
 function showMessage(text) {
