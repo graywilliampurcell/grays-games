@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Player } from './Player.js';
-import { Maze, SPIN_WALL_TIME, TRAPDOOR_WARNING_TIME } from './Maze.js';
+import { Maze, SPIN_WALL_TIME, TRAPDOOR_WARNING_TIME, SEA_LEVEL, CANNON_FUSE, CANNON_FLIGHT, CANNON_HEIGHT } from './Maze.js';
 import { RoomMaze } from './RoomMaze.js';
 import { Buddy } from './Buddy.js';
 import { LEVELS } from './levels.js';
@@ -54,6 +54,13 @@ let wasInCurrent = null;
 const BOUNCE_TIME = 1.2;
 const BOUNCE_HEIGHT = 2.5;
 let wasOnMarshmallow = null;
+// Pirate Ship World (Level 121 on): walking off an edge into the water, you
+// fall all the way down to the sea (WATER_FALL_TIME), splash, and see the
+// splash for SPLASH_SEE_TIME before "Ouch! Splash! Back to the start."
+const WATER_FALL_TIME = 1.5;
+const SPLASH_SEE_TIME = 0.8;
+let falling = null; // { time, from, x, z, splashed } while falling into the sea
+let fuseSound = null; // the cannon fuse's fizz, while it's fizzing
 // Sticky caramel (Level 52 on): you walk at half speed while you're on it
 const CARAMEL_SPEED = 0.5;
 // A steam vent's puff (Volcano World) pushes you one square back, taking this long
@@ -336,6 +343,13 @@ function animate() {
 }
 
 function step(deltaTime) {
+    // Falling into the sea (Pirate Ship World): nothing else happens till you're back at the start
+    if (falling) {
+        updateWaterFall(deltaTime);
+        camera.position.copy(player.camera.position);
+        camera.rotation.copy(player.camera.rotation);
+        return;
+    }
     // Update player movement
     player.update(inputManager, collisionManager, deltaTime);
     // Space doors (Level 12 on) slide open and shut by themselves
@@ -592,6 +606,21 @@ function step(deltaTime) {
     if (platformEvent === 'land') player.startShove(maze.landing, BALLOON_STEP_OUT_TIME);
     // The long-neck (Dinosaur World): a soft friendly rumble as it swings you across
     if (platformEvent === 'depart' && maze.theme.dino) sound.whoosh(0.7, 0.4);
+    // The cannons (Pirate Ship World): fully inside one, its fuse fizzes;
+    // after CANNON_FUSE it fires with a BOOM and you fly over the water gap
+    // in one arc into the other cannon (you can look around, not steer or fall)
+    for (const { cannon, event } of maze.updateCannons?.(deltaTime, player.position, !!player.shove?.hop) ?? []) {
+        if (event === 'load') fuseSound = sound.fizz(CANNON_FUSE);
+        if (event === 'cancel' || event === 'fire') {
+            sound.hush(fuseSound);
+            fuseSound = null;
+        }
+        if (event === 'fire') {
+            player.startShove(cannon.landing, CANNON_FLIGHT, CANNON_HEIGHT);
+            sound.boom();
+        }
+        testHooks?.emit('cannon', { what: event });
+    }
     updateBuddy(deltaTime);
     checkSpikeAndDoor();
     checkRoom();
@@ -628,12 +657,15 @@ function checkSpikeAndDoor() {
                 : maze.theme.factory ? 'Ouch! A zapper sent you back to the start.'
                 : maze.theme.desert ? 'Ouch! A cactus sent you back to the start.'
                 : maze.theme.dino ? 'Ouch! A bone spike sent you back to the start.'
+                : maze.theme.pirate ? 'Ouch! A splinter spike sent you back to the start.'
                 : 'Ouch! A spike sent you back to the start.');
     }
 
     // Walking into the gap (no platform under you) works like a spike.
     // Never while a marshmallow is bouncing you over the chocolate.
-    if (!player.shove?.hop && maze.fallsIntoGap(player.position)) {
+    if (!player.shove?.hop && maze.fallsIntoGap(player.position) && maze.theme.pirate) {
+        startWaterFall();
+    } else if (!player.shove?.hop && maze.fallsIntoGap(player.position)) {
         backToStart();
         testHooks?.emit('fall');
         sound.ouch();
@@ -796,7 +828,44 @@ function showMessage(text) {
 }
 
 // Back to the start of the level; the moving platform goes back to the start's side too
+// Walking off an edge into the water (Pirate Ship World): you fall all the
+// way down to the sea, looking down at it as it rushes up, then splash
+function startWaterFall() {
+    falling = { time: 0, from: player.position.y + 1.6, x: player.position.x, z: player.position.z, splashed: false, pitch: player.facing().pitch, yaw: player.facing().yaw };
+    player.velocity.set(0, 0, 0);
+    player.slide = null;
+    player.releaseAll();
+    sound.hush(fuseSound);
+    testHooks?.emit('waterFall');
+}
+
+function updateWaterFall(deltaTime) {
+    const f = falling;
+    f.time += deltaTime;
+    const t = Math.min(1, f.time / WATER_FALL_TIME);
+    // Speeding up as you fall, down to just above the water (high enough to see the splash below you)
+    const y = f.from + (SEA_LEVEL + 2.4 - f.from) * t * t;
+    player.camera.position.set(f.x, y, f.z);
+    // Tipping forward to look down at the sea
+    const pitch = f.pitch + (-1.25 - f.pitch) * Math.min(1, t * 1.6);
+    player.camera.quaternion.setFromEuler(new THREE.Euler(pitch, f.yaw, 0, 'YXZ'));
+    if (t >= 1 && !f.splashed) {
+        f.splashed = true;
+        maze.splashAt(f.x, f.z);
+        sound.splash();
+        testHooks?.emit('splash');
+    }
+    if (f.time >= WATER_FALL_TIME + SPLASH_SEE_TIME) {
+        falling = null;
+        backToStart();
+        testHooks?.emit('fall');
+        sound.ouch();
+        showMessage('Ouch! Splash! Back to the start.');
+    }
+}
+
 function backToStart() {
+    falling = null;
     player.resetTo(maze.getStartPosition(), maze.getStartYaw());
     player.sticky = 1;
     player.carried = false;

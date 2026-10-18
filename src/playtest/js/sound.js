@@ -34,6 +34,9 @@ const FLUTE_LEVEL = 0.035;
 // the sneaky melody (and, being music, quieter than the sound effects)
 const STOMP_LEVEL = 0.07;
 const CALL_LEVEL = 0.03;
+// Pirate Ship World's background waves and creaking wood (part of the music, quieter than the melody)
+const WAVE_LEVEL = 0.05;
+const CREAK_LEVEL = 0.02;
 // How long the device voice gets to start before the game's own voice sound plays instead
 const SPEECH_START_TIMEOUT = 700;
 
@@ -3307,6 +3310,35 @@ const TUNES = {
             calls: [[12, 50, 1.3], [44, 45, 1.2]],
         },
     },
+    // Level 121 (welcome to Pirate Ship World): sneaky and mysterious, more
+    // sneaky than mysterious, in A minor at 92 bpm: a soft plucked lead that
+    // sneaks along in little "hornpipe" steps, stops to listen, and slides
+    // down through a G-sharp. In the background (pirate): soft waves washing
+    // against the ship and creaking wood, quieter than the melody.
+    piratesneak: {
+        tempo: 92,
+        bars: [[45, 'min'], [45, 'min'], [41, 'maj'], [40, 'maj'], [45, 'min'], [43, 'maj'], [40, 'maj'], [45, 'min']],
+        bass: [0, null, null, 7, null, null, 0, null],
+        bassLength: 0.22,
+        stabs: [],
+        ticks: true,
+        melody: [
+            69, null, 71, 72, null, null, 71, null,
+            69, null, null, null, 64, null, null, null,
+            65, null, 69, null, 72, null, 74, null,
+            72, null, 71, null, 69, null, null, null,
+            69, null, 71, 72, null, 74, 76, null,
+            null, null, 74, null, 72, null, null, null,
+            71, null, 72, null, 71, null, 68, null,
+            69, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.15, length: 0.13, brightness: 1600 },
+        pirate: {
+            // [step, length in seconds] of each wave washing past, and the steps a plank creaks on
+            waves: [[0, 2.6], [24, 2.2], [40, 2.8]],
+            creaks: [14, 46],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -3571,6 +3603,11 @@ export class Sound {
             if (tune.dino.stomps.includes(beat)) this.stomp(t);
             for (const [at, note, length] of tune.dino.calls) if (at === step) this.dinoCall(hz(note), t, length);
         }
+        // Pirate Ship World's background: soft waves and creaking wood
+        if (tune.pirate) {
+            for (const [at, length] of tune.pirate.waves) if (at === step) this.seaWave(t, length);
+            if (tune.pirate.creaks.includes(step)) this.creak(t);
+        }
     }
 
     // A big friendly dinosaur's footstep far away: a deep, soft thump
@@ -3617,6 +3654,50 @@ export class Sound {
         o.connect(filter).connect(g).connect(this.noteOut);
         o.start(t);
         o.stop(t + length + 0.02);
+    }
+
+    // A soft wave washing against the ship (Pirate Ship World's music):
+    // low, airy noise that swells and fades over `length` seconds
+    seaWave(t, length) {
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'lowpass';
+        f.frequency.setValueAtTime(380, t);
+        f.frequency.linearRampToValueAtTime(900, t + length * 0.4);
+        f.frequency.linearRampToValueAtTime(300, t + length);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(WAVE_LEVEL, t + length * 0.4);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + length);
+        this.noiseSource(t, length + 0.05).connect(f).connect(g).connect(this.noteOut);
+    }
+
+    // Old ship's wood creaking (Pirate Ship World's music): a slow, rough,
+    // wobbling low squeak
+    creak(t) {
+        const o = this.ctx.createOscillator();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(210, t);
+        o.frequency.linearRampToValueAtTime(260, t + 0.25);
+        o.frequency.linearRampToValueAtTime(190, t + 0.55);
+        const wobble = this.ctx.createOscillator();
+        wobble.frequency.value = 23;
+        const depth = this.ctx.createGain();
+        depth.gain.value = 18;
+        wobble.connect(depth).connect(o.frequency);
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'bandpass';
+        f.frequency.value = 700;
+        f.Q.value = 3;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(CREAK_LEVEL, t + 0.12);
+        g.gain.setValueAtTime(CREAK_LEVEL, t + 0.4);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+        o.connect(f).connect(g).connect(this.noteOut);
+        o.start(t);
+        o.stop(t + 0.62);
+        wobble.start(t);
+        wobble.stop(t + 0.62);
     }
 
     // The egg cracking open (Level 111): two quick little cracks
@@ -3933,6 +4014,79 @@ export class Sound {
                 o.stop(t + at + decay + 0.05);
             }
         });
+    }
+
+    // A cannon's fuse (Pirate Ship World): a fizzing, crackling sizzle for
+    // `length` seconds. Returns a handle for hush() (you stepped out before
+    // it fired), or null. Obeys the Sound effects switch.
+    fizz(length = 1) {
+        if (!this.settings.sfx || !this.ctx) return null;
+        this.onEvent('fizz');
+        const t = this.ctx.currentTime;
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'highpass';
+        f.frequency.value = 3500;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.18, t + 0.05);
+        // Crackles: the fizz jumps up and down quickly
+        for (let k = 1; k < 16; k++) g.gain.setTargetAtTime(0.08 + Math.random() * 0.22, t + (k * length) / 16, 0.01);
+        g.gain.setTargetAtTime(0.0001, t + length, 0.02);
+        this.noiseSource(t, length + 0.15).connect(f).connect(g).connect(this.sfxBus);
+        return { gain: g, end: t + length };
+    }
+
+    // The cannon firing (Pirate Ship World): a big, deep BOOM
+    boom() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('boom');
+        const t = this.ctx.currentTime + 0.01;
+        const o = this.ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(95, t);
+        o.frequency.exponentialRampToValueAtTime(32, t + 0.6);
+        const og = this.ctx.createGain();
+        og.gain.setValueAtTime(0.0001, t);
+        og.gain.exponentialRampToValueAtTime(0.9, t + 0.01);
+        og.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+        o.connect(og).connect(this.sfxBus);
+        o.start(t);
+        o.stop(t + 0.85);
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'lowpass';
+        f.frequency.setValueAtTime(2500, t);
+        f.frequency.exponentialRampToValueAtTime(200, t + 0.7);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.85, t + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+        this.noiseSource(t, 0.95).connect(f).connect(g).connect(this.sfxBus);
+    }
+
+    // Falling into the sea (Pirate Ship World): a big splash, a sharp slap
+    // of water and then a long spray falling back down
+    splash() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('splash');
+        const t = this.ctx.currentTime + 0.01;
+        const slap = this.ctx.createBiquadFilter();
+        slap.type = 'lowpass';
+        slap.frequency.setValueAtTime(1800, t);
+        slap.frequency.exponentialRampToValueAtTime(400, t + 0.3);
+        const sg = this.ctx.createGain();
+        sg.gain.setValueAtTime(0.0001, t);
+        sg.gain.exponentialRampToValueAtTime(0.9, t + 0.01);
+        sg.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+        this.noiseSource(t, 0.4).connect(slap).connect(sg).connect(this.sfxBus);
+        const spray = this.ctx.createBiquadFilter();
+        spray.type = 'bandpass';
+        spray.frequency.value = 2600;
+        spray.Q.value = 0.6;
+        const pg = this.ctx.createGain();
+        pg.gain.setValueAtTime(0.0001, t + 0.05);
+        pg.gain.exponentialRampToValueAtTime(0.35, t + 0.15);
+        pg.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+        this.noiseSource(t + 0.05, 1.2).connect(spray).connect(pg).connect(this.sfxBus);
     }
 
     // Quickly fade out a vent sound that's still playing (you got past it)

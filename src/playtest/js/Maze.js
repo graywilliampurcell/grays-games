@@ -708,6 +708,20 @@ const SPACE_DOOR_LIGHTS = { open: 0x3dff6e, moving: 0xffc83d, closed: 0xff3d3d }
 const PLATFORM_LENGTH = 2.4;
 // Dinosaur World: how far down the long-neck's pit floor is
 const LONG_NECK_FLOOR = -12;
+// Pirate Ship World (Level 121 on): the sea, far below the deck; every water
+// gap is a hole in the deck all the way down to it
+export const SEA_LEVEL = -9;
+// The cannon ride (Level 121 on): a big cannon on each side of a 4-cell
+// water gap, aimed across. Fully inside one, its fuse fizzes for
+// CANNON_FUSE s, then it fires you over the gap in one arc (CANNON_FLIGHT s,
+// CANNON_HEIGHT high at the top) into the other cannon: you always land safely.
+export const CANNON_FUSE = 1;
+export const CANNON_FLIGHT = 1.5;
+export const CANNON_HEIGHT = 5;
+const CANNON_REACH = 2.2; // a cannon's middle, back from the gap's edge
+const CANNON_INSIDE = 0.85; // your middle this close to its middle (along and across) is inside it
+const CANNON_RADIUS = 1.1;
+const CANNON_LENGTH = 2.8;
 const PLATFORM_SPEED = 6; // about walking speed (walking tops out near 7.5)
 // A fast leaf ('F' blocks instead of 'O', Level 27 on) goes this much faster
 const FAST_PLATFORM_SPEED = PLATFORM_SPEED * 1.3;
@@ -1866,6 +1880,162 @@ function dinoDirtTexture(size, seed) {
     return texture;
 }
 
+// Pirate Ship World floor (Level 121 on): a wooden ship's deck, long planks
+// with dark seams, wood grain, staggered plank ends and little nail heads
+function deckTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    const woods = ['#b07a45', '#a5703e', '#ba854f', '#9c6a3a', '#b37d48'];
+    const rows = 8;
+    const h = size / rows;
+    for (let row = 0; row < rows; row++) {
+        const y = row * h;
+        // Each plank row has one or two plank ends, in different places
+        const ends = [random() * size];
+        if (random() < 0.5) ends.push((ends[0] + size / 2) % size);
+        ends.sort((a, b) => a - b);
+        const cuts = [0, ...ends, size];
+        for (let k = 0; k < cuts.length - 1; k++) {
+            g.fillStyle = woods[Math.floor(random() * woods.length)];
+            g.fillRect(cuts[k], y, cuts[k + 1] - cuts[k], h);
+        }
+        // Grain: thin wavy darker lines along the plank
+        for (let k = 0; k < 4; k++) {
+            g.strokeStyle = `rgba(90,55,25,${0.18 + random() * 0.18})`;
+            g.lineWidth = 1;
+            const gy = y + 3 + random() * (h - 6);
+            g.beginPath();
+            for (let x = 0; x <= size; x += 8) g.lineTo(x, gy + Math.sin(x * 0.05 + k * 2 + row) * 1.2);
+            g.stroke();
+        }
+        // A knot now and then
+        if (random() < 0.5) {
+            g.fillStyle = 'rgba(80,45,20,0.55)';
+            g.beginPath();
+            g.ellipse(random() * size, y + h / 2, 4 + random() * 3, 2.2, 0, 0, Math.PI * 2);
+            g.fill();
+        }
+        // The seam between plank rows, and the plank ends with a nail on each side
+        g.fillStyle = '#4a2e16';
+        g.fillRect(0, y, size, 2);
+        for (const x of ends) {
+            g.fillRect(x - 1, y, 2, h);
+            g.fillStyle = '#2b2b2b';
+            for (const dx of [-5, 5]) for (const dy of [h * 0.3, h * 0.7]) g.fillRect(x + dx - 1.5, y + dy - 1.5, 3, 3);
+            g.fillStyle = '#4a2e16';
+        }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Pirate Ship World walls: stacked wooden crates and barrels, with the
+// ship's rail along the top (one wall block = width x height pixels,
+// the top of the canvas is the top of the wall)
+function crateWallTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    g.fillStyle = '#5a3a1e';
+    g.fillRect(0, 0, width, height);
+    const crate = (x, y, w, h) => {
+        const tone = ['#b8864e', '#a8773f', '#c4945a', '#9f6f3a'][Math.floor(random() * 4)];
+        g.fillStyle = tone;
+        g.fillRect(x + 2, y + 2, w - 4, h - 4);
+        // Boards across
+        g.strokeStyle = 'rgba(70,40,15,0.5)';
+        g.lineWidth = 2;
+        for (let k = 1; k < 4; k++) {
+            g.beginPath();
+            g.moveTo(x + 2, y + (h * k) / 4);
+            g.lineTo(x + w - 2, y + (h * k) / 4);
+            g.stroke();
+        }
+        // The frame and the diagonal brace
+        g.strokeStyle = '#6e4622';
+        g.lineWidth = 9;
+        g.strokeRect(x + 6, y + 6, w - 12, h - 12);
+        g.beginPath();
+        g.moveTo(x + 8, y + h - 8);
+        g.lineTo(x + w - 8, y + 8);
+        g.stroke();
+        g.fillStyle = '#2b2b2b';
+        for (const [nx, ny] of [[10, 10], [w - 10, 10], [10, h - 10], [w - 10, h - 10]]) g.fillRect(x + nx - 2, y + ny - 2, 4, 4);
+    };
+    const barrel = (x, y, w, h) => {
+        g.fillStyle = '#3a2410';
+        g.fillRect(x, y, w, h);
+        const grad = g.createLinearGradient(x, 0, x + w, 0);
+        grad.addColorStop(0, '#6b4220');
+        grad.addColorStop(0.5, '#a8713c');
+        grad.addColorStop(1, '#6b4220');
+        g.fillStyle = grad;
+        g.beginPath();
+        g.ellipse(x + w / 2, y + h / 2, w / 2 - 3, h / 2 - 2, 0, 0, Math.PI * 2);
+        g.fill();
+        // Staves and iron hoops
+        g.strokeStyle = 'rgba(60,35,15,0.6)';
+        g.lineWidth = 2;
+        for (let k = 1; k < 5; k++) {
+            g.beginPath();
+            g.moveTo(x + (w * k) / 5, y + 6);
+            g.lineTo(x + (w * k) / 5, y + h - 6);
+            g.stroke();
+        }
+        g.fillStyle = '#444046';
+        for (const f of [0.22, 0.78]) g.fillRect(x + 6, y + h * f - 4, w - 12, 8);
+    };
+    // The rail along the top: a top bar on little posts
+    const railH = height / 8;
+    g.fillStyle = '#7a4c24';
+    g.fillRect(0, 0, width, railH * 0.35);
+    for (let x = 8; x < width; x += 32) g.fillRect(x, 0, 12, railH);
+    g.fillStyle = 'rgba(255,230,180,0.25)';
+    g.fillRect(0, 0, width, 4);
+    // Crates and barrels stacked up below it
+    const block = width;
+    for (let y = railH; y < height - 2; y += block) {
+        if (random() < 0.3) barrel(0, y, width, Math.min(block, height - y));
+        else crate(0, y, width, Math.min(block, height - y));
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// The sea all round the ship (Pirate Ship World): deep blue with lighter
+// wave crests
+function seaTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#1d6fa8';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < 60; k++) {
+        const x = random() * size;
+        const y = random() * size;
+        const w = 8 + random() * 22;
+        g.strokeStyle = `rgba(${random() < 0.5 ? '200,235,255' : '120,190,235'},${0.35 + random() * 0.35})`;
+        g.lineWidth = 2;
+        g.beginPath();
+        g.moveTo(x - w / 2, y);
+        g.quadraticCurveTo(x, y - 4, x + w / 2, y);
+        g.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
 // Desert Pyramid World floor: golden sand with little wavy ripples (just
 // for looks)
 function desertSandTexture(size, seed) {
@@ -2508,8 +2678,11 @@ export class Maze {
         const factory = this.theme.factory;
         const desert = this.theme.desert;
         const dino = this.theme.dino;
+        const pirate = this.theme.pirate;
         let wallMaterial;
-        if (dino) {
+        if (pirate) {
+            wallMaterial = new THREE.MeshStandardMaterial({ map: crateWallTexture(128, 512, 127), roughness: 0.85, emissive: 0x2a1808, emissiveIntensity: 0.3 });
+        } else if (dino) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: fernRockTexture(128, 512, 113), roughness: 0.95, emissive: 0x1a2a10, emissiveIntensity: 0.35 });
         } else if (desert) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: sandstoneTexture(128, 512, 83), roughness: 0.9, emissive: 0x3a2808, emissiveIntensity: 0.3 });
@@ -2560,7 +2733,11 @@ export class Maze {
 
         // Floor
         let floorMaterial;
-        if (dino) {
+        if (pirate) {
+            const map = deckTexture(256, 139);
+            map.repeat.set(this.width / 8, this.depth / 8);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 0.85 });
+        } else if (dino) {
             const map = dinoDirtTexture(256, 127);
             map.repeat.set(this.width / 8, this.depth / 8);
             floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
@@ -2626,9 +2803,9 @@ export class Maze {
             }
             const geometry = new THREE.ExtrudeGeometry(outline, { depth: 0.2, bevelEnabled: false });
             geometry.rotateX(Math.PI / 2);
-            floorMaterial.map?.repeat.set(factory ? 0.25 : dino ? 0.125 : 0.5, factory ? 0.25 : dino ? 0.125 : 0.5);
+            floorMaterial.map?.repeat.set(factory ? 0.25 : dino || pirate ? 0.125 : 0.5, factory ? 0.25 : dino || pirate ? 0.125 : 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : desert ? 0x8a6428 : dino ? 0x4a3420 : 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : desert ? 0x8a6428 : dino ? 0x4a3420 : pirate ? 0x3a2210 : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -2649,6 +2826,7 @@ export class Maze {
         if (ice) this.addIceSky();
         if (desert) this.addDesertSky();
         if (dino) this.addDinoSky();
+        if (pirate) this.addPirateSky();
         if (factory) {
             this.addMachineHall();
             this.addFactorySteam(count);
@@ -3890,6 +4068,12 @@ export class Maze {
             const object = new THREE.Group();
             object.add(group);
             return { kind, object, velocity: new THREE.Vector3(), life: 0, wings, flap: Math.random() * 6 };
+        } else if (kind === 'gull') {
+            const wings = this.makeGull(group, basic);
+            group.scale.setScalar(1.1);
+            const object = new THREE.Group();
+            object.add(group);
+            return { kind, object, velocity: new THREE.Vector3(), life: 0, wings, flap: Math.random() * 6 };
         } else if (kind === 'ptero') {
             const wings = this.makePterodactyl(group, basic);
             group.scale.setScalar(1.3);
@@ -3947,11 +4131,11 @@ export class Maze {
         const cz = this.depth / 2;
         const angle = Math.random() * Math.PI * 2;
         // Birds and butterflies fly lower and slower than things in space
-        const speeds = { cloud: 2.5, balloon: 3.5, rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, owl: 8, butterfly: 4, turtle: 3, whale: 4, manta: 5, school: 6, ptero: 7 };
+        const speeds = { cloud: 2.5, balloon: 3.5, rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, owl: 8, butterfly: 4, turtle: 3, whale: 4, manta: 5, school: 6, ptero: 7, gull: 8 };
         const speed = speeds[flyer.kind];
         // Sea animals swim slowly over the reef, not too high (Underwater World)
         // Candy World's clouds and balloons drift slowly, like birds
-        const bird = ['parrot', 'toucan', 'owl', 'turtle', 'whale', 'manta', 'school', 'cloud', 'balloon', 'ptero'].includes(flyer.kind);
+        const bird = ['parrot', 'toucan', 'owl', 'turtle', 'whale', 'manta', 'school', 'cloud', 'balloon', 'ptero', 'gull'].includes(flyer.kind);
         const butterfly = flyer.kind === 'butterfly';
         const span = butterfly ? 70 : bird ? 160 : 260;
         const dir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
@@ -3971,6 +4155,12 @@ export class Maze {
     // Move the things flying through the sky, and under the platform gap (called every frame)
     update(dt) {
         if (this.ash) this.updateAsh(dt);
+        // Pirate Ship World: the sea moves gently, the cannons spark and smoke, splashes fall back
+        if (this.seaMap) this.seaMap.offset.x = (this.seaMap.offset.x + dt * 0.01) % 1;
+        if (this.theme.pirate) {
+            this.showCannons(dt);
+            this.updateSplashes(dt);
+        }
         if (this.theme.factory) this.updateFactory(dt);
         if (this.camels) this.placeCamels(dt);
         if (this.auroras) this.updateAuroras(dt);
@@ -3986,7 +4176,7 @@ export class Maze {
                 const butterfly = flyer.kind === 'butterfly';
                 flyer.flap += dt * (butterfly ? 14 : 7);
                 // (pterodactyls glide, with slow gentle flaps too)
-                const sea = ['turtle', 'whale', 'manta', 'ptero'].includes(flyer.kind);
+                const sea = ['turtle', 'whale', 'manta', 'ptero', 'gull'].includes(flyer.kind);
                 if (sea) flyer.flap -= dt * 4.5; // slow, gentle strokes
                 for (const wing of flyer.wings) {
                     if (wing.userData.whaleTail) wing.rotation.z = Math.sin(flyer.flap) * 0.3;
@@ -4182,6 +4372,7 @@ export class Maze {
         if (this.theme.factory) return this.createZapper(position, radius);
         if (this.theme.desert) return this.createCactus(position, radius);
         if (this.theme.dino) return this.createBoneSpike(position, radius);
+        if (this.theme.pirate) return this.createSplinterSpike(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -5674,7 +5865,20 @@ export class Maze {
         const sled = !!this.theme.ice;
         const carpet = !!this.theme.desert;
         const longNeck = !!this.theme.dino;
+        const cannon = !!this.theme.pirate;
         const width = alongX ? gap.maxZ - gap.minZ : gap.maxX - gap.minX;
+        // Pirate Ship World: a cannon on each side, aimed across, and where its shot lands (inside the other)
+        const cannons = cannon ? [-CANNON_REACH, span + CANNON_REACH].map((along) => {
+            const at = alongX ? new THREE.Vector3(gap.minX + along, 0, gap.minZ + width / 2) : new THREE.Vector3(gap.minX + width / 2, 0, gap.minZ + along);
+            const sign = along < 0 ? 1 : -1;
+            return { center: at, aim: alongX ? new THREE.Vector3(sign, 0, 0) : new THREE.Vector3(0, 0, sign), phase: 'empty', time: 0, mustLeave: false, smoke: 0, recoil: 0 };
+        }) : [];
+        if (cannon) {
+            cannons[0].other = cannons[1];
+            cannons[1].other = cannons[0];
+            cannons[0].landing = cannons[1].center.clone();
+            cannons[1].landing = cannons[0].center.clone();
+        }
         // Candy World: the marshmallow on each bank, and where its bounce lands
         const pads = chocolate ? [
             { along: -MARSHMALLOW_FROM_EDGE, landing: span + BOUNCE_LANDING },
@@ -5691,6 +5895,8 @@ export class Maze {
             sled, // Ice World: an icy crack crossed on a sled hanging from a zip line
             carpet, // Desert Pyramid World: a sand pit crossed on a flying carpet that keeps its own cycle
             longNeck, // Dinosaur World: a pit crossed on a long-neck dinosaur's head (moves like the hover platform)
+            cannon, // Pirate Ship World: a water gap crossed by being fired from a cannon
+            cannons,
             phase: 'rest', // sled: 'rest' | 'zip' (carrying you) | 'float' (empty, coming to you); balloon: 'rest' | 'wait' (you're in, the burner's about to fire) | 'rise' | 'cross' | 'down' | 'float' (empty, coming to you)
             time: 0, // balloon: seconds into the phase
             lift: 0, // balloon: how high it is
@@ -5717,6 +5923,11 @@ export class Maze {
         this.resetSnowmen();
         this.resetThinIce();
         for (const p of this.platforms) {
+            // The cannons: empty, fuses out
+            if (p.cannon) {
+                for (const c of p.cannons) Object.assign(c, { phase: 'empty', time: 0, mustLeave: false });
+                continue;
+            }
             // The flying carpet keeps its cycle (a reset to the start doesn't change it)
             if (p.carpet) {
                 p.riding = false;
@@ -5784,6 +5995,8 @@ export class Maze {
         if (p.bubble) return !p.riding && this.inCrack(point, p);
         // The chocolate river: anywhere in it (the bounce carries you over it)
         if (p.chocolate) return true;
+        // The water gap: anywhere in it (the cannon fires you over it)
+        if (p.cannon) return true;
         // The balloon: never while it's in the air with you in it
         if (p.balloon && ['rise', 'cross', 'down'].includes(p.phase)) return false;
         // The sled: never while it's zooming you across
@@ -5801,7 +6014,7 @@ export class Maze {
         const p = (point && this.gapAt(point)) || this.platform;
         const g = p.gap;
         // (Candy World: back from the marshmallow, so it doesn't bounce you at once)
-        const back = p.chocolate ? MARSHMALLOW_FROM_EDGE + MARSHMALLOW_STEP + 0.6 : 1;
+        const back = p.chocolate ? MARSHMALLOW_FROM_EDGE + MARSHMALLOW_STEP + 0.6 : p.cannon ? CANNON_REACH + CANNON_INSIDE + 1.4 : 1;
         const before = p.startAt === p.low ? -back : p.span + back;
         const dir = p.startAt === p.low ? 1 : -1;
         const position = p.alongX
@@ -5828,6 +6041,7 @@ export class Maze {
     updateOnePlatform(p, dt, position, velocity, radius) {
         if (p.bubble) return this.updateBubble(p, dt, position, velocity, radius);
         if (p.chocolate) return null; // nothing moves: the marshmallows bounce you (see marshmallowAt)
+        if (p.cannon) return null; // the cannons fire you over (see updateCannons)
         if (p.balloon) return this.updateBalloon(p, dt, position, velocity, radius);
         if (p.sled) return this.updateSled(p, dt, position, velocity, radius);
         if (p.carpet) return this.updateCarpet(p, dt, position, velocity, radius);
@@ -6397,6 +6611,11 @@ export class Maze {
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
     createPlatform(p) {
+        if (p.cannon) {
+            this.createSeaHole(p);
+            this.createCannons(p);
+            return;
+        }
         if (this.theme.factory) {
             this.createMachinePit(p);
             this.createTire(p);
@@ -7730,6 +7949,399 @@ export class Maze {
 
     // Is a point within `margin` of any spike? (The round spike counts from the
     // edge of its plate; a row counts across its whole width.)
+    // ---- Pirate Ship World (Level 121 on) ----
+
+    // The sky and the sea: a bright sun, the sea all round the ship far
+    // below the deck (gently moving), the ship's wooden hull down to it,
+    // tall masts with big sails standing up out of the crate walls, and
+    // seagulls gliding by. Decoration only: nothing up there touches you.
+    addPirateSky() {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        const sun = new THREE.Mesh(new THREE.SphereGeometry(14, 24, 16), new THREE.MeshBasicMaterial({ color: 0xfff3b0, fog: false }));
+        sun.position.set(cx + 120, 110, cz - 180);
+        this.root.add(sun);
+        // The sea, out to the horizon (and under the ship, seen through every water gap)
+        const map = seaTexture(256, 211);
+        map.repeat.set(160, 160);
+        const sea = new THREE.Mesh(new THREE.PlaneGeometry(1200, 1200), new THREE.MeshStandardMaterial({ map, roughness: 0.35, metalness: 0.1, emissive: 0x0a3050, emissiveIntensity: 0.6 }));
+        sea.rotation.x = -Math.PI / 2;
+        sea.position.set(cx, SEA_LEVEL, cz);
+        this.root.add(sea);
+        this.seaMap = map;
+        // The hull: dark wooden sides from the deck's edge down into the sea,
+        // a little wider than the maze, with a pointed bow at the east end
+        const hullMap = deckTexture(256, 223);
+        hullMap.repeat.set(6, 1.5);
+        const hull = new THREE.MeshStandardMaterial({ map: hullMap, color: 0x8a5a30, roughness: 0.9 });
+        const drop = -SEA_LEVEL + 2;
+        for (const [w, d, x, z] of [
+            [this.width + 1, 0.5, cx, -0.25], [this.width + 1, 0.5, cx, this.depth + 0.25],
+            [0.5, this.depth + 1, -0.25, cz], [0.5, this.depth + 1, this.width + 0.25, cz],
+        ]) {
+            const side = new THREE.Mesh(new THREE.BoxGeometry(w, drop, d), hull);
+            side.position.set(x, -0.2 - drop / 2 + 0.2, z);
+            this.root.add(side);
+        }
+        // (a flat wedge: its shape's (x, y) is the world's (x, z), extruded down to the sea)
+        const bowShape = new THREE.Shape([new THREE.Vector2(this.width + 0.5, -0.5), new THREE.Vector2(this.width + 16, cz), new THREE.Vector2(this.width + 0.5, this.depth + 0.5)]);
+        const bowGeometry = new THREE.ExtrudeGeometry(bowShape, { depth: drop, bevelEnabled: false });
+        bowGeometry.rotateX(Math.PI / 2);
+        const bow = new THREE.Mesh(bowGeometry, hull);
+        bow.position.y = -0.25;
+        this.root.add(bow);
+        // Masts with sails, each standing in a wall block along the middle of the ship
+        const wood = new THREE.MeshStandardMaterial({ color: 0x7a4c24, roughness: 0.85 });
+        const canvas = new THREE.MeshStandardMaterial({ color: 0xf4ead2, roughness: 0.95, side: THREE.DoubleSide, emissive: 0x403828, emissiveIntensity: 0.3 });
+        const flag = new THREE.MeshBasicMaterial({ color: 0xd93a3a, side: THREE.DoubleSide });
+        for (const f of [0.22, 0.5, 0.78]) {
+            const spot = this.nearestWallBlock(this.width * f, cz);
+            if (!spot) continue;
+            const mast = new THREE.Group();
+            const height = f === 0.5 ? 30 : 25;
+            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.45, height, 12), wood);
+            pole.position.y = height / 2;
+            mast.add(pole);
+            for (const [y, w, h] of [[height * 0.42, 14, 7], [height * 0.72, 11, 5.5]]) {
+                const yard = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, w + 1, 8), wood);
+                yard.rotation.x = Math.PI / 2;
+                yard.position.y = y + h / 2;
+                mast.add(yard);
+                // The sail billows out a little in the wind
+                const geometry = new THREE.PlaneGeometry(w, h, 12, 6);
+                const pos = geometry.attributes.position;
+                for (let k = 0; k < pos.count; k++) {
+                    const u = pos.getX(k) / w;
+                    const v = pos.getY(k) / h;
+                    pos.setZ(k, 1.4 * Math.cos(u * Math.PI) * (0.6 + 0.4 * Math.cos(v * Math.PI)));
+                }
+                geometry.computeVertexNormals();
+                const sail = new THREE.Mesh(geometry, canvas);
+                sail.rotation.y = Math.PI / 2;
+                sail.position.set(0.6, y, 0);
+                mast.add(sail);
+            }
+            const nest = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 0.9, 0.9, 14, 1, true), wood);
+            nest.material = wood.clone();
+            nest.material.side = THREE.DoubleSide;
+            nest.position.y = height * 0.9;
+            mast.add(nest);
+            const pennant = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(3, -0.5), new THREE.Vector2(0, -1)])), flag);
+            pennant.position.set(0, height + 0.8, 0);
+            mast.add(pennant);
+            mast.traverse((o) => { o.castShadow = false; });
+            mast.position.set(spot.x + 0.5, 0, spot.z + 0.5);
+            this.root.add(mast);
+        }
+        this.flyers = [];
+        for (let k = 0; k < 7; k++) {
+            const flyer = this.makeFlyer('gull');
+            this.root.add(flyer.object);
+            this.flyers.push(flyer);
+            this.launchFlyer(flyer, k / 7);
+        }
+    }
+
+    // The wall block nearest a point (x, z), if any
+    nearestWallBlock(x, z) {
+        let best = null;
+        for (let i = 0; i < this.width; i++) {
+            for (let j = 0; j < this.depth; j++) {
+                if (this.grid[i][j] !== 1) continue;
+                const d = Math.hypot(i + 0.5 - x, j + 0.5 - z);
+                if (!best || d < best.d) best = { x: i, z: j, d };
+            }
+        }
+        return best;
+    }
+
+    // A seagull gliding along +x: a white body, gray-topped wings that flap
+    // slowly, a yellow beak
+    makeGull(group, basic) {
+        const white = basic(0xffffff);
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.7, 14, 10), white);
+        body.scale.set(1.6, 0.6, 0.6);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 12, 10), white);
+        head.position.set(1.2, 0.25, 0);
+        const beak = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.6, 8), basic(0xffc93c));
+        beak.rotation.z = -Math.PI / 2;
+        beak.position.set(1.8, 0.2, 0);
+        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.08, 0.5), basic(0xdadde2));
+        tail.position.set(-1.2, 0.05, 0);
+        group.add(body, head, beak, tail);
+        for (const side of [-1, 1]) {
+            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), basic(0x222222));
+            eye.position.set(1.45, 0.38, side * 0.28);
+            group.add(eye);
+        }
+        const wings = [];
+        for (const side of [-1, 1]) {
+            const pivot = new THREE.Group();
+            const shape = new THREE.Shape([new THREE.Vector2(0.5, 0), new THREE.Vector2(-0.6, 0), new THREE.Vector2(-1.1, 3.4), new THREE.Vector2(-0.4, 3.6)]);
+            const wing = new THREE.Mesh(new THREE.ShapeGeometry(shape), basic(0xc9ced6, { side: THREE.DoubleSide }));
+            wing.rotation.x = side * Math.PI / 2;
+            pivot.add(wing);
+            pivot.userData.side = side;
+            group.add(pivot);
+            wings.push(pivot);
+        }
+        return wings;
+    }
+
+    // Pirate Ship World's spike: broken deck planks with pointy splinters
+    // sticking up, as wide as a spike's plate. Touching them works the same
+    // as a spike.
+    createSplinterSpike(position, radius) {
+        const spike = new THREE.Group();
+        const wood = new THREE.MeshStandardMaterial({ color: 0x9a6634, roughness: 0.8, emissive: 0x2a1606, emissiveIntensity: 0.35 });
+        const raw = new THREE.MeshStandardMaterial({ color: 0xe8c48a, roughness: 0.7 });
+        // The broken board they stick out of
+        const board = new THREE.Mesh(new THREE.CylinderGeometry(SPIKE_RADIUS, SPIKE_RADIUS * 1.05, 0.1, 7), new THREE.MeshStandardMaterial({ color: 0x6e4420, roughness: 0.9, flatShading: true }));
+        board.position.y = 0.05;
+        spike.add(board);
+        for (const [x, z, h, w, lean, turn] of [[0, 0, 1.2, 0.22, 0.05, 0.3], [0.36, 0.14, 0.85, 0.18, 0.4, 1.2], [-0.32, 0.24, 0.95, 0.2, -0.35, -0.6], [-0.08, -0.4, 0.8, 0.16, 0.32, 2.1], [0.24, -0.3, 0.7, 0.15, -0.38, 0.9], [-0.42, -0.12, 0.6, 0.13, -0.45, 2.6]]) {
+            const piece = new THREE.Group();
+            const shaft = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.07), wood);
+            shaft.position.y = h / 2;
+            shaft.castShadow = true;
+            // A jagged, pale, freshly broken point
+            const point = new THREE.Mesh(new THREE.ConeGeometry(w * 0.6, 0.32, 4), raw);
+            point.scale.z = 0.35;
+            point.position.y = h + 0.14;
+            piece.add(shaft, point);
+            // and a little side splinter
+            const sliver = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.3, 4), raw);
+            sliver.position.set(w * 0.4, h * 0.6, 0);
+            sliver.rotation.z = -0.6;
+            piece.add(sliver);
+            piece.position.set(x, 0.08, z);
+            piece.rotation.set(lean * 0.6, turn, lean);
+            spike.add(piece);
+        }
+        spike.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
+        spike.position.copy(position);
+        spike.position.y = 0;
+        this.root.add(spike);
+        return spike;
+    }
+
+    // A water gap's hole in the deck (Level 121 on): dark wooden sides go
+    // straight down to the sea far below (the sea itself is addPirateSky's)
+    createSeaHole(p) {
+        const g = p.gap;
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        const sizeX = g.maxX - g.minX;
+        const sizeZ = g.maxZ - g.minZ;
+        const depth = -SEA_LEVEL + 1;
+        for (const [w, d, x, z, along] of [
+            [sizeX, 0.05, cx, g.minZ, sizeX], [sizeX, 0.05, cx, g.maxZ, sizeX],
+            [0.05, sizeZ, g.minX, cz, sizeZ], [0.05, sizeZ, g.maxX, cz, sizeZ],
+        ]) {
+            const map = deckTexture(256, 233);
+            map.repeat.set(along / 6, depth / 6);
+            map.center.set(0.5, 0.5);
+            map.rotation = Math.PI / 2;
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(w, depth, d), new THREE.MeshStandardMaterial({ map, color: 0x9a7050, roughness: 1, emissiveMap: map, emissive: 0xffffff, emissiveIntensity: 0.25 }));
+            wall.position.set(x, -0.2 - depth / 2, z);
+            this.root.add(wall);
+        }
+        // A painted white line round the hole's edge, so it shows from far off
+        const trim = new THREE.MeshStandardMaterial({ color: 0xf2efe6, roughness: 0.6 });
+        const width = p.alongX ? sizeZ : sizeX;
+        for (const end of [0, p.span]) {
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(width, 0.04, 0.16), trim);
+            if (p.alongX) {
+                strip.rotation.y = Math.PI / 2;
+                strip.position.set(g.minX + end + (end ? 0.08 : -0.08), 0.02, cz);
+            } else {
+                strip.position.set(cx, 0.02, g.minZ + end + (end ? 0.08 : -0.08));
+            }
+            this.root.add(strip);
+        }
+    }
+
+    // The two big cannons, one on each side of the gap at its edge, aimed
+    // across it: a wide iron barrel (big enough to climb right into, open at
+    // the back like a circus cannon) on a wooden carriage with big wheels, a
+    // brass ring at the mouth, a fuse on top that sparks while it fizzes,
+    // and puffs of smoke when it fires
+    createCannons(p) {
+        const iron = new THREE.MeshStandardMaterial({ color: 0x3b3d44, metalness: 0.6, roughness: 0.4, emissive: 0x16171c, emissiveIntensity: 0.6, side: THREE.DoubleSide });
+        const brass = new THREE.MeshStandardMaterial({ color: 0xd4a640, metalness: 0.7, roughness: 0.35 });
+        const wood = new THREE.MeshStandardMaterial({ color: 0x7a4c24, roughness: 0.85 });
+        const smokeMaterial = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, roughness: 1, transparent: true, opacity: 0.8, depthWrite: false });
+        for (const c of p.cannons) {
+            const group = new THREE.Group();
+            // Everything is built aimed along -z (the mouth toward -z), then turned to face the gap
+            const barrel = new THREE.Group();
+            const tube = new THREE.Mesh(new THREE.CylinderGeometry(CANNON_RADIUS, CANNON_RADIUS * 0.94, CANNON_LENGTH, 32, 1, true), iron);
+            tube.rotation.x = Math.PI / 2;
+            barrel.add(tube);
+            for (const [z, r, color] of [[-CANNON_LENGTH / 2, 0.16, brass], [CANNON_LENGTH / 2, 0.12, iron], [-CANNON_LENGTH * 0.15, 0.08, iron], [CANNON_LENGTH * 0.2, 0.08, iron]]) {
+                const ring = new THREE.Mesh(new THREE.TorusGeometry(CANNON_RADIUS + 0.04, r, 10, 36), color);
+                ring.position.z = z;
+                barrel.add(ring);
+            }
+            // The fuse on top near the back, and its spark
+            const fuse = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.5, 6), new THREE.MeshStandardMaterial({ color: 0x3a2a1a }));
+            fuse.position.set(0, CANNON_RADIUS + 0.25, CANNON_LENGTH * 0.3);
+            fuse.rotation.x = -0.4;
+            const spark = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffd040 }));
+            spark.position.set(0, CANNON_RADIUS + 0.5, CANNON_LENGTH * 0.3 + 0.1);
+            spark.visible = false;
+            barrel.add(fuse, spark);
+            barrel.position.y = CANNON_RADIUS + 0.12;
+            barrel.rotation.x = 0.12; // the mouth tipped up a little
+            group.add(barrel);
+            // The carriage: two wooden sides with big wheels
+            for (const side of [-1, 1]) {
+                const cheek = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.7, CANNON_LENGTH * 0.8), wood);
+                cheek.position.set(side * (CANNON_RADIUS + 0.12), 0.45, 0.1);
+                group.add(cheek);
+                for (const z of [-CANNON_LENGTH * 0.28, CANNON_LENGTH * 0.32]) {
+                    const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.14, 16), wood);
+                    wheel.rotation.z = Math.PI / 2;
+                    wheel.position.set(side * (CANNON_RADIUS + 0.22), 0.45, z);
+                    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.18, 10), brass);
+                    hub.rotation.z = Math.PI / 2;
+                    hub.position.copy(wheel.position);
+                    group.add(wheel, hub);
+                }
+            }
+            // Smoke puffs at the mouth (hidden until it fires)
+            const smoke = [];
+            for (let k = 0; k < 7; k++) {
+                const puff = new THREE.Mesh(new THREE.SphereGeometry(0.6, 12, 10), smokeMaterial.clone());
+                puff.visible = false;
+                puff.userData.offset = new THREE.Vector3((Math.random() - 0.5) * 1.6, CANNON_RADIUS + (Math.random() - 0.2) * 1.2, -CANNON_LENGTH / 2 - 0.3 - Math.random() * 1.4);
+                group.add(puff);
+                smoke.push(puff);
+            }
+            group.traverse((o) => { if (o.isMesh) o.castShadow = o.material !== smokeMaterial; });
+            group.position.copy(c.center);
+            // Turn it so its mouth (-z) points across the gap
+            group.rotation.y = Math.atan2(-c.aim.x, -c.aim.z);
+            this.root.add(group);
+            Object.assign(c, { object: group, barrel, spark, smoke });
+        }
+    }
+
+    // Run the cannons (called every game step). Fully inside a cannon its
+    // fuse fizzes (and you can't walk on out of its mouth); step back out
+    // before it fires and nothing happens; after
+    // CANNON_FUSE it fires (main.js sends you over the gap to c.landing, the
+    // other cannon, which won't fire again till you've stepped out of it).
+    // Returns a list of { cannon, event }: 'load' (the fuse starts), 'cancel'
+    // or 'fire'. flying: a cannon has you in the air.
+    updateCannons(dt, position, flying = false) {
+        const events = [];
+        // (Nothing changes while a cannon has you in the air)
+        if (flying) return events;
+        for (const p of this.platforms) {
+            if (!p.cannon) continue;
+            for (const c of p.cannons) {
+                // While its fuse fizzes you can't walk on out of its mouth
+                // into the water (only back out the way you came)
+                if (c.phase === 'fuse') {
+                    const ahead = (position.x - c.center.x) * c.aim.x + (position.z - c.center.z) * c.aim.z;
+                    const side = Math.abs((position.x - c.center.x) * c.aim.z - (position.z - c.center.z) * c.aim.x);
+                    const most = CANNON_INSIDE - 0.02;
+                    if (ahead > most && ahead < most + 1 && side <= CANNON_INSIDE) {
+                        position.x -= c.aim.x * (ahead - most);
+                        position.z -= c.aim.z * (ahead - most);
+                    }
+                }
+                const inside = Math.abs(position.x - c.center.x) <= CANNON_INSIDE && Math.abs(position.z - c.center.z) <= CANNON_INSIDE;
+                if (c.mustLeave) {
+                    if (!inside) c.mustLeave = false;
+                } else if (c.phase === 'empty') {
+                    if (inside) {
+                        Object.assign(c, { phase: 'fuse', time: 0 });
+                        events.push({ cannon: c, event: 'load' });
+                    }
+                } else if (c.phase === 'fuse') {
+                    if (!inside) {
+                        Object.assign(c, { phase: 'empty', time: 0 });
+                        events.push({ cannon: c, event: 'cancel' });
+                    } else {
+                        c.time += dt;
+                        if (c.time >= CANNON_FUSE) {
+                            Object.assign(c, { phase: 'empty', time: 0, smoke: 1, recoil: 1 });
+                            c.other.mustLeave = true;
+                            events.push({ cannon: c, event: 'fire' });
+                            return events; // (you're off: leave the other cannon waiting for you)
+                        }
+                    }
+                }
+            }
+        }
+        return events;
+    }
+
+    // The cannons' looks (every frame): the fuse's flickering spark, the
+    // barrel kicking back when it fires, and its smoke puffing out and fading
+    showCannons(dt) {
+        for (const p of this.platforms) {
+            if (!p.cannon) continue;
+            for (const c of p.cannons) {
+                if (!c.object) continue;
+                c.spark.visible = c.phase === 'fuse';
+                if (c.spark.visible) c.spark.scale.setScalar(0.7 + Math.random() * 0.7);
+                c.recoil = Math.max(0, (c.recoil ?? 0) - dt * 2.5);
+                c.barrel.position.z = 0.35 * Math.sin(c.recoil * Math.PI / 2);
+                c.smoke = Math.max(0, (c.smoke ?? 0) - dt / 1.4);
+                const t = 1 - c.smoke;
+                for (const puff of c.smoke ? c.object.children.filter((o) => o.userData.offset) : []) {
+                    puff.visible = c.smoke > 0;
+                    puff.position.copy(puff.userData.offset).multiplyScalar(1 + t * 1.5);
+                    puff.position.y = puff.userData.offset.y + t * 1.5;
+                    puff.scale.setScalar(0.5 + t * 2);
+                    puff.material.opacity = 0.85 * c.smoke;
+                }
+                if (!c.smoke) for (const puff of c.object.children) if (puff.userData.offset) puff.visible = false;
+            }
+        }
+    }
+
+    // A big splash in the sea where you fell in (Level 121 on): white spray
+    // shooting up and falling back, and a foamy ring spreading out
+    splashAt(x, z) {
+        const group = new THREE.Group();
+        const white = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
+        const drops = [];
+        for (let k = 0; k < 70; k++) {
+            const drop = new THREE.Mesh(new THREE.SphereGeometry(0.1 + Math.random() * 0.2, 6, 5), white);
+            const a = Math.random() * Math.PI * 2;
+            const out = 0.8 + Math.random() * 3;
+            drops.push({ mesh: drop, velocity: new THREE.Vector3(Math.cos(a) * out, 3 + Math.random() * 4, Math.sin(a) * out) });
+            group.add(drop);
+        }
+        const ring = new THREE.Mesh(new THREE.RingGeometry(0.6, 1, 32), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8, side: THREE.DoubleSide }));
+        ring.rotation.x = -Math.PI / 2;
+        group.add(ring);
+        group.position.set(x, SEA_LEVEL + 0.05, z);
+        this.root.add(group);
+        this.splashes = (this.splashes ?? []).concat([{ group, drops, ring, time: 0 }]);
+    }
+
+    // Move the splashes along (every frame); each one goes away after a while
+    updateSplashes(dt) {
+        if (!this.splashes?.length) return;
+        for (const s of this.splashes) {
+            s.time += dt;
+            for (const d of s.drops) {
+                d.velocity.y -= 12 * dt;
+                d.mesh.position.addScaledVector(d.velocity, dt);
+                d.mesh.visible = d.mesh.position.y > -0.2;
+            }
+            s.ring.scale.setScalar(1 + s.time * 4);
+            s.ring.material.opacity = Math.max(0, 0.8 - s.time * 0.5);
+        }
+        for (const s of this.splashes.filter((q) => q.time > 2)) this.root.remove(s.group);
+        this.splashes = this.splashes.filter((q) => q.time <= 2);
+    }
+
     // ---- Dinosaur World (Level 111 on) ----
 
     // The sky: a soft sun, rolling green hills with fern trees far away all

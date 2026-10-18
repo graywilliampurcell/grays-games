@@ -94,6 +94,9 @@ export function installTestHooks(game) {
             spaceDoor: maze.spaceDoor ? { phase: maze.spaceDoor.phase, shut: round(maze.spaceDoor.shut), solid: maze.spaceDoor.solid } : null,
             platform: maze.platform ? platformState(maze.platform) : null,
             platforms: maze.platforms.map(platformState),
+            // Pirate Ship World: the cannons (phase 'empty' | 'fuse'), and the camera's height (it drops when you fall into the sea)
+            cannons: maze.platforms.flatMap((p) => p.cannons ?? []).map((c) => ({ x: c.center.x, z: c.center.z, phase: c.phase, time: round(c.time), mustLeave: c.mustLeave, landing: { x: c.landing.x, z: c.landing.z } })),
+            eyeY: round(player.camera.position.y),
             spikeRows: maze.spikeRows.map((r) => ({ x: r.position.x, z: r.position.z, spansX: r.spansX })),
             door: { x: maze.doorPosition.x, z: maze.doorPosition.z },
             // Level 100: which room the player is in (0-8, in path order)

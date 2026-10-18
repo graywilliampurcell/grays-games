@@ -68,6 +68,12 @@ const DESERT = { wall: 0xd9b46a, floor: 0xe8bf6a, sky: 0x5fb4ff, desert: true };
 // are pits crossed on a long-neck dinosaur's head (see Maze.js). The baby
 // triceratops buddy comes along in every level (see Buddy.js).
 const DINO = { wall: 0x3f7a2c, floor: 0x8f6a44, sky: 0x8fd3ff, dino: true };
+// Levels 121-130, Pirate Ship World: a wooden deck floor, walls of stacked
+// crates and barrels with the ship's rail along the top, big sails, masts
+// and seagulls in the sky and the sea all round, far below; the spikes are
+// broken planks with pointy splinters, and the water gaps are holes in the
+// deck down to the sea, crossed by cannon (see Maze.js). No pirates.
+const PIRATE = { wall: 0x8a5a2b, floor: 0xb07a45, sky: 0x8fd3ff, pirate: true };
 
 export const LEVELS = [
     {
@@ -6883,6 +6889,7 @@ export const LEVELS = [
         theme: DINO,
         music: 'dinofinale',
         finale: 'You beat Dinosaur World!',
+        nextLabel: 'Start Pirate Ship World',
         spike2Radius: 0.72,
         layout: [
         '#############################################',
@@ -6932,13 +6939,79 @@ export const LEVELS = [
         '#############################################',
         ],
     },
+    {
+        name: 'Level 121',
+        // Welcome to Pirate Ship World. `SEEDS=100 node tools/find-pirate-level.mjs
+        // level121 31 3500`, seed 3537. 12 x 12 corridors. Correct path 79
+        // cells (start west in row 11, door east in row 6); 31 wrong ways 2
+        // cells deep, plus the sneaky splinter spike's. X: the sneaky
+        // splinter spike, in the last cell of a 3-deep one-turn dead end off
+        // path cell 3. O: the cannon ride's water gap over path cells 60-63
+        // (top row, crossed heading east), with a cannon in path cell 59 and
+        // one in path cell 64, each aimed across. No plank, no waves, no
+        // rocking, no path or big splinter spike. A sneaky, mysterious tune
+        // with soft waves and creaking wood.
+        theme: PIRATE,
+        music: 'piratesneak',
+        layout: [
+        '#################################################',
+        '#                        OOOOOOOOOOOOOOO        #',
+        '#                        OOOOOOOOOOOOOOO        #',
+        '#                        OOOOOOOOOOOOOOO        #',
+        '#   #########################################   #',
+        '#                                           #   #',
+        '#                                           #   #',
+        '#                                           #   #',
+        '#   #####   #####   #####   #########   #   #   #',
+        '#   #       #   #       #       #       #   #   #',
+        '#   #       #   #       #       #       #   #   #',
+        '#   #       #   #       #       #       #   #   #',
+        '#   #########   #########################   #   #',
+        '#   #       #                               #   #',
+        '#   #       #                               #   #',
+        '#   #       #                               #   #',
+        '#####   #########   #########   #############   #',
+        '#                   #       #       #           #',
+        '#                   #       #       #           #',
+        '#                   #       #       #           #',
+        '#   #################   #############   #########',
+        '#                               #       #       #',
+        '#                               #       #       #',
+        '#                               #       #       #',
+        '#   #   #   #   #   #   #   #   #   #########   #',
+        '#   #   #   #   #   #   #   #   #   #       #   #',
+        '#   #   #   #   #   #   #   #   #   #       #   D',
+        '#   #   #   #   #   #   #   #   #   #       #   #',
+        '#   #   #   #   #   #   #   #   #   #   #####   #',
+        '#   #   #   #   #   #   #   #   #               #',
+        '#   #   #   #   #   #   #   #   #               #',
+        '#   #   #   #   #   #   #   #   #               #',
+        '#############################   #################',
+        '#       #   #   #   #   #   #                   #',
+        '# X     #   #   #   #   #   #                   #',
+        '#       #   #   #   #   #   #                   #',
+        '#####   #   #   #   #   #   #   #############   #',
+        '#   #   #   #   #   #   #   #       #       #   #',
+        '#   #   #   #   #   #   #   #       #       #   #',
+        '#   #   #   #   #   #   #   #       #       #   #',
+        '#   #   #   #   #   #   #   #############   #   #',
+        '#                                               #',
+        '#                                               #',
+        '#                                               #',
+        '#####   #############   #####   #####   #   #####',
+        '#               #       #       #       #       #',
+        '# S             #       #       #       #       #',
+        '#               #       #       #       #       #',
+        '#################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
 // the index of its first and last built level and its look. A level's world
 // is its theme, or its `world` name when it has one (Everything World,
 // Levels 91-100: each level wears an earlier world's theme).
-const lookOf = (theme) => theme.dino ? 'dino' : theme.desert ? 'desert' : theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
+const lookOf = (theme) => theme.pirate ? 'pirate' : theme.dino ? 'dino' : theme.desert ? 'desert' : theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
 // The look of one level's button: its own theme's look (Level 100: all of them)
 export const levelLook = (level) => level.look ?? lookOf(level.theme);
 export const WORLDS = [];
