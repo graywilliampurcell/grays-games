@@ -94,6 +94,7 @@ export function installTestHooks(game) {
             buttonDoors: (maze.buttonDoors ?? []).map((d) => ({ pressed: d.pressed, open: round(d.open), solid: d.solid, button: { x: d.button.x, z: d.button.z }, minX: d.minX, maxX: d.maxX, minZ: d.minZ, maxZ: d.maxZ })),
             spinWall: maze.spinWall ? { minX: maze.spinWall.minX, maxX: maze.spinWall.maxX, minZ: maze.spinWall.minZ, maxZ: maze.spinWall.maxZ, spansX: maze.spinWall.spansX, center: { x: maze.spinWall.center.x, z: maze.spinWall.center.z }, angle: round(maze.spinWall.angle), spinning: !!maze.spinWall.spin, time: round(maze.spinWall.spin?.time ?? 0) } : null,
             spinning: !!player.spinning,
+            trampoline: maze.trampoline ? { center: { x: maze.trampoline.center.x, z: maze.trampoline.center.z }, landing: { x: maze.trampoline.landing.x, z: maze.trampoline.landing.z }, dir: maze.trampoline.dir, bouncing: !!maze.trampoline.bouncing, view: maze.trampoline.view, squish: round(maze.trampoline.squish) } : null,
             spaceDoor: maze.spaceDoor ? { phase: maze.spaceDoor.phase, shut: round(maze.spaceDoor.shut), solid: maze.spaceDoor.solid } : null,
             platform: maze.platform ? platformState(maze.platform) : null,
             platforms: maze.platforms.map(platformState),

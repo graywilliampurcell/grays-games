@@ -107,6 +107,11 @@ const BALLOON_STEP_OUT_TIME = 0.4;
 const BUTTON_DOOR_GRIND_TIME = 1;
 // After a spinning wall's turn, you step off into the middle of the cell beyond it
 const SPIN_STEP_OFF_TIME = 0.3;
+// The cloud trampoline (Sky World, Level 133 on) bounces you over its wall
+// in one arc this long (starting value Gray will judge), this high at the
+// top (your eyes go up to about 5.6, above the 4-high walls)
+const TRAMPOLINE_TIME = 1.5;
+const TRAMPOLINE_HEIGHT = 4;
 const lastOutsideCurrent = new THREE.Vector3();
 let frameCount = 0;
 let lastTime = performance.now();
@@ -448,6 +453,38 @@ function step(deltaTime) {
                 player.spinning = false;
                 player.startShove(spin.step, SPIN_STEP_OFF_TIME);
                 testHooks?.emit('spin');
+            }
+        }
+    }
+    // The cloud trampoline (Sky World, Level 133 on): step onto it and it
+    // squishes and bounces you up over the wall at the end of its corridor
+    // with a boing, landing you in the middle of the cell beyond, turned to
+    // face the way you were going. You can't steer or fall. In the air you
+    // see only its cell, the wall and the landing cell.
+    if (maze.trampoline) {
+        const t = maze.trampoline;
+        maze.updateTrampoline(deltaTime);
+        if (!t.bouncing && !player.shove && !player.carried && !player.spinning && !escaped && maze.onTrampoline(player.position)) {
+            t.squish = 1;
+            player.euler.setFromQuaternion(player.camera.quaternion);
+            t.bouncing = { time: 0, fromYaw: player.euler.y, toYaw: Math.atan2(-t.dir.x, -t.dir.z) };
+            player.startShove(t.landing, TRAMPOLINE_TIME, TRAMPOLINE_HEIGHT);
+            maze.setTrampolineView(true);
+            sound.boing();
+            testHooks?.emit('trampoline', { what: 'bounce' });
+        }
+        if (t.bouncing) {
+            const b = t.bouncing;
+            b.time = Math.min(TRAMPOLINE_TIME, b.time + deltaTime);
+            const u = Math.min(1, b.time / (TRAMPOLINE_TIME * 0.6));
+            const turn = Math.atan2(Math.sin(b.toYaw - b.fromYaw), Math.cos(b.toYaw - b.fromYaw));
+            player.euler.setFromQuaternion(player.camera.quaternion);
+            player.euler.y = b.fromYaw + turn * u * u * (3 - 2 * u);
+            player.camera.quaternion.setFromEuler(player.euler);
+            if (!player.shove) {
+                t.bouncing = null;
+                maze.setTrampolineView(false);
+                testHooks?.emit('trampoline', { what: 'land' });
             }
         }
     }
@@ -951,6 +988,10 @@ function backToStart() {
     maze.resetPlatform();
     maze.resetButtonDoor?.();
     maze.resetSpinWall?.();
+    if (maze.trampoline) {
+        maze.trampoline.bouncing = null;
+        maze.setTrampolineView(false);
+    }
     buddy?.backToStart();
 }
 

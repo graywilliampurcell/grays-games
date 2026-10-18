@@ -3646,6 +3646,34 @@ const TUNES = {
             birds: [[14, 88], [30, 91], [46, 86], [62, 93]],
         },
     },
+    // Level 133 (the first cloud trampoline): sneaky and mysterious, half
+    // and half, in A minor at 96 bpm: a soft square lead that tiptoes along
+    // low, then springs up an octave and floats slowly back down like a
+    // bounce, with a mysterious F major and E major turn. Wind and far-off
+    // birdsong in the background, quieter than the melody.
+    skybounce: {
+        tempo: 96,
+        bars: [[45, 'min'], [45, 'min'], [41, 'maj'], [40, 'maj'], [45, 'min'], [41, 'maj'], [40, 'maj'], [45, 'min']],
+        bass: [0, null, 7, null, 0, null, null, null],
+        bassLength: 0.24,
+        stabs: [],
+        ticks: true,
+        melody: [
+            57, null, 59, null, 60, null, null, null,
+            69, null, null, 67, null, 65, null, null,
+            64, null, null, null, 60, null, 59, null,
+            56, null, null, null, 59, null, null, null,
+            57, null, 59, null, 60, null, 64, null,
+            72, null, null, null, 69, null, 65, null,
+            64, null, 68, null, 71, null, 68, null,
+            69, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.22, brightness: 1300 },
+        sky: {
+            winds: [[4, 2.8], [28, 2.2], [44, 2.6]],
+            birds: [[8, 89], [22, 93], [38, 87], [54, 91], [60, 95]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -4402,6 +4430,43 @@ export class Sound {
             o.start(at);
             o.stop(at + 0.62);
         });
+    }
+
+    // The cloud trampoline (Sky World, Level 133 on): a soft, springy
+    // "boing" that wobbles up and settles, with a little puff of air
+    boing() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('boing');
+        const t = this.ctx.currentTime + 0.01;
+        const o = this.ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(140, t);
+        o.frequency.exponentialRampToValueAtTime(420, t + 0.12);
+        o.frequency.exponentialRampToValueAtTime(300, t + 0.5);
+        const wobble = this.ctx.createOscillator();
+        wobble.frequency.value = 14;
+        const wobbleDepth = this.ctx.createGain();
+        wobbleDepth.gain.setValueAtTime(40, t);
+        wobbleDepth.gain.exponentialRampToValueAtTime(2, t + 0.5);
+        wobble.connect(wobbleDepth).connect(o.frequency);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
+        o.connect(g).connect(this.sfxBus);
+        o.start(t);
+        o.stop(t + 0.6);
+        wobble.start(t);
+        wobble.stop(t + 0.6);
+        // The puff of air as the cloud squishes
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'lowpass';
+        f.frequency.value = 900;
+        const n = this.ctx.createGain();
+        n.gain.setValueAtTime(0.0001, t);
+        n.gain.exponentialRampToValueAtTime(0.12, t + 0.02);
+        n.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+        this.noiseSource(t, 0.3).connect(f).connect(n).connect(this.sfxBus);
     }
 
     // The cannon firing (Pirate Ship World): a big, deep BOOM

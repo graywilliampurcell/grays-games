@@ -2431,6 +2431,10 @@ export class Maze {
         // Windy hallways ('<', '>', '^', 'v' blocks: the wind blows west,
         // east, north or south along them; Sky World, Level 132 on)
         const windBlocks = { '<': [], '>': [], '^': [], 'v': [] };
+        // A cloud trampoline ('k', the middle of the corridor cell it fills;
+        // Sky World, Level 133 on): it bounces you over the plain wall at
+        // the cell's far end (the side opposite its one opening)
+        const trampolineCells = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -2466,6 +2470,7 @@ export class Maze {
                 if (ch === 'E') spinBlocks.push({ x, z });
                 if (ch === 'f') fossilPositions.push(center);
                 if (windBlocks[ch]) windBlocks[ch].push({ x, z });
+                if (ch === 'k') trampolineCells.push({ x, z });
             }
         }
         this.currents = [];
@@ -2622,6 +2627,20 @@ export class Maze {
                     bits: [],
                 });
             }
+        }
+        this.trampoline = null;
+        for (const { x, z } of trampolineCells) {
+            const open = [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([dx, dz]) => this.grid[x + 2 * dx]?.[z + 2 * dz] === 0);
+            if (open.length !== 1) continue;
+            const dir = { x: -open[0][0], z: -open[0][1] };
+            this.trampoline = {
+                x, z, dir,
+                center: new THREE.Vector3(x + 0.5, 0, z + 0.5),
+                landing: new THREE.Vector3(x + 0.5 + 4 * dir.x, 0, z + 0.5 + 4 * dir.z),
+                squish: 0,
+                bouncing: null,
+                view: false,
+            };
         }
         this.fossils = fossilPositions.map((position, index) => ({ position, kind: FOSSIL_KINDS[index % FOSSIL_KINDS.length], collected: false, t: index * 1.3 }));
         this.doorLock = null;
@@ -2831,6 +2850,7 @@ export class Maze {
         if (this.spinWall) this.createSpinWall();
         for (const f of this.fossils) this.createFossil(f);
         for (const w of this.winds) this.createWind(w);
+        if (this.trampoline) this.createTrampoline();
         this.scene.add(this.root);
     }
 
@@ -2908,6 +2928,7 @@ export class Maze {
         }
         const wallGeometry = new THREE.BoxGeometry(1, this.height, 1);
         const walls = new THREE.InstancedMesh(wallGeometry, wallMaterial, count);
+        this.wallMaterial = wallMaterial;
         const matrix = new THREE.Matrix4();
         let n = 0;
         for (let x = 0; x < this.width; x++) {
@@ -8326,6 +8347,100 @@ export class Maze {
         return { position, done: true, step };
     }
 
+    // The cloud trampoline (Sky World, Level 133 on): a soft, puffy white
+    // cloud filling the floor of its corridor cell, a little bluish
+    // underneath, bobbing gently. Plus what you see from the air while it
+    // bounces you (hidden till then): just its cell, the wall and the
+    // landing cell beyond.
+    createTrampoline() {
+        const t = this.trampoline;
+        const group = new THREE.Group();
+        group.position.copy(t.center);
+        const puff = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, emissive: 0xe8f0ff, emissiveIntensity: 0.35 });
+        const shade = new THREE.MeshStandardMaterial({ color: 0xc8d8f0, roughness: 1, emissive: 0x8090b0, emissiveIntensity: 0.2 });
+        const cushion = new THREE.Group();
+        const base = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.25, 0.22, 32), shade);
+        base.position.y = 0.11;
+        cushion.add(base);
+        let r = 71;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        for (let k = 0; k < 22; k++) {
+            const a = k * 2.39996;
+            const d = k === 0 ? 0 : Math.min(1.05, 0.25 * Math.sqrt(k) + random() * 0.15);
+            const size = 0.42 + random() * 0.2 - d * 0.08;
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(size, 18, 12), puff);
+            ball.scale.y = 0.55;
+            ball.position.set(Math.cos(a) * d, 0.24 + random() * 0.08, Math.sin(a) * d);
+            cushion.add(ball);
+        }
+        group.add(cushion);
+        group.traverse((o) => { o.receiveShadow = true; });
+        this.root.add(group);
+        t.object = group;
+        t.cushion = cushion;
+        // The view from the air: the two cells and the walls round them
+        const lo = { x: Math.min(t.x, t.x + 4 * t.dir.x) - 2, z: Math.min(t.z, t.z + 4 * t.dir.z) - 2 };
+        const hi = { x: Math.max(t.x, t.x + 4 * t.dir.x) + 2, z: Math.max(t.z, t.z + 4 * t.dir.z) + 2 };
+        const walls = [];
+        for (let x = lo.x; x <= hi.x; x++) for (let z = lo.z; z <= hi.z; z++) if (this.grid[x]?.[z] === 1) walls.push([x, z]);
+        const view = new THREE.Group();
+        const wallMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, this.height, 1), this.wallMaterial, walls.length);
+        const matrix = new THREE.Matrix4();
+        walls.forEach(([x, z], k) => wallMesh.setMatrixAt(k, matrix.makeTranslation(x + 0.5, this.height / 2, z + 0.5)));
+        view.add(wallMesh);
+        const map = grassTexture(256, 151);
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        map.repeat.set((hi.x - lo.x + 1) / 8, (hi.z - lo.z + 1) / 8);
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(hi.x - lo.x + 1, hi.z - lo.z + 1), new THREE.MeshStandardMaterial({ map, roughness: 1 }));
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.set((lo.x + hi.x + 1) / 2, 0.001, (lo.z + hi.z + 1) / 2);
+        floor.receiveShadow = true;
+        view.add(floor);
+        view.visible = false;
+        this.root.add(view);
+        t.viewGroup = view;
+    }
+
+    // Standing on the cloud trampoline: your middle is inside its cell
+    onTrampoline(point) {
+        const t = this.trampoline;
+        return !!t && Math.abs(point.x - t.center.x) < 1.5 && Math.abs(point.z - t.center.z) < 1.5;
+    }
+
+    // In the air over the trampoline's wall, only its cell, the wall and the
+    // landing cell show (so nobody can see the maze from above); on landing
+    // everything shows again
+    setTrampolineView(on) {
+        const t = this.trampoline;
+        if (!t || t.view === on) return;
+        if (on) {
+            t.saved = new Map(this.root.children.map((o) => [o, o.visible]));
+            for (const o of this.root.children) o.visible = false;
+            t.object.visible = true;
+            t.viewGroup.visible = true;
+        } else {
+            for (const [o, visible] of t.saved ?? []) o.visible = visible;
+            t.saved = null;
+            t.viewGroup.visible = false;
+        }
+        t.view = on;
+        // A rainbow bridge shows (or not) for where it is in its cycle now
+        if (!on) for (const p of this.platforms) if (p.rainbowObject) this.showRainbow(p);
+    }
+
+    // One game step: the cloud squishes down when bounced on, then puffs
+    // back up, and bobs a little
+    updateTrampoline(dt) {
+        const t = this.trampoline;
+        if (!t) return;
+        t.squish = Math.max(0, t.squish - dt * 2);
+        t.clock = (t.clock ?? 0) + dt;
+        if (!t.cushion) return;
+        const q = Math.sin(t.squish * Math.PI) * 0.6 + t.squish * 0.3;
+        t.cushion.scale.set(1 + q * 0.15, 1 - q * 0.6, 1 + q * 0.15);
+        t.cushion.position.y = 0.03 * Math.sin(t.clock * 1.7);
+    }
+
     // Sent back to the start (or a level loading): no spin in progress
     resetSpinWall() {
         if (this.spinWall) this.spinWall.spin = null;
@@ -8653,7 +8768,7 @@ export class Maze {
     showRainbow(p) {
         const r = p.rainbowObject;
         if (!r) return;
-        r.group.visible = p.rainbowPhase !== 'gone';
+        r.group.visible = p.rainbowPhase !== 'gone' && !this.trampoline?.view;
         let k = 1;
         if (p.rainbowPhase === 'fading') {
             // Flickering, faster and fainter toward the end
