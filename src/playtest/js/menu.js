@@ -24,7 +24,7 @@ export class Menu {
     //         settings, changeSettings(changes) }
     constructor(game) {
         this.game = game;
-        this.state = 'closed'; // closed | title | news | erase | worlds | levels | replace | main | settings | quit | finish | update | thanks
+        this.state = 'closed'; // closed | help | title | news | erase | worlds | levels | replace | main | settings | quit | finish | update | thanks
         this.quitFrom = 'main'; // the panel Quit → No goes back to
         this.root = document.getElementById('menu');
         this.panels = {
@@ -39,6 +39,7 @@ export class Menu {
             settings: document.getElementById('menu-settings'),
             quit: document.getElementById('menu-quit'),
             finish: document.getElementById('menu-finish'),
+            help: document.getElementById('menu-help'),
         };
         this.glowIndex = 0;
         this.updateWaiting = false; // a newer build is live and Gray hasn't reloaded yet
@@ -121,6 +122,13 @@ export class Menu {
         this.finishGlow = nextLevelName ? 'next-level' : 'finish-quit';
         this.show('finish', this.finishGlow);
         this.offerUpdate();
+    }
+
+    // Dinosaur World: the game thinks you're really lost (the game is
+    // already paused). Help me! glows first.
+    showHelp() {
+        this.root.hidden = false;
+        this.show('help', 'help-yes');
     }
 
     // Main menu: Continue (only with a saved spot, and then it glows first) /
@@ -300,6 +308,9 @@ export class Menu {
             if (this.updateFrom === 'closed') this.close();
             else if (this.updateFrom === 'title') this.show('title', this.game.hasSave() ? 'continue' : 'new-game');
             else this.show('finish', this.finishGlow);
+        } else if (act === 'help-yes' || act === 'help-no') {
+            this.close();
+            this.game.helpAnswer(act === 'help-yes');
         } else if (act === 'settings') {
             this.show('settings', 'setup');
         } else if (act === 'quit' || act === 'finish-quit') {

@@ -62,6 +62,12 @@ const FACTORY = { wall: 0xb5582a, floor: 0x5a6067, sky: 0x56606e, factory: true 
 // golden sand with little wavy ripples, a bright blue sky with a hot sun and
 // pyramids and camels far away; the spikes are prickly cactuses (see Maze.js)
 const DESERT = { wall: 0xd9b46a, floor: 0xe8bf6a, sky: 0x5fb4ff, desert: true };
+// Levels 111-120, Dinosaur World: walls of giant ferns and big rocks, a dirt
+// floor with huge dinosaur footprints pressed into it, a sky with friendly
+// pterodactyls gliding by; the spikes are pointy fossil bones, and the gaps
+// are pits crossed on a long-neck dinosaur's head (see Maze.js). The baby
+// triceratops buddy comes along in every level (see Buddy.js).
+const DINO = { wall: 0x3f7a2c, floor: 0x8f6a44, sky: 0x8fd3ff, dino: true };
 
 export const LEVELS = [
     {
@@ -6252,6 +6258,7 @@ export const LEVELS = [
         theme: DESERT,
         music: 'pyramidfinale',
         finale: 'You beat Pyramid World!',
+        nextLabel: 'Start Dinosaur World',
         layout: [
         '#########################################',
         '#           #       #   #       #       #',
@@ -6296,13 +6303,76 @@ export const LEVELS = [
         '#########################################',
         ],
     },
+    {
+        name: 'Level 111',
+        // Welcome to Dinosaur World. `SEEDS=1000 node tools/find-dino-level.mjs
+        // level111 26 6601`, seed 6707. 11 x 11 corridors. Correct path 66
+        // cells (start west in row 8, door east in row 9); 26 wrong ways 2
+        // cells deep, plus the sneaky bone spike's. X: the sneaky bone spike,
+        // in the last cell of a 3-deep one-turn dead end off path cell 2. O:
+        // the long-neck's pit over path cells 34-36 (top row, crossed heading
+        // east), with the long-neck's head waiting at the start's edge. The
+        // egg by the start hatches the baby triceratops buddy (hatch, the 111
+        // switch). No tail swish, no fossils, no path or big bone spike. A
+        // sneaky, mysterious tune with soft dinosaur stomps and calls.
+        theme: DINO,
+        music: 'dinosneak',
+        hatch: true,
+        layout: [
+        '#############################################',
+        '#    OOOOOOOOOOO                            #',
+        '#    OOOOOOOOOOO                            #',
+        '#    OOOOOOOOOOO                            #',
+        '#   #############################   #####   #',
+        '#   #                           #   #       #',
+        '#   #                           #   #       #',
+        '#   #                           #   #       #',
+        '#   #   #####   #####   #########   #   #####',
+        '#   #   #   #       #           #   #       #',
+        '#   #   #   #       #           #   #       #',
+        '#   #   #   #       #           #   #       #',
+        '#   #   #   #############   #   #####   #   #',
+        '#   #       #               #   #       #   #',
+        '#   #       #               #   #       #   #',
+        '#   #       #               #   #       #   #',
+        '#   #   #############   #   #####   #########',
+        '#   #   #   #           #   #               #',
+        '#   #   #   #           #   #               #',
+        '#   #   #   #           #   #               #',
+        '#   #   #   #########   #   #   #   #####   #',
+        '#           #           #   #   #       #   #',
+        '#           #           #   #   #       #   #',
+        '#           #           #   #   #       #   #',
+        '#   #################   #################   #',
+        '#   #       #           #   #   #       #   #',
+        '#   #     X #           #   #   #       #   #',
+        '#   #       #           #   #   #       #   #',
+        '#   #   #############   #   #   #   #   #   #',
+        '#   #   #   #   #           #   #   #       #',
+        '#   #   #   #   #           #   #   #       #',
+        '#   #   #   #   #           #   #   #       #',
+        '#####   #   #   #   #   #####   #   #########',
+        '#           #       #       #       #       #',
+        '# S         #       #       #       #       #',
+        '#           #       #       #       #       #',
+        '#####   #########   #########   #####   #   #',
+        '#   #   #               #               #   #',
+        '#   #   #               #               #   D',
+        '#   #   #               #               #   #',
+        '#   #   #   #########   #   #####   #   #####',
+        '#                   #   #   #       #       #',
+        '#                   #   #   #       #       #',
+        '#                   #   #   #       #       #',
+        '#############################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
 // the index of its first and last built level and its look. A level's world
 // is its theme, or its `world` name when it has one (Everything World,
 // Levels 91-100: each level wears an earlier world's theme).
-const lookOf = (theme) => theme.desert ? 'desert' : theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
+const lookOf = (theme) => theme.dino ? 'dino' : theme.desert ? 'desert' : theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
 // The look of one level's button: its own theme's look (Level 100: all of them)
 export const levelLook = (level) => level.look ?? lookOf(level.theme);
 export const WORLDS = [];

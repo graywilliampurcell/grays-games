@@ -94,10 +94,21 @@ export function installTestHooks(game) {
             // Level 100: which room the player is in (0-8, in path order)
             room: maze.active ?? null,
             start: { x: start.x, z: start.z, yaw: round(maze.getStartYaw()) },
+            buddy: buddyState(game.getBuddy?.()),
         };
     }
 
     // Replace the maze with a new layout (same format as levels.js)
+    // Dinosaur World's baby triceratops: where he is, what he's doing, and the lost rule
+    function buddyState(b) {
+        if (!b) return null;
+        return {
+            mode: b.mode, x: round(b.position.x), z: round(b.position.z), onHead: b.onHead, visible: b.model.group.visible,
+            egg: b.egg.group.visible, furthest: b.furthest, wrongWays: b.wrongWays, lostTime: round(b.lostTime), sinceAsk: round(b.sinceAsk),
+            helpFrom: b.helpFrom, path: b.path.map(([i, j]) => [i, j]),
+        };
+    }
+
     function loadLayout(rows, name = 'Custom', index = -1) {
         // Level 100's rooms come along with its own layout
         const rooms = rows === LEVELS[index]?.layout ? LEVELS[index].rooms : undefined;
@@ -169,6 +180,8 @@ export function installTestHooks(game) {
             return state();
         },
         restore,
+        // The maze itself (for browser tests that look inside it)
+        maze: () => game.getMaze(),
         text,
         loadLayout,
     };

@@ -380,6 +380,22 @@
             background-repeat: no-repeat;
         }
 
+        /* Dinosaur World: a pterodactyl in a blue sky over green hills and
+           ferns, brown dirt with a big footprint */
+        .item.look-dino {
+            background-color: #8fd3ff;
+            background-image:
+                linear-gradient(160deg, transparent 46%, #b8643a 46% 50%, transparent 50%),
+                linear-gradient(20deg, transparent 46%, #b8643a 46% 50%, transparent 50%),
+                radial-gradient(ellipse at 30% 70%, #4fa83a 0 18%, transparent 19%),
+                radial-gradient(ellipse at 75% 66%, #3f8f2f 0 16%, transparent 17%),
+                radial-gradient(ellipse at 50% 90%, #5a3f24 0 7%, transparent 8%),
+                linear-gradient(180deg, #8fd3ff 0, #c4ebff 60%, #8f6a44 60%);
+            background-size: 22% 14%, 22% 14%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+            background-position: 38% 18%, 62% 18%, center, center, center, center;
+            background-repeat: no-repeat;
+        }
+
         /* Locked: plain gray with only a lock, nothing about what's inside */
         .item.locked {
             background-image: none;
@@ -457,6 +473,40 @@
             font-size: 22px;
             letter-spacing: 0;
             font-weight: normal;
+        }
+
+        /* The 111 switch (Level 111's egg hatching): a big 111 with an egg
+           below it and the words Dinosaur World, then On or Off */
+        .item.toggle.dino-switch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .dino-switch .egg {
+            width: 30px;
+            height: 38px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            background:
+                radial-gradient(circle at 30% 35%, #8fbf6a 0 3px, transparent 4px),
+                radial-gradient(circle at 65% 55%, #8fbf6a 0 3px, transparent 4px),
+                radial-gradient(circle at 40% 75%, #8fbf6a 0 2px, transparent 3px),
+                #f6f0dc;
+        }
+
+        .dino-switch .words {
+            font-size: 22px;
+            letter-spacing: 0;
+            font-weight: 600;
+        }
+
+        .item.toggle.dino-switch::after {
+            content: 'Off';
+        }
+
+        .item.toggle.dino-switch.on::after {
+            content: 'On';
         }
 
         .slider-row {
@@ -775,6 +825,7 @@
             <div class="item toggle" data-act="toggle" data-setting="music">Music</div>
             <div class="item toggle" data-act="toggle" data-setting="sfx">Sound effects</div>
             <div class="item toggle big-switch" data-act="toggle" data-setting="sixSeven">6 7</div>
+            <div class="item toggle big-switch dino-switch" data-act="toggle" data-setting="dinoHatch"><span>111</span><span class="egg"></span><span class="words">Dinosaur World</span></div>
             <div class="item" data-act="back">Back</div>
             <div id="version-line"></div>
         </div>
@@ -783,6 +834,11 @@
             <p id="finish-note" hidden>More levels coming soon!</p>
             <div class="item" data-act="next-level">Start Level 2</div>
             <div class="item" data-act="finish-quit">Quit</div>
+        </div>
+        <div id="menu-help" class="panel" hidden>
+            <h2>Do you need help, or do you want to keep going?</h2>
+            <div class="item" data-act="help-yes">Help me!</div>
+            <div class="item" data-act="help-no">No, I'm good</div>
         </div>
         <div id="menu-update" class="panel" hidden>
             <h2>A new version of Mazle is ready!</h2>

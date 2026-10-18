@@ -29,6 +29,11 @@ const BEEP_LEVEL = 0.05;
 // the sneaky melody (and, being music, quieter than the sound effects)
 const DRUM_LEVEL = 0.06;
 const FLUTE_LEVEL = 0.035;
+// Dinosaur World's soft, friendly dinosaur stomps and calls play in the
+// music (the Music switch turns them off), in the background: quieter than
+// the sneaky melody (and, being music, quieter than the sound effects)
+const STOMP_LEVEL = 0.07;
+const CALL_LEVEL = 0.03;
 // How long the device voice gets to start before the game's own voice sound plays instead
 const SPEECH_START_TIMEOUT = 700;
 
@@ -3021,6 +3026,38 @@ const TUNES = {
                 [57, 71, 1.8]],
         },
     },
+    // Level 111, welcome to Dinosaur World: sneaky and mysterious, more
+    // sneaky than mysterious, like Pyramid World's tunes. An E "snake
+    // charmer" scale (E, F, G-sharp, A, B, C, D) at 96 bpm: tiptoeing
+    // double steps in short triangle notes that creep up to a high D and
+    // slip back down through F. In
+    // the background (dino): slow, soft dinosaur stomps (two heavy footsteps
+    // a bar) and a far-off friendly long-neck call now and then, both
+    // quieter than the melody.
+    dinosneak: {
+        tempo: 96,
+        bars: [[40, 'maj'], [40, 'maj'], [41, 'maj'], [40, 'maj'], [40, 'maj'], [45, 'min'], [41, 'maj'], [40, 'maj']],
+        bass: [0, null, null, 0, null, null, 0, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            64, null, null, 64, 65, null, 64, null,
+            68, null, 69, null, 68, null, null, null,
+            71, null, null, 71, 72, null, 71, null,
+            69, null, 68, null, 65, null, null, null,
+            64, null, null, 64, 65, null, 68, null,
+            69, null, 71, null, 72, null, 74, null,
+            72, null, 71, null, 68, null, 65, null,
+            64, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.14, length: 0.12, brightness: 1400 },
+        dino: {
+            stomps: [0, 4],
+            // [step, note, length in seconds]
+            calls: [[12, 57, 1.1], [44, 55, 1.3]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -3279,6 +3316,104 @@ export class Sound {
             if (tune.desert.dums.includes(beat)) this.dum(t);
             if (tune.desert.teks.includes(beat)) this.tek(t);
             for (const [at, note, length] of tune.desert.flute) if (at === step) this.flute(hz(note), t, length);
+        }
+        // Dinosaur World's background: soft stomps and far-off friendly calls
+        if (tune.dino) {
+            if (tune.dino.stomps.includes(beat)) this.stomp(t);
+            for (const [at, note, length] of tune.dino.calls) if (at === step) this.dinoCall(hz(note), t, length);
+        }
+    }
+
+    // A big friendly dinosaur's footstep far away: a deep, soft thump
+    stomp(t) {
+        const o = this.ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(70, t);
+        o.frequency.exponentialRampToValueAtTime(38, t + 0.3);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(STOMP_LEVEL * 2.5, t + 0.015);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+        o.connect(g).connect(this.noteOut);
+        o.start(t);
+        o.stop(t + 0.42);
+        const src = this.noiseSource(t, 0.2);
+        const low = this.ctx.createBiquadFilter();
+        low.type = 'lowpass';
+        low.frequency.value = 180;
+        const ng = this.ctx.createGain();
+        ng.gain.setValueAtTime(0.0001, t);
+        ng.gain.exponentialRampToValueAtTime(STOMP_LEVEL, t + 0.01);
+        ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+        src.connect(low).connect(ng).connect(this.noteOut);
+    }
+
+    // A friendly long-neck calling far away: a soft, hollow "hoooo" that
+    // swoops up and settles back down, held for `length` seconds
+    dinoCall(freq, t, length) {
+        const ctx = this.ctx;
+        const o = ctx.createOscillator();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(freq * 0.8, t);
+        o.frequency.exponentialRampToValueAtTime(freq * 1.12, t + length * 0.35);
+        o.frequency.exponentialRampToValueAtTime(freq * 0.9, t + length);
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 900;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(CALL_LEVEL, t + length * 0.25);
+        g.gain.setValueAtTime(CALL_LEVEL, t + length * 0.6);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + length);
+        o.connect(filter).connect(g).connect(this.noteOut);
+        o.start(t);
+        o.stop(t + length + 0.02);
+    }
+
+    // The egg cracking open (Level 111): two quick little cracks
+    eggCrack() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('eggCrack');
+        const t0 = this.ctx.currentTime + 0.005;
+        for (const [at, f] of [[0, 3400], [0.07, 2600]]) {
+            const t = t0 + at;
+            const src = this.noiseSource(t, 0.04);
+            const band = this.ctx.createBiquadFilter();
+            band.type = 'bandpass';
+            band.frequency.value = f;
+            band.Q.value = 2;
+            const g = this.ctx.createGain();
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(0.5, t + 0.002);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+            src.connect(band).connect(g).connect(this.sfxBus);
+        }
+    }
+
+    // The baby triceratops' happy little squeak as he pops out of the egg
+    squeak() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('squeak');
+        const t = this.ctx.currentTime + 0.08;
+        const o = this.ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(900, t);
+        o.frequency.exponentialRampToValueAtTime(1700, t + 0.12);
+        o.frequency.exponentialRampToValueAtTime(1300, t + 0.25);
+        const wobble = this.ctx.createOscillator();
+        wobble.frequency.value = 18;
+        const depth = this.ctx.createGain();
+        depth.gain.value = 60;
+        wobble.connect(depth).connect(o.frequency);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
+        g.gain.setValueAtTime(0.35, t + 0.18);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+        o.connect(g).connect(this.sfxBus);
+        for (const n of [o, wobble]) {
+            n.start(t);
+            n.stop(t + 0.32);
         }
     }
 

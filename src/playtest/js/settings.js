@@ -25,6 +25,7 @@ export const DEFAULT_SETTINGS = {
     music: true,
     sfx: true, // sound effects
     sixSeven: true, // Level 67's door says "Six seven!" (the 6 7 switch)
+    dinoHatch: true, // Level 111's egg hatches the baby triceratops (the 111 switch)
 };
 
 function read(key) {
@@ -56,6 +57,7 @@ export function loadSettings() {
         music: typeof saved.music === 'boolean' ? saved.music : DEFAULT_SETTINGS.music,
         sfx: typeof saved.sfx === 'boolean' ? saved.sfx : DEFAULT_SETTINGS.sfx,
         sixSeven: typeof saved.sixSeven === 'boolean' ? saved.sixSeven : DEFAULT_SETTINGS.sixSeven,
+        dinoHatch: typeof saved.dinoHatch === 'boolean' ? saved.dinoHatch : DEFAULT_SETTINGS.dinoHatch,
     };
 }
 

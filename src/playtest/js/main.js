@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Player } from './Player.js';
 import { Maze, SPIN_WALL_TIME, TRAPDOOR_WARNING_TIME } from './Maze.js';
 import { RoomMaze } from './RoomMaze.js';
+import { Buddy } from './Buddy.js';
 import { LEVELS } from './levels.js';
 import { InputManager } from './InputManager.js';
 import { CollisionManager } from './CollisionManager.js';
@@ -33,6 +34,11 @@ window.MAZLE_VERSION = VERSION;
 const settings = TEST_MODE ? { ...DEFAULT_SETTINGS } : loadSettings();
 let messageTimer = null;
 let testHooks = null; // only set with ?test=1
+// Dinosaur World (Level 111 on): the baby triceratops buddy (see Buddy.js)
+let buddy = null;
+// The "Do you need help?" question: always while playing; in test mode only
+// with ?lost=1, so the play bot isn't stopped by it
+const LOST_ASKS = !TEST_MODE || new URLSearchParams(window.location.search).get('lost') === '1';
 
 // You touch the spike when you're this close to the edge of its plate
 const SPIKE_TOUCH_MARGIN = 0.25; // normal spike: 0.75 + 0.25 = 1.0
@@ -153,9 +159,11 @@ function init() {
     // Player setup
     player = new Player(camera, settings);
     player.resetTo(maze.getStartPosition(), maze.getStartYaw());
+    buddy?.start(false);
     if (progress) {
         player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
         maze.setButtonPressed?.(progress);
+        buddy?.placeNear(player.position, progress.yaw);
     }
 
     // Input manager
@@ -180,6 +188,7 @@ function init() {
         toMainMenu,
         reloadForUpdate,
         changeSettings,
+        helpAnswer,
     });
     applySettings();
     document.addEventListener('mazle:touch', applySettings);
@@ -221,6 +230,7 @@ function init() {
         step,
         render,
         playAgain,
+        getBuddy: () => buddy,
     });
 
     // Start animation loop
@@ -244,6 +254,7 @@ function loadLevel(level, index) {
     // Level 100: one maze in 9 rooms, each in its own world's look
     maze = level.rooms ? new RoomMaze(scene, level, options) : new Maze(scene, level.layout, level.theme || LEVELS[0].theme, options);
     maze.build();
+    buddy = maze.theme.dino && !level.rooms ? new Buddy(maze, level.layout) : null;
     collisionManager = new CollisionManager(maze.getMazeData());
     showSky(maze.theme);
     wasInCurrent = null;
@@ -542,6 +553,9 @@ function step(deltaTime) {
     player.carried = lift !== null;
     if (lift !== null) player.camera.position.set(player.position.x, player.position.y + 1.6 + lift, player.position.z);
     if (platformEvent === 'land') player.startShove(maze.landing, BALLOON_STEP_OUT_TIME);
+    // The long-neck (Dinosaur World): a soft friendly rumble as it swings you across
+    if (platformEvent === 'depart' && maze.theme.dino) sound.whoosh(0.7, 0.4);
+    updateBuddy(deltaTime);
     checkSpikeAndDoor();
     checkRoom();
 
@@ -576,6 +590,7 @@ function checkSpikeAndDoor() {
                 : maze.theme.ice ? 'Ouch! An icicle sent you back to the start.'
                 : maze.theme.factory ? 'Ouch! A zapper sent you back to the start.'
                 : maze.theme.desert ? 'Ouch! A cactus sent you back to the start.'
+                : maze.theme.dino ? 'Ouch! A bone spike sent you back to the start.'
                 : 'Ouch! A spike sent you back to the start.');
     }
 
@@ -591,6 +606,7 @@ function checkSpikeAndDoor() {
                 : maze.theme.volcano ? 'Ouch! You fell in the lava. Back to the start.'
                 : maze.theme.factory ? 'Ouch! You fell in the gap. Back to the start.'
                 : maze.theme.desert ? 'Ouch! You fell in the sand pit. Back to the start.'
+                : maze.theme.dino ? 'Ouch! You fell in the pit. Back to the start.'
                 : 'Whoops! You fell off. Back to the start.');
     }
 
@@ -729,6 +745,30 @@ function backToStart() {
     maze.resetPlatform();
     maze.resetButtonDoor?.();
     maze.resetSpinWall?.();
+    buddy?.backToStart();
+}
+
+// The baby triceratops (Dinosaur World): he hatches, follows you, and asks
+// if you need help when you're really lost (see Buddy.js)
+function updateBuddy(deltaTime) {
+    if (!buddy) return;
+    for (const event of buddy.update(deltaTime, player)) {
+        if (event === 'crack') sound.eggCrack();
+        if (event === 'hatch') sound.squeak();
+        testHooks?.emit('buddy', { what: event });
+    }
+    if (escaped || !LOST_ASKS) return;
+    if (buddy.updateLost(deltaTime, player.position) && menu.state === 'closed' && !player.carried && !player.shove && !maze.overGap(player.position)) {
+        pause();
+        menu.showHelp();
+        testHooks?.emit('lost');
+    }
+}
+
+// "Do you need help, or do you want to keep going?": Help me! (true) or No, I'm good
+function helpAnswer(help) {
+    if (help) buddy?.startHelping(player.position);
+    testHooks?.emit('help', { help });
 }
 
 // Back to the start of the current level (also used by the test bot)
@@ -737,6 +777,8 @@ function playAgain() {
     player.frozen = false;
     player.releaseAll();
     backToStart();
+    // A level starting from its start: Level 111's egg hatches (the 111 switch)
+    buddy?.start(!!LEVELS[levelIndex]?.hatch && settings.dinoHatch);
     menu.dismiss();
     document.body.classList.remove('escaped');
 }
@@ -831,6 +873,7 @@ function continueGame() {
     startPlaying(progress.level);
     player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
     maze.setButtonPressed?.(progress);
+    buddy?.placeNear(player.position, progress.yaw);
 }
 
 // Main menu → New game: erase the saved spot and start Level 1 from its start.

@@ -706,6 +706,8 @@ const SPACE_DOOR_LIGHTS = { open: 0x3dff6e, moving: 0xffc83d, closed: 0xff3d3d }
 // Moving platforms (Level 17 on): a shiny metal platform that carries the
 // player across a gap with no floor. It's the gap's full width and this long.
 const PLATFORM_LENGTH = 2.4;
+// Dinosaur World: how far down the long-neck's pit floor is
+const LONG_NECK_FLOOR = -12;
 const PLATFORM_SPEED = 6; // about walking speed (walking tops out near 7.5)
 // A fast leaf ('F' blocks instead of 'O', Level 27 on) goes this much faster
 const FAST_PLATFORM_SPEED = PLATFORM_SPEED * 1.3;
@@ -1716,6 +1718,136 @@ function sandstoneTexture(width, height, seed) {
     return texture;
 }
 
+// Dinosaur World walls (Level 111 on): big mossy gray-brown rocks piled at
+// the bottom with giant green fern fronds growing up over them to the top.
+// Tall canvases suit the tall wall faces.
+function fernRockTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#2f5a24';
+    g.fillRect(0, 0, width, height);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    // Big rocks: piled along the bottom, and a few up among the ferns
+    const rocks = ['#7d7468', '#8c8274', '#6e665b', '#958a7a', '#7a6f5f'];
+    const rock = (x, y, w, h) => {
+        g.fillStyle = rocks[Math.floor(random() * rocks.length)];
+        g.beginPath();
+        g.ellipse(x, y, w, h, (random() - 0.5) * 0.5, 0, Math.PI * 2);
+        g.fill();
+        g.fillStyle = 'rgba(255,255,255,0.12)';
+        g.beginPath();
+        g.ellipse(x - w * 0.25, y - h * 0.35, w * 0.5, h * 0.3, 0, 0, Math.PI * 2);
+        g.fill();
+        g.strokeStyle = 'rgba(40,30,20,0.45)';
+        g.lineWidth = 2;
+        g.beginPath();
+        g.ellipse(x, y, w, h, 0, 0, Math.PI * 2);
+        g.stroke();
+        // A little moss on top
+        g.fillStyle = 'rgba(90,140,50,0.55)';
+        g.beginPath();
+        g.ellipse(x + (random() - 0.5) * w * 0.4, y - h * 0.8, w * 0.45, h * 0.18, 0, 0, Math.PI * 2);
+        g.fill();
+    };
+    // Fern fronds: a curving stem with leaflets on both sides, getting smaller to the tip
+    const greens = ['#3f8f2f', '#4fa83a', '#2e7a26', '#5cb847', '#367f2b'];
+    const frond = (x, y, length, angle) => {
+        g.strokeStyle = '#2a5a1c';
+        g.fillStyle = greens[Math.floor(random() * greens.length)];
+        g.lineWidth = 2;
+        let px = x;
+        let py = y;
+        let a = angle;
+        const steps = 12;
+        for (let s = 0; s < steps; s++) {
+            const seg = length / steps;
+            const nx = px + Math.cos(a) * seg;
+            const ny = py + Math.sin(a) * seg;
+            g.beginPath();
+            g.moveTo(px, py);
+            g.lineTo(nx, ny);
+            g.stroke();
+            const leaf = (1 - s / steps) * length * 0.22 + 2;
+            for (const side of [-1, 1]) {
+                const la = a + side * 1.1;
+                g.beginPath();
+                g.ellipse(nx + Math.cos(la) * leaf * 0.5, ny + Math.sin(la) * leaf * 0.5, leaf * 0.55, leaf * 0.18, la, 0, Math.PI * 2);
+                g.fill();
+            }
+            px = nx;
+            py = ny;
+            a += 0.06;
+        }
+    };
+    for (let k = 0; k < (width * height) / 1400; k++) {
+        const x = random() * width;
+        const y = height * (0.4 + random() * 0.38);
+        frond(x, y, 50 + random() * 70, -Math.PI / 2 + (random() - 0.5) * 1.6);
+    }
+    // The rocks in front of the ferns' feet
+    for (let k = 0; k < 14; k++) rock(random() * width, height * (0.7 + random() * 0.32), 32 + random() * 30, 26 + random() * 20);
+    for (let k = 0; k < 3; k++) rock(random() * width, height * (0.15 + random() * 0.4), 22 + random() * 16, 18 + random() * 12);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Dinosaur World floor: brown dirt with pebbles and huge three-toed
+// dinosaur footprints pressed into it (just for looks)
+function dinoDirtTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#8f6a44';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    const browns = ['#7f5c3a', '#9e7a50', '#73532f', '#a8845a', '#6a4c2c'];
+    for (let i = 0; i < size * size / 24; i++) {
+        g.fillStyle = browns[Math.floor(random() * browns.length)];
+        const d = 1 + random() * 3;
+        g.fillRect(random() * size, random() * size, d, d);
+    }
+    for (let i = 0; i < 40; i++) {
+        g.fillStyle = random() < 0.5 ? '#b09a80' : '#6f6458';
+        g.beginPath();
+        g.ellipse(random() * size, random() * size, 2 + random() * 4, 2 + random() * 3, random() * 3, 0, Math.PI * 2);
+        g.fill();
+    }
+    // Footprints: a round heel and three long toes, pressed in (dark inside, a light rim)
+    const footprint = (x, y, s, angle) => {
+        g.save();
+        g.translate(x, y);
+        g.rotate(angle);
+        for (const [fill, grow] of [['rgba(220,190,150,0.35)', 1.12], ['#5a3f24', 1]]) {
+            g.fillStyle = fill;
+            g.beginPath();
+            g.ellipse(0, s * 0.25, s * 0.32 * grow, s * 0.3 * grow, 0, 0, Math.PI * 2);
+            g.fill();
+            for (const toe of [-0.5, 0, 0.5]) {
+                g.save();
+                g.rotate(toe);
+                g.beginPath();
+                g.ellipse(0, -s * 0.38, s * 0.11 * grow, s * 0.42 * grow, 0, 0, Math.PI * 2);
+                g.fill();
+                g.restore();
+            }
+        }
+        g.restore();
+    };
+    for (let k = 0; k < 3; k++) {
+        const x = size * (0.2 + random() * 0.6);
+        const y = size * (0.2 + random() * 0.6);
+        footprint(x, y, size * 0.16, random() * Math.PI * 2);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
 // Desert Pyramid World floor: golden sand with little wavy ripples (just
 // for looks)
 function desertSandTexture(size, seed) {
@@ -2268,8 +2400,11 @@ export class Maze {
         const ice = this.theme.ice;
         const factory = this.theme.factory;
         const desert = this.theme.desert;
+        const dino = this.theme.dino;
         let wallMaterial;
-        if (desert) {
+        if (dino) {
+            wallMaterial = new THREE.MeshStandardMaterial({ map: fernRockTexture(128, 512, 113), roughness: 0.95, emissive: 0x1a2a10, emissiveIntensity: 0.35 });
+        } else if (desert) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: sandstoneTexture(128, 512, 83), roughness: 0.9, emissive: 0x3a2808, emissiveIntensity: 0.3 });
         } else if (factory) {
             const metal = rustyMetalTexture(128, 512, 71);
@@ -2318,7 +2453,11 @@ export class Maze {
 
         // Floor
         let floorMaterial;
-        if (desert) {
+        if (dino) {
+            const map = dinoDirtTexture(256, 127);
+            map.repeat.set(this.width / 8, this.depth / 8);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
+        } else if (desert) {
             const map = desertSandTexture(256, 89);
             map.repeat.set(this.width / 8, this.depth / 8);
             floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
@@ -2380,9 +2519,9 @@ export class Maze {
             }
             const geometry = new THREE.ExtrudeGeometry(outline, { depth: 0.2, bevelEnabled: false });
             geometry.rotateX(Math.PI / 2);
-            floorMaterial.map?.repeat.set(factory ? 0.25 : 0.5, factory ? 0.25 : 0.5);
+            floorMaterial.map?.repeat.set(factory ? 0.25 : dino ? 0.125 : 0.5, factory ? 0.25 : dino ? 0.125 : 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : desert ? 0x8a6428 : 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : desert ? 0x8a6428 : dino ? 0x4a3420 : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -2402,6 +2541,7 @@ export class Maze {
         if (volcano) this.addAsh();
         if (ice) this.addIceSky();
         if (desert) this.addDesertSky();
+        if (dino) this.addDinoSky();
         if (factory) {
             this.addMachineHall();
             this.addFactorySteam(count);
@@ -3643,6 +3783,12 @@ export class Maze {
             const object = new THREE.Group();
             object.add(group);
             return { kind, object, velocity: new THREE.Vector3(), life: 0, wings, flap: Math.random() * 6 };
+        } else if (kind === 'ptero') {
+            const wings = this.makePterodactyl(group, basic);
+            group.scale.setScalar(1.3);
+            const object = new THREE.Group();
+            object.add(group);
+            return { kind, object, velocity: new THREE.Vector3(), life: 0, wings, flap: Math.random() * 6 };
         } else if (kind === 'butterfly') {
             const colors = [[0xff9800, 0x212121], [0x29b6f6, 0x0d47a1], [0xf06292, 0xffeb3b], [0xffeb3b, 0xff5722]];
             const [main, edge] = colors[Math.floor(Math.random() * colors.length)];
@@ -3694,11 +3840,11 @@ export class Maze {
         const cz = this.depth / 2;
         const angle = Math.random() * Math.PI * 2;
         // Birds and butterflies fly lower and slower than things in space
-        const speeds = { cloud: 2.5, balloon: 3.5, rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, owl: 8, butterfly: 4, turtle: 3, whale: 4, manta: 5, school: 6 };
+        const speeds = { cloud: 2.5, balloon: 3.5, rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, owl: 8, butterfly: 4, turtle: 3, whale: 4, manta: 5, school: 6, ptero: 7 };
         const speed = speeds[flyer.kind];
         // Sea animals swim slowly over the reef, not too high (Underwater World)
         // Candy World's clouds and balloons drift slowly, like birds
-        const bird = ['parrot', 'toucan', 'owl', 'turtle', 'whale', 'manta', 'school', 'cloud', 'balloon'].includes(flyer.kind);
+        const bird = ['parrot', 'toucan', 'owl', 'turtle', 'whale', 'manta', 'school', 'cloud', 'balloon', 'ptero'].includes(flyer.kind);
         const butterfly = flyer.kind === 'butterfly';
         const span = butterfly ? 70 : bird ? 160 : 260;
         const dir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
@@ -3732,7 +3878,8 @@ export class Maze {
             if (flyer.wings) {
                 const butterfly = flyer.kind === 'butterfly';
                 flyer.flap += dt * (butterfly ? 14 : 7);
-                const sea = ['turtle', 'whale', 'manta'].includes(flyer.kind);
+                // (pterodactyls glide, with slow gentle flaps too)
+                const sea = ['turtle', 'whale', 'manta', 'ptero'].includes(flyer.kind);
                 if (sea) flyer.flap -= dt * 4.5; // slow, gentle strokes
                 for (const wing of flyer.wings) {
                     if (wing.userData.whaleTail) wing.rotation.z = Math.sin(flyer.flap) * 0.3;
@@ -3920,6 +4067,7 @@ export class Maze {
         if (this.theme.ice) return this.createIcicle(position, radius);
         if (this.theme.factory) return this.createZapper(position, radius);
         if (this.theme.desert) return this.createCactus(position, radius);
+        if (this.theme.dino) return this.createBoneSpike(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -5207,6 +5355,7 @@ export class Maze {
         const balloon = !!this.theme.volcano;
         const sled = !!this.theme.ice;
         const carpet = !!this.theme.desert;
+        const longNeck = !!this.theme.dino;
         const width = alongX ? gap.maxZ - gap.minZ : gap.maxX - gap.minX;
         // Candy World: the marshmallow on each bank, and where its bounce lands
         const pads = chocolate ? [
@@ -5223,6 +5372,7 @@ export class Maze {
             balloon, // Volcano World: a lava gap crossed in a hot-air balloon, high above the maze
             sled, // Ice World: an icy crack crossed on a sled hanging from a zip line
             carpet, // Desert Pyramid World: a sand pit crossed on a flying carpet that keeps its own cycle
+            longNeck, // Dinosaur World: a pit crossed on a long-neck dinosaur's head (moves like the hover platform)
             phase: 'rest', // sled: 'rest' | 'zip' (carrying you) | 'float' (empty, coming to you); balloon: 'rest' | 'wait' (you're in, the burner's about to fire) | 'rise' | 'cross' | 'down' | 'float' (empty, coming to you)
             time: 0, // balloon: seconds into the phase
             lift: 0, // balloon: how high it is
@@ -5944,6 +6094,12 @@ export class Maze {
         if (p.carpet) {
             this.createSandPit(p);
             this.createCarpet(p);
+            this.showPlatform(p);
+            return;
+        }
+        if (p.longNeck) {
+            this.createDinoPit(p);
+            this.createLongNeck(p);
             this.showPlatform(p);
             return;
         }
@@ -6722,6 +6878,7 @@ export class Maze {
         }
         if (p.alongX) p.object.position.set(g.minX + middle, y, (g.minZ + g.maxZ) / 2);
         else p.object.position.set((g.minX + g.maxX) / 2, y, g.minZ + middle);
+        if (p.longNeck) this.showLongNeck(p);
     }
 
     // The marshmallow this point is standing on (Candy World), if any
@@ -7255,6 +7412,293 @@ export class Maze {
 
     // Is a point within `margin` of any spike? (The round spike counts from the
     // edge of its plate; a row counts across its whole width.)
+    // ---- Dinosaur World (Level 111 on) ----
+
+    // The sky: a soft sun, rolling green hills with fern trees far away all
+    // round, and friendly pterodactyls gliding by high up. Decoration only:
+    // nothing up there touches you.
+    addDinoSky() {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        const sun = new THREE.Mesh(new THREE.SphereGeometry(14, 24, 16), new THREE.MeshBasicMaterial({ color: 0xfff3b0, fog: false }));
+        sun.position.set(cx - 90, 110, cz - 200);
+        this.root.add(sun);
+        const hill = new THREE.MeshStandardMaterial({ color: 0x5f9a3e, roughness: 1, fog: false });
+        const trunk = new THREE.MeshStandardMaterial({ color: 0x6b4a2a, roughness: 1, fog: false });
+        const leaves = new THREE.MeshStandardMaterial({ color: 0x3f8a2f, roughness: 1, fog: false });
+        let r = 151;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        for (let k = 0; k < 16; k++) {
+            const a = (k / 16) * Math.PI * 2 + random() * 0.2;
+            const d = 190 + random() * 60;
+            const mound = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), hill);
+            mound.scale.set(50 + random() * 40, 14 + random() * 14, 30 + random() * 20);
+            mound.position.set(cx + Math.cos(a) * d, -2, cz + Math.sin(a) * d);
+            mound.rotation.y = -a;
+            this.root.add(mound);
+        }
+        // Tall fern trees: a trunk with a crown of drooping fronds
+        for (let k = 0; k < 22; k++) {
+            const a = random() * Math.PI * 2;
+            const d = 120 + random() * 50;
+            const h = 14 + random() * 10;
+            const tree = new THREE.Group();
+            const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 1, h, 8), trunk);
+            stem.position.y = h / 2;
+            tree.add(stem);
+            for (let f = 0; f < 7; f++) {
+                const frond = new THREE.Mesh(new THREE.ConeGeometry(1.4, 9, 5), leaves);
+                frond.position.y = h;
+                frond.rotation.set(0, (f / 7) * Math.PI * 2, 0);
+                frond.rotateX(1.9);
+                frond.translateY(-4.5);
+                tree.add(frond);
+            }
+            tree.position.set(cx + Math.cos(a) * d, 0, cz + Math.sin(a) * d);
+            this.root.add(tree);
+        }
+        this.flyers = [];
+        for (let k = 0; k < 6; k++) {
+            const flyer = this.makeFlyer('ptero');
+            this.root.add(flyer.object);
+            this.flyers.push(flyer);
+            this.launchFlyer(flyer, k / 6);
+        }
+    }
+
+    // A friendly pterodactyl gliding along +x: a small round body, a head
+    // with a long beak and a crest, and big leathery wings that flap slowly
+    makePterodactyl(group, basic) {
+        const skin = basic(0xd9894a);
+        const wingSkin = basic(0xb8643a, { side: THREE.DoubleSide });
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.9, 14, 10), skin);
+        body.scale.set(1.6, 0.7, 0.7);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.55, 12, 10), skin);
+        head.position.set(1.7, 0.35, 0);
+        const beak = new THREE.Mesh(new THREE.ConeGeometry(0.25, 1.8, 8), basic(0xf2c27a));
+        beak.rotation.z = -Math.PI / 2;
+        beak.position.set(2.8, 0.25, 0);
+        const crest = new THREE.Mesh(new THREE.ConeGeometry(0.22, 1.4, 6), skin);
+        crest.rotation.z = Math.PI / 2 + 0.4;
+        crest.position.set(1.0, 0.75, 0);
+        group.add(body, head, beak, crest);
+        for (const side of [-1, 1]) {
+            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 6), basic(0x222222));
+            eye.position.set(2.0, 0.5, side * 0.38);
+            group.add(eye);
+        }
+        const wings = [];
+        for (const side of [-1, 1]) {
+            const pivot = new THREE.Group();
+            const shape = new THREE.Shape([new THREE.Vector2(0.8, 0), new THREE.Vector2(-1.2, 0), new THREE.Vector2(-0.6, 4.6), new THREE.Vector2(0.3, 4.9)]);
+            const wing = new THREE.Mesh(new THREE.ShapeGeometry(shape), wingSkin);
+            // The shape's y is the wing's span: turn it out along ±z, flat
+            wing.rotation.x = side * Math.PI / 2;
+            pivot.add(wing);
+            pivot.userData.side = side;
+            group.add(pivot);
+            wings.push(pivot);
+        }
+        return wings;
+    }
+
+    // Dinosaur World's spike: pointy fossil bones (cream-colored, a bit
+    // knobbly) sticking up out of a little mound of dirt, as wide as a
+    // spike's plate. Touching them works the same as a spike.
+    createBoneSpike(position, radius) {
+        const spike = new THREE.Group();
+        const bone = new THREE.MeshStandardMaterial({ color: 0xf1e6c8, roughness: 0.6, emissive: 0x2a2416, emissiveIntensity: 0.4 });
+        const tip = new THREE.MeshStandardMaterial({ color: 0xfffaf0, roughness: 0.4 });
+        for (const [x, z, h, lean] of [[0, 0, 1.25, 0], [0.38, 0.12, 0.85, 0.35], [-0.32, 0.26, 0.95, -0.3], [-0.1, -0.4, 0.8, 0.3], [0.22, -0.3, 0.7, -0.35]]) {
+            const piece = new THREE.Group();
+            const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.12, h, 8), bone);
+            shaft.position.y = h / 2;
+            shaft.castShadow = true;
+            const point = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.14, 8), tip);
+            point.position.y = h + 0.06;
+            // A knobbly joint at the bottom and a little bump halfway up
+            const knob = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 8), bone);
+            knob.scale.set(1.2, 0.7, 1);
+            knob.position.y = 0.06;
+            const bump = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), bone);
+            bump.position.y = h * 0.45;
+            piece.add(shaft, point, knob, bump);
+            piece.position.set(x, 0, z);
+            piece.rotation.set(lean * 0.6, 0, lean);
+            spike.add(piece);
+        }
+        const mound = new THREE.Mesh(new THREE.SphereGeometry(SPIKE_RADIUS, 20, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x7a5634, roughness: 1 }));
+        mound.scale.y = 0.16;
+        spike.add(mound);
+        spike.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
+        spike.position.copy(position);
+        spike.position.y = 0;
+        this.root.add(spike);
+        return spike;
+    }
+
+    // The long-neck's pit (Level 111 on): rocky dirt walls go straight down
+    // to a dirt-and-rock floor far below
+    createDinoPit(p) {
+        const g = p.gap;
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        const sizeX = g.maxX - g.minX;
+        const sizeZ = g.maxZ - g.minZ;
+        const bottomY = LONG_NECK_FLOOR;
+        const depth = -bottomY - 0.2;
+        let r = 61;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        for (const [w, d, x, z, along] of [
+            [sizeX, 0.05, cx, g.minZ, sizeX], [sizeX, 0.05, cx, g.maxZ, sizeX],
+            [0.05, sizeZ, g.minX, cz, sizeZ], [0.05, sizeZ, g.maxX, cz, sizeZ],
+        ]) {
+            const map = fernRockTexture(128, 512, 131);
+            map.repeat.set(along / 4, depth / 4);
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(w, depth, d),
+                new THREE.MeshStandardMaterial({ map, roughness: 1, emissiveMap: map, emissive: 0xffffff, emissiveIntensity: 0.35 }));
+            wall.position.set(x, -0.2 - depth / 2, z);
+            this.root.add(wall);
+        }
+        const dirt = dinoDirtTexture(256, 67);
+        dirt.repeat.set(sizeX / 6, sizeZ / 6);
+        const bottom = new THREE.Mesh(new THREE.PlaneGeometry(sizeX, sizeZ),
+            new THREE.MeshStandardMaterial({ map: dirt, roughness: 1, emissive: 0x2a1a0a, emissiveIntensity: 0.5 }));
+        bottom.rotation.x = -Math.PI / 2;
+        bottom.position.set(cx, bottomY, cz);
+        this.root.add(bottom);
+        const stone = new THREE.MeshStandardMaterial({ color: 0x8a8070, roughness: 1, flatShading: true });
+        for (let k = 0; k < 10; k++) {
+            const size = 0.15 + random() * 0.35;
+            const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(size, 0), stone);
+            rock.position.set(g.minX + 0.3 + random() * (sizeX - 0.6), bottomY + size * 0.4, g.minZ + 0.3 + random() * (sizeZ - 0.6));
+            rock.rotation.set(random() * 3, random() * 3, random() * 3);
+            this.root.add(rock);
+        }
+    }
+
+    // The long-neck: a friendly long-necked plant-eating dinosaur standing on
+    // the pit floor in the middle of the pit, its long neck reaching up to its
+    // big flat head, which rests level with the floor and works like the
+    // hover platform (p.object, PLATFORM_LENGTH long, the pit's width). Its
+    // body, legs, feet and tail are down on the pit floor; the neck follows
+    // the head as it swings across (showLongNeck).
+    createLongNeck(p) {
+        const g = p.gap;
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        const skin = new THREE.MeshStandardMaterial({ color: 0x7bbf52, roughness: 0.8, emissive: 0x1a3010, emissiveIntensity: 0.35 });
+        const belly = new THREE.MeshStandardMaterial({ color: 0xd8e8a0, roughness: 0.8 });
+        const spot = new THREE.MeshStandardMaterial({ color: 0x5a9a3a, roughness: 0.8 });
+        const dark = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.4 });
+        // The head (its z is the pit's long side): a flat top you stand on,
+        // rounded sides, big friendly eyes on the sides and a smile at its snout
+        const head = new THREE.Group();
+        const top = new THREE.Mesh(new THREE.BoxGeometry(width - 0.15, 0.5, PLATFORM_LENGTH), skin);
+        top.position.y = -0.25;
+        top.receiveShadow = true;
+        head.add(top);
+        for (const side of [-1, 1]) {
+            const cheek = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, PLATFORM_LENGTH, 12), skin);
+            cheek.rotation.x = Math.PI / 2;
+            cheek.position.set(side * (width / 2 - 0.2), -0.3, 0);
+            head.add(cheek);
+            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+            eye.position.set(side * (width / 2 - 0.02), -0.3, -0.3);
+            const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), dark);
+            pupil.position.set(side * (width / 2 + 0.12), -0.28, -0.3);
+            head.add(eye, pupil);
+        }
+        // Looking down at the head: two big friendly eyes at its back
+        // corners, two nostrils and a smile at its snout (the low end)
+        for (const side of [-1, 1]) {
+            const brow = new THREE.Mesh(new THREE.SphereGeometry(0.3, 14, 10), skin);
+            brow.scale.y = 0.45;
+            brow.position.set(side * (width / 2 - 0.45), 0, PLATFORM_LENGTH / 2 - 0.4);
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+            ball.position.set(side * (width / 2 - 0.45), 0.1, PLATFORM_LENGTH / 2 - 0.5);
+            const dot = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), dark);
+            dot.position.set(side * (width / 2 - 0.45), 0.2, PLATFORM_LENGTH / 2 - 0.62);
+            const nostril = new THREE.Mesh(new THREE.CircleGeometry(0.07, 10), dark);
+            nostril.rotation.x = -Math.PI / 2;
+            nostril.position.set(side * 0.3, 0.006, -PLATFORM_LENGTH / 2 + 0.3);
+            head.add(brow, ball, dot, nostril);
+        }
+        const smile = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.04, 6, 24, Math.PI * 0.7), dark);
+        smile.rotation.set(-Math.PI / 2, 0, Math.PI + Math.PI * 0.15);
+        smile.position.set(0, 0.006, -PLATFORM_LENGTH / 2 + 0.75);
+        head.add(smile);
+        const chin = new THREE.Mesh(new THREE.BoxGeometry(width - 0.5, 0.4, PLATFORM_LENGTH - 0.3), belly);
+        chin.position.y = -0.65;
+        head.add(chin);
+        for (const [x, z] of [[-0.6, 0.5], [0.5, -0.4], [0.1, 0.8], [-0.3, -0.7]]) {
+            const s = new THREE.Mesh(new THREE.CircleGeometry(0.18, 12), spot);
+            s.rotation.x = -Math.PI / 2;
+            s.position.set(x, 0.005, z);
+            head.add(s);
+        }
+        if (p.alongX) head.rotation.y = Math.PI / 2;
+        this.root.add(head);
+        p.object = head;
+
+        // The body on the pit floor (its z along the pit too)
+        const body = new THREE.Group();
+        const floorY = LONG_NECK_FLOOR;
+        const trunk = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), skin);
+        trunk.scale.set(1.25, 1.6, 3);
+        trunk.position.y = floorY + 4.2;
+        trunk.castShadow = true;
+        const tummy = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), belly);
+        tummy.scale.set(1.1, 1.1, 2.5);
+        tummy.position.y = floorY + 3.6;
+        body.add(trunk, tummy);
+        for (const [x, z] of [[-0.75, -1.6], [0.75, -1.6], [-0.75, 1.6], [0.75, 1.6]]) {
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.5, 3.4, 10), skin);
+            leg.position.set(x, floorY + 1.7, z);
+            const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.62, 0.3, 12), spot);
+            foot.position.set(x, floorY + 0.15, z);
+            body.add(leg, foot);
+        }
+        // A long tail curling along the pit floor
+        const tail = new THREE.Mesh(new THREE.ConeGeometry(0.7, 5, 12), skin);
+        tail.rotation.x = Math.PI / 2 + 0.55;
+        tail.position.set(0, floorY + 2.2, 4.4);
+        body.add(tail);
+        for (const [y, z, s] of [[5.7, -1.2, 0.35], [5.85, 0, 0.4], [5.7, 1.2, 0.35]]) {
+            const d = new THREE.Mesh(new THREE.SphereGeometry(s, 10, 8), spot);
+            d.scale.y = 0.5;
+            d.position.set(0, floorY + y, z);
+            body.add(d);
+        }
+        const mid = new THREE.Vector3(g.minX + (g.maxX - g.minX) / 2, 0, g.minZ + (g.maxZ - g.minZ) / 2);
+        body.position.set(mid.x, 0, mid.z);
+        // Its chest faces the start's end of the pit
+        body.rotation.y = (p.alongX ? Math.PI / 2 : 0) + (p.startAt === p.low ? Math.PI : 0);
+        this.root.add(body);
+        // The neck: one long tube from the shoulders up to the underside of
+        // the head, re-aimed every time the head moves
+        const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.75, 1, 14, 1, true), skin);
+        neck.castShadow = true;
+        this.root.add(neck);
+        p.neck = neck;
+        const toward = p.startAt === p.low ? -1 : 1;
+        p.shoulder = mid.clone();
+        p.shoulder.y = floorY + 5;
+        if (p.alongX) p.shoulder.x += toward * 2.2;
+        else p.shoulder.z += toward * 2.2;
+    }
+
+    // Aim the long-neck's neck from its shoulders to the middle of its head
+    showLongNeck(p) {
+        if (!p.neck) return;
+        const end = p.object.position.clone();
+        end.y -= 0.6;
+        const dir = end.clone().sub(p.shoulder);
+        const length = dir.length();
+        p.neck.position.copy(p.shoulder).addScaledVector(dir, 0.5);
+        p.neck.scale.set(1, length, 1);
+        p.neck.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+    }
+
     touchesSpike(point, margin) {
         if (this.spikePosition && Math.hypot(point.x - this.spikePosition.x, point.z - this.spikePosition.z) < this.spikeRadius + margin) return true;
         if (this.spike2Position && Math.hypot(point.x - this.spike2Position.x, point.z - this.spike2Position.z) < this.spike2Radius + margin) return true;
