@@ -8,6 +8,7 @@
 //   SEEDS=1000 node tools/find-dino-level.mjs level114 26 1       # a big bone spike + a tail swish + a long-neck ride
 //   SEEDS=1000 node tools/find-dino-level.mjs level115 26 1       # two tail swishes + the sneaky bone spike
 //   SEEDS=1000 node tools/find-dino-level.mjs level116 26 1       # a tighter path bone spike + the fossil hunt + a tail swish
+//   SEEDS=1000 node tools/find-dino-level.mjs level117 20 1       # 3-deep dead ends: the fossil hunt + a big bone spike + a long-neck ride
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -47,6 +48,10 @@ const RULES = {
     // The tighter squeeze: a path bone spike ('X', Level 54's gap), the
     // fossil hunt (3 'f') and one tail swish ('H' + 'Q')
     level116: { name: 'Level 116', depth: 2, deadEnds: 26, pathCane: true, fossils: 3, vents: 1, prunePairs: true, placeTries: 20 },
+    // Longer wrong ways: every dead end 3 deep, the fossil hunt (3 'f'), the
+    // big bone spike ('Y') and one 3-cell pit crossed on the long-neck's
+    // head ('O')
+    level117: { name: 'Level 117', depth: 3, deadEnds: 20, fossils: 3, bigCane: true, platforms: 1, platformCells: 3, prune: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

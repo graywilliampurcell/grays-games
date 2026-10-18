@@ -3195,6 +3195,34 @@ const TUNES = {
             calls: [[24, 53, 1.1], [56, 58, 1.0]],
         },
     },
+    // Level 117 (longer wrong ways): sneaky and mysterious, more sneaky
+    // than mysterious, in C minor at 88 bpm: a triangle lead that tiptoes a
+    // long way down a winding line, stops, turns back and tries again a
+    // little higher, like walking down a long wrong way and coming back;
+    // soft dinosaur stomps and calls in the background.
+    dinolongway: {
+        tempo: 88,
+        bars: [[36, 'min'], [36, 'min'], [44, 'maj'], [43, 'maj'], [36, 'min'], [41, 'min'], [44, 'maj'], [43, 'maj']],
+        bass: [0, null, null, 0, null, null, 0, null],
+        bassLength: 0.22,
+        stabs: [],
+        ticks: true,
+        melody: [
+            72, null, 70, null, 68, null, 67, null,
+            65, null, 63, null, 62, null, null, null,
+            60, null, null, null, 62, 63, 62, null,
+            67, null, null, null, null, null, null, null,
+            75, null, 74, null, 72, null, 70, null,
+            68, null, 67, null, 65, null, null, 67,
+            68, null, 71, null, 74, null, 72, null,
+            72, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.12, length: 0.14, brightness: 1200 },
+        dino: {
+            stomps: [0, 6],
+            calls: [[12, 48, 1.3], [44, 55, 1.0]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
