@@ -3529,6 +3529,33 @@ const TUNES = {
             creaks: [4, 20, 36, 52],
         },
     },
+    // Level 129 (two cannons): C# minor, 104 bpm, a plucky triangle lead
+    // that creeps up to each cannon, holds its breath on the fuse, and
+    // drops down after the boom (a low bass hit), twice; sneaky and
+    // mysterious (more sneaky), with the soft waves and creaking wood.
+    piratetwocannons: {
+        tempo: 104,
+        bars: [[49, 'min'], [49, 'min'], [45, 'maj'], [44, 'maj'], [49, 'min'], [42, 'min'], [44, 'maj'], [49, 'min']],
+        bass: [0, null, 0, null, 7, null, null, null],
+        bassLength: 0.22,
+        stabs: [],
+        ticks: true,
+        melody: [
+            61, null, 64, null, 66, null, 68, null,
+            68, null, null, null, 56, null, null, null,
+            64, 66, 64, null, 61, null, 63, null,
+            61, null, null, null, null, null, null, null,
+            61, null, 64, null, 66, null, 69, null,
+            69, null, null, null, 57, null, null, null,
+            68, 66, 64, null, 63, null, 60, null,
+            61, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.18, length: 0.14, brightness: 1500 },
+        pirate: {
+            waves: [[0, 2.8], [22, 3.0], [44, 2.6]],
+            creaks: [6, 22, 38, 54],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
