@@ -6,6 +6,7 @@
 //   SEEDS=1000 node tools/find-pirate-level.mjs level122 28 1   # a plank + a path splinter spike
 //   SEEDS=400 node tools/find-pirate-level.mjs level124 28 1    # a plank + a big splinter spike (rocking ship)
 //   SEEDS=400 node tools/find-pirate-level.mjs level125 28 1    # two waves + the sneaky splinter spike + a cannon ride
+//   SEEDS=400 node tools/find-pirate-level.mjs level126 28 1    # a path splinter spike + a wave (rocking ship)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -48,6 +49,10 @@ const RULES = {
     // between them), the sneaky splinter spike ('X') and one 4-cell cannon
     // ride ('O')
     level125: { name: 'Level 125', depth: 2, deadEnds: 28, sneaky: true, vents: 2, rail: true, ownStretch: true, platforms: 1, platformCells: 4, cannon: true, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
+    // The tighter squeeze (rocking ship): one path splinter spike ('X') with
+    // Level 54's squeeze gap and one big wave ('H', back to its 'Q') along
+    // the ship's rail
+    level126: { name: 'Level 126', depth: 2, deadEnds: 28, pathCane: true, vents: 1, rail: true, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

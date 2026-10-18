@@ -3447,6 +3447,33 @@ const TUNES = {
             creaks: [8, 28, 44, 60],
         },
     },
+    // Level 126 (the tighter squeeze): F# minor, 98 bpm, a sawtooth lead
+    // that creeps up in small half steps, pauses, and slips past; sneaky and
+    // mysterious (more sneaky), with the soft waves and creaking wood under
+    // the rocking deck.
+    piratesqueeze: {
+        tempo: 98,
+        bars: [[42, 'min'], [42, 'min'], [38, 'maj'], [40, 'maj'], [42, 'min'], [47, 'min'], [37, 'maj'], [42, 'min']],
+        bass: [0, null, 7, null, 0, null, 5, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: true,
+        melody: [
+            66, null, 67, null, 68, null, 69, null,
+            null, null, 66, null, null, null, null, null,
+            69, null, 70, null, 71, null, 73, null,
+            null, null, 69, null, 66, null, null, null,
+            66, 67, 68, 69, 71, null, 73, null,
+            74, null, 73, null, 71, null, 69, null,
+            68, null, null, 64, null, 61, null, null,
+            66, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.1, length: 0.12, brightness: 1300 },
+        pirate: {
+            waves: [[0, 2.8], [24, 2.8], [40, 2.8]],
+            creaks: [6, 22, 38, 54],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

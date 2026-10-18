@@ -7274,6 +7274,74 @@ export const LEVELS = [
         '#################################################',
         ],
     },
+    {
+        name: 'Level 126',
+        // The tighter squeeze. `SEEDS=400 node tools/find-pirate-level.mjs
+        // level126 29 1262800`, seed 1262813. 12 x 12 corridors. Correct
+        // path 86 cells (start west in row 10, door east in row 10); 29 wrong
+        // ways 2 cells deep. The whole ship rocks (`rocking`, as in Level
+        // 124). X: the path splinter spike in path cell 28 (top row, heading
+        // east) with Level 54's squeeze gap (spikeRadius 0.67, about 15%
+        // tighter than Level 122's). H: one big wave along the east rail in
+        // path cell 34 (heading south), washing you back to its Q in path
+        // cell 33. No cannon, no plank, no sneaky or big splinter spike. A
+        // sneaky tune that squeezes through on tiptoe.
+        theme: PIRATE,
+        music: 'piratesqueeze',
+        rocking: true,
+        spikeRadius: 0.67,
+        layout: [
+        '#################################################',
+        '#       #       #                               #',
+        '#       #       #             X                 #',
+        '#       #       #                               #',
+        '#####   #   #####   #####   #####   #####   #   #',
+        '#   #               #       #   #   #       #   #',
+        '#   #               #       #   #   #       # Q #',
+        '#   #               #       #   #   #       #   #',
+        '#   #   #   #####   #########   #   #########   #',
+        '#       #   #       #       #   #   #   #   #HHH#',
+        '#       #   #       #       #   #   #   #   #HHH#',
+        '#       #   #       #       #   #   #   #   #HHH#',
+        '#####   #   #############   #   #####   #   #   #',
+        '#       #   #                       #   #       #',
+        '#       #   #                       #   #       #',
+        '#       #   #                       #   #       #',
+        '#   #########   #################   #   #####   #',
+        '#       #       #       #       #               #',
+        '#       #       #       #       #               #',
+        '#       #       #       #       #               #',
+        '#####   #   #   #   #   #   #   #####   #   #####',
+        '#       #   #       #   #   #   #       #       #',
+        '#       #   #       #   #   #   #       #       #',
+        '#       #   #       #   #   #   #       #       #',
+        '#   #################   #   #   #################',
+        '#                   #   #   #       #   #   #   #',
+        '#                   #   #   #       #   #   #   #',
+        '#                   #   #   #       #   #   #   #',
+        '#   #   #########   #   #   #   #   #   #   #   #',
+        '#   #   #           #       #   #   #   #   #   #',
+        '#   #   #           #       #   #   #   #   #   #',
+        '#   #   #           #       #   #   #   #   #   #',
+        '#   #   #########   #########   #####   #   #   #',
+        '#   #   #           #       #                   #',
+        '#   #   #           #       #                   #',
+        '#   #   #           #       #                   #',
+        '#################   #   #   #################   #',
+        '#       #           #   #       #               #',
+        '#       #           #   #       #               #',
+        '#       #           #   #       #               #',
+        '#####   #########   #   #####   #   #############',
+        '#                   #       #       #           #',
+        '# S                 #       #       #           D',
+        '#                   #       #       #           #',
+        '#####   #   #############   #########   #########',
+        '#       #       #                               #',
+        '#       #       #                               #',
+        '#       #       #                               #',
+        '#################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
