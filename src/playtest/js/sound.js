@@ -3474,6 +3474,33 @@ const TUNES = {
             creaks: [6, 22, 38, 54],
         },
     },
+    // Level 127 (longer wrong ways): B minor, 94 bpm, a square lead that
+    // walks a long way down step by step, stops, and creeps all the way
+    // back up, like going down a long wrong way and turning round; sneaky
+    // and mysterious (more sneaky), with the soft waves and creaking wood.
+    piratelongway: {
+        tempo: 94,
+        bars: [[47, 'min'], [47, 'min'], [43, 'maj'], [42, 'maj'], [47, 'min'], [40, 'min'], [42, 'maj'], [47, 'min']],
+        bass: [0, null, null, null, 0, null, 7, null],
+        bassLength: 0.22,
+        stabs: [],
+        ticks: true,
+        melody: [
+            71, null, 69, null, 67, null, 66, null,
+            64, null, 62, null, null, null, null, null,
+            67, null, 66, null, 64, null, 62, null,
+            61, null, 59, null, null, null, null, null,
+            59, 61, 62, null, 64, 66, 67, null,
+            69, 71, null, null, 74, null, 71, null,
+            70, null, null, 66, null, 61, null, null,
+            71, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.12, brightness: 1400 },
+        pirate: {
+            waves: [[2, 2.6], [22, 3.0], [42, 2.8]],
+            creaks: [12, 30, 46, 62],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

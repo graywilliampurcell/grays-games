@@ -2249,7 +2249,9 @@ export class Maze {
         // Blocks of sticky caramel ('C', Candy World, Level 52 on), keyed "x,z"
         this.caramelBlocks = new Set();
         // Blocks with no floor ('O'), crossed on moving platforms (one per gap);
-        // 'F' is the same but its platform is a fast one (Level 27 on)
+        // 'F' is the same but its platform is a fast one (Level 27 on); in
+        // Pirate Ship World a level with both kinds walks the plank over its
+        // 'F' gaps and rides the cannons over its 'O' gaps (Level 127 on)
         const gapBlocks = [];
         // Water currents ('W' blocks, one corridor cell each; Level 41, two in
         // Level 49) and where each one's shove ends ('V', next to its cell)
@@ -2429,6 +2431,7 @@ export class Maze {
             belt.timer = ARM_FIRST_TIME + (index % 2) * ARM_OFFSET;
         });
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
+        this.plankGapsMarked = gapBlocks.some((b) => b.fast);
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
         this.platforms.filter((p) => p.carpet).forEach((p, index) => {
             p.time = (index % 2) * CARPET_OFFSET;
@@ -6037,8 +6040,9 @@ export class Maze {
         const sled = !!this.theme.ice;
         const carpet = !!this.theme.desert;
         const longNeck = !!this.theme.dino;
-        // Pirate Ship World: walk the plank (a level with a plank width) or ride the cannons
-        const plank = this.theme.pirate && this.plank > 0 ? this.plank : 0;
+        // Pirate Ship World: walk the plank (a level with a plank width) or ride the cannons;
+        // when the level marks its plank gaps ('F'), only those are planks
+        const plank = this.theme.pirate && this.plank > 0 && (!this.plankGapsMarked || blocks.some((b) => b.fast)) ? this.plank : 0;
         const cannon = !!this.theme.pirate && !plank;
         const width = alongX ? gap.maxZ - gap.minZ : gap.maxX - gap.minX;
         // Pirate Ship World: a cannon on each side, aimed across, and where its shot lands (inside the other)

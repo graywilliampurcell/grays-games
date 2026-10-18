@@ -7,6 +7,7 @@
 //   SEEDS=400 node tools/find-pirate-level.mjs level124 28 1    # a plank + a big splinter spike (rocking ship)
 //   SEEDS=400 node tools/find-pirate-level.mjs level125 28 1    # two waves + the sneaky splinter spike + a cannon ride
 //   SEEDS=400 node tools/find-pirate-level.mjs level126 28 1    # a path splinter spike + a wave (rocking ship)
+//   SEEDS=400 node tools/find-pirate-level.mjs level127 20 1    # 3-deep: a plank + a cannon ride + a big splinter spike
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -14,7 +15,10 @@
 // Layout letters (see js/Maze.js): as in find-dino-level.mjs. Pirate Ship
 // World reads 'X' as a splinter spike and 'O' as a cannon ride's water gap
 // (4 corridor cells; its two cannons stand in the path cells just before
-// and just after it, so those are plain, straight path cells too).
+// and just after it, so those are plain, straight path cells too). A level
+// with both a plank and a cannon ride (rule.gaps) marks the plank's water
+// gap 'F' and the cannon ride's 'O' (js/Maze.js: under the pirate theme,
+// when a level has 'F' gaps, only those are planks).
 //
 // Rules for every level: 12 x 12, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -53,6 +57,10 @@ const RULES = {
     // Level 54's squeeze gap and one big wave ('H', back to its 'Q') along
     // the ship's rail
     level126: { name: 'Level 126', depth: 2, deadEnds: 28, pathCane: true, vents: 1, rail: true, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
+    // Longer wrong ways (every dead end 3 deep): one 3-cell water gap walked
+    // on a third-wide plank ('F'), one 4-cell cannon ride ('O', a cannon in
+    // the plain path cell on each side) and one big splinter spike ('Y')
+    level127: { name: 'Level 127', depth: 3, deadEnds: 20, bigCane: true, gaps: [{ cells: 3, plank: true }, { cells: 4, cannon: true }], straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -383,16 +391,23 @@ function place(path, hung, random) {
         for (let i = lo; i < hi; i++) if (step(path[i - 1], path[i]) !== step(path[i], path[i + 1])) return true;
         return false;
     };
-    for (let r = 0; r < (rule.platforms ?? 0); r++) {
+    // Each gap: rule.gaps lists them one by one (cells, cannon or plank);
+    // otherwise rule.platforms gaps of PLATFORM_CELLS, all cannon or all not
+    const gapRules = rule.gaps ?? [...Array(rule.platforms ?? 0)].map(() => ({ cells: PLATFORM_CELLS, cannon: !!rule.cannon }));
+    out.gapKinds = [];
+    for (const gapRule of gapRules) {
         const options = [];
-        // (A cannon ride: the cannons' cells g - 1 and g + PLATFORM_CELLS are plain too, and part of its span)
-        const cannon = rule.cannon ? 1 : 0;
-        for (let g = 2 + cannon; g < path.length - 2 - PLATFORM_CELLS - cannon; g++) if ([...Array(PLATFORM_CELLS + 2 * cannon).keys()].every((d) => plain(g - cannon + d)) && g >= path.length * 0.25 && g + last <= path.length * 0.8 && fits([g - cannon, g + last + cannon])
+        const cells = gapRule.cells;
+        const end = cells - 1;
+        // (A cannon ride: the cannons' cells g - 1 and g + cells are plain too, and part of its span)
+        const cannon = gapRule.cannon ? 1 : 0;
+        for (let g = 2 + cannon; g < path.length - 2 - cells - cannon; g++) if ([...Array(cells + 2 * cannon).keys()].every((d) => plain(g - cannon + d)) && g >= path.length * 0.25 && g + end <= path.length * 0.8 && fits([g - cannon, g + end + cannon])
             && (!rule.ownStretch || out.platforms.every((h) => stretchTurns(h, g)))) options.push(g);
         if (options.length === 0) return null;
         const g = options[Math.floor(random() * options.length)];
         out.platforms.push(g);
-        spans.push([g - (rule.cannon ? 1 : 0), g + last + (rule.cannon ? 1 : 0)]);
+        out.gapKinds.push(gapRule);
+        spans.push([g - cannon, g + end + cannon]);
     }
     // The space door (Level 12's): the wall gap between path cells d and
     // d + 1, path straight from d - 1 to d + 2, not by the start or the exit
@@ -725,7 +740,10 @@ if (placed.current) {
     put([4 * placed.current.into.i + 2, 4 * placed.current.into.j + 2], 'V');
 }
 const platformOrder = [...placed.platforms].sort((a, b) => a - b);
-for (const g of placed.platforms) for (const b of gapBlocks([path[g], path[g + PLATFORM_CELLS - 1]])) put(b, (rule.fast ?? []).includes(platformOrder.indexOf(g)) ? 'F' : 'O');
+placed.platforms.forEach((g, n) => {
+    const { cells, plank } = placed.gapKinds[n];
+    for (const b of gapBlocks([path[g], path[g + cells - 1]])) put(b, (rule.fast ?? []).includes(platformOrder.indexOf(g)) || (rule.gaps && plank) ? 'F' : 'O');
+});
 for (const c of placed.caramel) for (const b of gapBlocks([path[c]])) put(b, 'C');
 for (const k of placed.vents) {
     for (const b of gapBlocks([path[k]])) put(b, 'H');
@@ -796,7 +814,10 @@ const dir = (n) => ({ '1,0': 'east', '-1,0': 'west', '0,1': 'south', '0,-1': 'no
 console.log(`\n${rule.name}: seed ${best.seed}, 12x12, start row ${best.startCell.j} west, door row ${best.exitCell.j} east, ` +
     `path ${best.solution.length} cells, ${best.deadEnds.length} dead ends (depths ${best.deadEnds.map((d) => d.depth).join(',')})`);
 if (hung.sneaky) console.log(`sneaky spike: dead end off path cell ${hung.sneaky.index + 1}, bone spike in cell ${key(hung.sneaky.s)}`);
-platformOrder.forEach((g, n) => console.log(`platform gap${(rule.fast ?? []).includes(n) ? ' (fast)' : ''}: path cells ${g + 1}-${g + PLATFORM_CELLS} (${key(path[g])} ${key(path[g + PLATFORM_CELLS - 1])}), crossed heading ${dir(g)}`));
+platformOrder.forEach((g, n) => {
+    const { cells, plank, cannon } = placed.gapKinds[placed.platforms.indexOf(g)];
+    console.log(`platform gap${(rule.fast ?? []).includes(n) ? ' (fast)' : ''}${plank ? ' (plank)' : cannon ? ' (cannon)' : ''}: path cells ${g + 1}-${g + cells} (${key(path[g])} ${key(path[g + cells - 1])}), crossed heading ${dir(g)}`);
+});
 if (placed.door !== undefined) console.log(`space door: between path cells ${placed.door + 1} and ${placed.door + 2} (${key(path[placed.door])} -> ${key(path[placed.door + 1])}), heading ${dir(placed.door + 1)}`);
 placed.slippery.forEach((k) => console.log(`slippery spot: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}`));
 placed.rivers.forEach((g) => console.log(`gap: path cells ${g + 1}-${g + GAP_CELLS}, crossed heading ${dir(g)}`));
