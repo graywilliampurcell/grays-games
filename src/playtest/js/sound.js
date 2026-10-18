@@ -3251,6 +3251,34 @@ const TUNES = {
             calls: [[12, 54, 1.2], [28, 42, 1.1]],
         },
     },
+    // Level 119 (the hidden fossils): sneaky and mysterious, more sneaky
+    // than mysterious, in Bb minor at 90 bpm: a soft triangle lead that
+    // tiptoes, stops, and peeks round a corner with a little high note, like
+    // hunting for fossils hidden down the wrong ways; soft dinosaur stomps
+    // and calls in the background.
+    dinohidden: {
+        tempo: 90,
+        bars: [[46, 'min'], [46, 'min'], [42, 'maj'], [44, 'maj'], [46, 'min'], [39, 'min'], [41, 'maj'], [41, 'maj']],
+        bass: [0, null, null, 0, null, null, 0, null],
+        bassLength: 0.22,
+        stabs: [],
+        ticks: true,
+        melody: [
+            70, null, 70, null, 73, null, null, null,
+            null, null, 82, null, null, null, null, null,
+            66, null, 66, null, 68, null, 70, null,
+            null, null, 80, null, null, null, null, null,
+            70, 73, 75, null, 73, null, 70, null,
+            63, null, 65, null, 66, null, null, null,
+            65, null, 66, null, 68, null, 65, null,
+            null, null, 77, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.22, length: 0.15, brightness: 1000 },
+        dino: {
+            stomps: [0, 6],
+            calls: [[20, 46, 1.2], [52, 58, 1.0]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

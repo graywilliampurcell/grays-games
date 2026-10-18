@@ -6800,6 +6800,68 @@ export const LEVELS = [
         '#       #   #                        HHH    #',
         '#############################################',
         ],
+    },    {
+        name: 'Level 119',
+        // The hidden fossils. `SEEDS=1000 node tools/find-dino-level.mjs
+        // level119 24 24500`, seed 24715. 11 x 11 corridors. Correct path 46
+        // cells (start west in row 3, door east in row 0); 25 wrong ways, all
+        // 3 cells deep. X: the sneaky bone spike, last cell of a 3-cell wrong
+        // way with one turn off path cell 3. f: the 3 fossils, each in the
+        // last cell of its own 3-cell wrong way with one turn, out of sight
+        // from the correct path (off path cells 15, 26 and 46). Y: the big
+        // bone spike, a straight wrong way off path cell 22. H: the tail
+        // swish, path cell 44 heading east (top row); Q: where its push
+        // leaves you (path cell 43). No long-neck ride, no path bone spike.
+        // A sneaky, mysterious tune with soft dinosaur stomps and calls.
+        theme: DINO,
+        music: 'dinohidden',
+        layout: [
+        '#############################################',
+        '#   #   #                        HHH        #',
+        '#   #   #                     Q  HHH        D',
+        '#   #   #                        HHH        #',
+        '#   #   #############   #   #############   #',
+        '#   #   #               #       #           #',
+        '#   #   #               #       # f         #',
+        '#   #   #               #       #           #',
+        '#   #   #############   #####   #############',
+        '#   #   #   #   #       #   #   #   #   #   #',
+        '#   #   # X #   #       #   #   #   #   #   #',
+        '#   #   #   #   #       #   #   #   #   #   #',
+        '#   #   #   #   #   #   #   #####   #   #   #',
+        '#       #   #   #   #       #   #   #   #   #',
+        '# S     #   #   #   #       #   #   #   #   #',
+        '#       #   #   #   #       #   #   #   #   #',
+        '#####   #   #   #   #########   #   #   #   #',
+        '#           #                   #   #   #   #',
+        '#           #                   #   #   #   #',
+        '#           #                   #   #   #   #',
+        '#   #################   #########   #   #   #',
+        '#   #       #       #                       #',
+        '#   #       #       #                       #',
+        '#   #       #       #                       #',
+        '#   #   #   #   #   #####################   #',
+        '#       #       #   #           #       #   #',
+        '#       #       #   #           #       #   #',
+        '#       #       #   #           #       #   #',
+        '#   #########   #####   #############   #   #',
+        '#           #   #                       #   #',
+        '#           #   #                       #   #',
+        '#           #   #                       #   #',
+        '#############   #   #   #   #   #   #####   #',
+        '#               #   #   #   # Y #           #',
+        '#               #   #   #   #   #           #',
+        '#               #   #   #   #   #           #',
+        '#   #####   #####   #   #   #   #####   #   #',
+        '#   #               #   #   #   #       #   #',
+        '#   #               #   #   #   #       #   #',
+        '#   #               #   #   #   #       #   #',
+        '#####   #   #########   #   #   #   #####   #',
+        '#       #           #   #   #   #   #       #',
+        '#       #         f #   #   #   #   # f     #',
+        '#       #           #   #   #   #   #       #',
+        '#############################################',
+        ],
     },
 ];
 

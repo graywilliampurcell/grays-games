@@ -10,6 +10,7 @@
 //   SEEDS=1000 node tools/find-dino-level.mjs level116 26 1       # a tighter path bone spike + the fossil hunt + a tail swish
 //   SEEDS=1000 node tools/find-dino-level.mjs level117 20 1       # 3-deep dead ends: the fossil hunt + a big bone spike + a long-neck ride
 //   SEEDS=1000 node tools/find-dino-level.mjs level118 20 1       # 3-deep dead ends: two long-neck rides + a tail swish
+//   SEEDS=1000 node tools/find-dino-level.mjs level119 20 1       # 3-deep dead ends: hidden fossils + a tail swish + a big and a sneaky bone spike
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -57,6 +58,11 @@ const RULES = {
     // crossed on its own long-neck's head in its own straight stretch (the
     // path turns between them), and one tail swish ('H' + 'Q')
     level118: { name: 'Level 118', depth: 3, deadEnds: 20, vents: 1, platforms: 2, platformCells: 3, ownStretch: true, prune: true, placeTries: 20 },
+    // The hidden fossils: every dead end 3 deep; the fossil hunt with each
+    // fossil at the end of a 3-cell wrong way with one 90° turn, not visible
+    // from the correct path; one tail swish; one big bone spike; the sneaky
+    // bone spike
+    level119: { name: 'Level 119', depth: 3, deadEnds: 20, sneaky: true, fossils: 3, hiddenFossils: true, vents: 1, bigCane: true, prune: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -285,10 +291,10 @@ function splitIntoDeadEnds(cells, onPath, random) {
 }
 
 // Can the 'X' be seen from anywhere on the given path cells?
-function spikeVisible(rows, pathCells) {
+function spikeVisible(rows, pathCells, at = null) {
     const isWall = (x, z) => rows[Math.floor(z)]?.[Math.floor(x)] === '#' || rows[Math.floor(z)]?.[Math.floor(x)] === 'D' || rows[Math.floor(z)]?.[Math.floor(x)] === undefined;
-    const z0 = rows.findIndex((r) => r.includes('X'));
-    const x0 = rows[z0].indexOf('X');
+    const z0 = at ? at[1] : rows.findIndex((r) => r.includes('X'));
+    const x0 = at ? at[0] : rows[z0].indexOf('X');
     const targets = [];
     for (const fa of [-0.2, 0.5, 1.2]) for (const fb of [-0.2, 0.5, 1.2]) targets.push([x0 + fa, z0 + fb]);
     const viewpoints = [];
@@ -442,6 +448,8 @@ function place(path, hung, random) {
         const [low, high] = [path.length * n / rule.fossils, path.length * (n + 1) / rule.fossils];
         hung.chains.forEach((chain, c) => {
             const at = hung.roots[c];
+            const turns = chain.filter((cell, k) => k > 0 && step(chain[k - 1], cell) !== step(k > 1 ? chain[k - 2] : path[at], chain[k - 1])).length;
+            if (rule.hiddenFossils && turns !== 1) return;
             if (chain.length === DEPTH && at >= low && at < high && chain !== hung.sneaky?.chain && chain !== out.bigCane?.chain
                 && out.buttonDoors.every((b) => b.chain !== chain)) options.push({ chain, at });
         });
@@ -697,6 +705,7 @@ for (let seed = FIRST_SEED; seed < FIRST_SEED + SEEDS && !best; seed++) {
         const plainLayout = toLayout(hung.links, { startCell, exitCell, spikeCell: hung.sneaky?.s });
         if (!differentEnough(shape(plainLayout))) { fail('same'); continue; }
         if (hung.sneaky && spikeVisible(plainLayout, solution)) { fail('visible'); continue; }
+        if (rule.hiddenFossils && placed.fossils.some(({ chain }) => spikeVisible(plainLayout, solution, [4 * chain[chain.length - 1].i + 2, 4 * chain[chain.length - 1].j + 2]))) { fail('fossilVisible'); continue; }
         best = { seed, path, hung, placed, solution, deadEnds, startCell, exitCell };
     }
 }
