@@ -6616,6 +6616,69 @@ export const LEVELS = [
         '#############################################',
         ],
     },
+    {
+        name: 'Level 116',
+        // The tighter squeeze. `SEEDS=1000 node tools/find-dino-level.mjs
+        // level116 27 6001`, seed 6043. 11 x 11 corridors. Correct path 67
+        // cells (start west in row 2, door east in row 4); 27 wrong ways, all
+        // 2 cells deep. X: the path bone spike over path cell 38 (heading
+        // south), with Level 54's squeeze gap (spikeRadius 0.67). f: the 3
+        // fossils, each in the last cell of its own wrong way: off path cells
+        // 5, 45 and 64. H: the tail swish over path cell 59 (heading east);
+        // Q: where its push leaves you, the middle of path cell 58. No
+        // long-neck, no sneaky or big bone spike. A sneaky, mysterious tune
+        // with soft dinosaur stomps and calls.
+        theme: DINO,
+        music: 'dinosqueeze',
+        spikeRadius: 0.67,
+        layout: [
+        '#############################################',
+        '#   #   #                   #               #',
+        '#   #   #                   #               #',
+        '#   #   #                   #               #',
+        '#   #   #   #   #########   #   #   #########',
+        '#   #   #   #   #       #       #           #',
+        '#   #   #   #   #       #       #           #',
+        '#   #   #   #   #       #       #           #',
+        '#   #   #####   #   #   #########   #########',
+        '#       #   #   #   #                       #',
+        '# S     #   #   #   #                       #',
+        '#       #   #   #   #                       #',
+        '#####   #   #   #   #############   #########',
+        '#   #       #   #   #       #   #   #       #',
+        '#   #       #   # X #       #   #   #       #',
+        '#   #       #   #   #       #   #   #       #',
+        '#   #   #####   #   #####   #   #   #####   #',
+        '#   #   #   #   #               #   #       #',
+        '#   #   #   #   #               #   #       D',
+        '#   #   #   #   #               #   #       #',
+        '#   #   #   #   #########   #########   #   #',
+        '#       #       #                   #   #   #',
+        '#       #       #                   #   #   #',
+        '#       #       #                   #   #   #',
+        '#   #   #####   #   #####################   #',
+        '#   #   #   #   #                   #   #   #',
+        '#   #   #   #   #                   # f #   #',
+        '#   #   #   #   #                   #   #   #',
+        '#   #   #   #   #   #   #####   #   #   #   #',
+        '#   #   #   #   #   #       #   #   #       #',
+        '#   # f #   #   #   #       #   #   #       #',
+        '#   #   #   #   #   #       #   #   #       #',
+        '#   #####   #   #   #########   #########   #',
+        '#           #   #   #       #   #           #',
+        '#           #   # f #       #   #           #',
+        '#           #   #   #       #   #           #',
+        '#   #   #   #   #####   #   #   #   #   #####',
+        '#   #   #       #   #   #       #   #   #   #',
+        '#   #   #       #   #   #       #   #   #   #',
+        '#   #   #       #   #   #       #   #   #   #',
+        '#   #   #   #####   #   #############   #   #',
+        '#   #   #       #                HHH        #',
+        '#   #   #       #             Q  HHH        #',
+        '#   #   #       #                HHH        #',
+        '#############################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with

@@ -3167,6 +3167,34 @@ const TUNES = {
             calls: [[16, 54, 1.2], [48, 59, 1.0]],
         },
     },
+    // Level 116 (the tighter squeeze): sneaky and mysterious, more sneaky
+    // than mysterious, in E minor at 96 bpm: a square lead that squeezes
+    // between two notes a half step apart, getting closer and closer, then
+    // slips through and up; soft dinosaur stomps and calls in the
+    // background.
+    dinosqueeze: {
+        tempo: 96,
+        bars: [[40, 'min'], [40, 'min'], [36, 'maj'], [35, 'maj'], [40, 'min'], [45, 'min'], [36, 'maj'], [35, 'maj']],
+        bass: [0, null, 0, null, null, null, 0, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            64, null, 67, null, 64, null, 66, null,
+            64, 65, 64, null, null, null, 59, null,
+            64, null, 66, null, 64, null, 65, null,
+            64, 65, 64, 65, 64, null, null, null,
+            71, null, 72, null, 71, null, null, 69,
+            67, null, 69, null, 71, null, 76, null,
+            75, null, 72, null, 71, null, 66, null,
+            64, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.1, length: 0.1, brightness: 1300 },
+        dino: {
+            stomps: [0, 4],
+            calls: [[24, 53, 1.1], [56, 58, 1.0]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
