@@ -3556,6 +3556,34 @@ const TUNES = {
             creaks: [6, 22, 38, 54],
         },
     },
+    // Level 130 (the Pirate Ship World finale): the sneakiest Pirate Ship
+    // World tune, F minor at 84 bpm: a dark, muffled square lead that
+    // creeps on tiptoe with long silences, freezes, peeks up high once,
+    // and slinks back down through an E natural. The soft waves and
+    // creaking wood are under it, a little more of them than usual.
+    piratefinale: {
+        tempo: 84,
+        bars: [[41, 'min'], [41, 'min'], [37, 'maj'], [36, 'maj'], [41, 'min'], [46, 'min'], [36, 'maj'], [41, 'min']],
+        bass: [0, null, null, null, null, null, 7, null],
+        bassLength: 0.26,
+        stabs: [],
+        ticks: true,
+        melody: [
+            65, null, null, 66, 65, null, null, null,
+            null, null, 64, null, 65, null, null, null,
+            68, null, null, 67, 68, null, null, null,
+            null, null, null, null, 77, null, null, null,
+            72, null, 70, null, 68, null, 67, null,
+            null, null, 65, null, null, null, null, null,
+            64, null, null, null, 60, null, 64, null,
+            65, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.14, length: 0.12, brightness: 800 },
+        pirate: {
+            waves: [[0, 3.0], [16, 2.6], [32, 3.0], [48, 2.6]],
+            creaks: [4, 14, 28, 40, 56],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

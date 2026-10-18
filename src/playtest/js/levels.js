@@ -7547,6 +7547,85 @@ export const LEVELS = [
         '#################################################',
         ],
     },
+    {
+        name: 'Level 130',
+        // The Pirate Ship World finale. `SEEDS=400 node tools/find-pirate-level.mjs
+        // level130 26 1726000`, seed 1726198. 12 x 12 corridors. Correct
+        // path 63 cells (start west in row 9, golden door east in row 6);
+        // 27 wrong ways, every one 3 cells deep. The whole ship rocks
+        // (`rocking`, as in Level 124). Along the path: X the sneaky
+        // splinter spike, last cell of a 3-cell wrong way with one turn off
+        // path cell 2; Y the big splinter spike filling the opening of the
+        // straight wrong way off path cell 15; F the plank's 3-cell water
+        // gap over path cells 19-21 (row 2, crossed heading east), walked on
+        // a plank a quarter of the corridor wide (`plank`; only the 'F' gap
+        // is a plank); O the first cannon ride, path cells 25-28 (row 1,
+        // heading west); H the first big wave, path cell 35 (heading north
+        // along the west rail, back to its Q); O the second cannon ride,
+        // path cells 40-43 (top row, heading east); Z the path splinter
+        // spike, path cell 51 (heading south), with Level 60's squeeze gap
+        // (spike2Radius 0.72, the tightest); H the second big wave, path
+        // cell 61 (heading north along the east rail, back to its Q).
+        // Golden door, confetti, the extra-long cheer and "You beat Pirate
+        // Ship World!". Music: the sneakiest Pirate Ship World tune.
+        theme: PIRATE,
+        music: 'piratefinale',
+        finale: 'You beat Pirate Ship World!',
+        rocking: true,
+        plank: 1 / 4,
+        spike2Radius: 0.72,
+        layout: [
+        '#################################################',
+        '#                OOOOOOOOOOOOOOO                #',
+        '#                OOOOOOOOOOOOOOO                #',
+        '#                OOOOOOOOOOOOOOO                #',
+        '#   #################################   #   #   #',
+        '#HHH#        OOOOOOOOOOOOOOO        #   #   #   #',
+        '#HHH#        OOOOOOOOOOOOOOO        #   #   #   #',
+        '#HHH#        OOOOOOOOOOOOOOO        #   #   #   #',
+        '#   #   #########################   #   #   #   #',
+        '#   #   #            FFFFFFFFFFF    #   #   #   #',
+        '# Q #   #            FFFFFFFFFFF    #   #   #   #',
+        '#   #   #            FFFFFFFFFFF    #   #   #   #',
+        '#   #   #   #####   #############   #   #   #####',
+        '#       #   #           #           #   #       #',
+        '#       #   #           #           #   #       #',
+        '#       #   #           #           #   #       #',
+        '#   #   #####   #   #   #################   #   #',
+        '#   #       #   #   #       #               #   #',
+        '#   #       #   #   #       #               #   #',
+        '#   #       #   #   #       #               #   #',
+        '#   #####   #   #   #####################   #   #',
+        '#       #   #   #               #       #   #   #',
+        '#       #   #   #    Y          #       # Z #   #',
+        '#       #   #   #               #       #   #   #',
+        '#################   #################   #   #####',
+        '#   #                           #   #       #   #',
+        '#   #                           #   #       #   D',
+        '#   #                           #   #       #   #',
+        '#   #############   #############   #####   #   #',
+        '#   #       #   #   #           #           #   #',
+        '#   #     X #   #   #           #           #   #',
+        '#   #       #   #   #           #           #   #',
+        '#   #   #####   #   #   #################   #   #',
+        '#   #   #       #           #           #   #HHH#',
+        '#   #   #       #           #           #   #HHH#',
+        '#   #   #       #           #           #   #HHH#',
+        '#   #   #   #############   #########   #   #   #',
+        '#                       #   #               #   #',
+        '# S                     #   #               # Q #',
+        '#                       #   #               #   #',
+        '#####   #   #####   #   #   #   #####   #####   #',
+        '#       #   #       #       #   #               #',
+        '#       #   #       #       #   #               #',
+        '#       #   #       #       #   #               #',
+        '#   #####   #   #########   #####   #   #########',
+        '#   #       #   #           #       #           #',
+        '#   #       #   #           #       #           #',
+        '#   #       #   #           #       #           #',
+        '#################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with

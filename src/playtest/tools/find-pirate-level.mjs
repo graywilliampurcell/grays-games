@@ -10,6 +10,7 @@
 //   SEEDS=400 node tools/find-pirate-level.mjs level127 20 1    # 3-deep: a plank + a cannon ride + a big splinter spike
 //   SEEDS=400 node tools/find-pirate-level.mjs level128 24 1    # 3-deep: two planks (rocking ship)
 //   SEEDS=400 node tools/find-pirate-level.mjs level129 20 1    # 3-deep: two cannon rides + two waves + the sneaky splinter spike
+//   SEEDS=400 node tools/find-pirate-level.mjs level130 20 1    # the finale: plank + two cannons + two waves + path, big and sneaky splinter spikes (rocking ship)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -73,6 +74,13 @@ const RULES = {
     // ('H', each back to its own 'Q') along the ship's rail, each obstacle
     // of a kind in its own straight stretch, and the sneaky splinter spike ('X')
     level129: { name: 'Level 129', depth: 3, deadEnds: 20, sneaky: true, vents: 2, rail: true, ownStretch: true, platforms: 2, platformCells: 4, cannon: true, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // The Pirate Ship World finale (every dead end 3 deep, rocking ship):
+    // one 3-cell water gap walked on a quarter-wide plank ('F'), two 4-cell
+    // cannon rides ('O'), two big waves ('H', each back to its own 'Q')
+    // along the ship's rail, each in its own straight stretch, the path
+    // splinter spike ('Z', with the sneaky one there), the big splinter
+    // spike ('Y') and the sneaky splinter spike ('X')
+    level130: { name: 'Level 130', depth: 3, deadEnds: 20, sneaky: true, pathCane: true, bigCane: true, vents: 2, rail: true, ownStretch: true, gaps: [{ cells: 3, plank: true }, { cells: 4, cannon: true }, { cells: 4, cannon: true }], straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
