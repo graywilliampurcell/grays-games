@@ -265,6 +265,7 @@ function loadLevel(level, index) {
         golden: !!(level.finale ?? LEVELS[index]?.finale),
         beltQuiet: level.beltQuiet ?? LEVELS[index]?.beltQuiet,
         armInterval: level.armInterval ?? LEVELS[index]?.armInterval,
+        plank: level.plank ?? LEVELS[index]?.plank,
     };
     // Level 100: one maze in 9 rooms, each in its own world's look
     maze = level.rooms ? new RoomMaze(scene, level, options) : new Maze(scene, level.layout, level.theme || LEVELS[0].theme, options);
@@ -831,7 +832,8 @@ function showMessage(text) {
 // Walking off an edge into the water (Pirate Ship World): you fall all the
 // way down to the sea, looking down at it as it rushes up, then splash
 function startWaterFall() {
-    falling = { time: 0, from: player.position.y + 1.6, x: player.position.x, z: player.position.z, splashed: false, pitch: player.facing().pitch, yaw: player.facing().yaw };
+    const spot = maze.waterFallSpot?.(player.position) ?? player.position;
+    falling = { time: 0, from: player.position.y + 1.6, x: spot.x, z: spot.z, splashed: false, pitch: player.facing().pitch, yaw: player.facing().yaw };
     player.velocity.set(0, 0, 0);
     player.slide = null;
     player.releaseAll();

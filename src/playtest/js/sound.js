@@ -3339,6 +3339,33 @@ const TUNES = {
             creaks: [14, 46],
         },
     },
+    // Level 122 (the first plank): E minor, 96 bpm, a square lead that
+    // tiptoes up in small steps and then hops down, like stepping out along
+    // a plank and looking down at the water. A little sneakier than Level
+    // 121's, with the same soft waves and creaking wood.
+    pirateplank: {
+        tempo: 96,
+        bars: [[40, 'min'], [40, 'min'], [36, 'maj'], [35, 'maj'], [40, 'min'], [38, 'maj'], [35, 'maj'], [40, 'min']],
+        bass: [0, null, 0, null, 7, null, null, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            64, 66, 67, null, 69, null, null, null,
+            67, null, 59, null, null, null, 64, null,
+            60, null, 64, 67, null, null, 66, null,
+            64, null, 63, null, 59, null, null, null,
+            64, 66, 67, null, 69, 71, null, null,
+            72, null, 71, null, 64, null, null, null,
+            66, null, 67, null, 66, null, 63, null,
+            64, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.12, brightness: 1500 },
+        pirate: {
+            waves: [[8, 2.4], [30, 2.6], [48, 2.2]],
+            creaks: [6, 38, 58],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

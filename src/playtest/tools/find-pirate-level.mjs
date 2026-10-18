@@ -3,6 +3,7 @@
 // find-dino-level.mjs (Levels 111-120), at 12 x 12.
 //
 //   SEEDS=1000 node tools/find-pirate-level.mjs level121 30 1   # the sneaky splinter spike + a cannon ride
+//   SEEDS=1000 node tools/find-pirate-level.mjs level122 28 1   # a plank + a path splinter spike
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -27,6 +28,10 @@ const RULES = {
     // 4-cell water gap crossed by cannon ('O', a cannon in the plain path
     // cell on each side)
     level121: { name: 'Level 121', depth: 2, deadEnds: 30, sneaky: true, platforms: 1, platformCells: 4, cannon: true, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
+    // The first plank: one 3-cell water gap walked on a half-width plank ('O';
+    // the level's `plank` makes it a plank, see js/Maze.js) and one path
+    // splinter spike ('X') with Level 53's squeeze gap
+    level122: { name: 'Level 122', depth: 2, deadEnds: 28, pathCane: true, platforms: 1, platformCells: 3, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

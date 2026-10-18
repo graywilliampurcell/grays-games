@@ -2203,8 +2203,10 @@ export class Maze {
     // warning (Level 82: BELT_QUIET_TIME)
     // armInterval: how often each robot-arm belt sends an arm (one number,
     // or one per arm belt in layout order; ARM_INTERVAL normally)
-    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS, spike2Radius = spikeRadius, golden = false, beltQuiet = BELT_QUIET_TIME, armInterval = ARM_INTERVAL } = {}) {
+    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS, spike2Radius = spikeRadius, golden = false, beltQuiet = BELT_QUIET_TIME, armInterval = ARM_INTERVAL, plank = 0 } = {}) {
         this.beltQuietTime = beltQuiet;
+        // Pirate Ship World: every water gap is walked on a plank this fraction of the corridor wide (0 = cannon rides)
+        this.plank = plank;
         this.spikeRadius = spikeRadius;
         this.spike2Radius = spike2Radius;
         this.golden = golden;
@@ -5865,7 +5867,9 @@ export class Maze {
         const sled = !!this.theme.ice;
         const carpet = !!this.theme.desert;
         const longNeck = !!this.theme.dino;
-        const cannon = !!this.theme.pirate;
+        // Pirate Ship World: walk the plank (a level with a plank width) or ride the cannons
+        const plank = this.theme.pirate && this.plank > 0 ? this.plank : 0;
+        const cannon = !!this.theme.pirate && !plank;
         const width = alongX ? gap.maxZ - gap.minZ : gap.maxX - gap.minX;
         // Pirate Ship World: a cannon on each side, aimed across, and where its shot lands (inside the other)
         const cannons = cannon ? [-CANNON_REACH, span + CANNON_REACH].map((along) => {
@@ -5896,6 +5900,7 @@ export class Maze {
             carpet, // Desert Pyramid World: a sand pit crossed on a flying carpet that keeps its own cycle
             longNeck, // Dinosaur World: a pit crossed on a long-neck dinosaur's head (moves like the hover platform)
             cannon, // Pirate Ship World: a water gap crossed by being fired from a cannon
+            plank, // Pirate Ship World: a water gap crossed on a fixed plank this fraction of the corridor wide
             cannons,
             phase: 'rest', // sled: 'rest' | 'zip' (carrying you) | 'float' (empty, coming to you); balloon: 'rest' | 'wait' (you're in, the burner's about to fire) | 'rise' | 'cross' | 'down' | 'float' (empty, coming to you)
             time: 0, // balloon: seconds into the phase
@@ -5923,6 +5928,8 @@ export class Maze {
         this.resetSnowmen();
         this.resetThinIce();
         for (const p of this.platforms) {
+            // The plank never moves
+            if (p.plank) continue;
             // The cannons: empty, fuses out
             if (p.cannon) {
                 for (const c of p.cannons) Object.assign(c, { phase: 'empty', time: 0, mustLeave: false });
@@ -5997,6 +6004,11 @@ export class Maze {
         if (p.chocolate) return true;
         // The water gap: anywhere in it (the cannon fires you over it)
         if (p.cannon) return true;
+        // The plank: anywhere off it (your middle past either side of it)
+        if (p.plank) {
+            const { across, width } = this.gapCoords(point, p);
+            return Math.abs(across - width / 2) > (width * p.plank) / 2;
+        }
         // The balloon: never while it's in the air with you in it
         if (p.balloon && ['rise', 'cross', 'down'].includes(p.phase)) return false;
         // The sled: never while it's zooming you across
@@ -6042,6 +6054,7 @@ export class Maze {
         if (p.bubble) return this.updateBubble(p, dt, position, velocity, radius);
         if (p.chocolate) return null; // nothing moves: the marshmallows bounce you (see marshmallowAt)
         if (p.cannon) return null; // the cannons fire you over (see updateCannons)
+        if (p.plank) return null; // the plank never moves
         if (p.balloon) return this.updateBalloon(p, dt, position, velocity, radius);
         if (p.sled) return this.updateSled(p, dt, position, velocity, radius);
         if (p.carpet) return this.updateCarpet(p, dt, position, velocity, radius);
@@ -6614,6 +6627,11 @@ export class Maze {
         if (p.cannon) {
             this.createSeaHole(p);
             this.createCannons(p);
+            return;
+        }
+        if (p.plank) {
+            this.createSeaHole(p);
+            this.createPlank(p);
             return;
         }
         if (this.theme.factory) {
@@ -8159,6 +8177,62 @@ export class Maze {
             }
             this.root.add(strip);
         }
+    }
+
+    // Walk the plank (Level 122 on): one long wooden board straight across the
+    // water gap down the middle of the corridor, p.plank of its width, its
+    // ends resting on the deck. Darker edges and a row of nails at each end,
+    // and two thin beams under it, so it reads as a plank from far off.
+    createPlank(p) {
+        const g = p.gap;
+        const width = (p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX) * p.plank;
+        const length = p.span + 0.8;
+        const group = new THREE.Group();
+        const map = deckTexture(256, 977);
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        map.repeat.set(0.18, length / 6);
+        const board = new THREE.Mesh(new THREE.BoxGeometry(width, 0.14, length), new THREE.MeshStandardMaterial({ map, color: 0xd09a62, roughness: 0.9 }));
+        board.position.y = -0.045;
+        board.castShadow = board.receiveShadow = true;
+        group.add(board);
+        const dark = new THREE.MeshStandardMaterial({ color: 0x5a3519, roughness: 1 });
+        for (const side of [-1, 1]) {
+            const edge = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.16, length), dark);
+            edge.position.set(side * (width / 2 - 0.03), -0.04, 0);
+            group.add(edge);
+            const beam = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.18, length - 0.2), dark);
+            beam.position.set(side * width * 0.3, -0.21, 0);
+            group.add(beam);
+        }
+        const nail = new THREE.MeshStandardMaterial({ color: 0x9aa0a6, metalness: 0.8, roughness: 0.35 });
+        for (const end of [-1, 1]) {
+            for (let k = 0; k < 3; k++) {
+                const head = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.02, 10), nail);
+                head.position.set((k - 1) * width * 0.3, 0.035, end * (length / 2 - 0.2));
+                group.add(head);
+            }
+        }
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        group.position.set(cx, 0, cz);
+        if (p.alongX) group.rotation.y = Math.PI / 2;
+        this.root.add(group);
+        p.object = null; // (nothing to move)
+        p.plankObject = group;
+    }
+
+    // Where a fall into the water starts (Pirate Ship World): beside a plank,
+    // a little further out from it, so you see the plank go by as you fall
+    // and never fall through it
+    waterFallSpot(point) {
+        const p = this.gapAt(point);
+        if (!p?.plank) return { x: point.x, z: point.z };
+        const { across, width } = this.gapCoords(point, p);
+        const half = (width * p.plank) / 2;
+        const side = across < width / 2 ? -1 : 1;
+        const out = Math.min(width / 2 - 0.3, Math.max(Math.abs(across - width / 2), half + 0.4));
+        const at = width / 2 + side * out;
+        return p.alongX ? { x: point.x, z: p.gap.minZ + at } : { x: p.gap.minX + at, z: point.z };
     }
 
     // The two big cannons, one on each side of the gap at its edge, aimed
