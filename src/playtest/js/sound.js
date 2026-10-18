@@ -3279,6 +3279,34 @@ const TUNES = {
             calls: [[20, 46, 1.2], [52, 58, 1.0]],
         },
     },
+    // Level 120 (the Dinosaur World finale): the sneakiest Dinosaur World
+    // tune, in D minor at 86 bpm: a low, quiet square lead that creeps up
+    // half a step at a time and freezes, with long silent gaps and a little
+    // high peek now and then; heavier dinosaur stomps (three a bar) and two
+    // calls in the background.
+    dinofinale: {
+        tempo: 86,
+        bars: [[38, 'min'], [38, 'min'], [39, 'maj'], [38, 'min'], [34, 'maj'], [36, 'maj'], [37, 'maj'], [38, 'min']],
+        bass: [0, null, null, null, 0, null, null, null],
+        bassLength: 0.24,
+        stabs: [],
+        ticks: true,
+        melody: [
+            62, null, 63, null, 62, null, null, null,
+            null, null, null, null, 74, null, null, null,
+            62, null, 63, null, 65, null, 63, null,
+            62, null, null, null, null, null, null, null,
+            58, null, 60, null, 61, null, null, null,
+            null, null, 73, null, null, null, null, null,
+            61, null, 62, null, 61, null, 57, null,
+            62, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.16, length: 0.14, brightness: 850 },
+        dino: {
+            stomps: [0, 3, 6],
+            calls: [[12, 50, 1.3], [44, 45, 1.2]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

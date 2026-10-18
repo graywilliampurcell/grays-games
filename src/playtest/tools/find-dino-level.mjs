@@ -11,6 +11,7 @@
 //   SEEDS=1000 node tools/find-dino-level.mjs level117 20 1       # 3-deep dead ends: the fossil hunt + a big bone spike + a long-neck ride
 //   SEEDS=1000 node tools/find-dino-level.mjs level118 20 1       # 3-deep dead ends: two long-neck rides + a tail swish
 //   SEEDS=1000 node tools/find-dino-level.mjs level119 20 1       # 3-deep dead ends: hidden fossils + a tail swish + a big and a sneaky bone spike
+//   SEEDS=1000 node tools/find-dino-level.mjs level120 20 1       # the finale: two long-necks, two tails, fossils, path + big + sneaky bone spikes
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -63,6 +64,12 @@ const RULES = {
     // from the correct path; one tail swish; one big bone spike; the sneaky
     // bone spike
     level119: { name: 'Level 119', depth: 3, deadEnds: 20, sneaky: true, fossils: 3, hiddenFossils: true, vents: 1, bigCane: true, prune: true, placeTries: 20 },
+    // The Dinosaur World finale: every dead end 3 deep; two 3-cell pits
+    // ('O', each its own long-neck, own straight stretch); two tail swishes
+    // ('H' + 'Q', own straight stretch each); the fossil hunt (3 'f', the
+    // golden door is the locked door); a path bone spike ('Z', Level 60's
+    // gap, the tightest); the big bone spike ('Y'); the sneaky bone spike ('X')
+    level120: { name: 'Level 120', depth: 3, deadEnds: 20, sneaky: true, fossils: 3, vents: 2, platforms: 2, platformCells: 3, ownStretch: true, pathCane: true, bigCane: true, prune: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

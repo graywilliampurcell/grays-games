@@ -6863,6 +6863,75 @@ export const LEVELS = [
         '#############################################',
         ],
     },
+    {
+        name: 'Level 120',
+        // The Dinosaur World finale. `SEEDS=400 node tools/find-dino-level.mjs
+        // level120 20 20800`, seed 21012. 11 x 11 corridors. Correct path 58
+        // cells (start west in row 2, golden door east in row 9); 21 wrong
+        // ways, all 3 cells deep. Along the path: X the sneaky bone spike, last
+        // cell of a 3-cell wrong way with one turn off path cell 3; H the first
+        // tail swish, path cell 9 heading east (top row; Q: where its push
+        // leaves you); f fossil 1 off path cell 16; O the first long-neck pit,
+        // path cells 22-24 heading south; O the second long-neck pit, path
+        // cells 30-32 heading west; f fossil 2 off path cell 33; Z the path
+        // bone spike, path cell 42 heading south, with Level 60's squeeze gap
+        // (spike2Radius 0.72, the tightest); f fossil 3 off path cell 51; H the
+        // second tail swish, path cell 54 heading east (bottom row); Y the big
+        // bone spike, a straight wrong way off path cell 58 by the door. The
+        // golden door is the fossil hunt's locked door. Confetti, long cheer,
+        // "You beat Dinosaur World!". Music: the sneakiest Dinosaur World tune.
+        theme: DINO,
+        music: 'dinofinale',
+        finale: 'You beat Dinosaur World!',
+        spike2Radius: 0.72,
+        layout: [
+        '#############################################',
+        '#   #           #        HHH    #   #       #',
+        '#   #           #     Q  HHH    #   #       #',
+        '#   #           #        HHH    #   #       #',
+        '#   #########   #   #########   #   #####   #',
+        '#       #           #       #   #       #   #',
+        '#       #           #       #   #       #   #',
+        '#       #           #       #   #       #   #',
+        '#####   #   #   #   #   #   #   #####   #   #',
+        '#           #   #   #   #       #           #',
+        '# S         #   #   #   #       #           #',
+        '#           #   #   #   #       #           #',
+        '#####   #   #   #   #####   #####   #####   #',
+        '#       #   #   #       #       #   #   #OOO#',
+        '#       #   #   #       #       #   #   #OOO#',
+        '#       #   #   #       #       #   #   #OOO#',
+        '#   #####   #   #############   #   #   #OOO#',
+        '#   #       #   #                   #   #OOO#',
+        '#   # X     #   #                   #   #OOO#',
+        '#   #       #   #                   #   #OOO#',
+        '#############################   #   #   #OOO#',
+        '#       #       #   #           #   #   #OOO#',
+        '#       #       #   # f         #   #   #OOO#',
+        '#       #       #   #           #   #   #OOO#',
+        '#   #   #   #####   #############   #   #   #',
+        '#   #   #   #       #   #   #       #       #',
+        '#   #   #   #       # f #   #       #       #',
+        '#   #   #   #       #   #   #       #       #',
+        '#   #   #   #   #####   #   #########   #####',
+        '#   #           #       #               #   #',
+        '# Z #           #       #               #   #',
+        '#   #           #       #               #   #',
+        '#   #####   #   #   #############   #####   #',
+        '#       #   #        OOOOOOOOOOO            #',
+        '#       #   #        OOOOOOOOOOO            #',
+        '#       #   #        OOOOOOOOOOO            #',
+        '#####   #   #################################',
+        '#       #       #           #               #',
+        '#       #       #         f #          Y    D',
+        '#       #       #           #               #',
+        '#   #############   #####################   #',
+        '#                            HHH            #',
+        '#                         Q  HHH            #',
+        '#                            HHH            #',
+        '#############################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
