@@ -1004,6 +1004,17 @@ const VENT_PUFF_TIME = 0.5;
 export const WAVE_TIMES = { calm: VENT_QUIET_TIME, warning: VENT_WARNING_TIME, splash: VENT_PUFF_TIME };
 const WAVE_DRY_TIME = 0.8;
 const WAVE_OFFSET = 2.2;
+// The rocking ship (Pirate Ship World, Level 124 on): every ROCK_EVERY
+// seconds the ship tips gently to one side (north or south, alternating) for
+// ROCK_TIP_TIME and back. During a tip you slide ROCK_SLIDE toward the low
+// side (a quarter of a 3-block corridor cell), stopping at walls, unless
+// you're within ROCK_SAFE of a water gap, a spike or a wave.
+export const ROCK_EVERY = 8;
+export const ROCK_TIP_TIME = 1.5;
+const ROCK_CALM_TIME = ROCK_EVERY - ROCK_TIP_TIME;
+export const ROCK_ANGLE = 0.07; // radians at the most (about 4 degrees)
+export const ROCK_SLIDE = 0.75;
+const ROCK_SAFE = 3; // one corridor cell
 
 // A tail swish's cycle (Dinosaur World, Level 112 on; 'H' blocks under the
 // dino theme): the tail is lifted high above the walls for TAIL_LIFTED_TIME
@@ -2210,8 +2221,10 @@ export class Maze {
     // warning (Level 82: BELT_QUIET_TIME)
     // armInterval: how often each robot-arm belt sends an arm (one number,
     // or one per arm belt in layout order; ARM_INTERVAL normally)
-    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS, spike2Radius = spikeRadius, golden = false, beltQuiet = BELT_QUIET_TIME, armInterval = ARM_INTERVAL, plank = 0 } = {}) {
+    constructor(scene, layout, theme = DEFAULT_THEME, { wallHeight = 4, spikeRadius = SPIKE_RADIUS, spike2Radius = spikeRadius, golden = false, beltQuiet = BELT_QUIET_TIME, armInterval = ARM_INTERVAL, plank = 0, rocking = false } = {}) {
         this.beltQuietTime = beltQuiet;
+        // Pirate Ship World: the whole ship rocks from side to side (Level 124 on)
+        this.rocking = rocking ? { phase: 'calm', timer: ROCK_CALM_TIME, side: 1, angle: 0, tip: 0 } : null;
         // Pirate Ship World: every water gap is walked on a plank this fraction of the corridor wide (0 = cannon rides)
         this.plank = plank;
         this.spikeRadius = spikeRadius;
@@ -5584,6 +5597,7 @@ export class Maze {
         if (this.theme.factory) return this.createBigZapper(row);
         if (this.theme.desert) return this.createBigCactus(row);
         if (this.theme.dino) return this.createBigBoneSpike(row);
+        if (this.theme.pirate) return this.createBigSplinterSpike(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -8712,6 +8726,80 @@ export class Maze {
         mound.position.y = 0.06;
         if (!row.spansX) mound.rotation.y = Math.PI / 2;
         this.root.add(mound);
+    }
+
+    // The big splinter spike (Level 124 on): a pile of big broken deck planks
+    // with pointy splinters filling a straight wrong way's opening wall to
+    // wall, tallest in the middle, on a heap of broken boards
+    createBigSplinterSpike(row) {
+        const across = row.spansX ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1);
+        for (const [offset, radius, tall, turn] of [[0, 0.66, 1.5, 0.4], [-1.02, 0.47, 1.15, 1.7], [1.02, 0.47, 1.25, -0.9]]) {
+            const spike = this.createSplinterSpike(row.position.clone().addScaledVector(across, offset), radius);
+            spike.scale.y = tall;
+            spike.rotation.y = turn;
+        }
+        const heap = new THREE.Mesh(new THREE.BoxGeometry(SPIKE_ROW_WIDTH, 0.12, SPIKE_ROW_DEPTH), new THREE.MeshStandardMaterial({ color: 0x5e3a1c, roughness: 1 }));
+        heap.position.copy(row.position);
+        heap.position.y = 0.06;
+        if (!row.spansX) heap.rotation.y = Math.PI / 2;
+        this.root.add(heap);
+        // a few loose broken boards lying across the heap
+        const board = new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: 0.9 });
+        for (const [a, b, turn] of [[-0.8, 0.15, 0.5], [0.6, -0.2, -0.4], [0.1, 0.25, 1.3]]) {
+            const piece = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.06, 0.2), board);
+            piece.position.copy(row.position).addScaledVector(across, a);
+            piece.position.y = 0.15;
+            if (row.spansX) piece.position.z += b; else piece.position.x += b;
+            piece.rotation.y = turn;
+            this.root.add(piece);
+        }
+    }
+
+    // ---- The rocking ship (Pirate Ship World, Level 124 on) ----
+
+    // Moves the ship's rocking on by dt (the game step, so it stops while
+    // paused). Returns 'tip' when a tip starts. rocking.angle is how far the
+    // ship leans right now (toward +z when side is 1) and rocking.tip how far
+    // through the current tip it is (0 to 1).
+    updateRocking(dt) {
+        const r = this.rocking;
+        if (!r) return null;
+        let event = null;
+        r.timer -= dt;
+        if (r.timer <= 0) {
+            if (r.phase === 'calm') {
+                r.phase = 'tip';
+                r.timer += ROCK_TIP_TIME;
+                event = 'tip';
+            } else {
+                r.phase = 'calm';
+                r.timer += ROCK_CALM_TIME;
+                r.side = -r.side;
+            }
+        }
+        r.tip = r.phase === 'tip' ? Math.min(1, Math.max(0, 1 - r.timer / ROCK_TIP_TIME)) : 0;
+        r.angle = r.phase === 'tip' ? ROCK_ANGLE * Math.sin(Math.PI * r.tip) : 0;
+        return event;
+    }
+
+    // How far you slide toward the low side this step (along z), as the
+    // ship tips: the slide follows the lean, ROCK_SLIDE over the whole tip
+    rockSlide(dt) {
+        const r = this.rocking;
+        if (!r || r.phase !== 'tip') return 0;
+        // speed follows sin(pi t), whose average over the tip is 2/pi
+        const speed = (ROCK_SLIDE / ROCK_TIP_TIME) * (Math.PI / 2) * Math.sin(Math.PI * r.tip);
+        return r.side * speed * dt;
+    }
+
+    // You don't slide near anything dangerous: within one corridor cell of a
+    // water gap (which covers a plank and the cannons), a spike or a wave
+    rockSafeAt(point) {
+        const near = (box) => Math.max(box.minX - point.x, 0, point.x - box.maxX) ** 2 + Math.max(box.minZ - point.z, 0, point.z - box.maxZ) ** 2 < ROCK_SAFE ** 2;
+        if (this.platforms.some((p) => near(p.gap))) return false;
+        if (this.vents.some((v) => near(v))) return false;
+        if (this.touchesSpike(point, ROCK_SAFE)) return false;
+        return true;
     }
 
     // The long-neck's pit (Level 111 on): rocky dirt walls go straight down

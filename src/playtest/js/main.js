@@ -266,6 +266,7 @@ function loadLevel(level, index) {
         beltQuiet: level.beltQuiet ?? LEVELS[index]?.beltQuiet,
         armInterval: level.armInterval ?? LEVELS[index]?.armInterval,
         plank: level.plank ?? LEVELS[index]?.plank,
+        rocking: !!(level.rocking ?? LEVELS[index]?.rocking),
     };
     // Level 100: one maze in 9 rooms, each in its own world's look
     maze = level.rooms ? new RoomMaze(scene, level, options) : new Maze(scene, level.layout, level.theme || LEVELS[0].theme, options);
@@ -353,6 +354,26 @@ function step(deltaTime) {
     }
     // Update player movement
     player.update(inputManager, collisionManager, deltaTime);
+    // The rocking ship (Pirate Ship World, Level 124 on): every so often the
+    // whole ship tips gently to one side and back with a soft creak, and you
+    // slide a little toward the low side (stopping at walls), except near a
+    // water gap, a spike or a wave. It stops while paused (this is the game step).
+    if (maze.updateRocking?.(deltaTime) === 'tip') {
+        sound.shipCreak();
+        testHooks?.emit('rock', { side: maze.rocking.side });
+    }
+    if (maze.rocking && !player.shove && !player.carried && !player.spinning && !escaped) {
+        const dz = maze.rockSlide(deltaTime);
+        if (dz) {
+            const moved = player.position.clone();
+            moved.z += dz;
+            if (maze.rockSafeAt(player.position) && maze.rockSafeAt(moved) && collisionManager.isPositionValid(moved, player.radius)) {
+                player.position.copy(moved);
+                player.camera.position.set(player.position.x, player.position.y + 1.6, player.position.z);
+                maze.rocking.slid = (maze.rocking.slid ?? 0) + Math.abs(dz);
+            }
+        }
+    }
     // Space doors (Level 12 on) slide open and shut by themselves
     maze.updateSpaceDoor(deltaTime, player.position, player.radius);
     // Button doors (Desert Pyramid World, Level 101 on): stepping on the
@@ -633,12 +654,27 @@ function step(deltaTime) {
     camera.rotation.copy(player.camera.rotation);
 }
 
+// The rocking ship: you lean with the ship, so the sea and sky tilt (the
+// ship tips about the west-east line, its low side north or south). The
+// lean is only added while drawing, so it never changes where you look.
+const ROCK_AXIS = new THREE.Vector3(1, 0, 0);
+const rockLean = new THREE.Quaternion();
+const unleaned = new THREE.Quaternion();
+
 function render() {
     // Update UI
     updateUI();
 
     // Render
-    renderer.render(scene, camera);
+    const r = maze?.rocking;
+    if (r?.angle) {
+        unleaned.copy(camera.quaternion);
+        camera.quaternion.premultiply(rockLean.setFromAxisAngle(ROCK_AXIS, r.side * r.angle));
+        renderer.render(scene, camera);
+        camera.quaternion.copy(unleaned);
+    } else {
+        renderer.render(scene, camera);
+    }
 }
 
 function horizontalDistance(a, b) {

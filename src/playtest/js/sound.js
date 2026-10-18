@@ -3393,6 +3393,33 @@ const TUNES = {
             creaks: [10, 34, 54],
         },
     },
+    // Level 124 (the rocking ship): C minor, 90 bpm, a soft plucked lead
+    // in 6/8-like swaying pairs that lean one way, then the other, like the
+    // deck tipping, and creep up a little each time; sneaky and mysterious
+    // (more sneaky), with the soft waves and creaking wood.
+    piraterock: {
+        tempo: 90,
+        bars: [[36, 'min'], [41, 'min'], [36, 'min'], [43, 'maj'], [36, 'min'], [44, 'maj'], [43, 'maj'], [36, 'min']],
+        bass: [0, null, null, 7, null, null, 0, null],
+        bassLength: 0.24,
+        stabs: [],
+        ticks: true,
+        melody: [
+            60, null, 63, null, 67, null, 63, null,
+            65, null, 68, null, 72, null, null, null,
+            67, null, 63, null, 60, null, 63, 62,
+            62, null, 67, null, 71, null, null, null,
+            63, null, 67, null, 70, null, 67, null,
+            68, null, 72, null, 75, null, 72, 70,
+            67, null, 66, null, 67, null, 62, null,
+            60, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.16, length: 0.16, brightness: 1400 },
+        pirate: {
+            waves: [[4, 2.8], [26, 3.0], [50, 2.6]],
+            creaks: [2, 18, 34, 50],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -4160,6 +4187,40 @@ export class Sound {
         g.gain.exponentialRampToValueAtTime(0.0001, t + length + 0.15);
         this.noiseSource(t, length + 0.2).connect(f).connect(g).connect(this.sfxBus);
         return { gain: g, end: t + length + 0.15 };
+    }
+
+    // The rocking ship tipping (Level 124 on): a soft, long, low creak of
+    // old wood as the whole ship leans over, then a smaller one as it rights
+    shipCreak() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('shipCreak');
+        const t = this.ctx.currentTime + 0.01;
+        for (const [at, from, to, length, level] of [[0, 150, 120, 0.9, 0.22], [0.85, 170, 140, 0.55, 0.14]]) {
+            const o = this.ctx.createOscillator();
+            o.type = 'sawtooth';
+            o.frequency.setValueAtTime(from, t + at);
+            o.frequency.linearRampToValueAtTime(from * 1.2, t + at + length * 0.4);
+            o.frequency.linearRampToValueAtTime(to, t + at + length);
+            const wobble = this.ctx.createOscillator();
+            wobble.frequency.value = 17;
+            const depth = this.ctx.createGain();
+            depth.gain.value = 12;
+            wobble.connect(depth).connect(o.frequency);
+            const f = this.ctx.createBiquadFilter();
+            f.type = 'bandpass';
+            f.frequency.value = 520;
+            f.Q.value = 2.5;
+            const g = this.ctx.createGain();
+            g.gain.setValueAtTime(0.0001, t + at);
+            g.gain.exponentialRampToValueAtTime(level, t + at + 0.2);
+            g.gain.setValueAtTime(level, t + at + length * 0.7);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + at + length);
+            o.connect(f).connect(g).connect(this.sfxBus);
+            o.start(t + at);
+            o.stop(t + at + length + 0.02);
+            wobble.start(t + at);
+            wobble.stop(t + at + length + 0.02);
+        }
     }
 
     // The big wave crashing across the deck: a long, heavy splash
