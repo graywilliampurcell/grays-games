@@ -3501,6 +3501,34 @@ const TUNES = {
             creaks: [12, 30, 46, 62],
         },
     },
+    // Level 128 (two planks): G# minor, 88 bpm, a soft sine lead that
+    // tiptoes on one note at a time (careful steps along a thin plank),
+    // wobbles, steadies, and then does it again a step higher for the
+    // second plank; sneaky and mysterious (more sneaky), with the soft
+    // waves and creaking wood under the rocking deck.
+    piratetwoplanks: {
+        tempo: 88,
+        bars: [[44, 'min'], [44, 'min'], [40, 'maj'], [42, 'maj'], [44, 'min'], [49, 'min'], [39, 'maj'], [44, 'min']],
+        bass: [0, null, null, null, 7, null, null, null],
+        bassLength: 0.26,
+        stabs: [],
+        ticks: true,
+        melody: [
+            68, null, 68, null, 68, null, 71, null,
+            70, 71, 70, null, 68, null, null, null,
+            68, null, 68, null, 68, null, 73, null,
+            71, null, null, null, null, null, null, null,
+            71, null, 71, null, 71, null, 75, null,
+            73, 75, 73, null, 71, null, null, null,
+            67, null, 70, null, 75, null, 73, null,
+            68, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.2, length: 0.15, brightness: 1300 },
+        pirate: {
+            waves: [[0, 3.0], [24, 2.6], [46, 3.0]],
+            creaks: [4, 20, 36, 52],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

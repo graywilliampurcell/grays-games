@@ -7411,6 +7411,74 @@ export const LEVELS = [
         '#################################################',
         ],
     },
+    {
+        name: 'Level 128',
+        // Two planks. `SEEDS=400 node tools/find-pirate-level.mjs level128
+        // 27 1550000`, seed 1550002. 12 x 12 corridors. Correct path 63
+        // cells (start west in row 7, door east in row 2); 27 wrong ways,
+        // every one 3 cells deep. The whole ship rocks (`rocking`, as in
+        // Level 124). O: two 3-cell water gaps, each in its own straight
+        // stretch, each walked on a plank a third of the corridor wide
+        // (`plank`): the first over path cells 21-23 (bottom row, crossed
+        // heading east), the second over path cells 44-46 (row 2, crossed
+        // heading west). No cannon, no waves, no splinter spikes. A sneaky
+        // tune that tiptoes along one plank, then the next.
+        theme: PIRATE,
+        music: 'piratetwoplanks',
+        rocking: true,
+        plank: 1 / 3,
+        layout: [
+        '#################################################',
+        '#           #                                   #',
+        '#           #                                   #',
+        '#           #                                   #',
+        '#########   #   #############################   #',
+        '#                           #           #       #',
+        '#                           #           #       #',
+        '#                           #           #       #',
+        '#   #   #####################   #####   #   #   #',
+        '#   #            OOOOOOOOOOO    #   #   #   #   #',
+        '#   #            OOOOOOOOOOO    #   #   #   #   D',
+        '#   #            OOOOOOOOOOO    #   #   #   #   #',
+        '#   #########################   #   #   #   #####',
+        '#   #           #           #       #   #   #   #',
+        '#   #           #           #       #   #   #   #',
+        '#   #           #           #       #   #   #   #',
+        '#############   #########   #########   #####   #',
+        '#   #                       #       #           #',
+        '#   #                       #       #           #',
+        '#   #                       #       #           #',
+        '#   #   #########   #####   #####   #   #########',
+        '#   #   #   #   #       #       #       #       #',
+        '#   #   #   #   #       #       #       #       #',
+        '#   #   #   #   #       #       #       #       #',
+        '#   #   #   #   #####   #   #   #####   #   #####',
+        '#   #   #   #   #   #   #   #   #       #   #   #',
+        '#   #   #   #   #   #   #   #   #       #   #   #',
+        '#   #   #   #   #   #   #   #   #       #   #   #',
+        '#   #   #   #   #   #####   #   #   #   #   #   #',
+        '#           #   #           #   #   #       #   #',
+        '# S         #   #           #   #   #       #   #',
+        '#           #   #           #   #   #       #   #',
+        '#   #########   #########   #####   #####   #   #',
+        '#       #                       #   #   #       #',
+        '#       #                       #   #   #       #',
+        '#       #                       #   #   #       #',
+        '#####   #   #################   #####   #   #####',
+        '#   #   #               #       #       #       #',
+        '#   #   #               #       #       #       #',
+        '#   #   #               #       #       #       #',
+        '#   #####   #####################   #####   #   #',
+        '#            OOOOOOOOOOO    #               #   #',
+        '#            OOOOOOOOOOO    #               #   #',
+        '#            OOOOOOOOOOO    #               #   #',
+        '#########   #############   #   #############   #',
+        '#           #                               #   #',
+        '#           #                               #   #',
+        '#           #                               #   #',
+        '#################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with

@@ -8,6 +8,7 @@
 //   SEEDS=400 node tools/find-pirate-level.mjs level125 28 1    # two waves + the sneaky splinter spike + a cannon ride
 //   SEEDS=400 node tools/find-pirate-level.mjs level126 28 1    # a path splinter spike + a wave (rocking ship)
 //   SEEDS=400 node tools/find-pirate-level.mjs level127 20 1    # 3-deep: a plank + a cannon ride + a big splinter spike
+//   SEEDS=400 node tools/find-pirate-level.mjs level128 24 1    # 3-deep: two planks (rocking ship)
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -61,6 +62,11 @@ const RULES = {
     // on a third-wide plank ('F'), one 4-cell cannon ride ('O', a cannon in
     // the plain path cell on each side) and one big splinter spike ('Y')
     level127: { name: 'Level 127', depth: 3, deadEnds: 20, bigCane: true, gaps: [{ cells: 3, plank: true }, { cells: 4, cannon: true }], straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // Two planks (every dead end 3 deep, rocking ship): two 3-cell water
+    // gaps ('O'; the level's `plank` makes every gap a plank, see
+    // js/Maze.js), each in its own straight stretch (the path turns
+    // between them)
+    level128: { name: 'Level 128', depth: 3, deadEnds: 20, platforms: 2, platformCells: 3, ownStretch: true, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
