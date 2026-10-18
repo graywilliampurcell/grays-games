@@ -62,6 +62,8 @@ const VENT_PUSH_TIME = 0.45;
 // taking this long; its soft swoosh fades out over this distance
 const TAIL_PUSH_TIME = 0.45;
 const SWOOSH_HEAR_DISTANCE = 20;
+// Standing at the fossil hunt's locked door (its message shows once each time you walk up to it)
+let atLockedDoor = false;
 // How far away an erupting lava geyser can be heard (it gets quieter with distance)
 const GEYSER_HEAR_DISTANCE = 24;
 // How far away a trapdoor's warning rumble can be heard
@@ -167,6 +169,8 @@ function init() {
     if (progress) {
         player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
         maze.setButtonPressed?.(progress);
+        maze.setFossils?.(progress.fossils ?? []);
+        showFossilCount();
         buddy?.placeNear(player.position, progress.yaw);
     }
 
@@ -272,6 +276,8 @@ function loadLevel(level, index) {
     sun.shadow.camera.updateProjectionMatrix();
 
     document.getElementById('level').textContent = level.name;
+    atLockedDoor = false;
+    showFossilCount();
     sound?.setTune(maze.music || level.music || LEVELS[index]?.music);
 }
 
@@ -343,6 +349,20 @@ function step(deltaTime) {
             sound.grind(BUTTON_DOOR_GRIND_TIME);
         }
         testHooks?.emit(event === 'press' ? 'button' : 'buttonDoorOpen');
+    }
+    // The fossil hunt (Dinosaur World, Level 113 on): walking onto a fossil
+    // picks it up with a ding; finding the last one pops the padlock off
+    // the exit door with a click. Only you pick them up (not the buddy).
+    for (const { event } of maze.updateFossils?.(deltaTime, player.position, player.radius) ?? []) {
+        if (event === 'collect') {
+            sound.ding();
+            testHooks?.emit('fossil', { found: maze.fossilCount.found });
+        }
+        if (event === 'unlock') {
+            sound.click();
+            testHooks?.emit('fossilUnlock');
+        }
+        showFossilCount();
     }
     // The spinning secret wall (Desert Pyramid World, Level 103 on): walk
     // into the wall with the golden beetle and it turns round, carrying you
@@ -627,7 +647,17 @@ function checkSpikeAndDoor() {
                 : 'Whoops! You fell off. Back to the start.');
     }
 
-    if (horizontalDistance(player.position, maze.doorPosition) < DOOR_TOUCH_DISTANCE) {
+    const atDoor = horizontalDistance(player.position, maze.doorPosition) < DOOR_TOUCH_DISTANCE;
+    if (atDoor && maze.fossilsLocked) {
+        // The fossil hunt: the door is locked (solid like a wall) until every
+        // fossil is found; walking up to it says so once and starts nothing
+        if (!atLockedDoor) {
+            showMessage(`Find all ${maze.fossilCount.of} fossils first!`);
+            testHooks?.emit('lockedDoor');
+        }
+        atLockedDoor = true;
+    } else if (atDoor) {
+        atLockedDoor = false;
         escaped = true;
         player.frozen = true;
         player.releaseAll();
@@ -643,7 +673,19 @@ function checkSpikeAndDoor() {
         // "You did it!" (Start the next level / Quit), the finale's screen, or "More levels coming soon!"
         menu.showFinish(LEVELS[levelIndex + 1]?.name, finale, LEVELS[levelIndex]?.nextLabel);
         testHooks?.emit('escape');
+    } else {
+        atLockedDoor = false;
     }
+}
+
+// The fossil hunt's counter under the level name: "🦴 1 / 3" (only in a
+// level with fossils)
+function showFossilCount() {
+    const el = document.getElementById('fossils');
+    const { found = 0, of = 0 } = maze?.fossilCount ?? {};
+    el.hidden = !of;
+    el.textContent = `🦴 ${found} / ${of}`;
+    el.classList.toggle('all', of > 0 && found === of);
 }
 
 // Confetti falling over the whole screen for a few seconds (the finale)
@@ -794,6 +836,9 @@ function playAgain() {
     player.frozen = false;
     player.releaseAll();
     backToStart();
+    // A level starting from its start: no fossils found yet
+    maze.setFossils?.([]);
+    showFossilCount();
     // A level starting from its start: Level 111's egg hatches (the 111 switch)
     buddy?.start(!!LEVELS[levelIndex]?.hatch && settings.dinoHatch);
     menu.dismiss();
@@ -890,6 +935,8 @@ function continueGame() {
     startPlaying(progress.level);
     player.resetTo(new THREE.Vector3(progress.x, 0, progress.z), progress.yaw, progress.pitch);
     maze.setButtonPressed?.(progress);
+    maze.setFossils?.(progress.fossils ?? []);
+    showFossilCount();
     buddy?.placeNear(player.position, progress.yaw);
 }
 
@@ -959,6 +1006,9 @@ function saveSpot() {
     // Desert Pyramid World: whether each button door's button has been pressed
     const doors = maze.buttonDoors ?? [];
     const button = { ...(doors[0]?.pressed ? { button: true } : {}), ...(doors[1]?.pressed ? { button2: true } : {}) };
+    // Dinosaur World's fossil hunt: which fossils have been found
+    const found = maze.collectedFossils?.() ?? [];
+    if (found.length) button.fossils = found;
     if (escaped) {
         const { position, yaw } = maze.getDoorApproach();
         saveProgress({ level: levelIndex, x: position.x, z: position.z, yaw, pitch: 0, ...button });

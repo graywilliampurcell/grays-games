@@ -1597,6 +1597,13 @@ const BUTTON_DOOR_PASSABLE_FROM = 0.8;
 const BUTTON_RADIUS = 0.6;
 const BUTTON_HEIGHT = 0.1; // how far it sticks up before it's pressed
 const BUTTON_SINK_TIME = 0.15;
+// The fossil hunt (Dinosaur World, Level 113 on): each fossil's look, how
+// close any part of you has to come to pick one up, and how long the
+// door's padlock takes to pop off
+const FOSSIL_KINDS = ['skull', 'shell', 'footprint'];
+const FOSSIL_RADIUS = 0.45;
+const FOSSIL_HEIGHT = 0.85;
+const LOCK_POP_TIME = 0.7;
 // The spinning secret wall (Level 103 on) turns around this fast (starting
 // value Gray will judge), carrying you to its other side
 export const SPIN_WALL_TIME = 1;
@@ -1946,6 +1953,77 @@ function doorSlabTexture() {
     return texture;
 }
 
+// A fossil tablet's face (the fossil hunt): pale stone with a spiral shell
+// or a three-toed dinosaur footprint pressed into it
+function fossilTabletTexture(kind) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#d9c9a0';
+    g.fillRect(0, 0, 128, 128);
+    for (let k = 0; k < 60; k++) {
+        g.fillStyle = `rgba(120, 95, 60, ${0.08 + Math.random() * 0.1})`;
+        g.beginPath();
+        g.arc(Math.random() * 128, Math.random() * 128, 1 + Math.random() * 3, 0, Math.PI * 2);
+        g.fill();
+    }
+    g.strokeStyle = '#6b4e2a';
+    g.fillStyle = '#7a5a32';
+    g.lineCap = 'round';
+    if (kind === 'shell') {
+        // A spiral, with little ribs across it
+        g.lineWidth = 6;
+        g.beginPath();
+        for (let a = 0; a < Math.PI * 6; a += 0.1) {
+            const r = 4 + a * 2.7;
+            const x = 64 + Math.cos(a) * r;
+            const y = 64 + Math.sin(a) * r;
+            if (a === 0) g.moveTo(x, y); else g.lineTo(x, y);
+        }
+        g.stroke();
+        g.lineWidth = 2;
+        for (let a = 1; a < Math.PI * 6; a += 0.45) {
+            const r = 4 + a * 2.7;
+            g.beginPath();
+            g.moveTo(64 + Math.cos(a) * (r - 5), 64 + Math.sin(a) * (r - 5));
+            g.lineTo(64 + Math.cos(a) * (r + 5), 64 + Math.sin(a) * (r + 5));
+            g.stroke();
+        }
+    } else {
+        // A three-toed footprint: a round heel and three pointed toes
+        g.beginPath();
+        g.ellipse(64, 84, 18, 16, 0, 0, Math.PI * 2);
+        g.fill();
+        for (const a of [-0.55, 0, 0.55]) {
+            g.save();
+            g.translate(64, 78);
+            g.rotate(a);
+            g.beginPath();
+            g.moveTo(-9, 0);
+            g.quadraticCurveTo(-7, -40, 0, -52);
+            g.quadraticCurveTo(7, -40, 9, 0);
+            g.closePath();
+            g.fill();
+            g.restore();
+        }
+    }
+    return new THREE.CanvasTexture(canvas);
+}
+
+// A soft round glow fading out to nothing (a fossil's halo)
+function glowTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 64;
+    const g = canvas.getContext('2d');
+    const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+    grad.addColorStop(0.35, 'rgba(255, 255, 255, 0.35)');
+    grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(canvas);
+}
+
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
@@ -2017,6 +2095,9 @@ export class Maze {
         // A spinning secret wall ('E' blocks, the wall gap between two path
         // cells; Desert Pyramid World, Level 103 on)
         const spinBlocks = [];
+        // Fossils ('f', the middle of the last cell of a wrong way; Dinosaur
+        // World's fossil hunt, Level 113 on)
+        const fossilPositions = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -2050,6 +2131,7 @@ export class Maze {
                 if (ch === 'j') buttonDoorBlocks[1].push({ x, z });
                 if (ch === 'u') buttonPositions[1] = center;
                 if (ch === 'E') spinBlocks.push({ x, z });
+                if (ch === 'f') fossilPositions.push(center);
             }
         }
         this.currents = [];
@@ -2177,6 +2259,11 @@ export class Maze {
             this.buttonDoors.push(door);
             this.setButtonDoorSolid(door, true);
         });
+        // The fossil hunt: 3 fossils, each its own look, in the order they're
+        // found reading the layout; the exit door stays locked until all are
+        // collected
+        this.fossils = fossilPositions.map((position, index) => ({ position, kind: FOSSIL_KINDS[index % FOSSIL_KINDS.length], collected: false, t: index * 1.3 }));
+        this.doorLock = null;
         // The spinning wall is solid like any wall (walking into it spins it)
         if (spinBlocks.length) {
             const xs = spinBlocks.map((b) => b.x);
@@ -2381,6 +2468,7 @@ export class Maze {
         for (const belt of this.armBelts) this.createArmBelt(belt);
         for (const door of this.buttonDoors) this.createButtonDoor(door);
         if (this.spinWall) this.createSpinWall();
+        for (const f of this.fossils) this.createFossil(f);
         this.scene.add(this.root);
     }
 
@@ -4074,6 +4162,13 @@ export class Maze {
         door.position.copy(this.doorPosition);
         door.rotation.y = EDGES[this.doorEdge()].doorYaw;
         this.root.add(door);
+        // The fossil hunt: a big padlock on the door until all 3 fossils are found
+        if (this.fossils?.length) {
+            const lock = this.createDoorLock();
+            lock.position.set(0, 1.15, 0.3);
+            door.add(lock);
+            this.doorLock = { object: lock, pop: null };
+        }
     }
 
     // A small cluster of metal spikes on the floor, its plate `radius` across from the middle
@@ -7929,6 +8024,173 @@ export class Maze {
             const along = row.spansX ? point.z - row.position.z : point.x - row.position.x;
             return Math.abs(across) < SPIKE_ROW_WIDTH / 2 + margin && Math.abs(along) < SPIKE_ROW_DEPTH / 2 + margin;
         });
+    }
+
+    // ---- The fossil hunt (Dinosaur World, Level 113 on) ----
+
+    // A fossil floating a little above the dirt, slowly turning, with a
+    // soft warm glow round it so it can be spotted down its wrong way:
+    // a little dinosaur skull, a spiral shell or a three-toed footprint
+    createFossil(f) {
+        const group = new THREE.Group();
+        group.position.set(f.position.x, 0, f.position.z);
+        const spin = new THREE.Group();
+        spin.position.y = FOSSIL_HEIGHT;
+        spin.scale.setScalar(1.3);
+        group.add(spin);
+        const bone = new THREE.MeshStandardMaterial({ color: 0xeedfb8, roughness: 0.7, emissive: 0xb88a3a, emissiveIntensity: 0.55 });
+        const dark = new THREE.MeshStandardMaterial({ color: 0x4a3420, roughness: 0.9 });
+        if (f.kind === 'skull') {
+            // Round head, long snout, two eye holes, a row of little teeth
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 18, 14), bone);
+            head.scale.set(1, 0.9, 1.05);
+            spin.add(head);
+            const snout = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 12), bone);
+            snout.scale.set(0.85, 0.7, 1.6);
+            snout.position.set(0, -0.06, 0.25);
+            spin.add(snout);
+            for (const sx of [-1, 1]) {
+                const eye = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), dark);
+                eye.position.set(sx * 0.12, 0.05, 0.14);
+                spin.add(eye);
+            }
+            for (let k = 0; k < 5; k++) {
+                const tooth = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.07, 6), bone);
+                tooth.rotation.x = Math.PI;
+                tooth.position.set(-0.08 + k * 0.04, -0.16, 0.3 + (k % 2) * 0.01);
+                spin.add(tooth);
+            }
+        } else {
+            // A round (shell) or oval (footprint) stone tablet standing up,
+            // the fossil pressed into both faces
+            const map = fossilTabletTexture(f.kind);
+            const face = new THREE.MeshStandardMaterial({ map, roughness: 0.75, emissive: 0xb88a3a, emissiveIntensity: 0.45, emissiveMap: map });
+            const edge = new THREE.MeshStandardMaterial({ color: 0xc8b48a, roughness: 0.85, emissive: 0x6a4a1a, emissiveIntensity: 0.3 });
+            const tablet = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.09, 28), [edge, face, face]);
+            tablet.rotation.x = Math.PI / 2;
+            if (f.kind === 'footprint') tablet.scale.set(0.85, 1, 1.2);
+            spin.add(tablet);
+        }
+        // The soft glow: a warm halo that always faces you
+        const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture(), color: 0xffd98a, transparent: true, opacity: 0.75, depthWrite: false, blending: THREE.AdditiveBlending }));
+        halo.scale.set(1.8, 1.8, 1);
+        halo.position.y = FOSSIL_HEIGHT;
+        group.add(halo);
+        // A little glowing ring on the dirt under it
+        const ring = new THREE.Mesh(new THREE.RingGeometry(0.32, 0.42, 28), new THREE.MeshBasicMaterial({ color: 0xffd98a, transparent: true, opacity: 0.45, depthWrite: false }));
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.y = 0.02;
+        group.add(ring);
+        this.root.add(group);
+        f.object = group;
+        f.spin = spin;
+        this.showFossil(f);
+    }
+
+    showFossil(f) {
+        if (!f.object) return;
+        f.object.visible = !f.collected;
+        f.spin.rotation.y = f.t * 0.9;
+        f.spin.position.y = FOSSIL_HEIGHT + Math.sin(f.t * 2) * 0.06;
+    }
+
+    // A big brass padlock, its shackle through a loop on the door
+    createDoorLock() {
+        const lock = new THREE.Group();
+        const brass = new THREE.MeshStandardMaterial({ color: 0xd9a520, metalness: 0.6, roughness: 0.35, emissive: 0x5a3c00, emissiveIntensity: 0.4 });
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.4, 0.16), brass);
+        lock.add(body);
+        const shackle = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.035, 10, 20, Math.PI), new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.8, roughness: 0.3 }));
+        shackle.position.y = 0.2;
+        lock.add(shackle);
+        for (const sx of [-1, 1]) {
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.08, 8), shackle.material);
+            leg.position.set(sx * 0.14, 0.2, 0);
+            lock.add(leg);
+        }
+        const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.02, 12), new THREE.MeshStandardMaterial({ color: 0x2a1a08 }));
+        hole.rotation.x = Math.PI / 2;
+        hole.position.set(0, -0.04, 0.085);
+        lock.add(hole);
+        const slot = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.08, 0.02), hole.material);
+        slot.position.set(0, -0.1, 0.085);
+        lock.add(slot);
+        // A little bone pressed into the lock, so it's clearly the fossil lock
+        const boneMat = new THREE.MeshStandardMaterial({ color: 0xf2e6c6, roughness: 0.7, emissive: 0x6a5020, emissiveIntensity: 0.3 });
+        const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.2, 8), boneMat);
+        shaft.rotation.z = Math.PI / 2;
+        shaft.position.set(0, 0.08, 0.085);
+        lock.add(shaft);
+        for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
+            const knob = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 6), boneMat);
+            knob.position.set(sx * 0.1, 0.08 + sy * 0.018, 0.085);
+            lock.add(knob);
+        }
+        return lock;
+    }
+
+    // Is the exit door still locked (a fossil hunt with fossils left to find)?
+    get fossilsLocked() {
+        return (this.fossils?.length ?? 0) > 0 && this.fossils.some((f) => !f.collected);
+    }
+
+    // How many fossils have been found, out of how many
+    get fossilCount() {
+        return { found: (this.fossils ?? []).filter((f) => f.collected).length, of: this.fossils?.length ?? 0 };
+    }
+
+    // Each game step (so it stops while paused): the fossils turn and bob;
+    // any part of the player reaching one picks it up. Returns what
+    // happened: { event: 'collect', fossil }, then { event: 'unlock' } when
+    // the last one is found (the padlock pops off).
+    updateFossils(dt, point, radius) {
+        const events = [];
+        for (const f of this.fossils ?? []) {
+            f.t += dt;
+            if (!f.collected && point && Math.hypot(point.x - f.position.x, point.z - f.position.z) < FOSSIL_RADIUS + radius) {
+                f.collected = true;
+                events.push({ event: 'collect', fossil: f });
+                if (!this.fossilsLocked) {
+                    if (this.doorLock) this.doorLock.pop = 0;
+                    events.push({ event: 'unlock' });
+                }
+            }
+            this.showFossil(f);
+        }
+        const lock = this.doorLock;
+        if (lock && lock.pop !== null && lock.object.visible) {
+            // The padlock springs off the door, flips and drops away, then is gone
+            lock.pop = Math.min(1, lock.pop + dt / LOCK_POP_TIME);
+            const u = lock.pop;
+            lock.object.position.set(0, 1.15 + 0.9 * u - 1.6 * u * u, 0.3 + 0.9 * u);
+            lock.object.rotation.x = -u * Math.PI * 1.5;
+            const s = 1 - Math.max(0, u - 0.6) / 0.4;
+            lock.object.scale.setScalar(Math.max(0.01, s));
+            if (u >= 1) lock.object.visible = false;
+        }
+        return events;
+    }
+
+    // Which fossils have been found (their numbers), for saving the spot
+    collectedFossils() {
+        return (this.fossils ?? []).flatMap((f, n) => (f.collected ? [n] : []));
+    }
+
+    // Loading a saved spot (or starting the level again): exactly these
+    // fossils are found; with all of them found the door is already unlocked
+    setFossils(found = []) {
+        for (const [n, f] of (this.fossils ?? []).entries()) {
+            f.collected = Array.isArray(found) && found.includes(n);
+            this.showFossil(f);
+        }
+        if (this.doorLock) {
+            const open = !this.fossilsLocked;
+            this.doorLock.pop = open ? 1 : null;
+            Object.assign(this.doorLock.object, { visible: !open });
+            this.doorLock.object.position.set(0, 1.15, 0.3);
+            this.doorLock.object.rotation.set(0, 0, 0);
+            this.doorLock.object.scale.setScalar(1);
+        }
     }
 
     getStartPosition() {

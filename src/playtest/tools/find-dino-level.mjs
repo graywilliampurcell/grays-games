@@ -4,13 +4,15 @@
 //
 //   SEEDS=1000 node tools/find-dino-level.mjs level111 26 6601   # the sneaky bone spike + a long-neck ride
 //   SEEDS=1000 node tools/find-dino-level.mjs level112 26 1       # a tail swish + a path bone spike
+//   SEEDS=1000 node tools/find-dino-level.mjs level113 26 1       # the fossil hunt + a long-neck ride
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
 //
 // Layout letters (see js/Maze.js): as in find-desert-level.mjs. Dinosaur
 // World reads 'X' as a bone spike, 'O' as the long-neck's pit and 'H' as
-// a tail swish (its push leaves you at 'Q').
+// a tail swish (its push leaves you at 'Q'), and 'f' as a fossil (the
+// fossil hunt: one in the last cell of each of 3 wrong ways).
 //
 // Rules for every level: 11 x 11, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -28,6 +30,10 @@ const RULES = {
     // The first tail swish ('H', with 'Q' where its push leaves you: the
     // middle of the path cell before it) and a path bone spike ('X')
     level112: { name: 'Level 112', depth: 2, deadEnds: 26, pathCane: true, vents: 1, prunePairs: true, placeTries: 20 },
+    // The first fossil hunt: 3 fossils ('f'), each in the last cell of its
+    // own wrong way (one off each third of the path), and one 3-cell pit
+    // crossed on the long-neck's head ('O')
+    level113: { name: 'Level 113', depth: 2, deadEnds: 26, fossils: 3, platforms: 1, platformCells: 3, prunePairs: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -396,6 +402,21 @@ function place(path, hung, random) {
         spans.push([o.door, o.door + 1]);
     }
     out.buttonDoors.sort((a, b) => a.door - b.door);
+    // The fossil hunt: each fossil in the last cell of its own spike-free
+    // wrong way, one wrong way branching off each part of the path (the
+    // first third, the middle third, the last third for 3 fossils)
+    out.fossils = [];
+    for (let n = 0; n < (rule.fossils ?? 0); n++) {
+        const options = [];
+        const [low, high] = [path.length * n / rule.fossils, path.length * (n + 1) / rule.fossils];
+        hung.chains.forEach((chain, c) => {
+            const at = hung.roots[c];
+            if (chain.length === DEPTH && at >= low && at < high && chain !== hung.sneaky?.chain && chain !== out.bigCane?.chain
+                && out.buttonDoors.every((b) => b.chain !== chain)) options.push({ chain, at });
+        });
+        if (options.length === 0) return null;
+        out.fossils.push(options[Math.floor(random() * options.length)]);
+    }
     out.buttonDoor = out.buttonDoors[0];
     // The spinning secret wall: the wall gap between path cells w and w + 1,
     // with the path straight from w - 1 to w + 2 and nothing branching off
@@ -489,7 +510,7 @@ function place(path, hung, random) {
     // The big spike: a straight dead end (all DEPTH cells in a line from its opening)
     if (rule.bigCane) {
         const options = hung.chains.map((chain, c) => ({ chain, at: hung.roots[c] }))
-            .filter(({ chain, at }) => out.buttonDoors.every((b) => b.chain !== chain) && chain.every((cell, n) => step(n === 0 ? path[at] : chain[n - 1], cell) === step(path[at], chain[0])) && fits([at, at]));
+            .filter(({ chain, at }) => out.buttonDoors.every((b) => b.chain !== chain) && out.fossils.every((f) => f.chain !== chain) && chain.every((cell, n) => step(n === 0 ? path[at] : chain[n - 1], cell) === step(path[at], chain[0])) && fits([at, at]));
         if (options.length === 0) return null;
         out.bigCane = options[Math.floor(random() * options.length)];
         spans.push([out.bigCane.at, out.bigCane.at]);
@@ -694,6 +715,10 @@ placed.buttonDoors.forEach((door, n) => {
     const end = door.chain[door.chain.length - 1];
     put([4 * end.i + 2, 4 * end.j + 2], n ? 'u' : 'U');
 });
+for (const { chain } of placed.fossils) {
+    const end = chain[chain.length - 1];
+    put([4 * end.i + 2, 4 * end.j + 2], 'f');
+}
 if (placed.spinWall !== undefined) {
     const a = path[placed.spinWall];
     const b = path[placed.spinWall + 1];
@@ -740,3 +765,4 @@ if (placed.bigCane) console.log(`big spike: dead end off path cell ${placed.bigC
 placed.buttonDoors.forEach((door, n) => console.log(`button door ${n ? 'j' : 'J'}: between path cells ${door.door + 1} and ${door.door + 2} (${key(path[door.door])} -> ${key(path[door.door + 1])}), heading ${dir(door.door + 1)}; button ${n ? 'u' : 'U'} wrong way off path cell ${door.at + 1} (${key(path[door.at])}), button in ${key(door.chain[door.chain.length - 1])}`));
 if (placed.spinWall !== undefined) console.log(`spinning wall: between path cells ${placed.spinWall + 1} and ${placed.spinWall + 2} (${key(path[placed.spinWall])} -> ${key(path[placed.spinWall + 1])}), heading ${dir(placed.spinWall + 1)}`);
 if (rule.finaleOrder) console.log(`wrong ways after the spinning wall: off path cells ${hung.roots.filter((at) => at > placed.spinWall + 1).sort((a, b) => a - b).map((at) => at + 1).join(', ')}`);
+placed.fossils.forEach(({ chain, at }, n) => console.log(`fossil ${n + 1}: wrong way off path cell ${at + 1} (${key(path[at])}), fossil in ${key(chain[chain.length - 1])}`));

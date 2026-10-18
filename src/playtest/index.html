@@ -631,6 +631,23 @@
             pointer-events: none;
         }
         
+        /* The fossil hunt's counter (Dinosaur World, Level 113 on), under the level name */
+        #fossils {
+            position: absolute;
+            top: calc(64px + env(safe-area-inset-top, 0px));
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 22px;
+            font-weight: bold;
+            background: rgba(70, 45, 15, 0.7);
+            padding: 6px 16px;
+            border-radius: 8px;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        #fossils.all { background: rgba(40, 110, 40, 0.75); }
+
         #ui {
             position: absolute;
             top: 10px;
@@ -752,6 +769,7 @@
         </div>
     </div>
     <div id="level"></div>
+    <div id="fossils" hidden></div>
     <div id="message" hidden></div>
     <div id="walk-circle" class="touch-ctl touch-circle left"><div class="knob"><div class="icon">🚶</div></div></div>
     <div id="look-circle" class="touch-ctl touch-circle right"><div class="knob"><div class="icon">👀</div></div></div>

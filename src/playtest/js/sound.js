@@ -3084,6 +3084,33 @@ const TUNES = {
             calls: [[20, 55, 1.2], [52, 57, 1.0]],
         },
     },
+    // Level 113 (the first fossil hunt): sneaky and mysterious, more sneaky
+    // than mysterious, in A, tiptoeing low and then peeking up high like
+    // someone looking round for something; soft dinosaur stomps and calls
+    // in the background.
+    dinofossil: {
+        tempo: 92,
+        bars: [[45, 'min'], [41, 'maj'], [45, 'min'], [40, 'maj'], [45, 'min'], [43, 'maj'], [41, 'maj'], [40, 'maj']],
+        bass: [0, null, null, 0, null, null, 0, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: true,
+        melody: [
+            57, null, 57, null, 60, null, null, 59,
+            57, null, null, null, 76, null, 72, null,
+            57, null, 59, null, 60, null, 62, null,
+            64, null, null, 63, 64, null, null, null,
+            69, null, 67, null, 64, null, null, 62,
+            60, null, 62, null, 79, null, 76, null,
+            65, null, 64, null, 60, null, 57, null,
+            56, null, null, 59, 57, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.13, length: 0.11, brightness: 1500 },
+        dino: {
+            stomps: [2, 6],
+            calls: [[28, 52, 1.2], [60, 55, 1.1]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -3688,6 +3715,28 @@ export class Sound {
         g.gain.exponentialRampToValueAtTime(0.0001, t + length);
         this.noiseSource(t, length + 0.05).connect(f).connect(g).connect(this.sfxBus);
         return { gain: g, end: t + length };
+    }
+
+    // Picking up a fossil (Dinosaur World's fossil hunt): a happy little
+    // two-note ding, like a small bell. Obeys the Sound effects switch.
+    ding() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('ding');
+        const t = this.ctx.currentTime + 0.01;
+        [[1319, 0], [1760, 0.09]].forEach(([freq, at]) => {
+            for (const [mult, level, decay] of [[1, 0.28, 0.55], [2.76, 0.06, 0.18]]) {
+                const o = this.ctx.createOscillator();
+                o.type = 'sine';
+                o.frequency.value = freq * mult;
+                const g = this.ctx.createGain();
+                g.gain.setValueAtTime(0.0001, t + at);
+                g.gain.exponentialRampToValueAtTime(level, t + at + 0.004);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + at + decay);
+                o.connect(g).connect(this.sfxBus);
+                o.start(t + at);
+                o.stop(t + at + decay + 0.05);
+            }
+        });
     }
 
     // Quickly fade out a vent sound that's still playing (you got past it)

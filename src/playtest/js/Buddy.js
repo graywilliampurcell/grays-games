@@ -393,8 +393,9 @@ export class Buddy {
             return false;
         }
         if (this.mode === 'egg' || this.mode === 'help') return false;
-        // Into a wrong way, from the correct path
-        if (was && place < 0 && wasPlace >= 0) this.wrongWays++;
+        // Into a wrong way, from the correct path (going to get a fossil
+        // that's still down it doesn't count: that's the fossil hunt)
+        if (was && place < 0 && wasPlace >= 0 && !this.fossilDown(cell)) this.wrongWays++;
         this.lostTime += dt;
         if ((this.wrongWays >= LOST_WRONG_WAYS || this.lostTime >= LOST_TIME) && this.sinceAsk >= ASK_AGAIN) {
             this.wrongWays = 0;
@@ -403,6 +404,13 @@ export class Buddy {
             return true;
         }
         return false;
+    }
+
+    // Is a fossil not found yet down the wrong way that `cell` is in? (The
+    // way from it to the fossil doesn't touch the correct path.)
+    fossilDown(cell) {
+        return (this.maze.fossils ?? []).some((f) => !f.collected
+            && this.route(cell, this.cellOf(f.position)).every((c) => !this.pathIndex.has(`${c[0]},${c[1]}`)));
     }
 
     // ---- Helping ----
