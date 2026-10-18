@@ -69,6 +69,12 @@ const WIND_WITH = 1.4;
 const WIND_HEAR_DISTANCE = 6;
 const WIND_LEVEL = 0.55;
 let windVoice = null;
+// A slow propeller's low hum (Sky World, Level 135 on) gets louder as you
+// come near; a blade's touch pushes you one square back, taking this long
+const PROPELLER_HEAR_DISTANCE = 14;
+const PROPELLER_LEVEL = 0.6;
+const PROPELLER_PUSH_TIME = 0.45;
+let humVoice = null;
 // Thick fog (Sky World, Level 134 on; starting values Gray will judge):
 // inside it you see clearly only FOG_NEAR around you, and everything is
 // white from FOG_FAR on (about one corridor cell). It closes in over
@@ -285,6 +291,8 @@ function loadLevel(level, index) {
     for (const s of maze?.snowmen ?? []) s.voice?.gain.disconnect();
     sound?.stopWind(windVoice);
     windVoice = null;
+    sound?.stopWind(humVoice);
+    humVoice = null;
     maze?.dispose();
     const options = {
         spikeRadius: level.spikeRadius ?? LEVELS[index]?.spikeRadius,
@@ -582,6 +590,20 @@ function step(deltaTime) {
             player.startShove(tail.target, TAIL_PUSH_TIME);
             testHooks?.emit('tailPush');
         }
+    }
+    // Slow propellers (Sky World, Level 135 on): the blades turn slowly
+    // across the hallway (frozen while paused, this is the game step); one
+    // that touches you pushes you one square back toward the start (not an
+    // Ouch). Its low hum gets louder as you come near.
+    if (maze.propellers?.length) {
+        for (const { propeller, event } of maze.updatePropellers(deltaTime, escaped ? null : player.position, player.radius, player.height)) {
+            if (event === 'push' && !player.shove) {
+                player.startShove(propeller.target, PROPELLER_PUSH_TIME);
+                testHooks?.emit('propellerPush');
+            }
+        }
+        humVoice ??= sound.humVoice();
+        sound.setVoice(humVoice, PROPELLER_LEVEL * Math.max(0, 1 - maze.propellerDistance(player.position) / PROPELLER_HEAR_DISTANCE));
     }
     // Lava geysers (Volcano World): each erupts for a while, then is quiet,
     // on its own timer; it never starts while you're in it. Being in one while
@@ -1208,6 +1230,7 @@ function reloadForUpdate(from) {
 function toMainMenu() {
     saveSpot();
     sound.setVoice(windVoice, 0);
+    sound.setVoice(humVoice, 0);
     sound.stopMusic();
     document.body.classList.add('title');
 }
@@ -1217,6 +1240,7 @@ function pause() {
     paused = true;
     player.paused = true;
     sound.setVoice(windVoice, 0); // the wind's whoosh comes back when you play on
+    sound.setVoice(humVoice, 0); // and so does a propeller's hum
     player.releaseAll();
     document.body.classList.add('paused');
 }

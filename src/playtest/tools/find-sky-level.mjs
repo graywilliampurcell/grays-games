@@ -11,7 +11,8 @@
 // reads 'X' as a storm-cloud spike and 'O' as a rainbow bridge's gap (3
 // corridor cells, full corridor width, down to the clouds far below). A
 // windy hallway is '<', '>', '^' or 'v' blocks: the wind blows west, east,
-// north or south along it. A thick fog stretch is 'g' blocks.
+// north or south along it. A thick fog stretch is 'g' blocks. A slow
+// propeller is an 'H' cell (its blades push you back to its 'Q').
 //
 // Rules for every level: 13 x 13, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -35,6 +36,10 @@ const RULES = {
     // The first thick fog (3 straight path cells, 'g'), a big storm-cloud
     // spike ('Y') and a windy hallway (4 cells, blowing back toward the start)
     level134: { name: 'Level 134', depth: 2, deadEnds: 34, fogs: 1, fogCells: 3, bigCane: true, winds: 1, windCells: 4, windAgainst: true, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
+    // The first slow propeller ('H', in a plain cell of a straight hallway; a
+    // blade pushes you back to 'Q' in the cell before), the sneaky
+    // storm-cloud spike ('X') and one 3-cell rainbow bridge gap ('O')
+    level135: { name: 'Level 135', depth: 2, deadEnds: 34, sneaky: true, platforms: 1, platformCells: 3, vents: 1, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

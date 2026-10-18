@@ -94,6 +94,7 @@ export function installTestHooks(game) {
             buttonDoors: (maze.buttonDoors ?? []).map((d) => ({ pressed: d.pressed, open: round(d.open), solid: d.solid, button: { x: d.button.x, z: d.button.z }, minX: d.minX, maxX: d.maxX, minZ: d.minZ, maxZ: d.maxZ })),
             spinWall: maze.spinWall ? { minX: maze.spinWall.minX, maxX: maze.spinWall.maxX, minZ: maze.spinWall.minZ, maxZ: maze.spinWall.maxZ, spansX: maze.spinWall.spansX, center: { x: maze.spinWall.center.x, z: maze.spinWall.center.z }, angle: round(maze.spinWall.angle), spinning: !!maze.spinWall.spin, time: round(maze.spinWall.spin?.time ?? 0) } : null,
             spinning: !!player.spinning,
+            propellers: (maze.propellers ?? []).map((p) => ({ minX: p.minX, maxX: p.maxX, minZ: p.minZ, maxZ: p.maxZ, alongX: p.alongX, angle: round(p.angle), touching: p.touching, center: { x: p.center.x, z: p.center.z }, target: { x: p.target.x, z: p.target.z } })),
             fogs: (maze.fogs ?? []).map((f) => ({ minX: f.minX, maxX: f.maxX, minZ: f.minZ, maxZ: f.maxZ, alongX: f.alongX })),
             fogView: round(game.getFogView?.() ?? 0),
             trampoline: maze.trampoline ? { center: { x: maze.trampoline.center.x, z: maze.trampoline.center.z }, landing: { x: maze.trampoline.landing.x, z: maze.trampoline.landing.z }, dir: maze.trampoline.dir, bouncing: !!maze.trampoline.bouncing, view: maze.trampoline.view, squish: round(maze.trampoline.squish) } : null,

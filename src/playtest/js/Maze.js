@@ -1042,6 +1042,19 @@ export const TAIL_SWISH_TIME = 1;
 const TAIL_OFFSET = 1.5;
 const TAIL_DROP = 0.2; // share of the swish spent dropping (and lifting again)
 const TAIL_THICK = 0.4; // how far the low tail reaches either side of its line
+// A slow propeller (Sky World, Level 135 on; 'H' blocks under the sky
+// theme): a giant airship propeller across its corridor cell, its hub above
+// the middle of the hallway and its blades sweeping down across the whole
+// corridor, turning once every PROPELLER_TURN_TIME (starting value; Gray
+// will judge). Below the wall tops the blades slide into slots in the side
+// walls, so they never poke into the next corridor. A blade that touches you
+// pushes you one square back toward the start (to its 'Q').
+export const PROPELLER_TURN_TIME = 8;
+export const PROPELLER_BLADES = 2;
+export const PROPELLER_HUB = 3; // the hub's height (the walls are 4 high; you're 1.8 tall)
+export const PROPELLER_LENGTH = 2.95; // from the hub's middle to a blade's tip (just above the floor)
+export const PROPELLER_BLADE_REACH = 0.3; // how far a blade reaches either side of its middle line
+export const PROPELLER_DEPTH = 0.2; // how far a blade reaches along the hallway either side of its plane
 
 // A lava geyser's timer (Volcano World, Level 63 on), like Level 12's space
 // door: erupting, then quiet. It never starts erupting while you're in its
@@ -2351,6 +2364,24 @@ function glowTexture() {
     return new THREE.CanvasTexture(canvas);
 }
 
+// The shortest distance between two line segments in a plane (0 if they cross)
+function segmentDistance2D(p1, p2, q1, q2) {
+    const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+    const d1 = cross(q1, q2, p1);
+    const d2 = cross(q1, q2, p2);
+    const d3 = cross(p1, p2, q1);
+    const d4 = cross(p1, p2, q2);
+    if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) return 0;
+    const toSegment = (pt, a, b) => {
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const len = dx * dx + dy * dy;
+        const t = len ? Math.max(0, Math.min(1, ((pt.x - a.x) * dx + (pt.y - a.y) * dy) / len)) : 0;
+        return Math.hypot(pt.x - a.x - t * dx, pt.y - a.y - t * dy);
+    };
+    return Math.min(toSegment(p1, q1, q2), toSegment(p2, q1, q2), toSegment(q1, p1, p2), toSegment(q2, p1, p2));
+}
+
 export class Maze {
     // spikeRadius: how far the spike's plate reaches from its middle (0.75 normally;
     // Level 3's spike on the path is smaller so there's room to walk round it)
@@ -2521,6 +2552,20 @@ export class Maze {
         this.tails = [];
         if (this.theme.dino) {
             this.tails = this.vents.map((v, index) => this.setUpTail(v, index));
+            this.vents = [];
+        }
+        // Sky World reads 'H' as a slow propeller instead (Level 135 on); a
+        // blade's push leaves you at its 'Q' like a tail's
+        this.propellers = [];
+        if (this.theme.skyland) {
+            this.propellers = this.vents.map((v, index) => {
+                const t = this.setUpTail(v, index);
+                return {
+                    minX: t.minX, maxX: t.maxX, minZ: t.minZ, maxZ: t.maxZ, center: t.center, target: t.target, alongX: t.alongX,
+                    // the blades start level with the hub (the hallway clear), each turn the same way
+                    angle: Math.PI / 2 + index * 0.9, touching: false,
+                };
+            });
             this.vents = [];
         }
         // Pirate Ship World reads 'H' as a big wave (Level 123 on): the same
@@ -2856,6 +2901,7 @@ export class Maze {
         for (const c of this.currents) this.createCurrent(c);
         for (const v of this.vents) this.createVent(v);
         for (const t of this.tails) this.createTail(t);
+        for (const p of this.propellers) this.createPropeller(p);
         for (const g of this.geysers) this.createGeyser(g);
         for (const t of this.trapdoors) this.createTrapdoor(t);
         for (const s of this.snowmen) this.createSnowman(s);
@@ -5319,6 +5365,159 @@ export class Maze {
         const along = t.alongX ? point.x : point.z;
         const [a0, a1] = t.alongX ? [t.minX, t.maxX] : [t.minZ, t.maxZ];
         return Math.abs(across - t.s) < TAIL_THICK + radius && along > a0 - radius && along < a1 + radius;
+    }
+
+    // A slow propeller (Sky World): a giant wooden airship propeller with
+    // brass tips on a brass hub, its engine pod held up on two struts from
+    // the wall tops just past it (on the door side), turning slowly in the
+    // plane across the hallway
+    createPropeller(p) {
+        const group = new THREE.Group();
+        group.position.set(p.center.x, PROPELLER_HUB, p.center.z);
+        // The group's x is across the hallway, its z along it (toward the door)
+        const towardDoor = p.alongX ? Math.sign(p.center.x - p.target.x) : Math.sign(p.center.z - p.target.z);
+        group.rotation.y = p.alongX ? (towardDoor > 0 ? Math.PI / 2 : -Math.PI / 2) : (towardDoor > 0 ? 0 : Math.PI);
+        const brass = new THREE.MeshStandardMaterial({ color: 0xd4a72c, metalness: 0.25, roughness: 0.35, emissive: 0x3a2a05, emissiveIntensity: 0.4 });
+        const metal = new THREE.MeshStandardMaterial({ color: 0x8a8d93, metalness: 0.3, roughness: 0.45 });
+        const wood = new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: 0.55, side: THREE.DoubleSide });
+        const tipBrass = brass.clone();
+        tipBrass.side = THREE.DoubleSide;
+        // Below the wall tops, hide any part of a blade inside or past the
+        // side walls (the slots in the walls the blades slide into)
+        const across = p.alongX ? p.center.z : p.center.x;
+        const slotted = (m) => {
+            m.onBeforeCompile = (shader) => {
+                shader.uniforms.slotAcross = { value: across };
+                shader.uniforms.slotTop = { value: this.height };
+                shader.vertexShader = shader.vertexShader
+                    .replace('#include <common>', '#include <common>\nvarying vec3 vSlotWorld;')
+                    .replace('#include <project_vertex>', '#include <project_vertex>\nvSlotWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+                shader.fragmentShader = shader.fragmentShader
+                    .replace('#include <common>', '#include <common>\nvarying vec3 vSlotWorld;\nuniform float slotAcross;\nuniform float slotTop;')
+                    .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>\nif (abs(${p.alongX ? 'vSlotWorld.z' : 'vSlotWorld.x'} - slotAcross) > 1.5 && vSlotWorld.y < slotTop) discard;`);
+            };
+            m.customProgramCacheKey = () => `slot-${p.alongX ? 'z' : 'x'}`;
+            return m;
+        };
+        slotted(wood);
+        slotted(tipBrass);
+        // The blades (turning in the spin group's x-y plane; one points straight
+        // down at angle 0): a long rounded paddle, widest two thirds out
+        const spin = new THREE.Group();
+        const shape = new THREE.Shape();
+        const L = PROPELLER_LENGTH;
+        shape.moveTo(-0.16, 0.2);
+        shape.bezierCurveTo(-0.42, L * 0.45, -0.46, L * 0.8, -0.24, L - 0.06);
+        shape.quadraticCurveTo(0, L + 0.02, 0.24, L - 0.06);
+        shape.bezierCurveTo(0.46, L * 0.8, 0.42, L * 0.45, 0.16, 0.2);
+        shape.lineTo(-0.16, 0.2);
+        const bladeGeometry = new THREE.ExtrudeGeometry(shape, { depth: 0.12, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 2, curveSegments: 16 });
+        bladeGeometry.translate(0, 0, -0.06);
+        bladeGeometry.rotateX(Math.PI); // pointing down (-y)
+        const tipShape = new THREE.Shape();
+        tipShape.moveTo(-0.3, L - 0.42);
+        tipShape.lineTo(0.3, L - 0.42);
+        tipShape.bezierCurveTo(0.34, L - 0.25, 0.3, L - 0.1, 0.24, L - 0.06);
+        tipShape.quadraticCurveTo(0, L + 0.02, -0.24, L - 0.06);
+        tipShape.bezierCurveTo(-0.3, L - 0.1, -0.34, L - 0.25, -0.3, L - 0.42);
+        const tipGeometry = new THREE.ExtrudeGeometry(tipShape, { depth: 0.22, bevelEnabled: false, curveSegments: 12 });
+        tipGeometry.translate(0, 0, -0.11);
+        tipGeometry.rotateX(Math.PI);
+        for (let b = 0; b < PROPELLER_BLADES; b++) {
+            const arm = new THREE.Group();
+            arm.rotation.z = (b * 2 * Math.PI) / PROPELLER_BLADES;
+            const blade = new THREE.Mesh(bladeGeometry, wood);
+            blade.rotation.y = 0.25; // a little pitch, like a real propeller
+            const tip = new THREE.Mesh(tipGeometry, tipBrass);
+            tip.rotation.y = 0.25;
+            arm.add(blade, tip);
+            spin.add(arm);
+        }
+        // The hub: a brass drum with a pointed nose cone toward the start
+        const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.36, 20), brass);
+        drum.rotation.x = Math.PI / 2;
+        const nose = new THREE.Mesh(new THREE.ConeGeometry(0.32, 0.5, 20), brass);
+        nose.rotation.x = -Math.PI / 2;
+        nose.position.z = -0.43;
+        spin.add(drum, nose);
+        for (let b = 0; b < 6; b++) {
+            const bolt = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 4), metal);
+            const a = (b * Math.PI) / 3;
+            bolt.position.set(Math.cos(a) * 0.22, Math.sin(a) * 0.22, -0.19);
+            spin.add(bolt);
+        }
+        group.add(spin);
+        // The engine pod behind the hub (door side) and its two struts up to the wall tops
+        const pod = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.3, 1.5, 20), metal);
+        pod.rotation.x = Math.PI / 2;
+        pod.position.z = 0.95;
+        const band = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.04, 6, 20), brass);
+        band.position.z = 0.22;
+        group.add(pod, band);
+        for (const side of [-1, 1]) {
+            const from = new THREE.Vector3(side * 0.3, 0.2, 1.1);
+            const to = new THREE.Vector3(side * 1.9, this.height - PROPELLER_HUB + 0.05, 1.1);
+            const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, from.distanceTo(to), 8), metal);
+            strut.position.copy(from).add(to).multiplyScalar(0.5);
+            strut.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), to.clone().sub(from).normalize());
+            const foot = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.08, 0.4), metal);
+            foot.position.set(side * 2, this.height - PROPELLER_HUB + 0.04, 1.1);
+            group.add(strut, foot);
+        }
+        // Dark slots in the side walls' faces where the blades go in
+        for (const side of [-1, 1]) {
+            const slot = new THREE.Mesh(new THREE.PlaneGeometry(0.34, this.height), new THREE.MeshBasicMaterial({ color: 0x1c1a17 }));
+            slot.position.set(side * 1.49, this.height / 2 - PROPELLER_HUB, 0);
+            slot.rotation.y = -side * Math.PI / 2;
+            group.add(slot);
+        }
+        p.spin = spin;
+        p.group = group;
+        // Our spin turns the blades the same way the hit test does: across = sin, up = -cos
+        p.sign = group.rotation.y === 0 || group.rotation.y === -Math.PI / 2 ? 1 : -1;
+        this.root.add(group);
+        this.placePropeller(p);
+    }
+
+    placePropeller(p) {
+        if (p.spin) p.spin.rotation.z = p.angle * (p.sign ?? 1);
+    }
+
+    // Turn every propeller (only while playing) and say what happened:
+    // [{ propeller, event: 'push' }] when a blade starts touching the player
+    // (a standing body `radius` round `point`, `height` tall)
+    updatePropellers(dt, point, radius, height) {
+        const events = [];
+        for (const p of this.propellers) {
+            p.angle = (p.angle + (dt * 2 * Math.PI) / PROPELLER_TURN_TIME) % (2 * Math.PI);
+            this.placePropeller(p);
+            const touching = !!point && this.propellerTouches(p, point, radius, height);
+            if (touching && !p.touching) events.push({ propeller: p, event: 'push' });
+            p.touching = touching;
+        }
+        return events;
+    }
+
+    // Does a blade touch a standing body (radius round point, height tall)?
+    // In the propeller's plane: the body is the line from (a, 0) to (a, height)
+    // across the hallway, a blade the line from the hub out to its tip.
+    propellerTouches(p, point, radius, height = 1.8) {
+        const along = p.alongX ? point.x - p.center.x : point.z - p.center.z;
+        if (Math.abs(along) > PROPELLER_DEPTH + radius) return false;
+        const a = p.alongX ? point.z - p.center.z : point.x - p.center.x;
+        for (let b = 0; b < PROPELLER_BLADES; b++) {
+            const angle = p.angle + (b * 2 * Math.PI) / PROPELLER_BLADES;
+            const tip = { x: Math.sin(angle) * PROPELLER_LENGTH, y: PROPELLER_HUB - Math.cos(angle) * PROPELLER_LENGTH };
+            if (segmentDistance2D({ x: 0, y: PROPELLER_HUB }, tip, { x: a, y: 0 }, { x: a, y: height }) < PROPELLER_BLADE_REACH + radius) return true;
+        }
+        return false;
+    }
+
+    // How far a point is from the nearest propeller (for its hum), or Infinity
+    propellerDistance(point) {
+        let best = Infinity;
+        for (const p of this.propellers) best = Math.min(best, Math.hypot(point.x - p.center.x, point.z - p.center.z));
+        return best;
     }
 
     // The tail swish whose cell a point is in, or null

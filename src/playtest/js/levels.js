@@ -7913,6 +7913,76 @@ export const LEVELS = [
         '#####################################################',
         ],
     },
+    {
+        name: 'Level 135',
+        // The first slow propeller. `SEEDS=400 node tools/find-sky-level.mjs
+        // level135 36 1354400`, seed 1354411. 13 x 13 corridors. Correct
+        // path 94 cells (start west in row 11, door east in row 0); 37 wrong
+        // ways 2 cells deep, plus the sneaky storm cloud's. X: the sneaky
+        // storm-cloud spike, in the last cell of a 3-deep one-turn dead end
+        // off path cell 1. O: the rainbow bridge's 3-cell gap over path
+        // cells 45-47 (column 3, crossed heading south). H: the slow
+        // propeller in path cell 76 (column 1, walked heading north); a
+        // blade pushes you back to Q in path cell 75. No windy hallway,
+        // trampoline or fog, no path or big spike.
+        theme: SKY,
+        music: 'skypropeller',
+        layout: [
+        '#####################################################',
+        '#                                                   #',
+        '#                                                   D',
+        '#                                                   #',
+        '#########   #########################################',
+        '#       #   #       #       #   #               #   #',
+        '#       #   #       #       #   #               #   #',
+        '#       #   #       #       #   #               #   #',
+        '#####   #   #   #   #   #   #   #   #########   #   #',
+        '#   #       #OOO#       #       #       #   #       #',
+        '#   #       #OOO#       #       #       #   #       #',
+        '#   #       #OOO#       #       #       #   #       #',
+        '#   #   #   #OOO#   #####   #####   #   #   #   #####',
+        '#       #   #OOO#       #           #   #           #',
+        '#       #   #OOO#       #           #   #           #',
+        '#       #   #OOO#       #           #   #           #',
+        '#####   #   #OOO#############################   #   #',
+        '#       #   #OOO#   #               #   #   #   #   #',
+        '#       #   #OOO#   #               #   #   #   #   #',
+        '#       #   #OOO#   #               #   #   #   #   #',
+        '#   #   #####   #   #   #####   #   #   #   #   #####',
+        '#   #   #           #   #       #       #           #',
+        '#   #   #           #   #       #       #           #',
+        '#   #   #           #   #       #       #           #',
+        '#####   #   #########   #########   #########   #   #',
+        '#       #       #           #               #   #   #',
+        '#       #       #           #               #   #   #',
+        '#       #       #           #               #   #   #',
+        '#   #   #   #   #   #   #   #   #############   #####',
+        '#   #HHH#   #   #   #   #   #   #   #       #       #',
+        '#   #HHH#   #   #   #   #   #   #   #       #       #',
+        '#   #HHH#   #   #   #   #   #   #   #       #       #',
+        '#####   #   #########   #####   #   #####   #   #   #',
+        '#   #   #               #           #   #       #   #',
+        '#   # Q #               #           #   #       #   #',
+        '#   #   #               #           #   #       #   #',
+        '#   #   #################   #########   #   #########',
+        '#                                   #   #       #   #',
+        '#                                   #   #       #   #',
+        '#                                   #   #       #   #',
+        '#################   #################   #####   #   #',
+        '#           #       #       #               #       #',
+        '#         X #       #       #               #       #',
+        '#           #       #       #               #       #',
+        '#   #####################   #   #   #####   #   #####',
+        '#                           #   #   #   #   #       #',
+        '# S                         #   #   #   #   #       #',
+        '#                           #   #   #   #   #       #',
+        '#   #####   #############   #####   #   #   #   #   #',
+        '#       #       #                       #       #   #',
+        '#       #       #                       #       #   #',
+        '#       #       #                       #       #   #',
+        '#####################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with

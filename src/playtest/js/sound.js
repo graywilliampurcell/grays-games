@@ -3702,6 +3702,34 @@ const TUNES = {
             birds: [[12, 86], [34, 90], [58, 88]],
         },
     },
+    // Level 135 (the first slow propeller): sneaky and mysterious, half and
+    // half, in C minor at 88 bpm: a round, low triangle lead that circles
+    // slowly round and round the same few notes like the turning blades,
+    // then climbs to a mysterious A-flat major and B-flat major turn. Wind
+    // and far-off birdsong in the background, quieter than the melody.
+    skypropeller: {
+        tempo: 88,
+        bars: [[48, 'min'], [44, 'maj'], [48, 'min'], [46, 'maj'], [48, 'min'], [44, 'maj'], [43, 'maj'], [48, 'min']],
+        bass: [0, null, 7, null, 0, null, 7, null],
+        bassLength: 0.25,
+        stabs: [],
+        ticks: true,
+        melody: [
+            60, null, 63, null, 67, null, 63, null,
+            60, null, 63, null, 68, null, null, null,
+            60, null, 63, null, 67, null, 63, null,
+            62, null, 65, null, 70, null, null, null,
+            72, null, null, 70, 68, null, 67, null,
+            68, null, null, null, 63, null, null, null,
+            67, null, 66, null, 67, null, 71, null,
+            72, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.22, length: 0.3, brightness: 1300 },
+        sky: {
+            winds: [[4, 2.8], [30, 3.0], [52, 2.6]],
+            birds: [[16, 88], [40, 92], [60, 85]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -4775,6 +4803,45 @@ export class Sound {
         gust.start(t);
         this.onEvent('wind');
         return { gain, parts: [src, sweep, gust] };
+    }
+
+    // A slow propeller's low hum (Sky World, Level 135 on): a deep, steady
+    // engine drone with a soft "whum" each time a blade goes by (twice a
+    // turn), through its own volume knob (0 until main.js turns it up as you
+    // come near). Through the sound effects, so it obeys the Sound effects
+    // switch. null until sound has started.
+    humVoice() {
+        if (!this.ctx) return null;
+        const t = this.ctx.currentTime;
+        const gain = this.ctx.createGain();
+        gain.gain.value = 0;
+        gain.connect(this.sfxBus);
+        const low = this.ctx.createBiquadFilter();
+        low.type = 'lowpass';
+        low.frequency.value = 260;
+        const swell = this.ctx.createGain();
+        swell.gain.value = 0.7;
+        const whum = this.ctx.createOscillator();
+        whum.frequency.value = 0.25; // two blades, one turn every 8 s
+        const whumDepth = this.ctx.createGain();
+        whumDepth.gain.value = 0.3;
+        whum.connect(whumDepth).connect(swell.gain);
+        const parts = [whum];
+        for (const [freq, type, level] of [[55, 'sawtooth', 0.22], [82.5, 'triangle', 0.3], [110, 'sine', 0.18]]) {
+            const o = this.ctx.createOscillator();
+            o.type = type;
+            o.frequency.value = freq;
+            o.detune.value = (Math.random() - 0.5) * 8;
+            const g = this.ctx.createGain();
+            g.gain.value = level;
+            o.connect(g).connect(low);
+            o.start(t);
+            parts.push(o);
+        }
+        low.connect(swell).connect(gain);
+        whum.start(t);
+        this.onEvent('hum');
+        return { gain, parts };
     }
 
     // Stop a windy hallway's whoosh for good (leaving the level)
