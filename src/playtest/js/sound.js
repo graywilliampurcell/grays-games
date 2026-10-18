@@ -3111,6 +3111,34 @@ const TUNES = {
             calls: [[28, 52, 1.2], [60, 55, 1.1]],
         },
     },
+    // Level 114 (the big bone spike): sneaky and mysterious, more sneaky
+    // than mysterious, in G minor at 84 bpm: big slow low steps like
+    // something huge tiptoeing ("bum ... bum bum"), a square lead that
+    // creeps up by half steps and hangs on a high note, then sneaks back
+    // down; soft dinosaur stomps and calls in the background.
+    dinobigbone: {
+        tempo: 84,
+        bars: [[43, 'min'], [43, 'min'], [39, 'maj'], [42, 'maj'], [43, 'min'], [46, 'maj'], [39, 'maj'], [42, 'maj']],
+        bass: [0, null, null, null, null, 0, 0, null],
+        bassLength: 0.26,
+        stabs: [],
+        ticks: true,
+        melody: [
+            55, null, null, null, 55, 56, 55, null,
+            58, null, null, 57, 58, null, null, null,
+            62, null, 63, null, 62, null, null, null,
+            74, null, null, null, null, null, 70, null,
+            67, null, null, 66, 67, null, 70, null,
+            69, null, 70, null, 74, null, 75, null,
+            74, null, 70, null, 67, null, 66, null,
+            67, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.1, length: 0.13, brightness: 1100 },
+        dino: {
+            stomps: [0, 2],
+            calls: [[36, 50, 1.4], [8, 57, 0.9]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

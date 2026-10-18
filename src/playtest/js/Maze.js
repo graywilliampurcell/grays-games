@@ -5234,6 +5234,7 @@ export class Maze {
         if (this.theme.ice) return this.createBigIcicle(row);
         if (this.theme.factory) return this.createBigZapper(row);
         if (this.theme.desert) return this.createBigCactus(row);
+        if (this.theme.dino) return this.createBigBoneSpike(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -7852,6 +7853,23 @@ export class Maze {
         spike.position.y = 0;
         this.root.add(spike);
         return spike;
+    }
+
+    // The big bone spike (Level 114 on): a thicket of big pointy fossil
+    // bones filling a straight wrong way's opening wall to wall, on a dirt
+    // mound, tallest in the middle
+    createBigBoneSpike(row) {
+        const across = row.spansX ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1);
+        for (const [offset, radius, tall] of [[0, 0.66, 1.45], [-1.05, 0.46, 1.1], [1.05, 0.46, 1.2]]) {
+            const spike = this.createBoneSpike(row.position.clone().addScaledVector(across, offset), radius);
+            spike.scale.y = tall;
+            spike.rotation.y = offset * 0.9;
+        }
+        const mound = new THREE.Mesh(new THREE.BoxGeometry(SPIKE_ROW_WIDTH, 0.12, SPIKE_ROW_DEPTH), new THREE.MeshStandardMaterial({ color: 0x7a5634, roughness: 1 }));
+        mound.position.copy(row.position);
+        mound.position.y = 0.06;
+        if (!row.spansX) mound.rotation.y = Math.PI / 2;
+        this.root.add(mound);
     }
 
     // The long-neck's pit (Level 111 on): rocky dirt walls go straight down

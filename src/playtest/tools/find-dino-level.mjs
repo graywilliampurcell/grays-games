@@ -5,6 +5,7 @@
 //   SEEDS=1000 node tools/find-dino-level.mjs level111 26 6601   # the sneaky bone spike + a long-neck ride
 //   SEEDS=1000 node tools/find-dino-level.mjs level112 26 1       # a tail swish + a path bone spike
 //   SEEDS=1000 node tools/find-dino-level.mjs level113 26 1       # the fossil hunt + a long-neck ride
+//   SEEDS=1000 node tools/find-dino-level.mjs level114 26 1       # a big bone spike + a tail swish + a long-neck ride
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -34,6 +35,10 @@ const RULES = {
     // own wrong way (one off each third of the path), and one 3-cell pit
     // crossed on the long-neck's head ('O')
     level113: { name: 'Level 113', depth: 2, deadEnds: 26, fossils: 3, platforms: 1, platformCells: 3, prunePairs: true, placeTries: 20 },
+    // The big bone spike ('Y', filling a straight wrong way's opening in
+    // plain view), one tail swish ('H' + 'Q') and one 3-cell pit crossed on
+    // the long-neck's head ('O')
+    level114: { name: 'Level 114', depth: 2, deadEnds: 26, bigCane: true, vents: 1, platforms: 1, platformCells: 3, prunePairs: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
