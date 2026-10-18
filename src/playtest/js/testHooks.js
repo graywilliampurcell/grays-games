@@ -212,7 +212,7 @@ function round(v) {
 }
 
 function platformState(p) {
-    return { at: round(p.at), target: round(p.target), riding: p.riding, alongX: p.alongX, speed: p.speed, gap: { ...p.gap }, bubble: p.bubble, push: round(p.push), pushing: p.pushing, startAt: p.startAt, span: p.span, balloon: p.balloon, carpet: p.carpet, phase: p.phase, time: round(p.time ?? 0), lift: round(p.lift ?? 0), view: p.view ?? null, plank: p.plank ?? 0 };
+    return { at: round(p.at), target: round(p.target), riding: p.riding, alongX: p.alongX, speed: p.speed, gap: { ...p.gap }, bubble: p.bubble, push: round(p.push), pushing: p.pushing, startAt: p.startAt, span: p.span, balloon: p.balloon, carpet: p.carpet, phase: p.phase, time: round(p.time ?? 0), lift: round(p.lift ?? 0), view: p.view ?? null, plank: p.plank ?? 0, rainbow: p.rainbow ? { phase: p.rainbowPhase, time: round(p.rainbowTime), held: p.held } : null };
 }
 
 function currentState(c) {

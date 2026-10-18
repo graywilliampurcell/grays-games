@@ -630,6 +630,11 @@ function step(deltaTime) {
     if (platformEvent === 'land') player.startShove(maze.landing, BALLOON_STEP_OUT_TIME);
     // The long-neck (Dinosaur World): a soft friendly rumble as it swings you across
     if (platformEvent === 'depart' && maze.theme.dino) sound.whoosh(0.7, 0.4);
+    // The rainbow bridge (Sky World): a soft shimmer as it appears, quieter the further you are
+    if (platformEvent === 'appear' && maze.theme.skyland) {
+        const p = maze.platforms.reduce((a, b) => (horizontalDistance(player.position, platformMiddle(b)) < horizontalDistance(player.position, platformMiddle(a)) ? b : a));
+        sound.shimmer(Math.max(0, 1 - horizontalDistance(player.position, platformMiddle(p)) / RAINBOW_HEAR_DISTANCE));
+    }
     // The cannons (Pirate Ship World): fully inside one, its fuse fizzes;
     // after CANNON_FUSE it fires with a BOOM and you fly over the water gap
     // in one arc into the other cannon (you can look around, not steer or fall)
@@ -677,6 +682,13 @@ function render() {
     }
 }
 
+// The middle of a platform's gap
+function platformMiddle(p) {
+    return { x: (p.gap.minX + p.gap.maxX) / 2, z: (p.gap.minZ + p.gap.maxZ) / 2 };
+}
+// You hear a rainbow appear from up to this far away (louder the closer you are)
+const RAINBOW_HEAR_DISTANCE = 12;
+
 function horizontalDistance(a, b) {
     return Math.hypot(a.x - b.x, a.z - b.z);
 }
@@ -697,6 +709,7 @@ function checkSpikeAndDoor() {
                 : maze.theme.desert ? 'Ouch! A cactus sent you back to the start.'
                 : maze.theme.dino ? 'Ouch! A bone spike sent you back to the start.'
                 : maze.theme.pirate ? 'Ouch! A splinter spike sent you back to the start.'
+                : maze.theme.skyland ? 'Ouch! A storm cloud sent you back to the start.'
                 : 'Ouch! A spike sent you back to the start.');
     }
 
@@ -715,6 +728,7 @@ function checkSpikeAndDoor() {
                 : maze.theme.factory ? 'Ouch! You fell in the gap. Back to the start.'
                 : maze.theme.desert ? 'Ouch! You fell in the sand pit. Back to the start.'
                 : maze.theme.dino ? 'Ouch! You fell in the pit. Back to the start.'
+                : maze.theme.skyland ? 'Ouch! You fell off the island. Back to the start.'
                 : 'Whoops! You fell off. Back to the start.');
     }
 

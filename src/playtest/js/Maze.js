@@ -711,6 +711,19 @@ const LONG_NECK_FLOOR = -12;
 // Pirate Ship World (Level 121 on): the sea, far below the deck; every water
 // gap is a hole in the deck all the way down to it
 export const SEA_LEVEL = -9;
+// Sky World (Level 131 on): the clouds, far below the floating island; every
+// gap is a hole in the island down to them
+export const CLOUD_LEVEL = -18;
+const ISLAND_DEPTH = 3; // how thick the island's rock is at a gap's edge
+// The rainbow bridge (Level 131 on): it spans the whole gap and keeps its own
+// cycle (it never waits for you): solid RAINBOW_SOLID s, then fading
+// RAINBOW_FADE s (flickering as a warning, still solid), then gone
+// RAINBOW_GONE s, then solid again. It never goes while any part of you is on
+// it: it stays (still flickering) until you're off, then carries on.
+export const RAINBOW_SOLID = 4;
+export const RAINBOW_FADE = 1;
+export const RAINBOW_GONE = 3;
+const RAINBOW_COLORS = [0xff3b3b, 0xff9a1f, 0xffe03a, 0x3ddc5a, 0x2fa8ff, 0x4b5cff, 0xa64dff];
 // The cannon ride (Level 121 on): a big cannon on each side of a 4-cell
 // water gap, aimed across. Fully inside one, its fuse fizzes for
 // CANNON_FUSE s, then it fires you over the gap in one arc (CANNON_FLIGHT s,
@@ -2054,6 +2067,129 @@ function seaTexture(size, seed) {
     return texture;
 }
 
+// Sky World walls (Level 131 on): old gray stone blocks with green moss
+// creeping over them, thickest along the top (one wall block = width x
+// height pixels, the top of the canvas is the top of the wall)
+function mossyStoneTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    g.fillStyle = '#5d6168';
+    g.fillRect(0, 0, width, height);
+    const stones = ['#8a8f96', '#7d828a', '#959aa0', '#878c90', '#9ea29f'];
+    const rowH = 32;
+    for (let y = 0, row = 0; y < height; y += rowH, row++) {
+        let x = row % 2 ? -width / 4 : 0;
+        while (x < width) {
+            const w = width * (0.35 + random() * 0.3);
+            g.fillStyle = stones[Math.floor(random() * stones.length)];
+            g.fillRect(x + 2, y + 2, w - 4, rowH - 4);
+            // a little speckle and a crack now and then
+            for (let k = 0; k < 14; k++) {
+                g.fillStyle = `rgba(${random() < 0.5 ? '255,255,255' : '40,40,40'},0.12)`;
+                g.fillRect(x + 2 + random() * (w - 6), y + 3 + random() * (rowH - 6), 2, 2);
+            }
+            if (random() < 0.25) {
+                g.strokeStyle = 'rgba(40,42,46,0.6)';
+                g.lineWidth = 1;
+                g.beginPath();
+                const cx = x + w * random();
+                g.moveTo(cx, y + 3);
+                g.lineTo(cx + 4 - random() * 8, y + rowH / 2);
+                g.lineTo(cx + 4 - random() * 8, y + rowH - 3);
+                g.stroke();
+            }
+            x += w;
+        }
+    }
+    // Moss: soft green blobs, thick along the top, thinner further down
+    for (let k = 0; k < 260; k++) {
+        const y = Math.pow(random(), 2.2) * height;
+        const x = random() * width;
+        const size = 3 + random() * 9 * (1 - y / height);
+        g.fillStyle = `rgba(${70 + random() * 40},${130 + random() * 50},${40 + random() * 30},${0.55 + random() * 0.35})`;
+        g.beginPath();
+        g.ellipse(x, y, size, size * 0.7, random() * 3, 0, Math.PI * 2);
+        g.fill();
+    }
+    // a few drips of moss running down the cracks
+    for (let k = 0; k < 10; k++) {
+        const x = random() * width;
+        g.fillStyle = 'rgba(80,140,50,0.6)';
+        g.fillRect(x, 0, 2 + random() * 3, 20 + random() * 120);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Sky World floor: soft green grass with darker and lighter tufts and a few
+// tiny white and yellow flowers
+function grassTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#5fae3e';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < size * size / 6; k++) {
+        const shade = random() * 50 - 25;
+        g.strokeStyle = `rgba(${80 + shade},${160 + shade},${50 + shade * 0.5},0.7)`;
+        g.lineWidth = 1;
+        const x = random() * size;
+        const y = random() * size;
+        g.beginPath();
+        g.moveTo(x, y);
+        g.lineTo(x + random() * 2 - 1, y - 2 - random() * 3);
+        g.stroke();
+    }
+    for (let k = 0; k < 26; k++) {
+        g.fillStyle = random() < 0.6 ? '#ffffff' : '#ffe14a';
+        const x = random() * size;
+        const y = random() * size;
+        for (const [dx, dy] of [[-1.5, 0], [1.5, 0], [0, -1.5], [0, 1.5]]) {
+            g.beginPath();
+            g.arc(x + dx, y + dy, 1.2, 0, Math.PI * 2);
+            g.fill();
+        }
+        g.fillStyle = '#f2b400';
+        g.fillRect(x - 0.7, y - 0.7, 1.4, 1.4);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Sky World: the sea of clouds far below the island, soft white puffs on
+// pale blue
+function cloudSeaTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#cfe9ff';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < 90; k++) {
+        const x = random() * size;
+        const y = random() * size;
+        const rad = 8 + random() * 26;
+        const grad = g.createRadialGradient(x, y, 0, x, y, rad);
+        grad.addColorStop(0, 'rgba(255,255,255,0.95)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        g.fillStyle = grad;
+        // drawn wrapped, so the texture tiles without seams
+        for (const dx of [-size, 0, size]) for (const dy of [-size, 0, size]) g.fillRect(x + dx - rad, y + dy - rad, rad * 2, rad * 2);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
 // Desert Pyramid World floor: golden sand with little wavy ripples (just
 // for looks)
 function desertSandTexture(size, seed) {
@@ -2715,8 +2851,11 @@ export class Maze {
         const desert = this.theme.desert;
         const dino = this.theme.dino;
         const pirate = this.theme.pirate;
+        const skyland = this.theme.skyland;
         let wallMaterial;
-        if (pirate) {
+        if (skyland) {
+            wallMaterial = new THREE.MeshStandardMaterial({ map: mossyStoneTexture(128, 512, 149), roughness: 0.95, emissive: 0x1c2418, emissiveIntensity: 0.3 });
+        } else if (pirate) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: crateWallTexture(128, 512, 127), roughness: 0.85, emissive: 0x2a1808, emissiveIntensity: 0.3 });
         } else if (dino) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: fernRockTexture(128, 512, 113), roughness: 0.95, emissive: 0x1a2a10, emissiveIntensity: 0.35 });
@@ -2769,7 +2908,11 @@ export class Maze {
 
         // Floor
         let floorMaterial;
-        if (pirate) {
+        if (skyland) {
+            const map = grassTexture(256, 151);
+            map.repeat.set(this.width / 8, this.depth / 8);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
+        } else if (pirate) {
             const map = deckTexture(256, 139);
             map.repeat.set(this.width / 8, this.depth / 8);
             floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 0.85 });
@@ -2839,9 +2982,9 @@ export class Maze {
             }
             const geometry = new THREE.ExtrudeGeometry(outline, { depth: 0.2, bevelEnabled: false });
             geometry.rotateX(Math.PI / 2);
-            floorMaterial.map?.repeat.set(factory ? 0.25 : dino || pirate ? 0.125 : 0.5, factory ? 0.25 : dino || pirate ? 0.125 : 0.5);
+            floorMaterial.map?.repeat.set(factory ? 0.25 : dino || pirate || skyland ? 0.125 : 0.5, factory ? 0.25 : dino || pirate || skyland ? 0.125 : 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : desert ? 0x8a6428 : dino ? 0x4a3420 : pirate ? 0x3a2210 : 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : desert ? 0x8a6428 : dino ? 0x4a3420 : pirate ? 0x3a2210 : skyland ? 0x5a3d22 : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -2863,6 +3006,7 @@ export class Maze {
         if (desert) this.addDesertSky();
         if (dino) this.addDinoSky();
         if (pirate) this.addPirateSky();
+        if (skyland) this.addSkyIsland();
         if (factory) {
             this.addMachineHall();
             this.addFactorySteam(count);
@@ -4167,16 +4311,18 @@ export class Maze {
         const cz = this.depth / 2;
         const angle = Math.random() * Math.PI * 2;
         // Birds and butterflies fly lower and slower than things in space
-        const speeds = { cloud: 2.5, balloon: 3.5, rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, owl: 8, butterfly: 4, turtle: 3, whale: 4, manta: 5, school: 6, ptero: 7, gull: 8 };
+        const speeds = { cloud: 2.5, balloon: 3.5, rocket: 14, comet: 18, meteor: 26, parrot: 11, toucan: 9, owl: 8, butterfly: 4, turtle: 3, whale: 4, manta: 5, school: 6, ptero: 7, gull: 8, lowcloud: 2, kite: 4 };
         const speed = speeds[flyer.kind];
         // Sea animals swim slowly over the reef, not too high (Underwater World)
         // Candy World's clouds and balloons drift slowly, like birds
-        const bird = ['parrot', 'toucan', 'owl', 'turtle', 'whale', 'manta', 'school', 'cloud', 'balloon', 'ptero', 'gull'].includes(flyer.kind);
+        const bird = ['parrot', 'toucan', 'owl', 'turtle', 'whale', 'manta', 'school', 'cloud', 'balloon', 'ptero', 'gull', 'lowcloud', 'kite'].includes(flyer.kind);
         const butterfly = flyer.kind === 'butterfly';
         const span = butterfly ? 70 : bird ? 160 : 260;
         const dir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
         const side = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar((Math.random() - 0.5) * (butterfly ? 30 : bird ? 60 : 120));
-        const height = flyer.kind === 'cloud' ? 34 + Math.random() * 16 : flyer.kind === 'balloon' ? 12 + Math.random() * 14 :
+        // (Sky World: clouds drift by under the floating island, kites fly over it)
+        const height = flyer.kind === 'lowcloud' ? CLOUD_LEVEL + 4 + Math.random() * 9 : flyer.kind === 'kite' ? 14 + Math.random() * 12 :
+            flyer.kind === 'cloud' ? 34 + Math.random() * 16 : flyer.kind === 'balloon' ? 12 + Math.random() * 14 :
             flyer.kind === 'whale' ? 26 + Math.random() * 10 : butterfly ? 6 + Math.random() * 5 : bird ? 10 + Math.random() * 14 : 30 + Math.random() * 45;
         const start = new THREE.Vector3(cx, height, cz).addScaledVector(dir, -span / 2).add(side);
         flyer.velocity.copy(dir).multiplyScalar(speed);
@@ -4193,6 +4339,9 @@ export class Maze {
         if (this.ash) this.updateAsh(dt);
         // Pirate Ship World: the sea moves gently, the cannons spark and smoke, splashes fall back
         if (this.seaMap) this.seaMap.offset.x = (this.seaMap.offset.x + dt * 0.01) % 1;
+        // Sky World: the clouds below drift, the rainbows sparkle, the storm clouds' bolts flicker
+        if (this.cloudMap) this.cloudMap.offset.x = (this.cloudMap.offset.x + dt * 0.004) % 1;
+        if (this.theme.skyland) this.updateSkyLooks(dt);
         if (this.theme.pirate) {
             this.showCannons(dt);
             this.updateSplashes(dt);
@@ -4409,6 +4558,7 @@ export class Maze {
         if (this.theme.desert) return this.createCactus(position, radius);
         if (this.theme.dino) return this.createBoneSpike(position, radius);
         if (this.theme.pirate) return this.createSplinterSpike(position, radius);
+        if (this.theme.skyland) return this.createStormCloud(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -6044,6 +6194,8 @@ export class Maze {
         // when the level marks its plank gaps ('F'), only those are planks
         const plank = this.theme.pirate && this.plank > 0 && (!this.plankGapsMarked || blocks.some((b) => b.fast)) ? this.plank : 0;
         const cannon = !!this.theme.pirate && !plank;
+        // Sky World: a rainbow bridge that comes and goes on its own cycle
+        const rainbow = !!this.theme.skyland;
         const width = alongX ? gap.maxZ - gap.minZ : gap.maxX - gap.minX;
         // Pirate Ship World: a cannon on each side, aimed across, and where its shot lands (inside the other)
         const cannons = cannon ? [-CANNON_REACH, span + CANNON_REACH].map((along) => {
@@ -6076,6 +6228,10 @@ export class Maze {
             cannon, // Pirate Ship World: a water gap crossed by being fired from a cannon
             plank, // Pirate Ship World: a water gap crossed on a fixed plank this fraction of the corridor wide
             cannons,
+            rainbow, // Sky World: a rainbow bridge across the gap, solid / fading / gone on its own cycle
+            rainbowPhase: 'solid', // rainbow: 'solid' | 'fading' | 'gone'
+            rainbowTime: 0, // rainbow: seconds into its phase
+            held: false, // rainbow: kept from going because you're on it
             phase: 'rest', // sled: 'rest' | 'zip' (carrying you) | 'float' (empty, coming to you); balloon: 'rest' | 'wait' (you're in, the burner's about to fire) | 'rise' | 'cross' | 'down' | 'float' (empty, coming to you)
             time: 0, // balloon: seconds into the phase
             lift: 0, // balloon: how high it is
@@ -6102,8 +6258,8 @@ export class Maze {
         this.resetSnowmen();
         this.resetThinIce();
         for (const p of this.platforms) {
-            // The plank never moves
-            if (p.plank) continue;
+            // The plank never moves; the rainbow keeps its cycle
+            if (p.plank || p.rainbow) continue;
             // The cannons: empty, fuses out
             if (p.cannon) {
                 for (const c of p.cannons) Object.assign(c, { phase: 'empty', time: 0, mustLeave: false });
@@ -6178,6 +6334,8 @@ export class Maze {
         if (p.chocolate) return true;
         // The water gap: anywhere in it (the cannon fires you over it)
         if (p.cannon) return true;
+        // The rainbow bridge: only while it's gone (it spans the whole gap)
+        if (p.rainbow) return p.rainbowPhase === 'gone';
         // The plank: anywhere off it (your middle past either side of it)
         if (p.plank) {
             const { across, width } = this.gapCoords(point, p);
@@ -6229,6 +6387,7 @@ export class Maze {
         if (p.chocolate) return null; // nothing moves: the marshmallows bounce you (see marshmallowAt)
         if (p.cannon) return null; // the cannons fire you over (see updateCannons)
         if (p.plank) return null; // the plank never moves
+        if (p.rainbow) return this.updateRainbow(p, dt, position, radius);
         if (p.balloon) return this.updateBalloon(p, dt, position, velocity, radius);
         if (p.sled) return this.updateSled(p, dt, position, velocity, radius);
         if (p.carpet) return this.updateCarpet(p, dt, position, velocity, radius);
@@ -6798,6 +6957,12 @@ export class Maze {
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
     createPlatform(p) {
+        if (p.rainbow) {
+            this.createSkyHole(p);
+            this.createRainbow(p);
+            this.showRainbow(p);
+            return;
+        }
         if (p.cannon) {
             this.createSeaHole(p);
             this.createCannons(p);
@@ -8147,6 +8312,290 @@ export class Maze {
     // below the deck (gently moving), the ship's wooden hull down to it,
     // tall masts with big sails standing up out of the crate walls, and
     // seagulls gliding by. Decoration only: nothing up there touches you.
+    // ---- Sky World (Level 131 on) ----
+
+    // A floating island high in the sky: the sun, a sea of clouds far below
+    // (seen past the island's edges and down every gap), puffy clouds
+    // drifting by under the island, the island's rocky underside, and birds
+    // and kites flying by (just to look at, nothing to bump into)
+    addSkyIsland() {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        const sun = new THREE.Mesh(new THREE.SphereGeometry(14, 24, 16), new THREE.MeshBasicMaterial({ color: 0xfff6c4, fog: false }));
+        sun.position.set(cx - 140, 120, cz - 170);
+        this.root.add(sun);
+        const map = cloudSeaTexture(256, 241);
+        map.repeat.set(30, 30);
+        const sea = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshBasicMaterial({ map, fog: false }));
+        sea.rotation.x = -Math.PI / 2;
+        sea.position.set(cx, CLOUD_LEVEL, cz);
+        this.root.add(sea);
+        this.cloudMap = map;
+        // The island's underside: rough brown rock under the whole maze,
+        // narrowing to a point far below (a four-sided cone, its rim on the
+        // maze's edges), with a grassy lip round the edge
+        const rock = new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 1, flatShading: true });
+        const under = new THREE.Mesh(new THREE.ConeGeometry(Math.hypot(this.width, this.depth) / 2 + 0.6, 16, 4, 5, true), rock);
+        const pos = under.geometry.attributes.position;
+        for (let k = 0; k < pos.count; k++) {
+            const y = pos.getY(k);
+            if (y < -7.9 || y > 7.9) continue; // the rim stays on the maze's edge
+            const wobble = 1 + 0.1 * Math.sin(k * 12.9898 + y);
+            pos.setX(k, pos.getX(k) * wobble);
+            pos.setZ(k, pos.getZ(k) * wobble);
+        }
+        under.geometry.computeVertexNormals();
+        under.rotation.set(Math.PI, Math.PI / 4, 0);
+        under.position.set(cx, -8.2, cz);
+        this.root.add(under);
+        const lipMaterial = new THREE.MeshStandardMaterial({ color: 0x4f9a33, roughness: 1 });
+        for (const [w, d, x, z] of [
+            [this.width + 1.2, 0.6, cx, -0.3], [this.width + 1.2, 0.6, cx, this.depth + 0.3],
+            [0.6, this.depth + 1.2, -0.3, cz], [0.6, this.depth + 1.2, this.width + 0.3, cz],
+        ]) {
+            const lip = new THREE.Mesh(new THREE.BoxGeometry(w, 0.5, d), lipMaterial);
+            lip.position.set(x, -0.2, z);
+            this.root.add(lip);
+        }
+        // Puffy white clouds drifting slowly by under the island (and a few high above)
+        this.flyers = [];
+        const kinds = ['lowcloud', 'bird', 'kite', 'lowcloud', 'bird', 'lowcloud', 'kite', 'bird', 'lowcloud', 'cloud', 'bird', 'lowcloud'];
+        kinds.forEach((kind, k) => {
+            const flyer = kind === 'lowcloud' || kind === 'cloud' ? this.makeSkyCloud(kind, k) : kind === 'kite' ? this.makeKite(k) : this.makeFlyer('gull');
+            if (kind === 'bird') flyer.kind = 'gull';
+            this.root.add(flyer.object);
+            this.flyers.push(flyer);
+            this.launchFlyer(flyer, k / kinds.length);
+        });
+    }
+
+    // A soft white cloud: a lump of puffy balls
+    makeSkyCloud(kind, k) {
+        const group = new THREE.Group();
+        const material = new THREE.MeshBasicMaterial({ color: [0xffffff, 0xf4f8ff, 0xeef4fb][k % 3], fog: false });
+        const ball = new THREE.SphereGeometry(1, 14, 10);
+        for (let b = 0; b < 7; b++) {
+            const puff = new THREE.Mesh(ball, material);
+            puff.scale.setScalar(3 + ((b * 37) % 5) * 0.7);
+            puff.scale.y *= 0.7;
+            puff.position.set((b - 3) * 3.4, Math.sin(b * 1.7) * 1.2 + (b % 3 === 1 ? 1.2 : 0), Math.cos(b * 2.3) * 2.2);
+            group.add(puff);
+        }
+        const object = new THREE.Group();
+        object.add(group);
+        return { kind, object, velocity: new THREE.Vector3(), life: 0 };
+    }
+
+    // A diamond kite with a ribbon tail of bows, bobbing on the wind
+    makeKite(k) {
+        const group = new THREE.Group();
+        const colors = [[0xff3b6b, 0xffd60a], [0x2fa8ff, 0xff9a1f], [0x3ddc5a, 0xa64dff]][k % 3];
+        const half = (a, b, color) => new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape([a, b, new THREE.Vector2(0, -2.8), new THREE.Vector2(0, 2.2)])), new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, fog: false }));
+        group.add(half(new THREE.Vector2(0, 2.2), new THREE.Vector2(1.3, 0), colors[0]).translateZ(0.01));
+        group.add(half(new THREE.Vector2(0, 2.2), new THREE.Vector2(-1.3, 0), colors[1]));
+        const frame = new THREE.LineBasicMaterial({ color: 0x5a3d22, fog: false });
+        group.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 2.2, 0.02), new THREE.Vector3(0, -2.8, 0.02), new THREE.Vector3(-1.3, 0, 0.02), new THREE.Vector3(1.3, 0, 0.02)]), frame));
+        const tail = [];
+        for (let b = 0; b < 5; b++) {
+            const bow = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.6, 4), new THREE.MeshBasicMaterial({ color: colors[b % 2], fog: false }));
+            bow.rotation.z = Math.PI / 2;
+            bow.position.set(0, -3.4 - b * 0.9, 0);
+            group.add(bow);
+            tail.push(bow);
+        }
+        group.rotation.y = Math.PI / 2; // face sideways to its path (models point along +x)
+        group.rotation.z = -0.25;
+        const object = new THREE.Group();
+        object.add(group);
+        return { kind: 'kite', object, velocity: new THREE.Vector3(), life: 0, bob: k, tail };
+    }
+
+    // Sky World's spike: a little dark storm cloud floating low, with
+    // pointy yellow lightning bolts poking down to the floor, as wide as a
+    // spike's plate. Touching it works the same as a spike.
+    createStormCloud(position, radius) {
+        const spike = new THREE.Group();
+        const cloud = new THREE.MeshStandardMaterial({ color: 0x4a4f5c, roughness: 1, emissive: 0x15171d, emissiveIntensity: 0.5 });
+        const ball = new THREE.SphereGeometry(1, 14, 10);
+        for (const [x, y, z, s] of [[0, 1.25, 0, 0.5], [0.38, 1.18, 0.12, 0.38], [-0.36, 1.2, 0.18, 0.4], [0.1, 1.2, -0.38, 0.38], [-0.2, 1.42, -0.12, 0.34], [0.24, 1.4, 0.3, 0.3]]) {
+            const puff = new THREE.Mesh(ball, cloud);
+            puff.scale.set(s, s * 0.8, s);
+            puff.position.set(x, y, z);
+            puff.castShadow = true;
+            spike.add(puff);
+        }
+        // Lightning bolts: flat yellow zigzags from under the cloud down to the floor
+        const bolt = new THREE.MeshBasicMaterial({ color: 0xffe24a, side: THREE.DoubleSide });
+        const bolts = [];
+        for (const [x, z, turn] of [[0, 0, 0], [0.4, 0.1, 1.1], [-0.36, 0.22, 2.2], [0.05, -0.4, 0.6], [-0.22, -0.26, 1.8]]) {
+            const shape = new THREE.Shape([
+                new THREE.Vector2(-0.07, 1.05), new THREE.Vector2(0.09, 1.05), new THREE.Vector2(0.02, 0.68), new THREE.Vector2(0.12, 0.68),
+                new THREE.Vector2(-0.04, 0.3), new THREE.Vector2(0.05, 0.3), new THREE.Vector2(-0.06, 0), new THREE.Vector2(-0.08, 0.38),
+                new THREE.Vector2(-0.16, 0.38), new THREE.Vector2(-0.06, 0.74), new THREE.Vector2(-0.16, 0.74),
+            ]);
+            const mesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), bolt);
+            mesh.position.set(x, 0.02, z);
+            mesh.rotation.y = turn;
+            spike.add(mesh);
+            bolts.push(mesh);
+        }
+        // A faint glow on the floor under it
+        const glow = new THREE.Mesh(new THREE.CircleGeometry(SPIKE_RADIUS, 20), new THREE.MeshBasicMaterial({ color: 0xfff3a0, transparent: true, opacity: 0.35 }));
+        glow.rotation.x = -Math.PI / 2;
+        glow.position.y = 0.01;
+        spike.add(glow);
+        spike.scale.set(radius / SPIKE_RADIUS, 1, radius / SPIKE_RADIUS);
+        spike.position.copy(position);
+        spike.position.y = 0;
+        this.root.add(spike);
+        (this.stormClouds ||= []).push({ bolts, glow, time: Math.random() * 5 });
+        return spike;
+    }
+
+    // A gap's hole in the island (Level 131 on): rough earth and rock sides
+    // go down ISLAND_DEPTH, and below that you see the clouds far, far below
+    createSkyHole(p) {
+        const g = p.gap;
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        const sizeX = g.maxX - g.minX;
+        const sizeZ = g.maxZ - g.minZ;
+        const earth = new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 1, side: THREE.DoubleSide });
+        for (const [w, d, x, z] of [
+            [sizeX, 0.05, cx, g.minZ], [sizeX, 0.05, cx, g.maxZ],
+            [0.05, sizeZ, g.minX, cz], [0.05, sizeZ, g.maxX, cz],
+        ]) {
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ISLAND_DEPTH, d), earth);
+            wall.position.set(x, -0.2 - ISLAND_DEPTH / 2, z);
+            this.root.add(wall);
+        }
+        // Grass tufts hanging over each edge, so the edge shows from far off
+        const grass = new THREE.MeshStandardMaterial({ color: 0x3f8a2a, roughness: 1 });
+        const width = p.alongX ? sizeZ : sizeX;
+        for (const end of [0, p.span]) {
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(width, 0.3, 0.12), grass);
+            if (p.alongX) {
+                strip.rotation.y = Math.PI / 2;
+                strip.position.set(g.minX + end, -0.36, cz);
+            } else {
+                strip.position.set(cx, -0.36, g.minZ + end);
+            }
+            this.root.add(strip);
+        }
+    }
+
+    // The rainbow bridge: seven bright stripes side by side, running the
+    // length of the gap, the whole corridor wide, resting on both edges,
+    // glowing softly, with little sparkles floating over it. It flickers
+    // while fading and is gone (see-through, nothing there) while gone.
+    createRainbow(p) {
+        const g = p.gap;
+        const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
+        const length = p.span + 0.4;
+        const group = new THREE.Group();
+        const materials = [];
+        const stripe = width / RAINBOW_COLORS.length;
+        RAINBOW_COLORS.forEach((color, k) => {
+            const material = new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.55, roughness: 0.4, transparent: true, opacity: 0.92 });
+            const band = new THREE.Mesh(new THREE.BoxGeometry(stripe, 0.12, length), material);
+            band.position.set(-width / 2 + stripe * (k + 0.5), -0.06, 0);
+            band.receiveShadow = true;
+            group.add(band);
+            materials.push(material);
+        });
+        // A soft glow under it
+        const glowMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25, depthWrite: false });
+        const glow = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.6, length + 0.6), glowMaterial);
+        glow.rotation.x = -Math.PI / 2;
+        glow.position.y = -0.2;
+        group.add(glow);
+        materials.push(glowMaterial);
+        // Sparkles
+        const sparkles = [];
+        const sparkleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
+        for (let k = 0; k < 14; k++) {
+            const s = new THREE.Mesh(new THREE.OctahedronGeometry(0.06), sparkleMaterial);
+            s.position.set((Math.random() - 0.5) * width, 0.2 + Math.random() * 0.8, (Math.random() - 0.5) * length);
+            group.add(s);
+            sparkles.push({ mesh: s, phase: Math.random() * 6 });
+        }
+        materials.push(sparkleMaterial);
+        group.position.set((g.minX + g.maxX) / 2, 0, (g.minZ + g.maxZ) / 2);
+        if (p.alongX) group.rotation.y = Math.PI / 2;
+        this.root.add(group);
+        p.object = null; // (nothing moves)
+        p.rainbowObject = { group, materials, sparkles, opacity: materials.map((m) => m.opacity) };
+    }
+
+    // Run one rainbow bridge's cycle (a game step, so it stops while paused).
+    // Returns 'appear', 'fade' or 'vanish' when that happens.
+    updateRainbow(p, dt, position, radius) {
+        const { along, across, width } = this.gapCoords(position, p);
+        // Any part of you on it (or over the gap at all)
+        const on = across >= -radius && across < width + radius && along + radius > 0 && along - radius < p.span;
+        let event = null;
+        p.rainbowTime += dt;
+        p.held = false;
+        if (p.rainbowPhase === 'solid' && p.rainbowTime >= RAINBOW_SOLID) {
+            Object.assign(p, { rainbowPhase: 'fading', rainbowTime: p.rainbowTime - RAINBOW_SOLID });
+            event = 'fade';
+        }
+        if (p.rainbowPhase === 'fading' && p.rainbowTime >= RAINBOW_FADE) {
+            if (on) {
+                // Never goes while you're on it: it waits for you to be off
+                p.rainbowTime = RAINBOW_FADE;
+                p.held = true;
+            } else {
+                Object.assign(p, { rainbowPhase: 'gone', rainbowTime: p.rainbowTime - RAINBOW_FADE });
+                event = 'vanish';
+            }
+        }
+        if (p.rainbowPhase === 'gone' && p.rainbowTime >= RAINBOW_GONE) {
+            Object.assign(p, { rainbowPhase: 'solid', rainbowTime: p.rainbowTime - RAINBOW_GONE });
+            event = 'appear';
+        }
+        this.showRainbow(p);
+        return event;
+    }
+
+    // Draw the rainbow for its phase: solid, flickering, or gone
+    showRainbow(p) {
+        const r = p.rainbowObject;
+        if (!r) return;
+        r.group.visible = p.rainbowPhase !== 'gone';
+        let k = 1;
+        if (p.rainbowPhase === 'fading') {
+            // Flickering, faster and fainter toward the end
+            const t = p.rainbowTime;
+            k = (Math.floor(t * (6 + t * 8)) % 2 ? 0.35 : 1) * (1 - 0.3 * Math.min(1, t / RAINBOW_FADE));
+        }
+        r.materials.forEach((m, n) => { m.opacity = r.opacity[n] * k; });
+    }
+
+    // Sparkles over each rainbow, and the storm clouds' bolts flickering (just looks, every frame)
+    updateSkyLooks(dt) {
+        for (const p of this.platforms) {
+            for (const s of p.rainbowObject?.sparkles ?? []) {
+                s.phase += dt * 2;
+                s.mesh.position.y = 0.2 + ((s.phase * 0.15) % 1);
+                s.mesh.rotation.y += dt * 3;
+                s.mesh.scale.setScalar(0.6 + 0.4 * Math.sin(s.phase * 2));
+            }
+        }
+        for (const c of this.stormClouds || []) {
+            c.time += dt;
+            const flash = (c.time % 2.3) < 0.12 || ((c.time + 0.9) % 3.1) < 0.08;
+            for (const b of c.bolts) b.material.color.setHex(flash ? 0xffffff : 0xffe24a);
+            c.glow.material.opacity = flash ? 0.6 : 0.3;
+        }
+        for (const flyer of this.flyers || []) {
+            if (flyer.kind !== 'kite') continue;
+            flyer.bob += dt;
+            flyer.object.position.y += Math.sin(flyer.bob * 1.6) * dt * 1.2;
+            flyer.tail.forEach((bow, n) => { bow.position.x = Math.sin(flyer.bob * 3 + n * 0.8) * 0.25 * n; });
+        }
+    }
+
     addPirateSky() {
         const cx = this.width / 2;
         const cz = this.depth / 2;

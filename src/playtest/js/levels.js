@@ -74,6 +74,12 @@ const DINO = { wall: 0x3f7a2c, floor: 0x8f6a44, sky: 0x8fd3ff, dino: true };
 // broken planks with pointy splinters, and the water gaps are holes in the
 // deck down to the sea, crossed by cannon (see Maze.js). No pirates.
 const PIRATE = { wall: 0x8a5a2b, floor: 0xb07a45, sky: 0x8fd3ff, pirate: true };
+// Levels 131-140, Sky World: a floating island high in the sky, walls of
+// mossy stone, a grassy floor, clouds drifting far below (seen past the
+// island's edges and down every gap), birds and kites flying by; the spikes
+// are little storm clouds with lightning bolts poking down, and the gaps
+// are crossed on rainbow bridges that come and go (see Maze.js).
+const SKY = { wall: 0x8a8f96, floor: 0x5fae3e, sky: 0x7cc8ff, skyland: true };
 
 export const LEVELS = [
     {
@@ -7571,6 +7577,7 @@ export const LEVELS = [
         theme: PIRATE,
         music: 'piratefinale',
         finale: 'You beat Pirate Ship World!',
+        nextLabel: 'Start Sky World',
         rocking: true,
         plank: 1 / 4,
         spike2Radius: 0.72,
@@ -7626,13 +7633,82 @@ export const LEVELS = [
         '#################################################',
         ],
     },
+    {
+        name: 'Level 131',
+        // Welcome to Sky World. `SEEDS=400 node tools/find-sky-level.mjs
+        // level131 36 1316000`, seed 1316010. 13 x 13 corridors. Correct
+        // path 94 cells (start west in row 11, door east in row 2); 37 wrong
+        // ways 2 cells deep, plus the sneaky storm cloud's. X: the sneaky
+        // storm-cloud spike, in the last cell of a 3-deep one-turn dead end
+        // off path cell 1. O: the rainbow bridge's 3-cell gap over path
+        // cells 39-41 (row 9, crossed heading west). No windy hallway,
+        // trampoline, fog or propeller, no path or big spike. A sneaky,
+        // mysterious tune with soft wind and birdsong.
+        theme: SKY,
+        music: 'skywelcome',
+        layout: [
+        '#####################################################',
+        '#               #       #       #       #           #',
+        '#               #       #       #       #           #',
+        '#               #       #       #       #           #',
+        '#   #########   #####   #####   #   #####   #####   #',
+        '#           #                               #       #',
+        '#           #                               #       #',
+        '#           #                               #       #',
+        '#   #########################################   #   #',
+        '#                                           #   #   #',
+        '#                                           #   #   D',
+        '#                                           #   #   #',
+        '#   #   #   #########   #   #####   #####   #####   #',
+        '#   #   #       #       #       #   #       #       #',
+        '#   #   #       #       #       #   #       #       #',
+        '#   #   #       #       #       #   #       #       #',
+        '#   #   #########################   #   #   #########',
+        '#   #   #   #   #   #   #   #   #   #   #           #',
+        '#   #   #   #   #   #   #   #   #   #   #           #',
+        '#   #   #   #   #   #   #   #   #   #   #           #',
+        '#########   #   #   #   #   #   #################   #',
+        '#       #   #   #   #   #   #                       #',
+        '#       #   #   #   #   #   #                       #',
+        '#       #   #   #   #   #   #                       #',
+        '#   #####   #   #   #   #   #####   #   #####   #####',
+        '#           #                       #       #       #',
+        '#           #                       #       #       #',
+        '#           #                       #       #       #',
+        '#   #####   #   #####################################',
+        '#   #   #       #                   #   #           #',
+        '#   #   #       #                   #   #           #',
+        '#   #   #       #                   #   #           #',
+        '#   #   #   #####   #   #####   #   #   #   #   #   #',
+        '#   #   #       #   #   #       #       #   #   #   #',
+        '#   #   #       #   #   #       #       #   #   #   #',
+        '#   #   #       #   #   #       #       #   #   #   #',
+        '#   #   #############   #########   #########   #   #',
+        '#        OOOOOOOOOOO    #                       #   #',
+        '#        OOOOOOOOOOO    #                       #   #',
+        '#        OOOOOOOOOOO    #                       #   #',
+        '#############################################   #   #',
+        '#       #               #       #       #       #   #',
+        '#       #               #       #       #       #   #',
+        '#       #               #       #       #       #   #',
+        '#####   #   #########   #####   #####   #########   #',
+        '#           #           #                           #',
+        '# S         #           #                           #',
+        '#           #           #                           #',
+        '#   #########   #########   #   #########   #   #####',
+        '#           #               #       #       #       #',
+        '#         X #               #       #       #       #',
+        '#           #               #       #       #       #',
+        '#####################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
 // the index of its first and last built level and its look. A level's world
 // is its theme, or its `world` name when it has one (Everything World,
 // Levels 91-100: each level wears an earlier world's theme).
-const lookOf = (theme) => theme.pirate ? 'pirate' : theme.dino ? 'dino' : theme.desert ? 'desert' : theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
+const lookOf = (theme) => theme.skyland ? 'sky' : theme.pirate ? 'pirate' : theme.dino ? 'dino' : theme.desert ? 'desert' : theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
 // The look of one level's button: its own theme's look (Level 100: all of them)
 export const levelLook = (level) => level.look ?? lookOf(level.theme);
 export const WORLDS = [];

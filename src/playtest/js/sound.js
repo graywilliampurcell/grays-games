@@ -37,6 +37,9 @@ const CALL_LEVEL = 0.03;
 // Pirate Ship World's background waves and creaking wood (part of the music, quieter than the melody)
 const WAVE_LEVEL = 0.05;
 const CREAK_LEVEL = 0.02;
+// Sky World's soft wind and birdsong (part of the music, quieter than the melody and the sound effects)
+const WIND_LEVEL = 0.035;
+const BIRD_LEVEL = 0.018;
 // How long the device voice gets to start before the game's own voice sound plays instead
 const SPEECH_START_TIMEOUT = 700;
 
@@ -3584,6 +3587,36 @@ const TUNES = {
             creaks: [4, 14, 28, 40, 56],
         },
     },
+    // Level 131 (welcome to Sky World): sneaky and mysterious, half and
+    // half, in E-flat minor at 86 bpm: a soft, airy sine lead that floats
+    // up in slow steps, hangs there, and drifts back down through a bright
+    // C (a little mysterious), with tiptoe ticks underneath. In the
+    // background (sky): soft wind swelling past and birds chirping far
+    // off, quieter than the melody.
+    skywelcome: {
+        tempo: 86,
+        bars: [[39, 'min'], [39, 'min'], [35, 'maj'], [37, 'maj'], [39, 'min'], [42, 'maj'], [34, 'maj'], [39, 'min']],
+        bass: [0, null, null, null, 7, null, null, null],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            63, null, null, 66, 70, null, null, null,
+            72, null, 70, null, 66, null, null, null,
+            71, null, null, 70, 66, null, 63, null,
+            65, null, null, null, null, null, null, null,
+            63, null, 66, null, 70, null, 75, null,
+            null, null, 73, null, 70, null, null, 69,
+            70, null, null, null, 65, null, 66, null,
+            63, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.17, length: 0.22, brightness: 1400 },
+        sky: {
+            // [step, length in seconds] of each gust of wind, and [step, note] of each far-off bird chirp
+            winds: [[0, 3.4], [32, 3.8]],
+            birds: [[10, 86], [12, 90], [42, 88], [44, 93], [58, 86]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -3853,6 +3886,11 @@ export class Sound {
             for (const [at, length] of tune.pirate.waves) if (at === step) this.seaWave(t, length);
             if (tune.pirate.creaks.includes(step)) this.creak(t);
         }
+        // Sky World's background: soft wind and far-off birdsong
+        if (tune.sky) {
+            for (const [at, length] of tune.sky.winds) if (at === step) this.wind(t, length);
+            for (const [at, note] of tune.sky.birds) if (at === step) this.chirp(hz(note), t);
+        }
     }
 
     // A big friendly dinosaur's footstep far away: a deep, soft thump
@@ -3914,6 +3952,40 @@ export class Sound {
         g.gain.exponentialRampToValueAtTime(WAVE_LEVEL, t + length * 0.4);
         g.gain.exponentialRampToValueAtTime(0.0001, t + length);
         this.noiseSource(t, length + 0.05).connect(f).connect(g).connect(this.noteOut);
+    }
+
+    // A soft gust of wind (Sky World's music): airy noise through a band that
+    // sweeps up and back down over `length` seconds
+    wind(t, length) {
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'bandpass';
+        f.Q.value = 0.8;
+        f.frequency.setValueAtTime(500, t);
+        f.frequency.linearRampToValueAtTime(1400, t + length * 0.5);
+        f.frequency.linearRampToValueAtTime(600, t + length);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(WIND_LEVEL, t + length * 0.45);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + length);
+        this.noiseSource(t, length + 0.05).connect(f).connect(g).connect(this.noteOut);
+    }
+
+    // A little bird chirping far off (Sky World's music): two quick
+    // high whistles sliding up
+    chirp(freq, t) {
+        for (const at of [0, 0.11]) {
+            const o = this.ctx.createOscillator();
+            o.type = 'sine';
+            o.frequency.setValueAtTime(freq, t + at);
+            o.frequency.exponentialRampToValueAtTime(freq * 1.25, t + at + 0.07);
+            const g = this.ctx.createGain();
+            g.gain.setValueAtTime(0.0001, t + at);
+            g.gain.exponentialRampToValueAtTime(BIRD_LEVEL, t + at + 0.015);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + at + 0.08);
+            o.connect(g).connect(this.noteOut);
+            o.start(t + at);
+            o.stop(t + at + 0.09);
+        }
     }
 
     // Old ship's wood creaking (Pirate Ship World's music): a slow, rough,
@@ -4279,6 +4351,28 @@ export class Sound {
         g.gain.setTargetAtTime(0.0001, t + length, 0.02);
         this.noiseSource(t, length + 0.15).connect(f).connect(g).connect(this.sfxBus);
         return { gain: g, end: t + length };
+    }
+
+    // The rainbow bridge appearing (Sky World): a soft, sparkly shimmer of
+    // high bell notes rising, quieter the further you are (volume 0-1).
+    // Obeys the Sound effects switch.
+    shimmer(volume = 1) {
+        if (!this.settings.sfx || !this.ctx || volume <= 0) return;
+        this.onEvent('shimmer');
+        const t = this.ctx.currentTime + 0.01;
+        [76, 79, 83, 86, 88, 91, 95].forEach((note, k) => {
+            const at = t + k * 0.07;
+            const o = this.ctx.createOscillator();
+            o.type = 'sine';
+            o.frequency.setValueAtTime(hz(note), at);
+            const g = this.ctx.createGain();
+            g.gain.setValueAtTime(0.0001, at);
+            g.gain.exponentialRampToValueAtTime(Math.max(0.002, 0.07 * volume), at + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, at + 0.6);
+            o.connect(g).connect(this.sfxBus);
+            o.start(at);
+            o.stop(at + 0.62);
+        });
     }
 
     // The cannon firing (Pirate Ship World): a big, deep BOOM
