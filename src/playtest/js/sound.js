@@ -3420,6 +3420,33 @@ const TUNES = {
             creaks: [2, 18, 34, 50],
         },
     },
+    // Level 125 (two waves): D minor, 102 bpm, a square lead that rises in a
+    // run like one wave, then a second run answers it a little higher, each
+    // tumbling back down; sneaky and mysterious (more sneaky), with the soft
+    // waves (two bigger ones washing past) and creaking wood.
+    piratetwowaves: {
+        tempo: 102,
+        bars: [[38, 'min'], [38, 'min'], [34, 'maj'], [36, 'maj'], [38, 'min'], [43, 'min'], [33, 'maj'], [38, 'min']],
+        bass: [0, null, null, 7, null, null, 5, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            62, null, 65, 67, 69, null, null, null,
+            67, null, 65, null, 62, null, null, null,
+            65, null, 69, 70, 72, null, null, null,
+            70, null, 69, null, 65, null, 64, null,
+            62, null, 65, 69, 70, 72, 74, null,
+            72, null, 70, null, 67, null, 69, null,
+            61, null, 64, null, 67, null, 69, null,
+            62, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.13, brightness: 1500 },
+        pirate: {
+            waves: [[0, 2.6], [16, 3.0], [32, 2.6], [48, 3.0]],
+            creaks: [8, 28, 44, 60],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
