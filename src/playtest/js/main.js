@@ -61,6 +61,14 @@ const WATER_FALL_TIME = 1.5;
 const SPLASH_SEE_TIME = 0.8;
 let falling = null; // { time, from, x, z, splashed } while falling into the sea
 let fuseSound = null; // the cannon fuse's fizz, while it's fizzing
+// Windy hallways (Sky World, Level 132 on): walking into the wind you go at
+// WIND_INTO of your speed, with it WIND_WITH; its whoosh is heard from up to
+// WIND_HEAR_DISTANCE away, loudest (WIND_LEVEL) inside the hallway
+const WIND_INTO = 0.6;
+const WIND_WITH = 1.4;
+const WIND_HEAR_DISTANCE = 6;
+const WIND_LEVEL = 0.55;
+let windVoice = null;
 // Sticky caramel (Level 52 on): you walk at half speed while you're on it
 const CARAMEL_SPEED = 0.5;
 // A steam vent's puff (Volcano World) pushes you one square back, taking this long
@@ -258,6 +266,8 @@ function loadLevel(level, index) {
     levelIndex = index;
     // The old level's snowmen stop being heard
     for (const s of maze?.snowmen ?? []) s.voice?.gain.disconnect();
+    sound?.stopWind(windVoice);
+    windVoice = null;
     maze?.dispose();
     const options = {
         spikeRadius: level.spikeRadius ?? LEVELS[index]?.spikeRadius,
@@ -351,6 +361,20 @@ function step(deltaTime) {
         camera.position.copy(player.camera.position);
         camera.rotation.copy(player.camera.rotation);
         return;
+    }
+    // Windy hallways (Sky World, Level 132 on): inside one, walking into the
+    // wind is slower and walking with it faster (Player.js); its streaks and
+    // leaves blow along (they stop while paused, this is the game step); its
+    // whoosh gets louder as you come near
+    const wind = maze.windAt?.(player.position);
+    player.wind = wind && !escaped ? wind.dir : null;
+    player.windInto = WIND_INTO;
+    player.windWith = WIND_WITH;
+    if (maze.winds?.length) {
+        maze.updateWinds(deltaTime);
+        windVoice ??= sound.windVoice();
+        const near = Math.min(...maze.winds.map((w) => maze.windDistance(w, player.position)));
+        sound.setVoice(windVoice, WIND_LEVEL * Math.max(0, 1 - near / WIND_HEAR_DISTANCE));
     }
     // Update player movement
     player.update(inputManager, collisionManager, deltaTime);
@@ -1100,6 +1124,7 @@ function reloadForUpdate(from) {
 // Pause menu → Main menu: save the spot the same way Quit does, music stops
 function toMainMenu() {
     saveSpot();
+    sound.setVoice(windVoice, 0);
     sound.stopMusic();
     document.body.classList.add('title');
 }
@@ -1108,6 +1133,7 @@ function toMainMenu() {
 function pause() {
     paused = true;
     player.paused = true;
+    sound.setVoice(windVoice, 0); // the wind's whoosh comes back when you play on
     player.releaseAll();
     document.body.classList.add('paused');
 }

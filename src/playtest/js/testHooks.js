@@ -78,6 +78,8 @@ export function installTestHooks(game) {
             vents: maze.vents.map((v) => ({ minX: v.minX, maxX: v.maxX, minZ: v.minZ, maxZ: v.maxZ, phase: v.phase, timer: round(v.timer), audible: v.audible !== false, wave: !!v.wave, target: { x: v.target.x, z: v.target.z } })),
             fossils: (maze.fossils ?? []).map((f) => ({ x: f.position.x, z: f.position.z, kind: f.kind, collected: f.collected })),
             doorLocked: !!maze.fossilsLocked,
+            winds: (maze.winds ?? []).map((w) => ({ minX: w.minX, maxX: w.maxX, minZ: w.minZ, maxZ: w.maxZ, dir: w.dir })),
+            inWind: player.wind ? { ...player.wind } : null,
             rocking: maze.rocking ? { phase: maze.rocking.phase, timer: round(maze.rocking.timer), side: maze.rocking.side, angle: maze.rocking.angle, slid: maze.rocking.slid ?? 0 } : null,
             doorLockVisible: !!maze.doorLock?.object.visible,
             fossilCounter: document.getElementById('fossils').hidden ? null : document.getElementById('fossils').textContent,

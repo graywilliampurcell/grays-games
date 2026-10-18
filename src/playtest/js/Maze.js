@@ -2428,6 +2428,9 @@ export class Maze {
         // Fossils ('f', the middle of the last cell of a wrong way; Dinosaur
         // World's fossil hunt, Level 113 on)
         const fossilPositions = [];
+        // Windy hallways ('<', '>', '^', 'v' blocks: the wind blows west,
+        // east, north or south along them; Sky World, Level 132 on)
+        const windBlocks = { '<': [], '>': [], '^': [], 'v': [] };
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -2462,6 +2465,7 @@ export class Maze {
                 if (ch === 'u') buttonPositions[1] = center;
                 if (ch === 'E') spinBlocks.push({ x, z });
                 if (ch === 'f') fossilPositions.push(center);
+                if (windBlocks[ch]) windBlocks[ch].push({ x, z });
             }
         }
         this.currents = [];
@@ -2604,6 +2608,21 @@ export class Maze {
         // The fossil hunt: 3 fossils, each its own look, in the order they're
         // found reading the layout; the exit door stays locked until all are
         // collected
+        // Each windy hallway: its blocks' box and the way the wind blows
+        this.winds = [];
+        for (const [ch, dir] of [['<', [-1, 0]], ['>', [1, 0]], ['^', [0, -1]], ['v', [0, 1]]]) {
+            for (const blocks of groupBlocks(windBlocks[ch])) {
+                const xs = blocks.map((b) => b.x);
+                const zs = blocks.map((b) => b.z);
+                this.winds.push({
+                    minX: Math.min(...xs), maxX: Math.max(...xs) + 1,
+                    minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1,
+                    dir: { x: dir[0], z: dir[1] },
+                    blocks: new Set(blocks.map((b) => `${b.x},${b.z}`)),
+                    bits: [],
+                });
+            }
+        }
         this.fossils = fossilPositions.map((position, index) => ({ position, kind: FOSSIL_KINDS[index % FOSSIL_KINDS.length], collected: false, t: index * 1.3 }));
         this.doorLock = null;
         // The spinning wall is solid like any wall (walking into it spins it)
@@ -2811,6 +2830,7 @@ export class Maze {
         for (const door of this.buttonDoors) this.createButtonDoor(door);
         if (this.spinWall) this.createSpinWall();
         for (const f of this.fossils) this.createFossil(f);
+        for (const w of this.winds) this.createWind(w);
         this.scene.add(this.root);
     }
 
@@ -7781,6 +7801,77 @@ export class Maze {
             for (const pad of p.pads) if (Math.hypot(point.x - pad.center.x, point.z - pad.center.z) < MARSHMALLOW_STEP) return pad;
         }
         return null;
+    }
+
+    // The windy hallway this point is in, or null
+    windAt(point) {
+        const k = `${Math.floor(point.x)},${Math.floor(point.z)}`;
+        return this.winds.find((w) => w.blocks.has(k)) ?? null;
+    }
+
+    // How far a point is from a windy hallway (0 inside it)
+    windDistance(w, point) {
+        const dx = Math.max(w.minX - point.x, 0, point.x - w.maxX);
+        const dz = Math.max(w.minZ - point.z, 0, point.z - w.maxZ);
+        return Math.hypot(dx, dz);
+    }
+
+    // A windy hallway (Sky World): thin white streaks of wind rushing along
+    // it at different heights, and little leaves tumbling along the floor and
+    // through the air, all fading in at the upwind end and out at the other
+    createWind(w) {
+        let r = 7 + w.minX * 31 + w.minZ * 17;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const alongX = w.dir.x !== 0;
+        const length = alongX ? w.maxX - w.minX : w.maxZ - w.minZ;
+        const across = alongX ? [w.minZ, w.maxZ] : [w.minX, w.maxX];
+        const leafColors = [0x6fbf3a, 0x9bd14a, 0xd8c24a, 0x4f9a2c, 0xe09a3a];
+        const streaks = Math.round(length * 2.2);
+        const leaves = Math.round(length * 1.0);
+        for (let n = 0; n < streaks + leaves; n++) {
+            const leaf = n >= streaks;
+            const material = new THREE.MeshBasicMaterial({
+                color: leaf ? leafColors[n % leafColors.length] : 0xffffff,
+                transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide,
+            });
+            const size = leaf ? 0.14 + random() * 0.08 : 0.5 + random() * 0.9;
+            const geometry = leaf ? new THREE.PlaneGeometry(size, size * 0.6) : new THREE.BoxGeometry(alongX ? size : 0.035, 0.035, alongX ? 0.035 : size);
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.renderOrder = 2;
+            this.root.add(mesh);
+            w.bits.push({
+                mesh, leaf,
+                t: random(), // how far along the hallway, 0 (upwind end) to 1
+                side: across[0] + 0.15 + random() * (across[1] - across[0] - 0.3),
+                height: leaf ? 0.05 + random() * 1.4 : 0.25 + random() * 2.6,
+                speed: (leaf ? 3 + random() * 1.5 : 6 + random() * 3) / length,
+                spin: random() * 6, bob: random() * 6,
+                peak: leaf ? 0.95 : 0.45 + random() * 0.3,
+            });
+        }
+        this.placeWind(w, 0);
+    }
+
+    // Move the wind's streaks and leaves along (the game step, so they stop while paused)
+    updateWinds(dt) {
+        for (const w of this.winds) this.placeWind(w, dt);
+    }
+
+    placeWind(w, dt) {
+        const alongX = w.dir.x !== 0;
+        const sign = alongX ? w.dir.x : w.dir.z;
+        const [lo, hi] = alongX ? [w.minX, w.maxX] : [w.minZ, w.maxZ];
+        for (const b of w.bits) {
+            b.t = (b.t + b.speed * dt) % 1;
+            b.spin += dt * 7;
+            b.bob += dt * 3;
+            const a = sign > 0 ? lo + b.t * (hi - lo) : hi - b.t * (hi - lo);
+            const y = b.leaf ? Math.max(0.04, b.height + Math.sin(b.bob) * 0.25) : b.height;
+            if (alongX) b.mesh.position.set(a, y, b.side);
+            else b.mesh.position.set(b.side, y, a);
+            if (b.leaf) b.mesh.rotation.set(b.spin, b.spin * 0.7, b.spin * 0.4);
+            b.mesh.material.opacity = b.peak * Math.min(1, b.t * 6, (1 - b.t) * 6);
+        }
     }
 
     // Is this point on sticky caramel?

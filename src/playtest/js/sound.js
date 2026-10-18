@@ -3617,6 +3617,35 @@ const TUNES = {
             birds: [[10, 86], [12, 90], [42, 88], [44, 93], [58, 86]],
         },
     },
+    // Level 132 (the first windy hallway): sneaky and mysterious, half and
+    // half, in F-sharp minor at 92 bpm: a triangle lead that swoops quickly
+    // up four notes like a gust and hangs on the top one, then tiptoes back
+    // down in little pairs, with a mysterious bright D major turn in the
+    // middle. Wind and far-off birdsong in the background, quieter than the
+    // melody (more gusts than Level 131's).
+    skywindy: {
+        tempo: 92,
+        bars: [[42, 'min'], [42, 'min'], [38, 'maj'], [40, 'maj'], [42, 'min'], [38, 'maj'], [37, 'maj'], [42, 'min']],
+        bass: [0, null, null, 0, null, null, 7, null],
+        bassLength: 0.26,
+        stabs: [],
+        ticks: true,
+        melody: [
+            66, 69, 73, 78, null, null, null, null,
+            76, null, 76, 73, null, null, 71, null,
+            69, null, null, null, 66, null, null, null,
+            68, null, 69, null, 68, null, null, null,
+            66, 69, 73, 78, null, null, 81, null,
+            null, null, 78, null, 74, null, null, null,
+            73, null, 71, null, 69, null, 68, null,
+            66, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.18, length: 0.2, brightness: 1600 },
+        sky: {
+            winds: [[0, 2.6], [20, 2.4], [36, 3.0], [52, 2.2]],
+            birds: [[14, 88], [30, 91], [46, 86], [62, 93]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -4617,6 +4646,51 @@ export class Sound {
         gain.gain.value = 0;
         gain.connect(this.sfxBus);
         return { gain };
+    }
+
+    // A windy hallway's whoosh (Sky World, Level 132 on): one steady, gusty
+    // rush of air that keeps going, through its own volume knob (0 until
+    // main.js turns it up as you come near a windy hallway). Through the
+    // sound effects, so it obeys the Sound effects switch. null until sound
+    // has started.
+    windVoice() {
+        if (!this.ctx) return null;
+        const t = this.ctx.currentTime;
+        const gain = this.ctx.createGain();
+        gain.gain.value = 0;
+        gain.connect(this.sfxBus);
+        const band = this.ctx.createBiquadFilter();
+        band.type = 'bandpass';
+        band.frequency.value = 650;
+        band.Q.value = 0.8;
+        // The gusts: the band sweeps slowly up and down and the rush swells and eases
+        const sweep = this.ctx.createOscillator();
+        sweep.frequency.value = 0.23;
+        const sweepDepth = this.ctx.createGain();
+        sweepDepth.gain.value = 260;
+        sweep.connect(sweepDepth).connect(band.frequency);
+        const swell = this.ctx.createGain();
+        swell.gain.value = 0.7;
+        const gust = this.ctx.createOscillator();
+        gust.frequency.value = 0.37;
+        const gustDepth = this.ctx.createGain();
+        gustDepth.gain.value = 0.3;
+        gust.connect(gustDepth).connect(swell.gain);
+        const src = this.noiseSource(t, 100000);
+        src.connect(band).connect(swell).connect(gain);
+        sweep.start(t);
+        gust.start(t);
+        this.onEvent('wind');
+        return { gain, parts: [src, sweep, gust] };
+    }
+
+    // Stop a windy hallway's whoosh for good (leaving the level)
+    stopWind(voice) {
+        if (!voice) return;
+        for (const p of voice.parts) {
+            try { p.stop(); } catch { /* already stopped */ }
+        }
+        voice.gain.disconnect();
     }
 
     // Set a snowman's loudness (0-1); a tiny glide keeps it from clicking

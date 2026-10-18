@@ -9,7 +9,9 @@
 //
 // Layout letters (see js/Maze.js): as in find-pirate-level.mjs. Sky World
 // reads 'X' as a storm-cloud spike and 'O' as a rainbow bridge's gap (3
-// corridor cells, full corridor width, down to the clouds far below).
+// corridor cells, full corridor width, down to the clouds far below). A
+// windy hallway is '<', '>', '^' or 'v' blocks: the wind blows west, east,
+// north or south along it.
 //
 // Rules for every level: 13 x 13, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -24,6 +26,9 @@ const RULES = {
     // Welcome to Sky World: the sneaky storm-cloud spike ('X') and one
     // 3-cell rainbow bridge gap ('O')
     level131: { name: 'Level 131', depth: 2, deadEnds: 34, sneaky: true, platforms: 1, platformCells: 3, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
+    // The first windy hallway (4 cells, blowing back toward the start) and a
+    // path storm-cloud spike ('X', Level 53's squeeze)
+    level132: { name: 'Level 132', depth: 2, deadEnds: 34, pathCane: true, winds: 1, windCells: 4, windAgainst: true, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -505,6 +510,24 @@ function place(path, hung, random) {
         out.armBelts.push(o);
         spans.push([o.h, o.e]);
     }
+    // Windy hallways: rule.windCells path cells w .. w + windCells - 1 with the
+    // path running straight through all of them (straight in from w - 1 and
+    // on out to the next cell) and no wrong way branching off them
+    out.winds = [];
+    const windCells = rule.windCells ?? 4;
+    for (let n = 0; n < (rule.winds ?? 0); n++) {
+        const options = [];
+        for (let w = 2; w + windCells < path.length - 1; w++) {
+            const dir = step(path[w - 1], path[w]);
+            const cells = [...Array(windCells).keys()].map((d) => w + d);
+            if (!cells.every(only) || ![...cells, w + windCells].every((k) => step(path[k - 1], path[k]) === dir)) continue;
+            if (fits([w, w + windCells - 1]) && out.winds.every((o) => stretchTurns(o, w))) options.push(w);
+        }
+        if (options.length === 0) return null;
+        const w = options[Math.floor(random() * options.length)];
+        out.winds.push(w);
+        spans.push([w, w + windCells - 1]);
+    }
     // The zapper on the path: plain, with the path straight from k - 2 to
     // k + 1 (visible on approach), in the middle part of the path
     if (rule.pathCane) {
@@ -708,6 +731,12 @@ placed.platforms.forEach((g, n) => {
     for (const b of gapBlocks([path[g], path[g + cells - 1]])) put(b, (rule.fast ?? []).includes(platformOrder.indexOf(g)) || (rule.gaps && plank) ? 'F' : 'O');
 });
 for (const c of placed.caramel) for (const b of gapBlocks([path[c]])) put(b, 'C');
+const WIND_LETTERS = { '1,0': '>', '-1,0': '<', '0,1': 'v', '0,-1': '^' };
+const windLetter = (w) => {
+    const [dx, dz] = step(path[w], path[w + 1]).split(',').map(Number);
+    return WIND_LETTERS[rule.windAgainst ? `${-dx},${-dz}` : `${dx},${dz}`];
+};
+for (const w of placed.winds) for (const b of gapBlocks([path[w], path[w + (rule.windCells ?? 4) - 1]])) put(b, windLetter(w));
 for (const k of placed.vents) {
     for (const b of gapBlocks([path[k]])) put(b, 'H');
     put([4 * path[k - 1].i + 2, 4 * path[k - 1].j + 2], 'Q');
@@ -791,6 +820,7 @@ placed.geysers.forEach((k) => console.log(`${rule.trapdoors ? 'trapdoor' : 'lava
 placed.snowmen.forEach((h) => console.log(`snowman: hallway path cells ${h + 1}-${h + SNOWMAN_CELLS} heading ${dir(h + 1)}, path turns ${dir(h + SNOWMAN_CELLS)} out of its last cell`));
 placed.thinIce.forEach((n) => console.log(`thin ice: path cell ${n + 1} (${key(path[n])}), heading ${dir(n)}`));
 if (placed.caramel.length) console.log(`caramel on the path: cells ${[...placed.caramel].sort((a, b) => a - b).map((c) => `${c + 1} (${key(path[c])}, heading ${dir(c)})`).join(', ')}`);
+placed.winds.forEach((w) => console.log(`windy hallway: path cells ${w + 1}-${w + (rule.windCells ?? 4)} (${key(path[w])} ${key(path[w + (rule.windCells ?? 4) - 1])}), walked heading ${dir(w + 1)}, wind '${windLetter(w)}' ${rule.windAgainst ? 'against you' : 'with you'}`));
 if (placed.pathCane !== undefined) console.log(`path spike: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
 if (placed.current) console.log(`water current: path cell ${placed.current.index + 1} (${key(path[placed.current.index])}), heading ${dir(placed.current.index)}, shoves into ${key(placed.current.into)}`);
 if (placed.bigCane) console.log(`big spike: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);

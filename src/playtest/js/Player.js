@@ -32,6 +32,12 @@ export class Player {
         this.carried = false; // in the air in a hot-air balloon (Volcano World): look only
         // How fast you walk compared with normal (0.5 on sticky caramel, Level 52 on)
         this.sticky = 1;
+        // A windy hallway (Sky World, Level 132 on): { x, z } the way the wind
+        // blows (one unit long), or null. Walking into it you go slower,
+        // walking with it faster; walking across it or standing still, no change.
+        this.wind = null;
+        this.windInto = 0.6;
+        this.windWith = 1.4;
 
         // Collision
         this.radius = 0.4;
@@ -391,11 +397,20 @@ export class Player {
             this.velocity.z = (this.velocity.z / horizontalSpeed) * this.speed;
         }
 
-        // Apply velocity (slowed down on sticky caramel)
+        // Apply velocity (slowed down on sticky caramel). In a windy hallway
+        // only the part of your walk along the wind changes speed.
         const moveTime = deltaTime * this.sticky;
+        let vx = this.velocity.x;
+        let vz = this.velocity.z;
+        if (this.wind && !this.slide) {
+            const along = vx * this.wind.x + vz * this.wind.z;
+            const extra = along * ((along > 0 ? this.windWith : this.windInto) - 1);
+            vx += this.wind.x * extra;
+            vz += this.wind.z * extra;
+        }
         const newPosition = this.position.clone();
-        newPosition.x += this.velocity.x * moveTime;
-        newPosition.z += this.velocity.z * moveTime;
+        newPosition.x += vx * moveTime;
+        newPosition.z += vz * moveTime;
 
         // Collision check
         if (collisionManager.isPositionValid(newPosition, this.radius)) {
@@ -403,13 +418,13 @@ export class Player {
         } else {
             // Try sliding along walls
             const slideX = this.position.clone();
-            slideX.x += this.velocity.x * moveTime;
+            slideX.x += vx * moveTime;
             if (collisionManager.isPositionValid(slideX, this.radius)) {
                 this.position.copy(slideX);
                 this.velocity.z = 0;
             } else {
                 const slideZ = this.position.clone();
-                slideZ.z += this.velocity.z * moveTime;
+                slideZ.z += vz * moveTime;
                 if (collisionManager.isPositionValid(slideZ, this.radius)) {
                     this.position.copy(slideZ);
                     this.velocity.x = 0;
