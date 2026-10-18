@@ -9,6 +9,7 @@
 //   SEEDS=1000 node tools/find-dino-level.mjs level115 26 1       # two tail swishes + the sneaky bone spike
 //   SEEDS=1000 node tools/find-dino-level.mjs level116 26 1       # a tighter path bone spike + the fossil hunt + a tail swish
 //   SEEDS=1000 node tools/find-dino-level.mjs level117 20 1       # 3-deep dead ends: the fossil hunt + a big bone spike + a long-neck ride
+//   SEEDS=1000 node tools/find-dino-level.mjs level118 20 1       # 3-deep dead ends: two long-neck rides + a tail swish
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -52,6 +53,10 @@ const RULES = {
     // big bone spike ('Y') and one 3-cell pit crossed on the long-neck's
     // head ('O')
     level117: { name: 'Level 117', depth: 3, deadEnds: 20, fossils: 3, bigCane: true, platforms: 1, platformCells: 3, prune: true, placeTries: 20 },
+    // Two long-necks: every dead end 3 deep, two 3-cell pits ('O'), each
+    // crossed on its own long-neck's head in its own straight stretch (the
+    // path turns between them), and one tail swish ('H' + 'Q')
+    level118: { name: 'Level 118', depth: 3, deadEnds: 20, vents: 1, platforms: 2, platformCells: 3, ownStretch: true, prune: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -375,9 +380,17 @@ function place(path, hung, random) {
     // Platform gaps (Level 17's): PLATFORM_CELLS plain path cells from g,
     // straight from g - 1 to g + PLATFORM_CELLS, in the middle part of the path
     const last = PLATFORM_CELLS - 1;
+    // Two pits each in their own straight stretch: the path turns somewhere
+    // between them
+    const stretchTurns = (a, b) => {
+        const [lo, hi] = a < b ? [a, b] : [b, a];
+        for (let i = lo; i < hi; i++) if (step(path[i - 1], path[i]) !== step(path[i], path[i + 1])) return true;
+        return false;
+    };
     for (let r = 0; r < (rule.platforms ?? 0); r++) {
         const options = [];
-        for (let g = 2; g < path.length - 2 - PLATFORM_CELLS; g++) if ([...Array(PLATFORM_CELLS).keys()].every((d) => plain(g + d)) && g >= path.length * 0.25 && g + last <= path.length * 0.8 && fits([g, g + last])) options.push(g);
+        for (let g = 2; g < path.length - 2 - PLATFORM_CELLS; g++) if ([...Array(PLATFORM_CELLS).keys()].every((d) => plain(g + d)) && g >= path.length * 0.25 && g + last <= path.length * 0.8 && fits([g, g + last])
+            && (!rule.ownStretch || out.platforms.every((h) => stretchTurns(h, g)))) options.push(g);
         if (options.length === 0) return null;
         const g = options[Math.floor(random() * options.length)];
         out.platforms.push(g);

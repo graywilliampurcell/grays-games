@@ -3223,6 +3223,34 @@ const TUNES = {
             calls: [[12, 48, 1.3], [44, 55, 1.0]],
         },
     },
+    // Level 118 (two long-necks): sneaky and mysterious, more sneaky than
+    // mysterious, in F# minor at 98 bpm: a soft sine lead that climbs up
+    // slowly like a long neck rising, then the same climb answers an octave
+    // lower, like two long-necks calling to each other across their pits;
+    // soft dinosaur stomps and calls in the background.
+    dinotwonecks: {
+        tempo: 98,
+        bars: [[42, 'min'], [42, 'min'], [38, 'maj'], [40, 'maj'], [42, 'min'], [47, 'min'], [38, 'maj'], [37, 'maj']],
+        bass: [0, null, 0, null, null, null, 0, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            66, null, 69, null, 71, null, 73, 74,
+            73, null, null, null, 78, null, null, null,
+            54, null, 57, null, 59, null, 61, 62,
+            61, null, null, null, 66, null, null, null,
+            73, null, 74, 73, 71, null, 69, null,
+            71, null, null, 69, 66, null, null, null,
+            61, null, 62, 61, 59, null, 57, null,
+            61, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.22, length: 0.16, brightness: 1100 },
+        dino: {
+            stomps: [0, 4],
+            calls: [[12, 54, 1.2], [28, 42, 1.1]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
