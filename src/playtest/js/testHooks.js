@@ -76,6 +76,7 @@ export function installTestHooks(game) {
             current: maze.current ? currentState(maze.current) : null,
             currents: maze.currents.map(currentState),
             vents: maze.vents.map((v) => ({ minX: v.minX, maxX: v.maxX, minZ: v.minZ, maxZ: v.maxZ, phase: v.phase, timer: round(v.timer), audible: v.audible !== false, target: { x: v.target.x, z: v.target.z } })),
+            tails: (maze.tails ?? []).map((t) => ({ minX: t.minX, maxX: t.maxX, minZ: t.minZ, maxZ: t.maxZ, alongX: t.alongX, out: t.out, phase: t.phase, timer: round(t.timer), s: round(t.s), low: round(t.low), target: { x: t.target.x, z: t.target.z } })),
             snowmen: maze.snowmen.map((s) => ({ minX: s.minX, maxX: s.maxX, minZ: s.minZ, maxZ: s.maxZ, alongX: s.alongX, sign: s.sign, entrance: s.entrance, length: s.length, timer: round(s.timer), balls: s.balls.map((b) => round(b.u)), target: { x: s.target.x, z: s.target.z }, center: { x: s.center.x, z: s.center.z }, hearing: round(s.hearing ?? 0), rolling: (s.rolls ?? []).length })),
             thinIce: maze.thinIce.map((t) => ({ minX: t.minX, maxX: t.maxX, minZ: t.minZ, maxZ: t.maxZ, time: round(t.time) })),
             armBelts: maze.armBelts.map((b) => ({ minX: b.minX, maxX: b.maxX, minZ: b.minZ, maxZ: b.maxZ, alongX: b.alongX, forward: { x: b.forward.x, z: b.forward.z }, right: { x: b.right.x, z: b.right.z }, timer: round(b.timer), landing: { x: b.landing.x, z: b.landing.z }, arms: b.arms.map((a) => ({ side: a.side, s: round(a.s), box: maze.armBox(b, a) })) })),

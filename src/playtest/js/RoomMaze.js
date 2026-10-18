@@ -135,6 +135,7 @@ export class RoomMaze {
     get currents() { return this.all((m) => m.currents); }
     get current() { return this.currents[0] ?? null; }
     get vents() { return this.all((m) => m.vents); }
+    get tails() { return this.all((m) => m.tails ?? []); }
     get geysers() { return this.all((m) => m.geysers); }
     get trapdoors() { return this.all((m) => m.trapdoors); }
     get snowmen() { return this.all((m) => m.snowmen); }
@@ -156,6 +157,8 @@ export class RoomMaze {
     armBox(belt, arm) { return this.owner('armBelts', belt).armBox(belt, arm); }
     armBeltAt(point) { return this.first((m) => m.armBeltAt(point)); }
     updateVents(...a) { return this.all((m) => m.updateVents(...a)); }
+    updateTails(...a) { return this.all((m) => m.updateTails(...a)); }
+    tailAt(point) { return this.first((m) => m.tailAt(point)); }
     updateGeysers(...a) { return this.all((m) => m.updateGeysers(...a)); }
     updateTrapdoors(...a) { return this.all((m) => m.updateTrapdoors(...a)); }
     updateSnowmen(...a) { return this.all((m) => m.updateSnowmen(...a)); }

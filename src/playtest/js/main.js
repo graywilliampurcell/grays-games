@@ -58,6 +58,10 @@ let wasOnMarshmallow = null;
 const CARAMEL_SPEED = 0.5;
 // A steam vent's puff (Volcano World) pushes you one square back, taking this long
 const VENT_PUSH_TIME = 0.45;
+// A tail swish (Dinosaur World, Level 112 on) pushes you one square back,
+// taking this long; its soft swoosh fades out over this distance
+const TAIL_PUSH_TIME = 0.45;
+const SWOOSH_HEAR_DISTANCE = 20;
 // How far away an erupting lava geyser can be heard (it gets quieter with distance)
 const GEYSER_HEAR_DISTANCE = 24;
 // How far away a trapdoor's warning rumble can be heard
@@ -404,6 +408,19 @@ function step(deltaTime) {
         if (event === 'push' && !player.shove) {
             player.startShove(vent.target, VENT_PUSH_TIME);
             testHooks?.emit('steam');
+        }
+    }
+    // Tail swishes (Dinosaur World): each tail is lifted for a while, then
+    // swishes low across its cell, on its own cycle; a swish that touches
+    // you pushes you one square back toward the start (not an Ouch)
+    for (const { tail, event } of maze.updateTails?.(deltaTime, player.position, player.radius) ?? []) {
+        if (event === 'swish') {
+            sound.swoosh(Math.max(0, 1 - horizontalDistance(player.position, tail.center) / SWOOSH_HEAR_DISTANCE));
+            testHooks?.emit('swish');
+        }
+        if (event === 'push' && !player.shove) {
+            player.startShove(tail.target, TAIL_PUSH_TIME);
+            testHooks?.emit('tailPush');
         }
     }
     // Lava geysers (Volcano World): each erupts for a while, then is quiet,

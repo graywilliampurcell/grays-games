@@ -984,6 +984,17 @@ const VENT_QUIET_TIME = 3;
 const VENT_WARNING_TIME = 1;
 const VENT_PUFF_TIME = 0.5;
 
+// A tail swish's cycle (Dinosaur World, Level 112 on; 'H' blocks under the
+// dino theme): the tail is lifted high above the walls for TAIL_LIFTED_TIME
+// (the cell is clear), then swishes for TAIL_SWISH_TIME: it drops low at one
+// wall, sweeps across the cell to the other wall and lifts again, the
+// opposite way each time. A second tail runs TAIL_OFFSET seconds out of step.
+export const TAIL_LIFTED_TIME = 2;
+export const TAIL_SWISH_TIME = 1;
+const TAIL_OFFSET = 1.5;
+const TAIL_DROP = 0.2; // share of the swish spent dropping (and lifting again)
+const TAIL_THICK = 0.4; // how far the low tail reaches either side of its line
+
 // A lava geyser's timer (Volcano World, Level 63 on), like Level 12's space
 // door: erupting, then quiet. It never starts erupting while you're in its
 // cell; it waits until you've left. Its column shoots up over GEYSER_RISE
@@ -2077,6 +2088,13 @@ export class Maze {
         // reach from the start without stepping on the vent) and its exit side
         // (everything else). A vent goes silent once you're past it.
         for (const v of this.vents) v.startSide = this.reachableAvoiding(v.blocks);
+        // Dinosaur World reads 'H' as a tail swish instead (Level 112 on),
+        // each on its own cycle; its push leaves you at its 'Q' like a vent's
+        this.tails = [];
+        if (this.theme.dino) {
+            this.tails = this.vents.map((v, index) => this.setUpTail(v, index));
+            this.vents = [];
+        }
         // Each geyser keeps its own timer; with two (Level 64) the second starts
         // GEYSER_OFFSET seconds out of step, so they don't go off together
         this.geysers = groupBlocks(geyserBlocks).map((blocks, index) => {
@@ -2354,6 +2372,7 @@ export class Maze {
         for (const row of this.spikeRows) this.createSpikeRow(row);
         for (const c of this.currents) this.createCurrent(c);
         for (const v of this.vents) this.createVent(v);
+        for (const t of this.tails) this.createTail(t);
         for (const g of this.geysers) this.createGeyser(g);
         for (const t of this.trapdoors) this.createTrapdoor(t);
         for (const s of this.snowmen) this.createSnowman(s);
@@ -4433,6 +4452,209 @@ export class Maze {
         const dx = Math.max(v.minX - point.x, 0, point.x - v.maxX);
         const dz = Math.max(v.minZ - point.z, 0, point.z - v.maxZ);
         return Math.hypot(dx, dz) < radius;
+    }
+
+    // A tail swish's corridor cell (from a vent's blocks and target): which
+    // way the path runs through it, and which side wall the long-neck stands
+    // behind (an outer wall of the maze if the cell has one, so he stands
+    // outside the maze; otherwise the side away from the middle)
+    setUpTail(v, index) {
+        const d = v.center.clone().sub(v.target);
+        const alongX = Math.abs(d.x) > Math.abs(d.z);
+        const [lo, hi] = alongX ? [v.minZ, v.maxZ] : [v.minX, v.maxX];
+        const size = alongX ? this.depth : this.width;
+        let out;
+        if (lo - 1 <= 0) out = -1;
+        else if (hi >= size - 1) out = 1;
+        else out = (lo + hi) / 2 < size / 2 ? -1 : 1;
+        const t = {
+            minX: v.minX, maxX: v.maxX, minZ: v.minZ, maxZ: v.maxZ, center: v.center, target: v.target, blocks: v.blocks,
+            alongX, lo, hi, out,
+            phase: 'lifted', timer: TAIL_LIFTED_TIME - (index % 2) * TAIL_OFFSET,
+            // where the tail's line is across the cell, and how low it is (0 lifted, 1 down)
+            from: out, s: 0, low: 0, hit: false, startSide: v.startSide,
+        };
+        t.s = this.tailSideAt(t, t.from);
+        return t;
+    }
+
+    // The tail's line next to one side wall (-1 the lo wall, 1 the hi wall)
+    tailSideAt(t, side) {
+        return side < 0 ? t.lo + 0.45 : t.hi - 0.45;
+    }
+
+    // A world point from (across, along, up) for a tail's cell
+    tailPoint(t, across, along, y) {
+        return t.alongX ? new THREE.Vector3(along, y, across) : new THREE.Vector3(across, y, along);
+    }
+
+    // A tail swish (Dinosaur World): a friendly long-neck standing behind one
+    // side wall of the cell, his back, neck and head showing above the wall
+    // top, and his long tail reaching over the wall into the cell
+    createTail(t) {
+        const H = this.height;
+        const skin = new THREE.MeshStandardMaterial({ color: 0x7bbf52, roughness: 0.8, emissive: 0x1a3010, emissiveIntensity: 0.35 });
+        const spot = new THREE.MeshStandardMaterial({ color: 0x5a9a3a, roughness: 0.8 });
+        const dark = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.4 });
+        const wallAcross = t.out < 0 ? t.lo - 0.5 : t.hi + 0.5;
+        const bodyAcross = wallAcross + t.out * 0.15;
+        const mid = t.alongX ? t.center.x : t.center.z;
+        // Which way along the corridor the start side is: his tail end is that
+        // way and his neck and head the other way, looking back at the player
+        const back = t.alongX ? Math.sign(t.target.x - t.center.x) : Math.sign(t.target.z - t.center.z);
+        const group = new THREE.Group();
+        const place = (mesh, across, along, y) => {
+            mesh.position.copy(this.tailPoint(t, across, along, y));
+            group.add(mesh);
+            return mesh;
+        };
+        // His back: a big rounded hump just above the wall top
+        const trunk = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), skin);
+        trunk.scale.set(t.alongX ? 2.2 : 0.75, 1.1, t.alongX ? 0.75 : 2.2);
+        place(trunk, bodyAcross, mid - back * 0.6, H + 0.4);
+        for (const [a, y, r] of [[-0.6, 0.85, 0.28], [0.4, 0.95, 0.32], [1.4, 0.8, 0.26]]) {
+            const d = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), spot);
+            d.scale.y = 0.5;
+            place(d, bodyAcross, mid - back * a, H + 0.4 + y);
+        }
+        // His neck curving up from the front of his back, and his friendly head
+        const neckBase = this.tailPoint(t, bodyAcross, mid - back * 2.2, H + 0.7);
+        const headAt = this.tailPoint(t, bodyAcross - t.out * 0.3, mid - back * 3.4, H + 3.6);
+        const neckCurve = new THREE.QuadraticBezierCurve3(neckBase, this.tailPoint(t, bodyAcross, mid - back * 3.4, H + 1.5), headAt);
+        group.add(new THREE.Mesh(this.taperedTube(neckCurve, 0.55, 0.35, 16), skin));
+        const head = new THREE.Group();
+        const skull = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 12), skin);
+        skull.scale.set(1, 0.8, 1.35);
+        head.add(skull);
+        for (const side of [-1, 1]) {
+            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.15, 10, 8), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+            eye.position.set(side * 0.38, 0.15, -0.2);
+            const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), dark);
+            pupil.position.set(side * 0.47, 0.17, -0.25);
+            head.add(eye, pupil);
+        }
+        const smile = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.03, 6, 16, Math.PI * 0.7), dark);
+        smile.rotation.set(0, 0, Math.PI + Math.PI * 0.15);
+        smile.position.set(0, -0.12, -0.66);
+        head.add(smile);
+        head.position.copy(headAt);
+        // Looking along the corridor, toward the start side
+        const look = this.tailPoint(t, 0, back, 0);
+        head.rotation.y = Math.atan2(-look.x, -look.z);
+        group.add(head);
+        t.head = head;
+        t.headY = headAt.y;
+        // The tail: one tapered tube from his hip over the wall, rebuilt as it moves
+        t.hip = { across: wallAcross + t.out * 0.1, along: mid + back * 1.1, y: H + 0.7 };
+        t.tail = new THREE.Mesh(new THREE.BufferGeometry(), skin);
+        t.tail.castShadow = true;
+        group.add(t.tail);
+        t.mid = mid;
+        t.back = back;
+        t.group = group;
+        this.root.add(group);
+        this.showTail(t);
+    }
+
+    // A tube along `curve` that narrows from radius r0 to r1
+    taperedTube(curve, r0, r1, segments = 24, radial = 8) {
+        const geometry = new THREE.TubeGeometry(curve, segments, 1, radial, false);
+        const pos = geometry.attributes.position;
+        const v = new THREE.Vector3();
+        for (let i = 0; i <= segments; i++) {
+            const c = curve.getPointAt(i / segments);
+            const r = r0 + (r1 - r0) * (i / segments);
+            for (let j = 0; j <= radial; j++) {
+                const n = i * (radial + 1) + j;
+                v.fromBufferAttribute(pos, n).sub(c).multiplyScalar(r).add(c);
+                pos.setXYZ(n, v.x, v.y, v.z);
+            }
+        }
+        geometry.computeVertexNormals();
+        return geometry;
+    }
+
+    // Draw the tail where it is now: from the hip up over the wall, then down
+    // to its line (t.s across the cell), its end lying along the corridor
+    // close to the floor when it's down (t.low 1) or held high when lifted
+    showTail(t) {
+        const H = this.height;
+        const tipY = H + 2.2 + (0.5 - (H + 2.2)) * t.low;
+        const h = t.hip;
+        const m = t.mid;
+        const b = t.back;
+        const points = [
+            this.tailPoint(t, h.across, h.along, h.y),
+            this.tailPoint(t, h.across + (t.s - h.across) * 0.45, m + b * 1.3, H + 1.4 + 0.4 * (1 - t.low)),
+            this.tailPoint(t, t.s, m + b * 1.0, tipY + (H + 0.8 - tipY) * 0.55),
+            this.tailPoint(t, t.s, m + b * 0.5, tipY + 0.1),
+            this.tailPoint(t, t.s, m - b * 1.2, tipY),
+        ];
+        const curve = new THREE.CatmullRomCurve3(points);
+        t.drawnS = t.s;
+        t.drawnLow = t.low;
+        t.tail.geometry.dispose();
+        t.tail.geometry = this.taperedTube(curve, 0.55, 0.16, 32, 10);
+    }
+
+    // Run every tail's cycle (only while playing), move the tails, and say
+    // what happened: [{ tail, event: 'swish' | 'push' }]. A push means the
+    // low tail touched part of the player (a circle `radius` round `point`);
+    // it happens once per swish.
+    updateTails(dt, point, radius) {
+        const events = [];
+        for (const t of this.tails) {
+            t.timer -= dt;
+            if (t.timer <= 0) {
+                if (t.phase === 'lifted') {
+                    Object.assign(t, { phase: 'swish', timer: t.timer + TAIL_SWISH_TIME, hit: false });
+                    events.push({ tail: t, event: 'swish' });
+                } else {
+                    Object.assign(t, { phase: 'lifted', timer: t.timer + TAIL_LIFTED_TIME, from: -t.from, low: 0 });
+                    t.s = this.tailSideAt(t, t.from);
+                }
+            }
+            if (t.phase === 'swish') {
+                const u = Math.min(1, 1 - t.timer / TAIL_SWISH_TIME);
+                const a = this.tailSideAt(t, t.from);
+                const z = this.tailSideAt(t, -t.from);
+                if (u < TAIL_DROP) {
+                    t.low = u / TAIL_DROP;
+                    t.s = a;
+                } else if (u > 1 - TAIL_DROP) {
+                    t.low = (1 - u) / TAIL_DROP;
+                    t.s = z;
+                } else {
+                    const f = (u - TAIL_DROP) / (1 - 2 * TAIL_DROP);
+                    t.low = 1;
+                    t.s = a + (z - a) * f * f * (3 - 2 * f);
+                }
+                if (!t.hit && point && t.low > 0.6 && this.tailTouches(t, point, radius)) {
+                    t.hit = true;
+                    events.push({ tail: t, event: 'push' });
+                }
+            }
+            if (t.head) {
+                t.bob = (t.bob ?? t.lo) + dt;
+                t.head.position.y = t.headY + Math.sin(t.bob * 1.7) * 0.08;
+                if (t.drawnS !== t.s || t.drawnLow !== t.low) this.showTail(t);
+            }
+        }
+        return events;
+    }
+
+    // Does the low tail (its line t.s across the cell, along the whole cell)
+    // touch a circle `radius` round `point`?
+    tailTouches(t, point, radius) {
+        const across = t.alongX ? point.z : point.x;
+        const along = t.alongX ? point.x : point.z;
+        const [a0, a1] = t.alongX ? [t.minX, t.maxX] : [t.minZ, t.maxZ];
+        return Math.abs(across - t.s) < TAIL_THICK + radius && along > a0 - radius && along < a1 + radius;
+    }
+
+    // The tail swish whose cell a point is in, or null
+    tailAt(point) {
+        return this.tails.find((t) => point.x >= t.minX && point.x < t.maxX && point.z >= t.minZ && point.z < t.maxZ) ?? null;
     }
 
     // A lava geyser (Volcano World): a glowing hole of bubbling lava across its

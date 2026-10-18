@@ -3058,6 +3058,32 @@ const TUNES = {
             calls: [[12, 57, 1.1], [44, 55, 1.3]],
         },
     },
+    // Level 112 (the first tail swish): sneaky and mysterious, more sneaky
+    // than mysterious, in D, with a creeping "swish" figure; soft dinosaur
+    // stomps and calls in the background.
+    dinotail: {
+        tempo: 100,
+        bars: [[38, 'min'], [38, 'min'], [34, 'maj'], [38, 'min'], [36, 'maj'], [38, 'min'], [33, 'maj'], [38, 'min']],
+        bass: [0, null, 0, null, null, 0, null, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            62, null, 64, 65, null, null, 64, null,
+            62, null, null, 61, 62, null, null, null,
+            65, null, 67, 69, null, null, 67, null,
+            65, null, 64, null, 62, null, null, null,
+            69, null, null, 70, 69, null, 67, null,
+            65, null, 67, null, 64, null, 61, null,
+            62, null, 64, 65, 64, null, 61, null,
+            62, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.14, length: 0.12, brightness: 1300 },
+        dino: {
+            stomps: [0, 4],
+            calls: [[20, 55, 1.2], [52, 57, 1.0]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -3638,6 +3664,30 @@ export class Sound {
         if (!this.settings.sfx || !this.ctx) return null;
         this.onEvent('whoosh');
         return this.steam(this.ctx.currentTime, length, 0.6 * volume, 0.8 * volume, 2400);
+    }
+
+    // A tail swish (Dinosaur World): a soft, low swoosh as the tail sweeps
+    // across, quieter the further you are (volume 0-1). Obeys the Sound
+    // effects switch.
+    swoosh(volume = 1) {
+        if (!this.settings.sfx || !this.ctx || volume <= 0) return null;
+        this.onEvent('swoosh');
+        const t = this.ctx.currentTime;
+        const length = 0.9;
+        // Soft noise through a band that sweeps up and back down, swelling in the middle
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'bandpass';
+        f.Q.value = 1.4;
+        f.frequency.setValueAtTime(350, t);
+        f.frequency.exponentialRampToValueAtTime(1300, t + length * 0.5);
+        f.frequency.exponentialRampToValueAtTime(450, t + length);
+        const g = this.ctx.createGain();
+        const peak = Math.max(0.002, 0.5 * volume);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(peak, t + length * 0.5);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + length);
+        this.noiseSource(t, length + 0.05).connect(f).connect(g).connect(this.sfxBus);
+        return { gain: g, end: t + length };
     }
 
     // Quickly fade out a vent sound that's still playing (you got past it)

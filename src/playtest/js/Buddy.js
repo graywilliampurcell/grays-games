@@ -445,6 +445,14 @@ export class Buddy {
             if (over && !inPit) this.pitStops.push({ stop: Math.max(0, s - 1.2), after: s });
             inPit = over;
         }
+        // ...and before each tail swish (Level 112 on), until the player gets there
+        this.tailStops = [];
+        let inTail = false;
+        for (let s = 0; s <= end; s += 0.2) {
+            const over = !!this.maze.tailAt?.(this.pointAt(points, s));
+            if (over && !inTail) this.tailStops.push({ stop: Math.max(0, s - 1.2), after: s });
+            inTail = over;
+        }
     }
 
     // How far along the points the closest point to `point` is, looking only
@@ -479,6 +487,10 @@ export class Buddy {
         // He waits before a pit until the player gets there, and crosses with them
         for (const pit of this.pitStops) {
             if (this.helpS <= pit.stop + 0.01 && want > pit.stop) want = pit.stop;
+        }
+        // He waits before a tail swish until the player catches up, then crosses with them
+        for (const tail of this.tailStops ?? []) {
+            if (this.helpS <= tail.stop + 0.01 && this.playerS < tail.stop - 0.6 && want > tail.stop) want = tail.stop;
         }
         want = Math.min(want, this.guide[this.guide.length - 1].s - 1.2);
         this.helpS = want > this.helpS ? Math.min(want, this.helpS + SPEED * dt) : this.helpS;

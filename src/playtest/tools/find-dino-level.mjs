@@ -3,12 +3,14 @@
 // find-desert-level.mjs (Levels 101-110), at 11 x 11.
 //
 //   SEEDS=1000 node tools/find-dino-level.mjs level111 26 6601   # the sneaky bone spike + a long-neck ride
+//   SEEDS=1000 node tools/find-dino-level.mjs level112 26 1       # a tail swish + a path bone spike
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
 //
 // Layout letters (see js/Maze.js): as in find-desert-level.mjs. Dinosaur
-// World reads 'X' as a bone spike and 'O' as the long-neck's pit.
+// World reads 'X' as a bone spike, 'O' as the long-neck's pit and 'H' as
+// a tail swish (its push leaves you at 'Q').
 //
 // Rules for every level: 11 x 11, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -23,6 +25,9 @@ const RULES = {
     // Welcome to Dinosaur World: the sneaky bone spike ('X') and one 3-cell
     // pit crossed on the long-neck's head ('O')
     level111: { name: 'Level 111', depth: 2, deadEnds: 26, sneaky: true, platforms: 1, platformCells: 3, prunePairs: true, placeTries: 20 },
+    // The first tail swish ('H', with 'Q' where its push leaves you: the
+    // middle of the path cell before it) and a path bone spike ('X')
+    level112: { name: 'Level 112', depth: 2, deadEnds: 26, pathCane: true, vents: 1, prunePairs: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
