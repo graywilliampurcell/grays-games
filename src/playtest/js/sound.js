@@ -3366,6 +3366,33 @@ const TUNES = {
             creaks: [6, 38, 58],
         },
     },
+    // Level 123 (the first big wave): G minor, 100 bpm, a soft triangle lead
+    // that swells up in a run like a wave rising, holds at the top, and
+    // tumbles back down; sneaky and mysterious, more sneaky, with the soft
+    // waves and creaking wood (a bigger wave washing past mid-tune).
+    piratewave: {
+        tempo: 100,
+        bars: [[43, 'min'], [43, 'min'], [39, 'maj'], [41, 'maj'], [43, 'min'], [36, 'min'], [38, 'maj'], [43, 'min']],
+        bass: [0, null, null, null, 7, null, 5, null],
+        bassLength: 0.22,
+        stabs: [],
+        ticks: true,
+        melody: [
+            62, null, null, 67, 69, 70, null, null,
+            72, null, null, null, 70, 69, 67, null,
+            63, null, 67, null, 70, null, 72, 74,
+            null, null, 72, null, 70, null, null, null,
+            62, null, 67, 69, 70, 72, 74, null,
+            75, null, null, null, 74, 72, 70, 67,
+            66, null, 69, null, 67, null, 66, null,
+            67, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.15, length: 0.14, brightness: 1700 },
+        pirate: {
+            waves: [[0, 2.4], [20, 3.2], [44, 2.6]],
+            creaks: [10, 34, 54],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -4114,6 +4141,43 @@ export class Sound {
         pg.gain.exponentialRampToValueAtTime(0.35, t + 0.15);
         pg.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
         this.noiseSource(t + 0.05, 1.2).connect(spray).connect(pg).connect(this.sfxBus);
+    }
+
+    // A big wave rising over the rail (Pirate Ship World): a rushing roar of
+    // water that builds up over `length` seconds. Obeys the Sound effects switch.
+    rush(length = 1) {
+        if (!this.settings.sfx || !this.ctx) return null;
+        this.onEvent('rush');
+        const t = this.ctx.currentTime + 0.01;
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'lowpass';
+        f.frequency.setValueAtTime(400, t);
+        f.frequency.exponentialRampToValueAtTime(2600, t + length);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.15, t + length * 0.3);
+        g.gain.exponentialRampToValueAtTime(0.6, t + length);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + length + 0.15);
+        this.noiseSource(t, length + 0.2).connect(f).connect(g).connect(this.sfxBus);
+        return { gain: g, end: t + length + 0.15 };
+    }
+
+    // The big wave crashing across the deck: a long, heavy splash
+    wash() {
+        if (!this.settings.sfx || !this.ctx) return null;
+        this.onEvent('wash');
+        const t = this.ctx.currentTime + 0.01;
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'lowpass';
+        f.frequency.setValueAtTime(3000, t);
+        f.frequency.exponentialRampToValueAtTime(500, t + 0.9);
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.85, t + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.25, t + 0.4);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 1);
+        this.noiseSource(t, 1.05).connect(f).connect(g).connect(this.sfxBus);
+        return { gain: g, end: t + 1 };
     }
 
     // Quickly fade out a vent sound that's still playing (you got past it)

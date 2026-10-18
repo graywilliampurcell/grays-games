@@ -438,11 +438,13 @@ function step(deltaTime) {
         }
     }
     for (const { vent, event } of maze.updateVents(deltaTime, player.position, player.radius)) {
-        if (event === 'warning' && vent.audible) vent.sound = sound.hiss(VENT_HISS_TIME);
-        if (event === 'puff' && vent.audible) vent.sound = sound.puff();
+        // (A big wave, Pirate Ship World: a rushing sound as it rises over
+        // the rail, then a splash; its push is a wash back, not an Ouch)
+        if (event === 'warning' && vent.audible) vent.sound = vent.wave ? sound.rush(VENT_HISS_TIME) : sound.hiss(VENT_HISS_TIME);
+        if (event === 'puff' && vent.audible) vent.sound = vent.wave ? sound.wash() : sound.puff();
         if (event === 'push' && !player.shove) {
             player.startShove(vent.target, VENT_PUSH_TIME);
-            testHooks?.emit('steam');
+            testHooks?.emit(vent.wave ? 'wave' : 'steam');
         }
     }
     // Tail swishes (Dinosaur World): each tail is lifted for a while, then

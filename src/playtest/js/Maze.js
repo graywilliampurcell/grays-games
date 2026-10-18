@@ -997,6 +997,13 @@ function puffTexture() {
 const VENT_QUIET_TIME = 3;
 const VENT_WARNING_TIME = 1;
 const VENT_PUFF_TIME = 0.5;
+// A big wave (Pirate Ship World) uses the vent's cycle: calm VENT_QUIET_TIME,
+// warning VENT_WARNING_TIME (the wave rises over the rail), splash
+// VENT_PUFF_TIME (it sweeps across the cell); the deck stays wet for
+// WAVE_DRY_TIME afterwards. A second wave runs WAVE_OFFSET out of step.
+export const WAVE_TIMES = { calm: VENT_QUIET_TIME, warning: VENT_WARNING_TIME, splash: VENT_PUFF_TIME };
+const WAVE_DRY_TIME = 0.8;
+const WAVE_OFFSET = 2.2;
 
 // A tail swish's cycle (Dinosaur World, Level 112 on; 'H' blocks under the
 // dino theme): the tail is lifted high above the walls for TAIL_LIFTED_TIME
@@ -2348,6 +2355,17 @@ export class Maze {
         if (this.theme.dino) {
             this.tails = this.vents.map((v, index) => this.setUpTail(v, index));
             this.vents = [];
+        }
+        // Pirate Ship World reads 'H' as a big wave (Level 123 on): the same
+        // calm / warning / splash cycle and push back to its 'Q' as a steam
+        // vent, but a wave rises over the ship's rail and sweeps the cell
+        if (this.theme.pirate) {
+            for (const [index, v] of this.vents.entries()) {
+                const t = this.setUpTail(v, index);
+                Object.assign(v, { wave: true, alongX: t.alongX, lo: t.lo, hi: t.hi, out: t.out });
+                // A second wave runs WAVE_OFFSET seconds out of step
+                v.timer -= (index % 2) * WAVE_OFFSET;
+            }
         }
         // Each geyser keeps its own timer; with two (Level 64) the second starts
         // GEYSER_OFFSET seconds out of step, so they don't go off together
@@ -4568,6 +4586,7 @@ export class Maze {
     // across its whole corridor cell, with steam that wisps up as a warning
     // and then blasts up in a big puff.
     createVent(v) {
+        if (v.wave) return this.createWave(v);
         const sizeX = v.maxX - v.minX;
         const sizeZ = v.maxZ - v.minZ;
         const group = new THREE.Group();
@@ -4637,6 +4656,7 @@ export class Maze {
                     v.timer += VENT_QUIET_TIME;
                 }
             }
+            if (v.wave) this.showWave(v, dt);
             if (v.phase === 'warning' && Math.random() < dt * 14) this.launchSteam(v, false);
             if (v.phase === 'puff' && Math.random() < dt * 40) this.launchSteam(v, true);
             for (const s of v.steam) {
@@ -4652,6 +4672,142 @@ export class Maze {
             if (v.phase === 'puff' && point && this.onVent(v, point, radius)) events.push({ vent: v, event: 'push' });
         }
         return events;
+    }
+
+    // A big wave (Pirate Ship World): a short stretch of ship's rail on top of
+    // the outer wall beside the cell, a darker wet patch on the deck, and a
+    // curling blue wave with a white foamy crest that rises from the sea
+    // behind the rail as a warning and then sweeps across the cell.
+    createWave(v) {
+        const H = this.height;
+        const width = v.hi - v.lo;
+        const length = v.alongX ? v.maxX - v.minX : v.maxZ - v.minZ;
+        const mid = v.alongX ? v.center.x : v.center.z;
+        const railFace = v.out < 0 ? v.lo : v.hi;
+        const at = (across, along, y) => (v.alongX ? new THREE.Vector3(along, y, across) : new THREE.Vector3(across, y, along));
+        // The wave's frame: x from the rail into the cell, y up, z along
+        const frame = new THREE.Group();
+        frame.position.copy(at(railFace, mid, 0));
+        if (v.alongX) frame.rotation.y = -Math.PI / 2;
+        frame.scale.x = -v.out;
+        this.root.add(frame);
+        // The rail: posts and a top bar along the wall top, a bit past the cell
+        const wood = new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.8, emissive: 0x1a0d04, emissiveIntensity: 0.3 });
+        const railLength = length + 2;
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, railLength), wood);
+        bar.position.set(-0.5, H + 0.75, 0);
+        frame.add(bar);
+        const low = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.12, railLength), wood);
+        low.position.set(-0.5, H + 0.35, 0);
+        frame.add(low);
+        for (let k = 0; k <= 5; k++) {
+            const post = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.8, 0.16), wood);
+            post.position.set(-0.5, H + 0.4, -railLength / 2 + (k * railLength) / 5);
+            frame.add(post);
+        }
+        // The wet patch on the deck (darker and shinier just after a splash)
+        v.wetMaterial = new THREE.MeshBasicMaterial({ color: 0x5fb4e8, transparent: true, opacity: 0.18, depthWrite: false });
+        const wet = new THREE.Mesh(new THREE.PlaneGeometry(width, length), v.wetMaterial);
+        wet.rotation.x = -Math.PI / 2;
+        wet.position.set(width / 2, 0.03, 0);
+        frame.add(wet);
+        // The wave: a curling crest profile (x across, y up; 1 high), pulled
+        // out along the cell, a little longer than it so it fills the cell
+        const shape = new THREE.Shape();
+        shape.moveTo(-1.6, 0);
+        shape.lineTo(-1.6, 0.55);
+        shape.quadraticCurveTo(-1.3, 0.95, -0.25, 1);
+        shape.quadraticCurveTo(0.55, 1.02, 0.85, 0.78);
+        shape.quadraticCurveTo(0.5, 0.8, 0.38, 0.58);
+        shape.quadraticCurveTo(0.22, 0.25, 0.7, 0);
+        shape.lineTo(-1.6, 0);
+        const waveLength = length + 0.8;
+        const geometry = new THREE.ExtrudeGeometry(shape, { depth: waveLength, bevelEnabled: false, curveSegments: 10 });
+        geometry.translate(0, 0, -waveLength / 2);
+        const water = new THREE.MeshStandardMaterial({ color: 0x1f7fc4, roughness: 0.25, metalness: 0.1, emissive: 0x0b3b66, emissiveIntensity: 0.5, transparent: true, opacity: 0.88, side: THREE.DoubleSide });
+        v.waveMesh = new THREE.Mesh(geometry, water);
+        // The white foam along the crest and the curling lip
+        const foamShape = new THREE.Shape();
+        foamShape.moveTo(-0.6, 0.97);
+        foamShape.quadraticCurveTo(0.55, 1.08, 0.88, 0.8);
+        foamShape.quadraticCurveTo(0.6, 0.86, 0.45, 0.66);
+        foamShape.quadraticCurveTo(0.2, 0.9, -0.6, 0.9);
+        const foamGeometry = new THREE.ExtrudeGeometry(foamShape, { depth: waveLength + 0.02, bevelEnabled: false, curveSegments: 8 });
+        foamGeometry.translate(0, 0.005, -(waveLength + 0.02) / 2);
+        const foam = new THREE.Mesh(foamGeometry, new THREE.MeshStandardMaterial({ color: 0xf4fbff, roughness: 0.6, emissive: 0x9fc8e0, emissiveIntensity: 0.4, side: THREE.DoubleSide }));
+        v.waveMesh.add(foam);
+        v.waveMesh.visible = false;
+        frame.add(v.waveMesh);
+        // Spray, reused over and over
+        const map = puffTexture();
+        v.spray = [];
+        for (let k = 0; k < 40; k++) {
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map, color: 0xe8f6ff, transparent: true, depthWrite: false, opacity: 0 }));
+            sprite.visible = false;
+            frame.add(sprite);
+            v.spray.push({ sprite, life: 0, span: 1, x: 0, y: 0, z: 0, vx: 0, vy: 0, size: 1 });
+        }
+        v.steam = [];
+        v.width = width;
+        v.length = length;
+        v.wet = 0;
+        v.frame = frame;
+        this.showWave(v, 0);
+    }
+
+    // Where the wave is in its cycle: hidden while calm; while warning it
+    // rises from behind the rail until its crest stands well over it; while
+    // splashing it sweeps across the cell to the far wall, sinking as it goes
+    showWave(v, dt) {
+        if (!v.waveMesh) return;
+        const H = this.height;
+        const top = H + 2;
+        let offset = 0;
+        let height = 0;
+        if (v.phase === 'warning') {
+            const u = Math.min(1, Math.max(0, 1 - v.timer / VENT_WARNING_TIME));
+            const e = u * u * (3 - 2 * u);
+            offset = -1.8 + 1.1 * e;
+            height = top * (0.4 + 0.6 * e);
+            if (Math.random() < dt * 10) this.launchSpray(v, offset + 0.6, height * 0.95, false);
+        } else if (v.phase === 'puff') {
+            const u = Math.min(1, Math.max(0, 1 - v.timer / VENT_PUFF_TIME));
+            offset = -0.7 + (v.width + 1.0) * u;
+            height = top * (1 - 0.82 * u);
+            v.wet = 1;
+            if (Math.random() < dt * 60) this.launchSpray(v, offset + 0.7, height * 0.9, true);
+        } else {
+            v.wet = Math.max(0, v.wet - dt / WAVE_DRY_TIME);
+        }
+        v.waveMesh.visible = height > 0;
+        v.waveMesh.position.x = offset;
+        v.waveMesh.scale.y = Math.max(0.01, height);
+        v.wetMaterial.opacity = 0.18 + 0.5 * v.wet;
+        for (const s of v.spray) {
+            if (s.life <= 0) continue;
+            s.life -= dt;
+            s.vy -= 9 * dt;
+            s.x += s.vx * dt;
+            s.y = Math.max(0.1, s.y + s.vy * dt);
+            const t = 1 - s.life / s.span;
+            s.sprite.position.set(s.x, s.y, s.z);
+            s.sprite.scale.setScalar(s.size * (0.6 + t));
+            s.sprite.material.opacity = 0.8 * Math.sin(Math.PI * Math.min(1, t));
+            if (s.life <= 0) s.sprite.visible = false;
+        }
+    }
+
+    launchSpray(v, x, y, big) {
+        const free = v.spray.find((s) => s.life <= 0);
+        if (!free) return;
+        free.x = x + (Math.random() - 0.3) * 0.5;
+        free.y = y;
+        free.z = (Math.random() - 0.5) * v.length;
+        free.vx = big ? 2 + Math.random() * 2 : 0.5 + Math.random();
+        free.vy = big ? 1 + Math.random() * 2 : 0.5 + Math.random();
+        free.span = free.life = big ? 0.5 + Math.random() * 0.3 : 0.6 + Math.random() * 0.3;
+        free.size = big ? 0.8 + Math.random() * 0.6 : 0.4 + Math.random() * 0.3;
+        free.sprite.visible = true;
     }
 
     // Every floor block reachable from the start without entering `avoid`

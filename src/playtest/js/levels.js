@@ -7071,6 +7071,71 @@ export const LEVELS = [
         '#################################################',
         ],
     },
+    {
+        name: 'Level 123',
+        // The first big wave. `SEEDS=400 node tools/find-pirate-level.mjs
+        // level123 28 124000`, seed 124205. 12 x 12 corridors. Correct path
+        // 88 cells (start west in row 3, door east in row 1); 28 wrong ways
+        // 2 cells deep. O: the cannon ride's 4-cell water gap over path cells
+        // 33-36 (crossed heading north), a cannon in the path cell on each
+        // side. H: the big wave, path cell 75 (heading north) along the
+        // ship's rail (the east outer wall); its splash washes you back to Q
+        // (the middle of path cell 74). No plank, no rocking, no splinter
+        // spikes. A sneaky tune that swells and falls like the sea.
+        theme: PIRATE,
+        music: 'piratewave',
+        layout: [
+        '#################################################',
+        '#       #       #       #       #       #       #',
+        '#       #       #       #       #       #       #',
+        '#       #       #       #       #       #       #',
+        '#####   #####   #####   #   #   #   #   #   #####',
+        '#   #                       #   #   #           #',
+        '#   #                       #   #   #           D',
+        '#   #                       #   #   #           #',
+        '#   #   #####################   #   #############',
+        '#   #               #       #   #               #',
+        '#   #               #       #   #               #',
+        '#   #               #       #   #               #',
+        '#   #############   #   #   #   #####   #########',
+        '#                   #   #   #   #   #           #',
+        '# S                 #   #   #   #   #           #',
+        '#                   #   #   #   #   #           #',
+        '#####################   #   #   #   #   #####   #',
+        '#                   #   #OOO#       #       #   #',
+        '#                   #   #OOO#       #       #   #',
+        '#                   #   #OOO#       #       #   #',
+        '#   #   #########   #   #OOO#   #############   #',
+        '#   #   #           #   #OOO#           #       #',
+        '#   #   #           #   #OOO#           #       #',
+        '#   #   #           #   #OOO#           #       #',
+        '#####   #########   #   #OOO#   #########   #   #',
+        '#   #   #   #       #   #OOO#           #   #HHH#',
+        '#   #   #   #       #   #OOO#           #   #HHH#',
+        '#   #   #   #       #   #OOO#           #   #HHH#',
+        '#   #   #   #   #####   #OOO#   #############   #',
+        '#           #           #OOO#           #   #   #',
+        '#           #           #OOO#           #   # Q #',
+        '#           #           #OOO#           #   #   #',
+        '#####   #################   #   #########   #   #',
+        '#               #       #   #           #       #',
+        '#               #       #   #           #       #',
+        '#               #       #   #           #       #',
+        '#   #   #############   #   #   #############   #',
+        '#   #       #               #   #   #           #',
+        '#   #       #               #   #   #           #',
+        '#   #       #               #   #   #           #',
+        '#####   #   #########   #####   #   #########   #',
+        '#       #   #       #           #   #       #   #',
+        '#       #   #       #           #   #       #   #',
+        '#       #   #       #           #   #       #   #',
+        '#   #   #####   #################   #   #####   #',
+        '#   #                                           #',
+        '#   #                                           #',
+        '#   #                                           #',
+        '#################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with

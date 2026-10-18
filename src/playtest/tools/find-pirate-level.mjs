@@ -32,6 +32,11 @@ const RULES = {
     // the level's `plank` makes it a plank, see js/Maze.js) and one path
     // splinter spike ('X') with Level 53's squeeze gap
     level122: { name: 'Level 122', depth: 2, deadEnds: 28, pathCane: true, platforms: 1, platformCells: 3, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
+    // The first big wave: one wave cell ('H' under the pirate theme, pushing
+    // back to its 'Q' like a steam vent) on the path along the ship's rail
+    // (an outer wall of the maze, the path running beside it), and one
+    // 4-cell cannon ride ('O')
+    level123: { name: 'Level 123', depth: 2, deadEnds: 28, vents: 1, rail: true, platforms: 1, platformCells: 4, cannon: true, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -552,10 +557,18 @@ function place(path, hung, random) {
         for (let i = lo; i < hi; i++) if (step(path[i - 1], path[i]) !== step(path[i], path[i + 1])) return true;
         return false;
     };
+    // A big wave (Pirate Ship World) sits along the ship's rail: its cell is
+    // on the maze's outer edge with the path running beside that edge
+    const onRail = (k) => {
+        const [dx] = step(path[k - 1], path[k]).split(',').map(Number);
+        const { i, j } = path[k];
+        return dx !== 0 ? j === 0 || j === ROWS - 1 : i === 0 || i === COLS - 1;
+    };
     for (let v = 0; v < (rule.vents ?? 0); v++) {
         const options = [];
         for (let k = 3; k < path.length - 2; k++) {
             if (plain(k) && plain(k - 1) && step(path[k - 2], path[k - 1]) === step(path[k - 1], path[k]) && fits([k - 1, k])
+                && (!rule.rail || onRail(k))
                 && (!rule.ownStretch || out.vents.every((j) => turnBetween(j, k)))) options.push(k);
         }
         if (options.length === 0) return null;
