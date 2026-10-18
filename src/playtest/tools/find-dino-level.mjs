@@ -6,6 +6,7 @@
 //   SEEDS=1000 node tools/find-dino-level.mjs level112 26 1       # a tail swish + a path bone spike
 //   SEEDS=1000 node tools/find-dino-level.mjs level113 26 1       # the fossil hunt + a long-neck ride
 //   SEEDS=1000 node tools/find-dino-level.mjs level114 26 1       # a big bone spike + a tail swish + a long-neck ride
+//   SEEDS=1000 node tools/find-dino-level.mjs level115 26 1       # two tail swishes + the sneaky bone spike
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -39,6 +40,9 @@ const RULES = {
     // plain view), one tail swish ('H' + 'Q') and one 3-cell pit crossed on
     // the long-neck's head ('O')
     level114: { name: 'Level 114', depth: 2, deadEnds: 26, bigCane: true, vents: 1, platforms: 1, platformCells: 3, prunePairs: true, placeTries: 20 },
+    // Two tail swishes ('H' + 'Q' each, own straight stretch) and the sneaky
+    // bone spike ('X')
+    level115: { name: 'Level 115', depth: 2, deadEnds: 26, sneaky: true, vents: 2, ownStretch: true, prunePairs: true, placeTries: 20 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -540,10 +544,18 @@ function place(path, hung, random) {
     // k - 2 to k + 1; a puff pushes you back into cell k - 1, so that cell
     // must be free of any other obstacle too
     out.vents = [];
+    // Two tails each in their own straight stretch: the path turns
+    // somewhere between them
+    const turnBetween = (a, b) => {
+        const [lo, hi] = a < b ? [a, b] : [b, a];
+        for (let i = lo; i < hi; i++) if (step(path[i - 1], path[i]) !== step(path[i], path[i + 1])) return true;
+        return false;
+    };
     for (let v = 0; v < (rule.vents ?? 0); v++) {
         const options = [];
         for (let k = 3; k < path.length - 2; k++) {
-            if (plain(k) && plain(k - 1) && step(path[k - 2], path[k - 1]) === step(path[k - 1], path[k]) && fits([k - 1, k])) options.push(k);
+            if (plain(k) && plain(k - 1) && step(path[k - 2], path[k - 1]) === step(path[k - 1], path[k]) && fits([k - 1, k])
+                && (!rule.ownStretch || out.vents.every((j) => turnBetween(j, k)))) options.push(k);
         }
         if (options.length === 0) return null;
         const k = options[Math.floor(random() * options.length)];

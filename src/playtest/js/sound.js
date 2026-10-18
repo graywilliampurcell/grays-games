@@ -3139,6 +3139,34 @@ const TUNES = {
             calls: [[36, 50, 1.4], [8, 57, 0.9]],
         },
     },
+    // Level 115 (two tail swishes): sneaky and mysterious, more sneaky than
+    // mysterious, in B minor at 104 bpm: a sawtooth lead that swings back
+    // and forth between two notes (left, right, left, right) like two tails
+    // swishing, sneaks up a step, then tiptoes down; soft dinosaur stomps
+    // and calls in the background.
+    dinotwotails: {
+        tempo: 104,
+        bars: [[47, 'min'], [47, 'min'], [43, 'maj'], [42, 'maj'], [47, 'min'], [40, 'min'], [42, 'maj'], [47, 'min']],
+        bass: [0, null, null, null, 0, null, 0, null],
+        bassLength: 0.18,
+        stabs: [],
+        ticks: true,
+        melody: [
+            71, 74, 71, 74, null, null, 73, null,
+            71, null, null, null, 66, null, null, null,
+            71, 74, 71, 74, null, null, 76, null,
+            74, null, 73, null, 71, null, null, null,
+            78, 79, 78, 79, null, null, 76, null,
+            74, null, null, 73, 74, null, 71, null,
+            73, null, 70, null, 66, null, 69, null,
+            71, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.09, length: 0.11, brightness: 1200 },
+        dino: {
+            stomps: [0, 6],
+            calls: [[16, 54, 1.2], [48, 59, 1.0]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
