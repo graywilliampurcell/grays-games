@@ -3674,6 +3674,34 @@ const TUNES = {
             birds: [[8, 89], [22, 93], [38, 87], [54, 91], [60, 95]],
         },
     },
+    // Level 134 (the first thick fog): sneaky and mysterious, half and half,
+    // in G minor at 80 bpm: a soft, hazy sine lead that drifts slowly and
+    // hangs on long notes, as if feeling its way through the fog, with a
+    // mysterious E-flat major and D major turn. Wind and far-off birdsong in
+    // the background, quieter than the melody.
+    skyfog: {
+        tempo: 80,
+        bars: [[43, 'min'], [43, 'min'], [39, 'maj'], [38, 'maj'], [43, 'min'], [39, 'maj'], [38, 'maj'], [43, 'min']],
+        bass: [0, null, null, null, 7, null, null, null],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            62, null, null, null, 63, null, 62, null,
+            67, null, null, null, null, null, 65, null,
+            63, null, null, null, 62, null, 60, null,
+            62, null, null, null, null, null, null, null,
+            55, null, 58, null, 62, null, null, null,
+            70, null, null, null, 67, null, 63, null,
+            66, null, null, null, 69, null, 66, null,
+            67, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.2, length: 0.34, brightness: 1100 },
+        sky: {
+            winds: [[2, 3.0], [26, 2.6], [46, 3.2]],
+            birds: [[12, 86], [34, 90], [58, 88]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

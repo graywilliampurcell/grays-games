@@ -720,6 +720,9 @@ const ISLAND_DEPTH = 3; // how thick the island's rock is at a gap's edge
 // RAINBOW_FADE s (flickering as a warning, still solid), then gone
 // RAINBOW_GONE s, then solid again. It never goes while any part of you is on
 // it: it stays (still flickering) until you're off, then carries on.
+// Thick fog (Sky World, Level 134 on): it closes in fully once you're this
+// far inside either end of its stretch
+export const FOG_EDGE = 1;
 export const RAINBOW_SOLID = 4;
 export const RAINBOW_FADE = 1;
 export const RAINBOW_GONE = 3;
@@ -2435,6 +2438,9 @@ export class Maze {
         // Sky World, Level 133 on): it bounces you over the plain wall at
         // the cell's far end (the side opposite its one opening)
         const trampolineCells = [];
+        // Thick fog ('g' blocks: a straight stretch of the correct path;
+        // Sky World, Level 134 on)
+        const fogBlocks = [];
         for (let x = 0; x < this.width; x++) {
             this.grid[x] = [];
             for (let z = 0; z < this.depth; z++) {
@@ -2471,6 +2477,7 @@ export class Maze {
                 if (ch === 'f') fossilPositions.push(center);
                 if (windBlocks[ch]) windBlocks[ch].push({ x, z });
                 if (ch === 'k') trampolineCells.push({ x, z });
+                if (ch === 'g') fogBlocks.push({ x, z });
             }
         }
         this.currents = [];
@@ -2642,6 +2649,15 @@ export class Maze {
                 view: false,
             };
         }
+        // Each thick fog stretch: its blocks' box, and which way it runs
+        this.fogs = groupBlocks(fogBlocks).map((blocks) => {
+            const xs = blocks.map((b) => b.x);
+            const zs = blocks.map((b) => b.z);
+            const f = { minX: Math.min(...xs), maxX: Math.max(...xs) + 1, minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1 };
+            f.alongX = f.maxX - f.minX > f.maxZ - f.minZ;
+            f.center = new THREE.Vector3((f.minX + f.maxX) / 2, 0, (f.minZ + f.maxZ) / 2);
+            return f;
+        });
         this.fossils = fossilPositions.map((position, index) => ({ position, kind: FOSSIL_KINDS[index % FOSSIL_KINDS.length], collected: false, t: index * 1.3 }));
         this.doorLock = null;
         // The spinning wall is solid like any wall (walking into it spins it)
@@ -2851,6 +2867,7 @@ export class Maze {
         for (const f of this.fossils) this.createFossil(f);
         for (const w of this.winds) this.createWind(w);
         if (this.trampoline) this.createTrampoline();
+        for (const f of this.fogs) this.createFog(f);
         this.scene.add(this.root);
     }
 
@@ -4383,6 +4400,7 @@ export class Maze {
         // Sky World: the clouds below drift, the rainbows sparkle, the storm clouds' bolts flicker
         if (this.cloudMap) this.cloudMap.offset.x = (this.cloudMap.offset.x + dt * 0.004) % 1;
         if (this.theme.skyland) this.updateSkyLooks(dt);
+        if (this.fogs?.length) this.updateFogs(dt);
         if (this.theme.pirate) {
             this.showCannons(dt);
             this.updateSplashes(dt);
@@ -5792,6 +5810,7 @@ export class Maze {
         if (this.theme.desert) return this.createBigCactus(row);
         if (this.theme.dino) return this.createBigBoneSpike(row);
         if (this.theme.pirate) return this.createBigSplinterSpike(row);
+        if (this.theme.skyland) return this.createBigStormCloud(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -7824,6 +7843,72 @@ export class Maze {
         return null;
     }
 
+    // How deep into thick fog this point is: 0 outside, rising to 1 once
+    // it's FOG_EDGE inside either end of the stretch (inside its box)
+    fogAt(point) {
+        let most = 0;
+        for (const f of this.fogs ?? []) {
+            if (point.x < f.minX || point.x > f.maxX || point.z < f.minZ || point.z > f.maxZ) continue;
+            const depth = f.alongX ? Math.min(point.x - f.minX, f.maxX - point.x) : Math.min(point.z - f.minZ, f.maxZ - point.z);
+            most = Math.max(most, Math.min(1, depth / FOG_EDGE));
+        }
+        return most;
+    }
+
+    // A thick fog stretch (Sky World): from outside, a white fog bank
+    // filling the corridor up over the walls' tops, with soft puffs drifting
+    // slowly in it. Inside it, main.js closes the scene's fog in around you.
+    createFog(f) {
+        let r = 11 + f.minX * 29 + f.minZ * 13;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const sizeX = f.maxX - f.minX;
+        const sizeZ = f.maxZ - f.minZ;
+        const tall = this.height + 0.4;
+        // The bank: white and nearly solid from outside. Only its outside
+        // faces are drawn, so from inside it's the scene's fog you see.
+        const bank = new THREE.Mesh(new THREE.BoxGeometry(sizeX, tall, sizeZ), new THREE.MeshBasicMaterial({ color: 0xeef1f4, transparent: true, opacity: 0.9, depthWrite: false }));
+        bank.position.set(f.center.x, tall / 2, f.center.z);
+        bank.renderOrder = 3;
+        this.root.add(bank);
+        // Puffs, inside and billowing up over the top and out of the ends a little
+        const count = Math.round(sizeX * sizeZ * 3);
+        const positions = new Float32Array(count * 3);
+        f.puffs = [];
+        for (let n = 0; n < count; n++) {
+            const p = {
+                x: f.minX - 0.3 + random() * (sizeX + 0.6),
+                y: 0.3 + random() * (tall + 0.5),
+                z: f.minZ - 0.3 + random() * (sizeZ + 0.6),
+                phase: random() * 6.3, speed: 0.3 + random() * 0.4,
+            };
+            f.puffs.push(p);
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        f.points = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0xffffff, size: 2.2, map: puffTexture(), transparent: true, opacity: 0.85, depthWrite: false }));
+        f.points.renderOrder = 4;
+        f.time = 0;
+        this.root.add(f.points);
+        this.placeFog(f);
+    }
+
+    // The fog's puffs drift slowly to and fro (called every frame)
+    updateFogs(dt) {
+        for (const f of this.fogs) {
+            f.time += dt;
+            this.placeFog(f);
+        }
+    }
+
+    placeFog(f) {
+        const positions = f.points.geometry.attributes.position;
+        f.puffs.forEach((p, n) => {
+            const a = p.phase + f.time * p.speed;
+            positions.setXYZ(n, p.x + Math.sin(a) * 0.35, p.y + Math.sin(a * 0.7) * 0.15, p.z + Math.cos(a * 0.8) * 0.35);
+        });
+        positions.needsUpdate = true;
+    }
+
     // The windy hallway this point is in, or null
     windAt(point) {
         const k = `${Math.floor(point.x)},${Math.floor(point.z)}`;
@@ -9390,6 +9475,28 @@ export class Maze {
     // The big splinter spike (Level 124 on): a pile of big broken deck planks
     // with pointy splinters filling a straight wrong way's opening wall to
     // wall, tallest in the middle, on a heap of broken boards
+    // A big storm-cloud spike (Sky World, Level 134 on): three storm clouds
+    // side by side across the dead end's opening, the middle one biggest,
+    // under one wide dark cloud, their lightning bolts poking down to the floor
+    createBigStormCloud(row) {
+        const across = row.spansX ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1);
+        for (const [offset, radius, tall] of [[0, 0.66, 1.3], [-1.02, 0.47, 1.15], [1.02, 0.47, 1.2]]) {
+            const cloud = this.createStormCloud(row.position.clone().addScaledVector(across, offset), radius);
+            cloud.scale.y = tall;
+        }
+        const dark = new THREE.MeshStandardMaterial({ color: 0x3e4350, roughness: 1, emissive: 0x111318, emissiveIntensity: 0.5 });
+        const ball = new THREE.SphereGeometry(1, 14, 10);
+        for (const [a, y, b, size] of [[-1.1, 1.95, 0.05, 0.5], [-0.4, 2.05, -0.1, 0.6], [0.4, 2.0, 0.12, 0.58], [1.1, 1.92, -0.05, 0.48], [0, 2.3, 0, 0.45]]) {
+            const puff = new THREE.Mesh(ball, dark);
+            puff.scale.set(size, size * 0.75, size);
+            puff.position.copy(row.position).addScaledVector(across, a);
+            puff.position.y = y;
+            if (row.spansX) puff.position.z += b; else puff.position.x += b;
+            puff.castShadow = true;
+            this.root.add(puff);
+        }
+    }
+
     createBigSplinterSpike(row) {
         const across = row.spansX ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1);
         for (const [offset, radius, tall, turn] of [[0, 0.66, 1.5, 0.4], [-1.02, 0.47, 1.15, 1.7], [1.02, 0.47, 1.25, -0.9]]) {

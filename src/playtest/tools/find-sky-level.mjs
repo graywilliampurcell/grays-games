@@ -11,7 +11,7 @@
 // reads 'X' as a storm-cloud spike and 'O' as a rainbow bridge's gap (3
 // corridor cells, full corridor width, down to the clouds far below). A
 // windy hallway is '<', '>', '^' or 'v' blocks: the wind blows west, east,
-// north or south along it.
+// north or south along it. A thick fog stretch is 'g' blocks.
 //
 // Rules for every level: 13 x 13, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -32,6 +32,9 @@ const RULES = {
     // The first cloud trampoline ('k', in the cell before a plain wall it
     // bounces you over) and one 3-cell rainbow bridge gap ('O')
     level133: { name: 'Level 133', depth: 2, deadEnds: 34, trampoline: true, platforms: 1, platformCells: 3, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
+    // The first thick fog (3 straight path cells, 'g'), a big storm-cloud
+    // spike ('Y') and a windy hallway (4 cells, blowing back toward the start)
+    level134: { name: 'Level 134', depth: 2, deadEnds: 34, fogs: 1, fogCells: 3, bigCane: true, winds: 1, windCells: 4, windAgainst: true, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -534,6 +537,25 @@ function place(path, hung, random) {
         out.winds.push(w);
         spans.push([w, w + windCells - 1]);
     }
+    // Thick fog: rule.fogCells path cells f .. f + fogCells - 1 with the path
+    // running straight through all of them (straight in from f - 1 and on out
+    // to the next cell, so the fog bank shows on the way up to it); wrong ways
+    // may branch off inside it
+    out.fogs = [];
+    const fogCells = rule.fogCells ?? 3;
+    for (let n = 0; n < (rule.fogs ?? 0); n++) {
+        const options = [];
+        for (let f = 2; f + fogCells < path.length - 1; f++) {
+            if (f < path.length * 0.2 || f + fogCells > path.length * 0.85) continue;
+            const dir = step(path[f - 1], path[f]);
+            if (![...Array(fogCells + 1).keys()].every((d) => step(path[f + d - 1], path[f + d]) === dir)) continue;
+            if (fits([f, f + fogCells - 1])) options.push(f);
+        }
+        if (options.length === 0) return null;
+        const f = options[Math.floor(random() * options.length)];
+        out.fogs.push(f);
+        spans.push([f, f + fogCells - 1]);
+    }
     // The zapper on the path: plain, with the path straight from k - 2 to
     // k + 1 (visible on approach), in the middle part of the path
     if (rule.pathCane) {
@@ -743,6 +765,7 @@ const windLetter = (w) => {
     return WIND_LETTERS[rule.windAgainst ? `${-dx},${-dz}` : `${dx},${dz}`];
 };
 for (const w of placed.winds) for (const b of gapBlocks([path[w], path[w + (rule.windCells ?? 4) - 1]])) put(b, windLetter(w));
+for (const f of placed.fogs) for (const b of gapBlocks([path[f], path[f + (rule.fogCells ?? 3) - 1]])) put(b, 'g');
 for (const k of placed.vents) {
     for (const b of gapBlocks([path[k]])) put(b, 'H');
     put([4 * path[k - 1].i + 2, 4 * path[k - 1].j + 2], 'Q');
@@ -828,6 +851,7 @@ placed.snowmen.forEach((h) => console.log(`snowman: hallway path cells ${h + 1}-
 placed.thinIce.forEach((n) => console.log(`thin ice: path cell ${n + 1} (${key(path[n])}), heading ${dir(n)}`));
 if (placed.caramel.length) console.log(`caramel on the path: cells ${[...placed.caramel].sort((a, b) => a - b).map((c) => `${c + 1} (${key(path[c])}, heading ${dir(c)})`).join(', ')}`);
 placed.winds.forEach((w) => console.log(`windy hallway: path cells ${w + 1}-${w + (rule.windCells ?? 4)} (${key(path[w])} ${key(path[w + (rule.windCells ?? 4) - 1])}), walked heading ${dir(w + 1)}, wind '${windLetter(w)}' ${rule.windAgainst ? 'against you' : 'with you'}`));
+placed.fogs.forEach((f) => console.log(`thick fog: path cells ${f + 1}-${f + (rule.fogCells ?? 3)} (${key(path[f])} ${key(path[f + (rule.fogCells ?? 3) - 1])}), walked heading ${dir(f + 1)}, wrong ways off it: ${hung.roots.filter((at) => at >= f && at < f + (rule.fogCells ?? 3)).length}`));
 if (placed.pathCane !== undefined) console.log(`path spike: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
 if (placed.current) console.log(`water current: path cell ${placed.current.index + 1} (${key(path[placed.current.index])}), heading ${dir(placed.current.index)}, shoves into ${key(placed.current.into)}`);
 if (placed.bigCane) console.log(`big spike: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);

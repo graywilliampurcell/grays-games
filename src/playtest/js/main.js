@@ -69,6 +69,17 @@ const WIND_WITH = 1.4;
 const WIND_HEAR_DISTANCE = 6;
 const WIND_LEVEL = 0.55;
 let windVoice = null;
+// Thick fog (Sky World, Level 134 on; starting values Gray will judge):
+// inside it you see clearly only FOG_NEAR around you, and everything is
+// white from FOG_FAR on (about one corridor cell). It closes in over
+// Maze.js FOG_EDGE as you walk in, changing at most FOG_FADE a second.
+const FOG_NEAR = 1;
+const FOG_FAR = 4.5;
+const FOG_FADE = 6;
+const FOG_WHITE = new THREE.Color(0xeef1f4);
+let fogView = 0; // 0 = clear, 1 = deep in the fog
+const skyLook = { color: new THREE.Color(), near: 200, far: 500 };
+let fogVeil = null; // a white shell around you, hiding what the scene's fog doesn't (the sun, the clouds far below)
 // Sticky caramel (Level 52 on): you walk at half speed while you're on it
 const CARAMEL_SPEED = 0.5;
 // A steam vent's puff (Volcano World) pushes you one square back, taking this long
@@ -259,6 +270,7 @@ function init() {
         render,
         playAgain,
         getBuddy: () => buddy,
+        getFogView: () => fogView,
     });
 
     // Start animation loop
@@ -312,6 +324,34 @@ function showSky(theme) {
     // Under the sea the water goes hazy blue in the distance
     scene.fog.near = theme.underwater ? 40 : 200;
     scene.fog.far = theme.underwater ? 220 : 500;
+    skyLook.color.set(theme.sky);
+    skyLook.near = scene.fog.near;
+    skyLook.far = scene.fog.far;
+    fogView = 0;
+    if (fogVeil) fogVeil.visible = false;
+}
+
+// Thick fog (Sky World, Level 134 on): the deeper into it you are, the
+// closer the white closes in around you, until you see only about one
+// corridor cell. Called every game step.
+function updateFog(deltaTime) {
+    if (!maze.fogs?.length && fogView === 0) return;
+    const target = escaped ? 0 : maze.fogAt?.(player.camera.position) ?? 0;
+    const change = FOG_FADE * deltaTime;
+    fogView = target > fogView ? Math.min(target, fogView + change) : Math.max(target, fogView - change);
+    // Ease the distances in on a log scale, so the fog closes in smoothly
+    const ease = (from, to) => Math.exp(Math.log(from) + (Math.log(to) - Math.log(from)) * fogView);
+    scene.fog.near = ease(skyLook.near, FOG_NEAR);
+    scene.fog.far = ease(skyLook.far, FOG_FAR);
+    scene.fog.color.copy(skyLook.color).lerp(FOG_WHITE, fogView);
+    scene.background.copy(skyLook.color).lerp(FOG_WHITE, fogView);
+    if (!fogVeil) {
+        fogVeil = new THREE.Mesh(new THREE.SphereGeometry(FOG_FAR + 0.5, 24, 16), new THREE.MeshBasicMaterial({ color: FOG_WHITE, side: THREE.BackSide, transparent: true, opacity: 0, depthWrite: false, fog: false }));
+        fogVeil.renderOrder = 999;
+        scene.add(fogVeil);
+    }
+    fogVeil.material.opacity = fogView;
+    fogVeil.visible = fogView > 0;
 }
 
 // Level 100: walking into the next room changes the sky to that room's, and
@@ -383,6 +423,7 @@ function step(deltaTime) {
     }
     // Update player movement
     player.update(inputManager, collisionManager, deltaTime);
+    updateFog(deltaTime);
     // The rocking ship (Pirate Ship World, Level 124 on): every so often the
     // whole ship tips gently to one side and back with a soft creak, and you
     // slide a little toward the low side (stopping at walls), except near a
@@ -732,6 +773,7 @@ function render() {
     updateUI();
 
     // Render
+    if (fogVeil?.visible) fogVeil.position.copy(camera.position);
     const r = maze?.rocking;
     if (r?.angle) {
         unleaned.copy(camera.quaternion);
