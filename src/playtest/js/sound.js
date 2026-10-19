@@ -3971,6 +3971,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.12, length: 0.16, brightness: 1600 },
     },
+    // Level 145 (the first firefly swarm): sneaky and mysterious, half and
+    // half, in F-sharp minor at 96 bpm: a soft sawtooth lead that buzzes
+    // round and round in quick little trills (like a cloud of fireflies
+    // whirling in the dark), sneaking up step by step, then a mysterious
+    // bar that hangs on a high C-sharp over a D major chord and a strange
+    // G natural, before buzzing back down, with tiptoe ticks underneath.
+    mushroomswarm: {
+        tempo: 96,
+        bars: [[42, 'min'], [42, 'min'], [38, 'maj'], [37, 'maj'], [42, 'min'], [35, 'min'], [38, 'maj'], [37, 'maj']],
+        bass: [0, null, 0, null, 7, null, null, null],
+        bassLength: 0.25,
+        stabs: [],
+        ticks: true,
+        melody: [
+            66, 68, 66, 68, 69, null, null, null,
+            68, 69, 68, 69, 71, null, 66, null,
+            73, null, null, 74, 73, null, null, null,
+            73, null, 72, null, 73, null, null, null,
+            66, 68, 66, 68, 69, null, 71, null,
+            73, 74, 73, 74, 76, null, null, null,
+            78, null, null, null, 79, null, null, 78,
+            73, null, 72, null, 70, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.08, length: 0.12, brightness: 1300 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

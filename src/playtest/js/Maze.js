@@ -759,6 +759,13 @@ export const FIREFLY_DIM_TIME = 3;
 export const FIREFLY_BRIGHT_TIME = 2;
 export const FIREFLY_VIEW_ANGLE = 15; // degrees
 const FIREFLY_HEIGHT = 2.3;
+// The firefly swarm (Level 145 on): a 'g' stretch under the Mushroom Forest
+// look. It works like Sky World's thick fog (main.js closes the view in to
+// about one corridor cell inside it), but the haze is the swarm's murky
+// green glow, full of tiny blinking fireflies and their little black bodies.
+export const SWARM_HAZE = 0x34401a;
+const SWARM_GLOWS_PER_BLOCK = 14;
+const SWARM_BODIES_PER_BLOCK = 8;
 const FIREFLY_FADE = 0.15; // how long it takes to brighten or dim (looks only)
 // The trench bounce (Level 142 on): a trench ('b' blocks, 4 corridor cells
 // long, full corridor width) with acid TRENCH_DEPTH down. Two giant bouncy
@@ -8304,6 +8311,7 @@ export class Maze {
     // filling the corridor up over the walls' tops, with soft puffs drifting
     // slowly in it. Inside it, main.js closes the scene's fog in around you.
     createFog(f) {
+        if (this.theme.mushroom) return this.createSwarm(f);
         let r = 11 + f.minX * 29 + f.minZ * 13;
         const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
         const sizeX = f.maxX - f.minX;
@@ -8337,7 +8345,49 @@ export class Maze {
         this.placeFog(f);
     }
 
-    // The fog's puffs drift slowly to and fro (called every frame)
+    // A firefly swarm (Mushroom Forest World): from outside, a dark green
+    // cloud filling the corridor up over the walls' tops, sparkling with
+    // tiny fireflies blinking on and off and their little black bodies
+    // darting about. Inside it, main.js closes the view in around you (to
+    // the swarm's glowing haze, SWARM_HAZE). No collision, no Ouch.
+    createSwarm(f) {
+        let r = 17 + f.minX * 31 + f.minZ * 7;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const sizeX = f.maxX - f.minX;
+        const sizeZ = f.maxZ - f.minZ;
+        const tall = this.height + 0.4;
+        f.swarm = true;
+        const bank = new THREE.Mesh(new THREE.BoxGeometry(sizeX, tall, sizeZ), new THREE.MeshBasicMaterial({ color: SWARM_HAZE, transparent: true, opacity: 0.86, depthWrite: false }));
+        bank.position.set(f.center.x, tall / 2, f.center.z);
+        bank.renderOrder = 3;
+        this.root.add(bank);
+        const bugs = (count, spill) => Array.from({ length: count }, () => ({
+            x: f.minX - spill + random() * (sizeX + 2 * spill),
+            y: 0.2 + random() * (tall + 0.3),
+            z: f.minZ - spill + random() * (sizeZ + 2 * spill),
+            phase: random() * 6.3, speed: 0.6 + random() * 0.9, reach: 0.25 + random() * 0.35,
+            blink: random() * 6.3, blinkSpeed: 1.5 + random() * 2.5,
+        }));
+        const pointsOf = (list, material) => {
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(list.length * 3), 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(list.length * 3), 3));
+            const points = new THREE.Points(geometry, material);
+            points.renderOrder = 4;
+            this.root.add(points);
+            return points;
+        };
+        f.glows = bugs(Math.round(sizeX * sizeZ * SWARM_GLOWS_PER_BLOCK), 0.25);
+        f.bodies = bugs(Math.round(sizeX * sizeZ * SWARM_BODIES_PER_BLOCK), 0.1);
+        // the glowing tails: additive, so a blinked-off one is gone
+        f.glowPoints = pointsOf(f.glows, new THREE.PointsMaterial({ size: 0.4, map: glowTexture(), vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+        f.bodyPoints = pointsOf(f.bodies, new THREE.PointsMaterial({ size: 0.16, map: glowTexture(), color: 0x080806, vertexColors: true, transparent: true, depthWrite: false }));
+        f.bodies.forEach((b, n) => f.bodyPoints.geometry.attributes.color.setXYZ(n, 1, 1, 1));
+        f.time = 0;
+        this.placeFog(f);
+    }
+
+    // The fog's puffs (or the swarm's fireflies) drift to and fro (called every frame)
     updateFogs(dt) {
         for (const f of this.fogs) {
             f.time += dt;
@@ -8346,12 +8396,32 @@ export class Maze {
     }
 
     placeFog(f) {
+        if (f.swarm) return this.placeSwarm(f);
         const positions = f.points.geometry.attributes.position;
         f.puffs.forEach((p, n) => {
             const a = p.phase + f.time * p.speed;
             positions.setXYZ(n, p.x + Math.sin(a) * 0.35, p.y + Math.sin(a * 0.7) * 0.15, p.z + Math.cos(a * 0.8) * 0.35);
         });
         positions.needsUpdate = true;
+    }
+
+    placeSwarm(f) {
+        const move = (list, points, glowing) => {
+            const positions = points.geometry.attributes.position;
+            const colors = points.geometry.attributes.color;
+            list.forEach((b, n) => {
+                const a = b.phase + f.time * b.speed;
+                positions.setXYZ(n, b.x + Math.sin(a) * b.reach, b.y + Math.sin(a * 1.3) * b.reach * 0.6, b.z + Math.cos(a * 0.9) * b.reach);
+                if (glowing) {
+                    const on = Math.max(0, Math.sin(b.blink + f.time * b.blinkSpeed));
+                    colors.setXYZ(n, 0.85 * on, 1.0 * on, 0.35 * on);
+                }
+            });
+            positions.needsUpdate = true;
+            if (glowing) colors.needsUpdate = true;
+        };
+        move(f.glows, f.glowPoints, true);
+        move(f.bodies, f.bodyPoints, false);
     }
 
     // The windy hallway this point is in, or null

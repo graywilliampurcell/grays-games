@@ -6,6 +6,7 @@
 //   SEEDS=40 node tools/find-mushroom-level.mjs level142 30 1420000   # a trench bounce ('b', 4 cells) + a path Ouch mushroom
 //   SEEDS=40 node tools/find-mushroom-level.mjs level143 30 1430000   # a sleepy mushroom ('z') + a mushroom cap ride
 //   SEEDS=40 node tools/find-mushroom-level.mjs level144 30 1440000   # a bright firefly ('e') + a big Ouch mushroom + a trench bounce
+//   SEEDS=40 node tools/find-mushroom-level.mjs level145 30 1450000   # a firefly swarm ('g', 3 cells) + the sneaky Ouch mushroom + a sleepy mushroom
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -15,7 +16,9 @@
 // 'b' as a trench bounce's trench (4 corridor cells, full corridor width),
 // and 'z' as a sleepy mushroom (Level 143 on), and 'e' as a bright firefly
 // (Level 144 on: the middle of the last cell of a straight 4-cell hallway
-// with only the path through it, the path turning out of that cell).
+// with only the path through it, the path turning out of that cell), and
+// 'g' as a firefly swarm (Level 145 on: a straight stretch of path cells,
+// like Sky World's thick fog).
 //
 // Rules for every level: 14 x 14, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -39,6 +42,9 @@ const RULES = {
     // one big Ouch mushroom ('Y', filling a straight dead end's opening) and
     // one trench bounce ('b')
     level144: { name: 'Level 144', depth: 3, deadEnds: 30, fireflies: 1, bigCane: true, trenches: 1, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // The first firefly swarm ('g', 3 straight path cells, like the thick
+    // fog), the sneaky Ouch mushroom and one sleepy mushroom ('z')
+    level145: { name: 'Level 145', depth: 3, deadEnds: 30, sneaky: true, pathCane: true, sleepy: true, fogs: 1, fogCells: 3, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Player } from './Player.js';
-import { Maze, SPIN_WALL_TIME, TRAPDOOR_WARNING_TIME, SEA_LEVEL, CANNON_FUSE, CANNON_FLIGHT, CANNON_HEIGHT } from './Maze.js';
+import { Maze, SWARM_HAZE, SPIN_WALL_TIME, TRAPDOOR_WARNING_TIME, SEA_LEVEL, CANNON_FUSE, CANNON_FLIGHT, CANNON_HEIGHT } from './Maze.js';
 import { RoomMaze } from './RoomMaze.js';
 import { Buddy } from './Buddy.js';
 import { LEVELS } from './levels.js';
@@ -83,6 +83,9 @@ const FOG_NEAR = 1;
 const FOG_FAR = 4.5;
 const FOG_FADE = 6;
 const FOG_WHITE = new THREE.Color(0xeef1f4);
+// A firefly swarm (Mushroom Forest World, Level 145 on) closes in the same
+// way, but to the swarm's murky green glow instead of white
+const SWARM_COLOR = new THREE.Color(SWARM_HAZE);
 let fogView = 0; // 0 = clear, 1 = deep in the fog
 const skyLook = { color: new THREE.Color(), near: 200, far: 500 };
 let fogVeil = null; // a white shell around you, hiding what the scene's fog doesn't (the sun, the clouds far below)
@@ -372,13 +375,15 @@ function updateFog(deltaTime) {
     const ease = (from, to) => Math.exp(Math.log(from) + (Math.log(to) - Math.log(from)) * fogView);
     scene.fog.near = ease(skyLook.near, FOG_NEAR);
     scene.fog.far = ease(skyLook.far, FOG_FAR);
-    scene.fog.color.copy(skyLook.color).lerp(FOG_WHITE, fogView);
-    scene.background.copy(skyLook.color).lerp(FOG_WHITE, fogView);
+    const haze = maze.fogs?.some((f) => f.swarm) ? SWARM_COLOR : FOG_WHITE;
+    scene.fog.color.copy(skyLook.color).lerp(haze, fogView);
+    scene.background.copy(skyLook.color).lerp(haze, fogView);
     if (!fogVeil) {
         fogVeil = new THREE.Mesh(new THREE.SphereGeometry(FOG_FAR + 0.5, 24, 16), new THREE.MeshBasicMaterial({ color: FOG_WHITE, side: THREE.BackSide, transparent: true, opacity: 0, depthWrite: false, fog: false }));
         fogVeil.renderOrder = 999;
         scene.add(fogVeil);
     }
+    fogVeil.material.color.copy(haze);
     fogVeil.material.opacity = fogView;
     fogVeil.visible = fogView > 0;
 }

@@ -95,7 +95,7 @@ export function installTestHooks(game) {
             spinWall: maze.spinWall ? { minX: maze.spinWall.minX, maxX: maze.spinWall.maxX, minZ: maze.spinWall.minZ, maxZ: maze.spinWall.maxZ, spansX: maze.spinWall.spansX, center: { x: maze.spinWall.center.x, z: maze.spinWall.center.z }, angle: round(maze.spinWall.angle), spinning: !!maze.spinWall.spin, time: round(maze.spinWall.spin?.time ?? 0) } : null,
             spinning: !!player.spinning,
             propellers: (maze.propellers ?? []).map((p) => ({ minX: p.minX, maxX: p.maxX, minZ: p.minZ, maxZ: p.maxZ, alongX: p.alongX, angle: round(p.angle), touching: p.touching, center: { x: p.center.x, z: p.center.z }, target: { x: p.target.x, z: p.target.z } })),
-            fogs: (maze.fogs ?? []).map((f) => ({ minX: f.minX, maxX: f.maxX, minZ: f.minZ, maxZ: f.maxZ, alongX: f.alongX })),
+            fogs: (maze.fogs ?? []).map((f) => ({ minX: f.minX, maxX: f.maxX, minZ: f.minZ, maxZ: f.maxZ, alongX: f.alongX, swarm: !!f.swarm })),
             fogView: round(game.getFogView?.() ?? 0),
             // Mushroom Forest World's sleepy mushrooms, and how long you've still got to be sleepy (half speed)
             sleepies: (maze.sleepies ?? []).map((m) => ({ x: m.position.x, z: m.position.z })),
