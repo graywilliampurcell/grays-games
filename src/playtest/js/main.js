@@ -96,6 +96,13 @@ const SLEEPY_SPEED = 0.5;
 const SLEEPY_TIME = 5;
 let sleepyLeft = 0;
 let touchingSleepy = false;
+// A bright firefly (Level 144 on): having it in your eyes while it's bright
+// for more than FIREFLY_STARE_TIME seconds in a row sends you back to the
+// start. While the count builds the view turns whiter (up to FIREFLY_GLARE),
+// as a warning; looking away or the firefly going dim starts the count over.
+const FIREFLY_STARE_TIME = 1.0;
+const FIREFLY_GLARE = 0.6;
+let fireflyStare = 0;
 // A steam vent's puff (Volcano World) pushes you one square back, taking this long
 const VENT_PUSH_TIME = 0.45;
 // A tail swish (Dinosaur World, Level 112 on) pushes you one square back,
@@ -286,6 +293,7 @@ function init() {
         getBuddy: () => buddy,
         getFogView: () => fogView,
         getSleepy: () => ({ left: sleepyLeft, touching: touchingSleepy }),
+        getFireflyStare: () => fireflyStare,
     });
 
     // Start animation loop
@@ -299,6 +307,7 @@ function loadLevel(level, index) {
     sleepyLeft = 0;
     touchingSleepy = false;
     showSleepy(false);
+    setFireflyStare(0);
     // The old level's snowmen stop being heard
     for (const s of maze?.snowmen ?? []) s.voice?.gain.disconnect();
     sound?.stopWind(windVoice);
@@ -734,6 +743,8 @@ function step(deltaTime) {
             showMessage('Ouch! The thin ice broke. Back to the start.');
         }
     }
+    // Bright fireflies (Mushroom Forest World, Level 144 on)
+    if (maze.fireflies?.length) updateFireflies(deltaTime);
     // Sticky caramel (Level 52 on): half speed while on it, normal as soon as you're off
     updateSleepy(deltaTime);
     player.sticky = (maze.onCaramel(player.position) ? CARAMEL_SPEED : 1) * (sleepyLeft > 0 ? SLEEPY_SPEED : 1);
@@ -1101,12 +1112,47 @@ function updateSleepy(deltaTime) {
     showSleepy(sleepyLeft > 0);
 }
 
+// Bright fireflies (Level 144 on): each blinks dim, then bright, on its own
+// fixed cycle (the game step, so it freezes while paused). Facing one while
+// it's bright for more than FIREFLY_STARE_TIME in a row: a white flash,
+// "Ouch!" and back to the start.
+function updateFireflies(deltaTime) {
+    for (const { event } of maze.updateFireflies(deltaTime)) testHooks?.emit('firefly', { what: event });
+    const inEyes = !escaped && maze.fireflyInEyes(player.camera);
+    if (!inEyes) return setFireflyStare(0);
+    setFireflyStare(fireflyStare + deltaTime);
+    if (fireflyStare > FIREFLY_STARE_TIME) {
+        backToStart();
+        flashWhite();
+        testHooks?.emit('spike', { what: 'firefly' });
+        sound.ouch();
+        showMessage('Ouch! The firefly was too bright. Back to the start.');
+    }
+}
+
+// The warning: the view turns whiter as the count builds
+function setFireflyStare(time) {
+    fireflyStare = time;
+    const glare = document.getElementById('glare');
+    if (glare) glare.style.opacity = String(FIREFLY_GLARE * Math.min(1, time / FIREFLY_STARE_TIME));
+}
+
+// The whole screen flashes white, then fades back
+function flashWhite() {
+    const flash = document.getElementById('white-flash');
+    if (!flash) return;
+    flash.classList.remove('on');
+    void flash.offsetWidth;
+    flash.classList.add('on');
+}
+
 function showSleepy(on) {
     if (document.body.classList.contains('sleepy') !== on) document.body.classList.toggle('sleepy', on);
 }
 
 function backToStart() {
     falling = null;
+    setFireflyStare(0);
     sleepyLeft = 0;
     touchingSleepy = false;
     showSleepy(false);

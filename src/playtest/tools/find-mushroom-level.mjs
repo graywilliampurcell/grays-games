@@ -5,6 +5,7 @@
 //   SEEDS=400 node tools/find-mushroom-level.mjs level141 30 1   # the sneaky Ouch mushroom + a mushroom cap ride
 //   SEEDS=40 node tools/find-mushroom-level.mjs level142 30 1420000   # a trench bounce ('b', 4 cells) + a path Ouch mushroom
 //   SEEDS=40 node tools/find-mushroom-level.mjs level143 30 1430000   # a sleepy mushroom ('z') + a mushroom cap ride
+//   SEEDS=40 node tools/find-mushroom-level.mjs level144 30 1440000   # a bright firefly ('e') + a big Ouch mushroom + a trench bounce
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -12,7 +13,9 @@
 // Layout letters (see js/Maze.js): as in find-sky-level.mjs. Mushroom Forest World reads 'X' as an Ouch mushroom and 'O' as a
 // mushroom cap ride's acid gap (3 corridor cells, full corridor width), and
 // 'b' as a trench bounce's trench (4 corridor cells, full corridor width),
-// and 'z' as a sleepy mushroom (Level 143 on).
+// and 'z' as a sleepy mushroom (Level 143 on), and 'e' as a bright firefly
+// (Level 144 on: the middle of the last cell of a straight 4-cell hallway
+// with only the path through it, the path turning out of that cell).
 //
 // Rules for every level: 14 x 14, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -32,6 +35,10 @@ const RULES = {
     // The first sleepy mushroom: the path spike's spot holds a sleepy
     // mushroom ('z', Level 53's gaps) instead, plus one 3-cell cap ride ('O')
     level143: { name: 'Level 143', depth: 3, deadEnds: 30, pathCane: true, sleepy: true, platforms: 1, platformCells: 3, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // The first bright firefly ('e', at the far end of a straight hallway),
+    // one big Ouch mushroom ('Y', filling a straight dead end's opening) and
+    // one trench bounce ('b')
+    level144: { name: 'Level 144', depth: 3, deadEnds: 30, fireflies: 1, bigCane: true, trenches: 1, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -49,6 +56,7 @@ const ARM_BELT_CELLS = 6; // a robot-arm belt is 6 corridor cells long, in the m
 const DEPTH = rule.depth;
 const PLATFORM_CELLS = rule.platformCells ?? 2; // a platform gap's length in corridor cells
 const TRENCH_CELLS = 4; // a trench bounce's trench is 4 corridor cells long
+const FIREFLY_CELLS = 4; // a bright firefly's hallway is 4 corridor cells long
 const PATH_LENGTH = COLS * ROWS - DEAD_ENDS * DEPTH - (rule.sneaky ? 3 : 0);
 const SEEDS = Number(process.env.SEEDS ?? 4000);
 const STEPS_PER_SEED = 200000;
@@ -673,6 +681,25 @@ function place(path, hung, random) {
         out.snowmen.push(h);
         spans.push([h, h + end]);
     }
+    // Bright fireflies (Level 144 on): like a snowman's hallway, h .. h +
+    // FIREFLY_CELLS - 1 with only the path through it, straight all the way,
+    // the path turning out of its last cell, where the firefly hovers
+    out.fireflies = [];
+    for (let s = 0; s < (rule.fireflies ?? 0); s++) {
+        const options = [];
+        const end = FIREFLY_CELLS - 1;
+        for (let h = 2; h + end + 1 < path.length - 1; h++) {
+            const cells = [...Array(FIREFLY_CELLS).keys()].map((d) => h + d);
+            if (!cells.every(only)) continue;
+            if (!cells.slice(1).every((n) => step(path[n - 1], path[n]) === step(path[h], path[h + 1]))) continue;
+            if (step(path[h + end], path[h + end + 1]) === step(path[h], path[h + 1])) continue;
+            if (fits([h, h + end])) options.push(h);
+        }
+        if (options.length === 0) return null;
+        const h = options[Math.floor(random() * options.length)];
+        out.fireflies.push(h);
+        spans.push([h, h + end]);
+    }
     // Thin ice on the path (Level 73's): a plain cell, the path straight
     // from n - 2 to n + 2
     out.thinIce = [];
@@ -793,6 +820,10 @@ for (const h of placed.snowmen) {
     }
     put([4 * path[h - 1].i + 2, 4 * path[h - 1].j + 2], 'P');
 }
+for (const h of placed.fireflies) {
+    const end = path[h + FIREFLY_CELLS - 1];
+    put([4 * end.i + 2, 4 * end.j + 2], 'e');
+}
 for (const k of placed.slippery) {
     const cell = path[k];
     for (const d of [1, 2, 3]) put(cell.i !== path[k + 1].i ? [4 * cell.i + 2, 4 * cell.j + d] : [4 * cell.i + d, 4 * cell.j + 2], 'I');
@@ -855,6 +886,7 @@ placed.armBelts.forEach(({ h, e, b }) => console.log(`arm belt: hallway path cel
 placed.vents.forEach((k) => console.log(`steam vent: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}, pushes back into path cell ${k}`));
 placed.geysers.forEach((k) => console.log(`${rule.trapdoors ? 'trapdoor' : 'lava geyser'}: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}`));
 placed.snowmen.forEach((h) => console.log(`snowman: hallway path cells ${h + 1}-${h + SNOWMAN_CELLS} heading ${dir(h + 1)}, path turns ${dir(h + SNOWMAN_CELLS)} out of its last cell`));
+placed.fireflies.forEach((h) => console.log(`bright firefly: hallway path cells ${h + 1}-${h + FIREFLY_CELLS} heading ${dir(h + 1)}, firefly in ${key(path[h + FIREFLY_CELLS - 1])}, path turns ${dir(h + FIREFLY_CELLS)} out of it`));
 placed.thinIce.forEach((n) => console.log(`thin ice: path cell ${n + 1} (${key(path[n])}), heading ${dir(n)}`));
 if (placed.caramel.length) console.log(`caramel on the path: cells ${[...placed.caramel].sort((a, b) => a - b).map((c) => `${c + 1} (${key(path[c])}, heading ${dir(c)})`).join(', ')}`);
 placed.winds.forEach((w) => console.log(`windy hallway: path cells ${w + 1}-${w + (rule.windCells ?? 4)} (${key(path[w])} ${key(path[w + (rule.windCells ?? 4) - 1])}), walked heading ${dir(w + 1)}, wind '${windLetter(w)}' ${rule.windAgainst ? 'against you' : 'with you'}`));

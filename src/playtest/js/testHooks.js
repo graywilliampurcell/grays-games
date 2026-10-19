@@ -99,6 +99,9 @@ export function installTestHooks(game) {
             fogView: round(game.getFogView?.() ?? 0),
             // Mushroom Forest World's sleepy mushrooms, and how long you've still got to be sleepy (half speed)
             sleepies: (maze.sleepies ?? []).map((m) => ({ x: m.position.x, z: m.position.z })),
+            // Bright fireflies (Level 144 on) and how long one's been in your eyes while bright
+            fireflies: (maze.fireflies ?? []).map((f) => ({ x: f.position.x, y: f.position.y, z: f.position.z, time: round(f.time), bright: f.bright })),
+            fireflyStare: round(game.getFireflyStare?.() ?? 0),
             sleepy: { left: round(game.getSleepy?.().left ?? 0), touching: !!game.getSleepy?.().touching, speed: round(player.sticky ?? 1), shown: document.body.classList.contains('sleepy') },
             trampoline: maze.trampoline ? trampolineState(maze.trampoline) : null,
             trampolines: (maze.trampolines ?? []).map(trampolineState),

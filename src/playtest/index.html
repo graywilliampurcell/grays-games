@@ -638,6 +638,32 @@
             animation-play-state: paused;
         }
 
+        /* A bright firefly (Level 144 on): the view turns whiter while it's in
+           your eyes (the warning), and the whole screen flashes white if you
+           look too long */
+        #glare {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at center, rgba(255, 255, 240, 1) 0%, rgba(255, 255, 230, 0.85) 60%, rgba(255, 255, 220, 0.7) 100%);
+            opacity: 0;
+        }
+        #white-flash {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: #fff;
+            opacity: 0;
+        }
+        #white-flash.on {
+            animation: white-flash 1.2s ease-out forwards;
+        }
+        @keyframes white-flash {
+            0% { opacity: 1; }
+            35% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
         #message {
             position: absolute;
             top: 20%;
@@ -862,6 +888,8 @@
     <div id="level"></div>
     <div id="fossils" hidden></div>
     <div id="sleepy" aria-hidden="true"><span>Z</span><span>z</span><span>Z</span><span>Z</span><span>z</span><span>Z</span></div>
+    <div id="glare" aria-hidden="true"></div>
+    <div id="white-flash" aria-hidden="true"></div>
     <div id="message" hidden></div>
     <div id="walk-circle" class="touch-ctl touch-circle left"><div class="knob"><div class="icon">🚶</div></div></div>
     <div id="look-circle" class="touch-ctl touch-circle right"><div class="knob"><div class="icon">👀</div></div></div>

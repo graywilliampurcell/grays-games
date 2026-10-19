@@ -747,6 +747,19 @@ const SLEEPY_SOLID = SLEEPY_TOUCH - 0.03;
 // Its "Zzz" bubbles: this many float up from the cap, each taking this long
 const ZZZ_COUNT = 3;
 const ZZZ_TIME = 2.4;
+// The bright firefly ('e', Level 144 on): one big firefly hovering
+// FIREFLY_HEIGHT above the floor in the middle of the last cell of a straight
+// hallway on the path (no collision; you walk right under it). It blinks on
+// a fixed cycle, dim FIREFLY_DIM_TIME then bright FIREFLY_BRIGHT_TIME, over
+// and over (starting values Gray will judge), counted in game time so it
+// freezes while paused. It's "in your eyes" while it's bright, within
+// FIREFLY_VIEW_ANGLE of straight ahead and no wall is in between (main.js
+// sends you back to the start after about a second of that).
+export const FIREFLY_DIM_TIME = 3;
+export const FIREFLY_BRIGHT_TIME = 2;
+export const FIREFLY_VIEW_ANGLE = 15; // degrees
+const FIREFLY_HEIGHT = 2.3;
+const FIREFLY_FADE = 0.15; // how long it takes to brighten or dim (looks only)
 // The trench bounce (Level 142 on): a trench ('b' blocks, 4 corridor cells
 // long, full corridor width) with acid TRENCH_DEPTH down. Two giant bouncy
 // mushrooms stand in the acid, one near each edge (their middles
@@ -2579,6 +2592,10 @@ export class Maze {
         // middle of the corridor cell each stands in
         this.sleepyPositions = [];
         this.sleepies = [];
+        // Bright fireflies ('e', Mushroom Forest World, Level 144 on): the
+        // middle of the corridor cell each hovers over
+        this.fireflyPositions = [];
+        this.fireflies = [];
         // Blocks with no floor ('O'), crossed on moving platforms (one per gap);
         // 'F' is the same but its platform is a fast one (Level 27 on); in
         // Pirate Ship World a level with both kinds walks the plank over its
@@ -2648,6 +2665,7 @@ export class Maze {
                 if (ch === 'I') this.slipperyBlocks.add(`${x},${z}`);
                 if (ch === 'C') this.caramelBlocks.add(`${x},${z}`);
                 if (ch === 'z') this.sleepyPositions.push(center);
+                if (ch === 'e') this.fireflyPositions.push(center);
                 if (ch === 'O' || ch === 'F') gapBlocks.push({ x, z, fast: ch === 'F' });
                 if (ch === 'b') gapBlocks.push({ x, z, trench: true });
                 if (ch === 'W') currentBlocks.push({ x, z });
@@ -3066,6 +3084,7 @@ export class Maze {
         if (this.slipperyBlocks.size) this.createSlipperySpots();
         if (this.caramelBlocks.size) this.createCaramelSpots();
         this.sleepies = this.sleepyPositions.map((position) => this.createSleepyMushroom(position));
+        this.fireflies = this.fireflyPositions.map((position, n) => this.createFirefly(position, n));
         for (const p of this.platforms) this.createPlatform(p);
         for (const row of this.spikeRows) this.createSpikeRow(row);
         for (const c of this.currents) this.createCurrent(c);
@@ -6192,6 +6211,7 @@ export class Maze {
         if (this.theme.dino) return this.createBigBoneSpike(row);
         if (this.theme.pirate) return this.createBigSplinterSpike(row);
         if (this.theme.skyland) return this.createBigStormCloud(row);
+        if (this.theme.mushroom) return this.createBigOuchMushroom(row);
         const group = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
         const base = new THREE.Mesh(
@@ -9497,6 +9517,123 @@ export class Maze {
             moved = true;
         }
         return moved;
+    }
+
+    // The big Ouch mushroom (Mushroom Forest World's spike row, Level 144 on):
+    // one big poisonous mushroom (not three little ones), its cap as wide as
+    // the corridor and its stem taller than you, filling a dead end's opening
+    createBigOuchMushroom(row) {
+        const group = this.createOuchMushroom(row.position, SPIKE_ROW_WIDTH / 2 - 0.05);
+        // a taller, thicker stem; the cap and its spots sit on top of it
+        const [stem, ...rest] = group.children;
+        const taller = 2.4;
+        stem.scale.set(1.15, taller, 1.15);
+        stem.position.y *= taller;
+        for (const part of rest) part.position.y += 0.75 * (taller - 1);
+        return group;
+    }
+
+    // ---- Bright fireflies (Mushroom Forest World, Level 144 on) ----
+
+    // A big firefly: a little black body with see-through wings and a glowing
+    // tail, inside a soft glow that's small and dim, then big and dazzling
+    createFirefly(position, n) {
+        const group = new THREE.Group();
+        const black = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.6 });
+        const body = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8), black);
+        body.scale.set(0.09, 0.08, 0.2);
+        group.add(body);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), black);
+        head.position.z = -0.2;
+        group.add(head);
+        const wingMaterial = new THREE.MeshBasicMaterial({ color: 0xd8e4ff, transparent: true, opacity: 0.45, side: THREE.DoubleSide, depthWrite: false });
+        const wings = [];
+        for (const side of [-1, 1]) {
+            const wing = new THREE.Mesh(new THREE.CircleGeometry(0.16, 12), wingMaterial);
+            wing.scale.set(0.6, 1, 1);
+            wing.rotation.x = -Math.PI / 2;
+            wing.position.set(side * 0.13, 0.07, -0.02);
+            group.add(wing);
+            wings.push({ wing, side });
+        }
+        const tail = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8), new THREE.MeshBasicMaterial({ color: 0xfff27a }));
+        tail.scale.set(0.085, 0.075, 0.12);
+        tail.position.z = 0.2;
+        group.add(tail);
+        const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture(), color: 0xfff6a8, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+        group.add(glow);
+        // its light on the floor and walls round it
+        const pool = new THREE.Mesh(new THREE.CircleGeometry(1.5, 32), new THREE.MeshBasicMaterial({ map: glowTexture(), color: 0xfff2a0, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+        pool.rotation.x = -Math.PI / 2;
+        pool.position.set(position.x, 0.03, position.z);
+        this.root.add(pool);
+        const center = new THREE.Vector3(position.x, FIREFLY_HEIGHT, position.z);
+        group.position.copy(center);
+        this.root.add(group);
+        const f = { position: center, group, glow, tail, wings, pool, time: 0, bright: false, shine: 0, clock: n * 1.7 };
+        this.showFirefly(f);
+        return f;
+    }
+
+    // Moves every firefly's cycle on by dt (the game step, so it stops while
+    // paused). Returns the fireflies that just turned bright or dim.
+    updateFireflies(dt) {
+        const events = [];
+        const cycle = FIREFLY_DIM_TIME + FIREFLY_BRIGHT_TIME;
+        for (const f of this.fireflies) {
+            f.time = (f.time + dt) % cycle;
+            f.clock += dt;
+            const bright = f.time >= FIREFLY_DIM_TIME;
+            if (bright !== f.bright) events.push({ firefly: f, event: bright ? 'bright' : 'dim' });
+            f.bright = bright;
+            const most = dt / FIREFLY_FADE;
+            f.shine += Math.max(-most, Math.min(most, (bright ? 1 : 0) - f.shine));
+            this.showFirefly(f);
+        }
+        return events;
+    }
+
+    showFirefly(f) {
+        const s = f.shine;
+        f.glow.scale.setScalar(0.9 + s * 3.6);
+        f.glow.material.opacity = 0.45 + s * 0.55;
+        f.tail.material.color.setRGB(0.75 + s * 0.25, 0.7 + s * 0.3, 0.25 + s * 0.6);
+        f.pool.material.opacity = 0.15 + s * 0.75;
+        f.pool.scale.setScalar(0.6 + s * 0.9);
+        // it hovers, bobbing a little and turning slowly; its wings flutter
+        f.group.position.y = f.position.y + Math.sin(f.clock * 1.6) * 0.08;
+        f.group.rotation.y = Math.sin(f.clock * 0.4) * 0.6;
+        for (const { wing, side } of f.wings) wing.rotation.z = side * (0.3 + Math.sin(f.clock * 40) * 0.35);
+    }
+
+    // The bright firefly that's in your eyes right now (bright, within
+    // FIREFLY_VIEW_ANGLE of where the camera faces, no wall in between), or null
+    fireflyInEyes(camera) {
+        if (!this.fireflies.length) return null;
+        const eye = camera.getWorldPosition(new THREE.Vector3());
+        const facing = camera.getWorldDirection(new THREE.Vector3());
+        const cos = Math.cos((FIREFLY_VIEW_ANGLE * Math.PI) / 180);
+        for (const f of this.fireflies) {
+            if (!f.bright) continue;
+            const to = f.group.position.clone().sub(eye);
+            const d = to.length();
+            if (d < 1e-6 || to.dot(facing) / d < cos) continue;
+            if (this.wallBetween(eye, f.group.position)) continue;
+            return f;
+        }
+        return null;
+    }
+
+    // Is there a wall (or the door) between these two points, seen from above?
+    wallBetween(a, b) {
+        const d = Math.hypot(b.x - a.x, b.z - a.z);
+        const n = Math.ceil(d / 0.05);
+        for (let k = 1; k < n; k++) {
+            const x = Math.floor(a.x + ((b.x - a.x) * k) / n);
+            const z = Math.floor(a.z + ((b.z - a.z) * k) / n);
+            if (this.grid[x]?.[z] !== 0) return true;
+        }
+        return false;
     }
 
     // The Ouch mushroom (the spike): a red cap with white spots on a cream
