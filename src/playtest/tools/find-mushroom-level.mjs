@@ -7,6 +7,7 @@
 //   SEEDS=40 node tools/find-mushroom-level.mjs level143 30 1430000   # a sleepy mushroom ('z') + a mushroom cap ride
 //   SEEDS=40 node tools/find-mushroom-level.mjs level144 30 1440000   # a bright firefly ('e') + a big Ouch mushroom + a trench bounce
 //   SEEDS=40 node tools/find-mushroom-level.mjs level145 30 1450000   # a firefly swarm ('g', 3 cells) + the sneaky Ouch mushroom + a sleepy mushroom
+//   SEEDS=40 node tools/find-mushroom-level.mjs level146 30 1460000   # a path Ouch mushroom (Level 54's squeeze) + a bright firefly + a mushroom cap ride
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -45,6 +46,9 @@ const RULES = {
     // The first firefly swarm ('g', 3 straight path cells, like the thick
     // fog), the sneaky Ouch mushroom and one sleepy mushroom ('z')
     level145: { name: 'Level 145', depth: 3, deadEnds: 30, sneaky: true, pathCane: true, sleepy: true, fogs: 1, fogCells: 3, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // The tighter squeeze: one path Ouch mushroom ('X', Level 54's squeeze),
+    // one bright firefly ('e') and one 3-cell mushroom cap ride ('O')
+    level146: { name: 'Level 146', depth: 3, deadEnds: 30, pathCane: true, fireflies: 1, platforms: 1, platformCells: 3, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

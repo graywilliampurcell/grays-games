@@ -3996,6 +3996,31 @@ const TUNES = {
         ],
         lead: { wave: 'sawtooth', level: 0.08, length: 0.12, brightness: 1300 },
     },
+    // Level 146 (the tighter squeeze): sneaky and mysterious, half and
+    // half, in C minor at 92 bpm: a soft triangle lead that squeezes along
+    // in tight little half steps (inching sideways past something, holding
+    // its breath), with a long held hush, then a mysterious bar that rises
+    // to a high A-flat over an A-flat major chord and a strange F-sharp,
+    // before slipping back down, with tiptoe ticks underneath.
+    mushroomsqueeze: {
+        tempo: 92,
+        bars: [[48, 'min'], [48, 'min'], [44, 'maj'], [43, 'maj'], [48, 'min'], [41, 'min'], [44, 'maj'], [43, 'maj']],
+        bass: [0, null, null, null, 0, null, 7, null],
+        bassLength: 0.28,
+        stabs: [],
+        ticks: true,
+        melody: [
+            72, 71, 72, null, 74, 73, 74, null,
+            75, null, null, null, null, null, 72, null,
+            75, 74, 75, null, 77, 76, 77, null,
+            79, null, null, null, 78, null, 79, null,
+            72, null, 74, null, 75, null, 77, null,
+            80, null, null, null, 78, null, null, null,
+            79, null, 77, null, 75, null, 74, null,
+            71, null, null, null, 72, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.13, length: 0.2, brightness: 1500 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
