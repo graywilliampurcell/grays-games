@@ -43,6 +43,10 @@ const RULES = {
     // The tighter squeeze: a path storm-cloud spike ('X', Level 54's
     // squeeze), one cloud trampoline ('k') and one thick fog (3 cells, 'g')
     level136: { name: 'Level 136', depth: 2, deadEnds: 34, pathCane: true, trampoline: true, fogs: 1, fogCells: 3, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
+    // Longer wrong ways: every dead end 3 deep, one slow propeller ('H'), a
+    // windy hallway (4 cells, blowing back toward the start) and a big
+    // storm-cloud spike ('Y')
+    level137: { name: 'Level 137', depth: 3, deadEnds: 24, vents: 1, winds: 1, windCells: 4, windAgainst: true, bigCane: true, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

@@ -3758,6 +3758,35 @@ const TUNES = {
             birds: [[10, 91], [36, 87], [56, 93]],
         },
     },
+    // Level 137 (longer wrong ways): sneaky and mysterious, half and half,
+    // in B-flat minor at 94 bpm: a soft sawtooth lead that wanders down a
+    // long, winding line and keeps turning back, like a wrong way that goes
+    // on one square longer than you think, then lifts to a mysterious
+    // G-flat major and F major turn. Wind and far-off birdsong in the
+    // background, quieter than the melody.
+    skylong: {
+        tempo: 94,
+        bars: [[46, 'min'], [46, 'min'], [42, 'maj'], [41, 'maj'], [46, 'min'], [42, 'maj'], [44, 'maj'], [41, 'maj']],
+        bass: [0, null, null, null, 7, null, 5, null],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            70, null, 69, 70, 65, null, 61, null,
+            63, null, 61, 60, 58, null, null, null,
+            66, null, 65, 66, 61, null, 58, null,
+            60, null, 61, null, 65, null, null, null,
+            70, null, 73, null, 72, null, 70, null,
+            66, null, null, 65, 66, null, 70, null,
+            68, null, 67, null, 68, null, 72, null,
+            69, null, null, null, 65, null, null, null,
+        ],
+        lead: { wave: 'sawtooth', level: 0.12, length: 0.32, brightness: 1100 },
+        sky: {
+            winds: [[2, 2.8], [26, 3.2], [48, 2.6]],
+            birds: [[14, 86], [38, 90], [58, 84]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
