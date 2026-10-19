@@ -3730,6 +3730,34 @@ const TUNES = {
             birds: [[16, 88], [40, 92], [60, 85]],
         },
     },
+    // Level 136 (the tighter squeeze): sneaky and mysterious, half and half,
+    // in E minor at 100 bpm: a thin, quiet square lead that squeezes in
+    // little half steps, in and out, like edging past a storm cloud, then
+    // opens up into a mysterious C major and B major turn. Wind and far-off
+    // birdsong in the background, quieter than the melody.
+    skysqueeze: {
+        tempo: 100,
+        bars: [[40, 'min'], [40, 'min'], [36, 'maj'], [35, 'maj'], [40, 'min'], [36, 'maj'], [35, 'maj'], [40, 'min']],
+        bass: [0, null, null, 0, null, null, 7, null],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            64, 63, 64, null, null, null, 67, null,
+            66, 65, 66, null, null, null, 71, null,
+            72, null, 71, null, 67, null, 64, null,
+            63, null, null, null, 59, null, null, null,
+            64, 63, 64, null, 67, 66, 67, null,
+            72, null, null, null, 76, null, 72, null,
+            71, null, 70, null, 71, null, 75, null,
+            76, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'square', level: 0.14, length: 0.18, brightness: 1500 },
+        sky: {
+            winds: [[6, 2.6], [28, 3.0], [50, 2.8]],
+            birds: [[10, 91], [36, 87], [56, 93]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

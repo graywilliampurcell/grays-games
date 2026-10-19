@@ -40,6 +40,9 @@ const RULES = {
     // blade pushes you back to 'Q' in the cell before), the sneaky
     // storm-cloud spike ('X') and one 3-cell rainbow bridge gap ('O')
     level135: { name: 'Level 135', depth: 2, deadEnds: 34, sneaky: true, platforms: 1, platformCells: 3, vents: 1, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
+    // The tighter squeeze: a path storm-cloud spike ('X', Level 54's
+    // squeeze), one cloud trampoline ('k') and one thick fog (3 cells, 'g')
+    level136: { name: 'Level 136', depth: 2, deadEnds: 34, pathCane: true, trampoline: true, fogs: 1, fogCells: 3, straight: 0.5, relink: true, prunePairs: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
