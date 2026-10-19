@@ -3873,6 +3873,30 @@ const TUNES = {
             birds: [[12, 91], [34, 87], [58, 94]],
         },
     },
+    // Level 141 (welcome to Mushroom Forest World): sneaky and mysterious,
+    // half and half, in B minor at 80 bpm: a soft sine lead that creeps up
+    // from B, hangs, then slips down a half step at a time, climbs to a high
+    // F# and then reaches a strange F natural over the B (the mysterious
+    // part), with tiptoe ticks underneath and a slow F major bar.
+    mushroomwelcome: {
+        tempo: 80,
+        bars: [[35, 'min'], [35, 'min'], [31, 'maj'], [30, 'maj'], [35, 'min'], [29, 'maj'], [31, 'maj'], [30, 'maj']],
+        bass: [0, null, null, 7, null, null, null, null],
+        bassLength: 0.32,
+        stabs: [],
+        ticks: true,
+        melody: [
+            71, null, null, 74, null, 73, null, null,
+            71, null, 70, null, 66, null, null, null,
+            67, null, null, 71, 74, null, 79, null,
+            78, null, null, null, null, null, null, null,
+            71, null, 74, null, 77, null, null, null,
+            76, null, 74, null, 72, null, null, null,
+            74, null, 73, null, 71, null, 70, null,
+            71, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.18, length: 0.26, brightness: 1150 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

@@ -726,6 +726,18 @@ export const FOG_EDGE = 1;
 export const RAINBOW_SOLID = 4;
 export const RAINBOW_FADE = 1;
 export const RAINBOW_GONE = 3;
+// Mushroom Forest World (Level 141 on): the mushroom cap ride. The cap is
+// round, PLATFORM_LENGTH across (CAP_RADIUS = half that), so acid shows
+// round it in the 3-wide corridor; it reaches CAP_OVERHANG over the edge
+// it waits at. It goes only once your middle is within CAP_RING of its
+// middle (a ring about a third of the corridor across). It sets you down
+// CAP_LANDING past the far edge. The acid is ACID_DEPTH below the floor.
+export const CAP_RADIUS = 1.2;
+export const CAP_RING = 0.5;
+const CAP_OVERHANG = 0.4;
+const CAP_LANDING = 1.0;
+const ACID_DEPTH = 3;
+const MUSHROOM_GLOWS = [0x5ff2d8, 0xc79bff, 0xb8ff6a, 0xffa860, 0x7fc8ff];
 const RAINBOW_COLORS = [0xff3b3b, 0xff9a1f, 0xffe03a, 0x3ddc5a, 0x2fa8ff, 0x4b5cff, 0xa64dff];
 // The cannon ride (Level 121 on): a big cannon on each side of a 4-cell
 // water gap, aimed across. Fully inside one, its fuse fizzes for
@@ -2142,6 +2154,117 @@ function mossyStoneTexture(width, height, seed) {
     return texture;
 }
 
+// Mushroom Forest World walls: tall pale mushroom stems side by side, with
+// soft vertical fibres and little glowing specks (it's night, so the stems
+// glow a little themselves)
+function mushroomStemTexture(width, height, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const g = canvas.getContext('2d');
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    const grad = g.createLinearGradient(0, 0, width, 0);
+    grad.addColorStop(0, '#cbbd9e');
+    grad.addColorStop(0.5, '#efe4c8');
+    grad.addColorStop(1, '#cbbd9e');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, width, height);
+    // Fibres running up the stem
+    for (let k = 0; k < 90; k++) {
+        const x = random() * width;
+        g.strokeStyle = `rgba(${random() < 0.5 ? '120,100,70' : '255,250,235'},${0.15 + random() * 0.2})`;
+        g.lineWidth = 1 + random() * 1.5;
+        g.beginPath();
+        g.moveTo(x, 0);
+        g.bezierCurveTo(x + random() * 6 - 3, height / 3, x + random() * 6 - 3, (2 * height) / 3, x + random() * 4 - 2, height);
+        g.stroke();
+    }
+    // A frilly ring (like a real mushroom stem's) part way up
+    const ringY = height * 0.28;
+    g.fillStyle = 'rgba(250,244,226,0.9)';
+    g.fillRect(0, ringY, width, 10);
+    for (let x = 0; x < width; x += 8) {
+        g.beginPath();
+        g.arc(x + 4, ringY + 10, 4, 0, Math.PI);
+        g.fill();
+    }
+    // Glowing specks: teal, lilac and lime
+    const glows = ['rgba(120,255,230,0.9)', 'rgba(210,150,255,0.9)', 'rgba(190,255,110,0.9)'];
+    for (let k = 0; k < 40; k++) {
+        g.fillStyle = glows[Math.floor(random() * glows.length)];
+        g.beginPath();
+        g.arc(random() * width, random() * height, 1 + random() * 2, 0, Math.PI * 2);
+        g.fill();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Mushroom Forest World floor: soft green moss, darker and lighter clumps
+// with a few tiny glowing dots
+function mossTexture(size, seed) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#3f7a32';
+    g.fillRect(0, 0, size, size);
+    let r = seed;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < 500; k++) {
+        const x = random() * size;
+        const y = random() * size;
+        const rad = 2 + random() * 7;
+        const shade = random() * 50 - 25;
+        g.fillStyle = `rgba(${60 + shade},${125 + shade},${45 + shade * 0.5},0.55)`;
+        for (const dx of [-size, 0, size]) for (const dy of [-size, 0, size]) {
+            g.beginPath();
+            g.arc(x + dx, y + dy, rad, 0, Math.PI * 2);
+            g.fill();
+        }
+    }
+    for (let k = 0; k < 30; k++) {
+        g.fillStyle = random() < 0.5 ? 'rgba(200,255,120,0.9)' : 'rgba(140,255,230,0.8)';
+        g.fillRect(random() * size, random() * size, 1.5, 1.5);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
+// Acid: bright glowing green with lighter swirls and bubbles
+function acidTexture() {
+    const size = 128;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#39e52a';
+    g.fillRect(0, 0, size, size);
+    let r = 53;
+    const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+    for (let k = 0; k < 60; k++) {
+        const x = random() * size;
+        const y = random() * size;
+        const rad = 3 + random() * 12;
+        const grad = g.createRadialGradient(x, y, 0, x, y, rad);
+        grad.addColorStop(0, random() < 0.5 ? 'rgba(200,255,120,0.9)' : 'rgba(20,150,20,0.6)');
+        grad.addColorStop(1, 'rgba(60,230,40,0)');
+        g.fillStyle = grad;
+        for (const dx of [-size, 0, size]) for (const dy of [-size, 0, size]) g.fillRect(x + dx - rad, y + dy - rad, rad * 2, rad * 2);
+    }
+    for (let k = 0; k < 25; k++) {
+        g.strokeStyle = 'rgba(230,255,180,0.8)';
+        g.lineWidth = 1;
+        g.beginPath();
+        g.arc(random() * size, random() * size, 1 + random() * 2.5, 0, Math.PI * 2);
+        g.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    return texture;
+}
+
 // Sky World floor: soft green grass with darker and lighter tufts and a few
 // tiny white and yellow flowers
 function grassTexture(size, seed) {
@@ -2961,8 +3084,12 @@ export class Maze {
         const dino = this.theme.dino;
         const pirate = this.theme.pirate;
         const skyland = this.theme.skyland;
+        const mushroom = this.theme.mushroom;
         let wallMaterial;
-        if (skyland) {
+        if (mushroom) {
+            const stems = mushroomStemTexture(128, 512, 157);
+            wallMaterial = new THREE.MeshStandardMaterial({ map: stems, emissiveMap: stems, emissive: 0xffffff, emissiveIntensity: 0.18, roughness: 0.85 });
+        } else if (skyland) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: mossyStoneTexture(128, 512, 149), roughness: 0.95, emissive: 0x1c2418, emissiveIntensity: 0.3 });
         } else if (pirate) {
             wallMaterial = new THREE.MeshStandardMaterial({ map: crateWallTexture(128, 512, 127), roughness: 0.85, emissive: 0x2a1808, emissiveIntensity: 0.3 });
@@ -3015,10 +3142,15 @@ export class Maze {
         if (fluffy) this.addPuffs(count);
         if (underwater) this.addCoralTops(count);
         if (sweets) this.addGumdropTops(count);
+        if (mushroom) this.addMushroomTops(count);
 
         // Floor
         let floorMaterial;
-        if (skyland) {
+        if (mushroom) {
+            const map = mossTexture(256, 163);
+            map.repeat.set(this.width / 8, this.depth / 8);
+            floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
+        } else if (skyland) {
             const map = grassTexture(256, 151);
             map.repeat.set(this.width / 8, this.depth / 8);
             floorMaterial = new THREE.MeshStandardMaterial({ map, roughness: 1 });
@@ -3092,9 +3224,9 @@ export class Maze {
             }
             const geometry = new THREE.ExtrudeGeometry(outline, { depth: 0.2, bevelEnabled: false });
             geometry.rotateX(Math.PI / 2);
-            floorMaterial.map?.repeat.set(factory ? 0.25 : dino || pirate || skyland ? 0.125 : 0.5, factory ? 0.25 : dino || pirate || skyland ? 0.125 : 0.5);
+            floorMaterial.map?.repeat.set(factory ? 0.25 : dino || pirate || skyland || mushroom ? 0.125 : 0.5, factory ? 0.25 : dino || pirate || skyland || mushroom ? 0.125 : 0.5);
             // The gap's edges (the floor's cut sides) are dark, so they don't look like a ledge
-            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : desert ? 0x8a6428 : dino ? 0x4a3420 : pirate ? 0x3a2210 : skyland ? 0x5a3d22 : 0x0b0e18 })]);
+            floor = new THREE.Mesh(geometry, [floorMaterial, new THREE.MeshBasicMaterial({ color: jungle ? 0x3b2414 : moon ? 0x4a4a4f : underwater ? 0x6b5a3e : sweets ? 0x2b160c : volcano ? 0x2a0a04 : ice ? 0x9fe6ff : factory ? 0x2a2c30 : desert ? 0x8a6428 : dino ? 0x4a3420 : pirate ? 0x3a2210 : skyland ? 0x5a3d22 : mushroom ? 0x2a1e2a : 0x0b0e18 })]);
         } else {
             const floorGeometry = new THREE.BoxGeometry(this.width, 0.2, this.depth);
             floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -3117,6 +3249,7 @@ export class Maze {
         if (dino) this.addDinoSky();
         if (pirate) this.addPirateSky();
         if (skyland) this.addSkyIsland();
+        if (mushroom) this.addMushroomSky();
         if (factory) {
             this.addMachineHall();
             this.addFactorySteam(count);
@@ -4452,6 +4585,7 @@ export class Maze {
         // Sky World: the clouds below drift, the rainbows sparkle, the storm clouds' bolts flicker
         if (this.cloudMap) this.cloudMap.offset.x = (this.cloudMap.offset.x + dt * 0.004) % 1;
         if (this.theme.skyland) this.updateSkyLooks(dt);
+        if (this.theme.mushroom) this.updateMushroomLooks(dt);
         if (this.fogs?.length) this.updateFogs(dt);
         if (this.theme.pirate) {
             this.showCannons(dt);
@@ -4670,6 +4804,7 @@ export class Maze {
         if (this.theme.dino) return this.createBoneSpike(position, radius);
         if (this.theme.pirate) return this.createSplinterSpike(position, radius);
         if (this.theme.skyland) return this.createStormCloud(position, radius);
+        if (this.theme.mushroom) return this.createOuchMushroom(position, radius);
         const spike = new THREE.Group();
         const metal = new THREE.MeshStandardMaterial({ color: 0xb8bcc2, metalness: 0.7, roughness: 0.35 });
 
@@ -6433,8 +6568,8 @@ export class Maze {
         const gap = { minX: Math.min(...xs), maxX: Math.max(...xs) + 1, minZ: Math.min(...zs), maxZ: Math.max(...zs) + 1 };
         const alongX = gap.maxX - gap.minX > gap.maxZ - gap.minZ;
         const span = alongX ? gap.maxX - gap.minX : gap.maxZ - gap.minZ;
-        const low = 0;
-        const high = span - PLATFORM_LENGTH;
+        const low = this.theme.mushroom ? -CAP_OVERHANG : 0;
+        const high = span - PLATFORM_LENGTH - low;
         // Which end is on the start's side: walk the floor from the start without crossing the gap
         const inGap = (x, z) => x >= gap.minX && x < gap.maxX && z >= gap.minZ && z < gap.maxZ;
         const seen = new Set();
@@ -6461,6 +6596,8 @@ export class Maze {
         const cannon = !!this.theme.pirate && !plank;
         // Sky World: a rainbow bridge that comes and goes on its own cycle
         const rainbow = !!this.theme.skyland;
+        // Mushroom Forest World: a mushroom cap ride (it reaches a little over each edge it waits at)
+        const cap = !!this.theme.mushroom;
         const width = alongX ? gap.maxZ - gap.minZ : gap.maxX - gap.minX;
         // Pirate Ship World: a cannon on each side, aimed across, and where its shot lands (inside the other)
         const cannons = cannon ? [-CANNON_REACH, span + CANNON_REACH].map((along) => {
@@ -6494,6 +6631,7 @@ export class Maze {
             plank, // Pirate Ship World: a water gap crossed on a fixed plank this fraction of the corridor wide
             cannons,
             rainbow, // Sky World: a rainbow bridge across the gap, solid / fading / gone on its own cycle
+            cap, // Mushroom Forest World: a round mushroom cap that carries you once you stand in the ring round its stem
             rainbowPhase: 'solid', // rainbow: 'solid' | 'fading' | 'gone'
             rainbowTime: 0, // rainbow: seconds into its phase
             held: false, // rainbow: kept from going because you're on it
@@ -6601,6 +6739,12 @@ export class Maze {
         if (p.cannon) return true;
         // The rainbow bridge: only while it's gone (it spans the whole gap)
         if (p.rainbow) return p.rainbowPhase === 'gone';
+        // The mushroom cap: never while it carries you; otherwise your middle off the round cap
+        if (p.cap) {
+            if (p.riding) return false;
+            const c = this.capCentre(p);
+            return Math.hypot(point.x - c.x, point.z - c.z) > CAP_RADIUS;
+        }
         // The plank: anywhere off it (your middle past either side of it)
         if (p.plank) {
             const { across, width } = this.gapCoords(point, p);
@@ -6657,6 +6801,7 @@ export class Maze {
         if (p.cannon) return null; // the cannons fire you over (see updateCannons)
         if (p.plank) return null; // the plank never moves
         if (p.rainbow) return this.updateRainbow(p, dt, position, radius);
+        if (p.cap) return this.updateCap(p, dt, position, velocity, radius);
         if (p.balloon) return this.updateBalloon(p, dt, position, velocity, radius);
         if (p.sled) return this.updateSled(p, dt, position, velocity, radius);
         if (p.carpet) return this.updateCarpet(p, dt, position, velocity, radius);
@@ -7226,6 +7371,12 @@ export class Maze {
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
     createPlatform(p) {
+        if (p.cap) {
+            this.createAcidPit(p);
+            this.createMushroomCap(p);
+            this.showPlatform(p);
+            return;
+        }
         if (p.rainbow) {
             this.createSkyHole(p);
             this.createRainbow(p);
@@ -9099,6 +9250,305 @@ export class Maze {
             flyer.object.position.y += Math.sin(flyer.bob * 1.6) * dt * 1.2;
             flyer.tail.forEach((bow, n) => { bow.position.x = Math.sin(flyer.bob * 3 + n * 0.8) * 0.25 * n; });
         }
+    }
+
+    // ---- Mushroom Forest World (Levels 141-150) ----
+
+    // Glowing mushroom caps on top of the walls: one round cap on most wall
+    // columns, in soft glowing teal, lilac, lime and orange, so the walls
+    // read as giant mushrooms (stems below, caps on top)
+    addMushroomTops(wallCount) {
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const caps = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), material, wallCount);
+        const matrix = new THREE.Matrix4();
+        const color = new THREE.Color();
+        let r = 41;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        let n = 0;
+        for (let x = 0; x < this.width; x++) {
+            for (let z = 0; z < this.depth; z++) {
+                if (this.grid[x][z] !== 1) continue;
+                const size = 0.62 + random() * 0.25;
+                matrix.makeScale(size, size * (0.45 + random() * 0.25), size);
+                matrix.setPosition(x + 0.5, this.height - 0.05, z + 0.5);
+                caps.setMatrixAt(n, matrix);
+                caps.setColorAt(n++, color.set(MUSHROOM_GLOWS[Math.floor(random() * MUSHROOM_GLOWS.length)]));
+            }
+        }
+        caps.count = n;
+        this.root.add(caps);
+    }
+
+    // The night sky: stars all round, and glowing spores floating slowly up
+    // and drifting over the maze (just to look at: nothing to bump into)
+    addMushroomSky() {
+        const cx = this.width / 2;
+        const cz = this.depth / 2;
+        const positions = [];
+        let r = 211;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        for (let i = 0; i < 1400; i++) {
+            const a = random() * Math.PI * 2;
+            const y = 0.05 + random() * 0.95;
+            const flat = Math.sqrt(1 - y * y);
+            positions.push(cx + Math.cos(a) * flat * 400, y * 400, cz + Math.sin(a) * flat * 400);
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        this.root.add(new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0xffffff, size: 1.4, sizeAttenuation: false, fog: false })));
+        // A pale moon
+        const moon = new THREE.Mesh(new THREE.SphereGeometry(16, 24, 16), new THREE.MeshBasicMaterial({ color: 0xf4f0d8, fog: false }));
+        moon.position.set(cx + 150, 130, cz - 190);
+        this.root.add(moon);
+        // The spores: soft glowing dots
+        const count = Math.round(this.width * this.depth / 6);
+        const spores = new Float32Array(count * 3);
+        this.spores = [];
+        for (let k = 0; k < count; k++) {
+            const s = { x: random() * this.width, y: random() * 9, z: random() * this.depth, rise: 0.15 + random() * 0.25, phase: random() * 6, sway: 0.2 + random() * 0.3 };
+            this.spores.push(s);
+            spores.set([s.x, s.y, s.z], k * 3);
+        }
+        const sporeGeometry = new THREE.BufferGeometry();
+        sporeGeometry.setAttribute('position', new THREE.BufferAttribute(spores, 3));
+        this.sporePoints = new THREE.Points(sporeGeometry, new THREE.PointsMaterial({ color: 0xc8ff8a, size: 0.14, map: glowTexture(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+        this.root.add(this.sporePoints);
+    }
+
+    // The spores float up slowly, swaying, and start again low down at the top
+    updateMushroomLooks(dt) {
+        if (this.sporePoints) {
+            const pos = this.sporePoints.geometry.attributes.position;
+            this.spores.forEach((s, k) => {
+                s.phase += dt;
+                s.y += s.rise * dt;
+                if (s.y > 9) s.y = 0.2;
+                pos.setXYZ(k, s.x + Math.sin(s.phase * 0.7) * s.sway, s.y, s.z + Math.cos(s.phase * 0.5) * s.sway);
+            });
+            pos.needsUpdate = true;
+        }
+        for (const p of this.platforms) {
+            if (p.acidMap) p.acidMap.offset.x = (p.acidMap.offset.x + dt * 0.05) % 1;
+            if (p.capRing) {
+                // The ring round the stem glows brighter and softer, gently
+                p.capClock = (p.capClock ?? 0) + dt;
+                p.capRing.material.opacity = 0.75 + 0.25 * Math.sin(p.capClock * 3);
+            }
+            for (const b of p.acidBubbles ?? []) {
+                b.time += dt;
+                const t = (b.time % b.every) / b.every;
+                b.mesh.scale.setScalar(t < 0.8 ? 0.4 + t : 0.01);
+            }
+        }
+    }
+
+    // The Ouch mushroom (the spike): a red cap with white spots on a cream
+    // stem, as wide as the level's spike. Touching it works the same as a spike.
+    createOuchMushroom(position, radius) {
+        const group = new THREE.Group();
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.3, radius * 0.38, 0.75, 14), new THREE.MeshStandardMaterial({ color: 0xf2e6c8, roughness: 0.8 }));
+        stem.position.y = 0.375;
+        stem.castShadow = true;
+        group.add(stem);
+        const cap = new THREE.Mesh(new THREE.SphereGeometry(radius, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xe8303a, roughness: 0.45, emissive: 0x5a0808, emissiveIntensity: 0.5 }));
+        cap.scale.y = 0.6;
+        cap.position.y = 0.7;
+        cap.castShadow = true;
+        group.add(cap);
+        // The cap's flat underside
+        const under = new THREE.Mesh(new THREE.CircleGeometry(radius, 24), new THREE.MeshStandardMaterial({ color: 0xe8d8b0, side: THREE.DoubleSide }));
+        under.rotation.x = Math.PI / 2;
+        under.position.y = 0.7;
+        group.add(under);
+        // White spots on the cap
+        const spot = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
+        const spotGeometry = new THREE.SphereGeometry(1, 8, 6);
+        for (const [a, up] of [[0, 1.2], [1.1, 0.75], [2.2, 0.7], [3.3, 0.8], [4.4, 0.72], [5.5, 0.78], [0.55, 0.35], [2.75, 0.4], [4.9, 0.35]]) {
+            const s = new THREE.Mesh(spotGeometry, spot);
+            const sz = radius * 0.13;
+            s.scale.set(sz, sz * 0.5, sz);
+            // a point on the cap's dome
+            const tilt = Math.min(up, Math.PI / 2) * 0.9;
+            const ring = Math.cos(Math.PI / 2 - tilt);
+            s.position.set(Math.cos(a) * radius * ring, 0.7 + radius * 0.6 * Math.sin(Math.PI / 2 - tilt), Math.sin(a) * radius * ring);
+            group.add(s);
+        }
+        group.position.copy(position);
+        group.position.y = 0;
+        this.root.add(group);
+        return group;
+    }
+
+    // The mushroom cap ride's acid gap: dark earthy sides go down ACID_DEPTH
+    // to a pool of bright, glowing green acid, bubbling now and then
+    createAcidPit(p) {
+        const g = p.gap;
+        const cx = (g.minX + g.maxX) / 2;
+        const cz = (g.minZ + g.maxZ) / 2;
+        const sizeX = g.maxX - g.minX;
+        const sizeZ = g.maxZ - g.minZ;
+        const earth = new THREE.MeshStandardMaterial({ color: 0x3a2a3a, roughness: 1, side: THREE.DoubleSide });
+        for (const [w, d, x, z] of [
+            [sizeX, 0.05, cx, g.minZ], [sizeX, 0.05, cx, g.maxZ],
+            [0.05, sizeZ, g.minX, cz], [0.05, sizeZ, g.maxX, cz],
+        ]) {
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ACID_DEPTH, d), earth);
+            wall.position.set(x, -0.2 - ACID_DEPTH / 2, z);
+            this.root.add(wall);
+        }
+        const map = acidTexture();
+        map.repeat.set(sizeX / 3, sizeZ / 3);
+        const acid = new THREE.Mesh(new THREE.PlaneGeometry(sizeX, sizeZ), new THREE.MeshBasicMaterial({ map }));
+        acid.rotation.x = -Math.PI / 2;
+        acid.position.set(cx, -ACID_DEPTH, cz);
+        this.root.add(acid);
+        p.acidMap = map;
+        // A green glow rising off the acid, seen from above
+        const haze = new THREE.Mesh(new THREE.PlaneGeometry(sizeX, sizeZ), new THREE.MeshBasicMaterial({ color: 0x7dff5a, transparent: true, opacity: 0.18, depthWrite: false }));
+        haze.rotation.x = -Math.PI / 2;
+        haze.position.set(cx, -ACID_DEPTH * 0.45, cz);
+        this.root.add(haze);
+        // Bubbles that swell and pop
+        let r = 71;
+        const random = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+        const bubble = new THREE.MeshBasicMaterial({ color: 0xc8ff8a });
+        p.acidBubbles = [];
+        for (let k = 0; k < 8; k++) {
+            const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2), bubble);
+            mesh.position.set(g.minX + random() * sizeX, -ACID_DEPTH, g.minZ + random() * sizeZ);
+            this.root.add(mesh);
+            p.acidBubbles.push({ mesh, time: random() * 3, every: 1.5 + random() * 2 });
+        }
+        // A lime glow along each edge, so the gap shows from far off
+        const edge = new THREE.MeshBasicMaterial({ color: 0x9dff6a });
+        const width = p.alongX ? sizeZ : sizeX;
+        for (const end of [0, p.span]) {
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(width, 0.05, 0.1), edge);
+            if (p.alongX) {
+                strip.rotation.y = Math.PI / 2;
+                strip.position.set(g.minX + end + (end ? 0.05 : -0.05), 0.01, cz);
+            } else {
+                strip.position.set(cx, 0.01, g.minZ + end + (end ? 0.05 : -0.05));
+            }
+            this.root.add(strip);
+        }
+    }
+
+    // The mushroom cap ride: a big round orange-brown cap (CAP_RADIUS),
+    // its top level with the floor, with cream gills underneath and its thick
+    // stem in the middle reaching straight down into the acid. A glowing
+    // yellow ring round the middle (over the stem, CAP_RING) shows where to
+    // stand to make it go.
+    createMushroomCap(p) {
+        const group = new THREE.Group();
+        const top = new THREE.Mesh(new THREE.CylinderGeometry(CAP_RADIUS, CAP_RADIUS * 0.96, 0.2, 48), new THREE.MeshStandardMaterial({ color: 0xc8742c, roughness: 0.7, emissive: 0x3a1a06, emissiveIntensity: 0.5 }));
+        top.position.y = -0.06; // its top just over the floor, so it sits over the edge strip
+        top.receiveShadow = true;
+        group.add(top);
+        // A paler rim, so the cap's round edge shows against the acid
+        const rim = new THREE.Mesh(new THREE.TorusGeometry(CAP_RADIUS - 0.04, 0.06, 8, 64), new THREE.MeshStandardMaterial({ color: 0xf0b070, roughness: 0.6 }));
+        rim.rotation.x = Math.PI / 2;
+        rim.position.y = 0.02;
+        group.add(rim);
+        // Light speckles on top
+        const speck = new THREE.MeshStandardMaterial({ color: 0xf6d6a0, roughness: 0.7 });
+        for (let k = 0; k < 9; k++) {
+            const a = k * 2.4;
+            const d = 0.7 + (k % 3) * 0.13;
+            const s = new THREE.Mesh(new THREE.CircleGeometry(0.08 + (k % 2) * 0.04, 10), speck);
+            s.rotation.x = -Math.PI / 2;
+            s.position.set(Math.cos(a) * d, 0.045, Math.sin(a) * d);
+            group.add(s);
+        }
+        // The gills: a shallow cream dome under the cap
+        const gills = new THREE.Mesh(new THREE.SphereGeometry(CAP_RADIUS * 0.96, 32, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xe8d8b0, roughness: 0.9 }));
+        gills.scale.y = 0.3;
+        gills.position.y = -0.18;
+        group.add(gills);
+        // The stem, straight down into the acid
+        const stemLength = ACID_DEPTH + 0.6;
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.42, stemLength, 16), new THREE.MeshStandardMaterial({ color: 0xf2e6c8, roughness: 0.8 }));
+        stem.position.y = -0.2 - stemLength / 2;
+        group.add(stem);
+        // The glowing yellow ring round the stem, and a soft glow inside it
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(CAP_RING, 0.045, 8, 48), new THREE.MeshBasicMaterial({ color: 0xffe040, transparent: true }));
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = 0.06;
+        group.add(ring);
+        const inside = new THREE.Mesh(new THREE.CircleGeometry(CAP_RING, 32), new THREE.MeshBasicMaterial({ color: 0xfff2a0, transparent: true, opacity: 0.3, depthWrite: false }));
+        inside.rotation.x = -Math.PI / 2;
+        inside.position.y = 0.05;
+        group.add(inside);
+        this.root.add(group);
+        p.object = group;
+        p.capRing = ring;
+    }
+
+    // The middle of a mushroom cap (world x, z), where its stem is
+    capCentre(p) {
+        const g = p.gap;
+        const middle = p.at + PLATFORM_LENGTH / 2;
+        return p.alongX ? { x: g.minX + middle, z: (g.minZ + g.maxZ) / 2 } : { x: (g.minX + g.maxX) / 2, z: g.minZ + middle };
+    }
+
+    // Run one mushroom cap ride. It waits at an edge, reaching a little over
+    // it. It sets off only once your middle is inside the yellow ring round
+    // its stem (anywhere else on it, it just waits, and you can walk off its
+    // edge into the acid). After PLATFORM_WAIT it carries you to the other
+    // edge at Level 17's platform speed, and you can't leave it or fall off
+    // while it moves; there it sets you down on the floor past the edge
+    // ('land': main.js walks you out to this.landing). Empty, it floats over
+    // to whichever edge you come to. Returns 'depart' or 'land'.
+    updateCap(p, dt, position, velocity, radius) {
+        const { along, across, width } = this.gapCoords(position, p);
+        const inRange = across >= 0 && across < width;
+        let centre = this.capCentre(p);
+        const distance = Math.hypot(position.x - centre.x, position.z - centre.z);
+        const touching = distance < CAP_RADIUS + radius;
+        let event = null;
+        if (p.mustLeave && !touching) p.mustLeave = false;
+        if (!p.riding && p.at === p.target && distance <= CAP_RING && !p.mustLeave) {
+            Object.assign(p, { riding: true, wait: PLATFORM_WAIT, target: p.at === p.low ? p.high : p.low });
+        }
+        if (p.riding) {
+            if (p.wait > 0) {
+                p.wait -= dt;
+            } else {
+                if (p.at === (p.target === p.high ? p.low : p.high)) event = 'depart';
+                const before = p.at;
+                p.at = p.target > p.at ? Math.min(p.target, p.at + p.speed * dt) : Math.max(p.target, p.at - p.speed * dt);
+                if (p.alongX) position.x += p.at - before;
+                else position.z += p.at - before;
+                if (p.at === p.target) {
+                    Object.assign(p, { riding: false, mustLeave: true });
+                    // Set down on the floor just past the edge it came to
+                    const g = p.gap;
+                    const out = p.at === p.high ? p.span + CAP_LANDING : -CAP_LANDING;
+                    this.landing = p.alongX ? new THREE.Vector3(g.minX + out, 0, (g.minZ + g.maxZ) / 2) : new THREE.Vector3((g.minX + g.maxX) / 2, 0, g.minZ + out);
+                    event = 'land';
+                }
+            }
+            // Keep you on the cap while it's carrying you (or about to)
+            centre = this.capCentre(p);
+            const dx = position.x - centre.x;
+            const dz = position.z - centre.z;
+            const d = Math.hypot(dx, dz);
+            const reach = CAP_RADIUS - radius;
+            if ((p.riding || event === 'land') && d > reach) {
+                position.x = centre.x + (dx / d) * reach;
+                position.z = centre.z + (dz / d) * reach;
+                velocity.x = 0;
+                velocity.z = 0;
+            }
+        } else if (!touching && p.at === p.target && inRange) {
+            // Empty: float over to whichever edge you come to
+            if (p.at !== p.low && along < 0 && along > -PLATFORM_CALL_DISTANCE) p.target = p.low;
+            if (p.at !== p.high && along > p.span && along < p.span + PLATFORM_CALL_DISTANCE) p.target = p.high;
+        } else if (!p.riding && p.at !== p.target) {
+            p.at = p.target > p.at ? Math.min(p.target, p.at + p.speed * dt) : Math.max(p.target, p.at - p.speed * dt);
+        }
+        this.showPlatform(p);
+        return event;
     }
 
     addPirateSky() {

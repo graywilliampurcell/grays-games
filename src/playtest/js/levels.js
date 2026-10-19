@@ -80,6 +80,12 @@ const PIRATE = { wall: 0x8a5a2b, floor: 0xb07a45, sky: 0x8fd3ff, pirate: true };
 // are little storm clouds with lightning bolts poking down, and the gaps
 // are crossed on rainbow bridges that come and go (see Maze.js).
 const SKY = { wall: 0x8a8f96, floor: 0x5fae3e, sky: 0x7cc8ff, skyland: true };
+// Levels 141-150, Mushroom Forest World: walls of giant glowing mushroom
+// stems and caps, a soft green moss floor, no ceiling, a dark night sky with
+// stars and glowing spores floating slowly by; the spikes are red Ouch
+// mushrooms with white spots, and the gaps are pits of glowing green acid
+// crossed on a mushroom cap ride (see Maze.js).
+const MUSHROOM = { wall: 0xe8dcc0, floor: 0x3f7a32, sky: 0x0b1030, mushroom: true };
 
 export const LEVELS = [
     {
@@ -8296,6 +8302,7 @@ export const LEVELS = [
         theme: SKY,
         music: 'skyfinale',
         finale: 'You beat Sky World!',
+        nextLabel: 'Start Mushroom Forest World',
         layout: [
         '#####################################################',
         '#                           #           #           #',
@@ -8352,13 +8359,86 @@ export const LEVELS = [
         '#####################################################',
         ],
     },
+    {
+        name: 'Level 141',
+        // Welcome to Mushroom Forest World. `SEEDS=40 node
+        // tools/find-mushroom-level.mjs level141 30 1410040`, seed 1410042.
+        // 14 x 14 corridors. Correct path 103 cells (start west in row 6,
+        // door east in row 1); 30 wrong ways, every one 3 cells deep, plus
+        // the sneaky Ouch mushroom's. X: the sneaky Ouch mushroom, in the
+        // last cell of a 3-deep one-turn dead end off path cell 3. O: the
+        // mushroom cap ride's 3-cell acid gap over path cells 39-41 (column
+        // 7, crossed heading south). No path or big Ouch mushroom, no other
+        // new things. A sneaky, mysterious tune.
+        theme: MUSHROOM,
+        music: 'mushroomwelcome',
+        layout: [
+        '#########################################################',
+        '#                                                       #',
+        '#                                                       #',
+        '#                                                       #',
+        '#   #################################   #############   #',
+        '#   #                               #           #   #   #',
+        '#   #                               #           #   #   D',
+        '#   #                               #           #   #   #',
+        '#   #   #########   #############   #############   #   #',
+        '#   #           #       #       #                   #   #',
+        '#   #           #       #       #                   #   #',
+        '#   #           #       #       #                   #   #',
+        '#   #########   #####   #   #############   #########   #',
+        '#               #   #   #   #           #       #       #',
+        '#               #   #   #   #           #       #       #',
+        '#               #   #   #   #           #       #       #',
+        '#########   #   #   #####   #   #########   #   #########',
+        '#           #       #           #       #   #       #   #',
+        '#           #       #           #       #   #       #   #',
+        '#           #       #           #       #   #       #   #',
+        '#####################   #####   #   #   #   #########   #',
+        '#           #       #       #   #   #       #       #   #',
+        '#           #       #       #   #   #       #       #   #',
+        '#           #       #       #   #   #       #       #   #',
+        '#########   #   #   #   #   #   #   #############   #   #',
+        '#               #   #   #   #   #   #           #   #   #',
+        '# S             #   #   #   #   #   #           #   #   #',
+        '#               #   #   #   #   #   #           #   #   #',
+        '#####   #   #   #####   #   #   #   #   #########   #   #',
+        '#       #   #   #       #   #OOO#   #                   #',
+        '#       #   #   #       #   #OOO#   #                   #',
+        '#       #   #   #       #   #OOO#   #                   #',
+        '#   #####   #   #   #########OOO#   #   #############   #',
+        '#   #       #   #           #OOO#   #               #   #',
+        '#   # X     #   #           #OOO#   #               #   #',
+        '#   #       #   #           #OOO#   #               #   #',
+        '#############   #########   #OOO#   #   #############   #',
+        '#               #       #   #OOO#                   #   #',
+        '#               #       #   #OOO#                   #   #',
+        '#               #       #   #OOO#                   #   #',
+        '#############   #   #####   #   #####################   #',
+        '#   #       #       #   #   #                           #',
+        '#   #       #       #   #   #                           #',
+        '#   #       #       #   #   #                           #',
+        '#   #####   #   #####   #   #####   #   #   #   #   #   #',
+        '#       #               #       #   #   #   #   #   #   #',
+        '#       #               #       #   #   #   #   #   #   #',
+        '#       #               #       #   #   #   #   #   #   #',
+        '#####   #####   #############   #   #   #   #   #   #   #',
+        '#                           #   #   #   #   #   #   #   #',
+        '#                           #   #   #   #   #   #   #   #',
+        '#                           #   #   #   #   #   #   #   #',
+        '#   #########################   #   #   #   #   #   #   #',
+        '#                               #   #   #   #   #   #   #',
+        '#                               #   #   #   #   #   #   #',
+        '#                               #   #   #   #   #   #   #',
+        '#########################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
 // the index of its first and last built level and its look. A level's world
 // is its theme, or its `world` name when it has one (Everything World,
 // Levels 91-100: each level wears an earlier world's theme).
-const lookOf = (theme) => theme.skyland ? 'sky' : theme.pirate ? 'pirate' : theme.dino ? 'dino' : theme.desert ? 'desert' : theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
+const lookOf = (theme) => theme.mushroom ? 'mushroom' : theme.skyland ? 'sky' : theme.pirate ? 'pirate' : theme.dino ? 'dino' : theme.desert ? 'desert' : theme.factory ? 'factory' : theme.ice ? 'ice' : theme.volcano ? 'volcano' : theme.sweets ? 'sweets' : theme.underwater ? 'sea' : theme.moon ? 'moon' : theme.space ? 'space' : theme.jungle ? 'jungle' : 'candy';
 // The look of one level's button: its own theme's look (Level 100: all of them)
 export const levelLook = (level) => level.look ?? lookOf(level.theme);
 export const WORLDS = [];

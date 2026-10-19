@@ -753,6 +753,8 @@ function step(deltaTime) {
     if (platformEvent === 'land') player.startShove(maze.landing, BALLOON_STEP_OUT_TIME);
     // The long-neck (Dinosaur World): a soft friendly rumble as it swings you across
     if (platformEvent === 'depart' && maze.theme.dino) sound.whoosh(0.7, 0.4);
+    // The mushroom cap ride (Mushroom Forest World): a soft whoosh as it sets off with you
+    if (platformEvent === 'depart' && maze.theme.mushroom) sound.whoosh(0.5, 0.4);
     // The rainbow bridge (Sky World): a soft shimmer as it appears, quieter the further you are
     if (platformEvent === 'appear' && maze.theme.skyland) {
         const p = maze.eventPlatform ?? maze.platforms.reduce((a, b) => (horizontalDistance(player.position, platformMiddle(b)) < horizontalDistance(player.position, platformMiddle(a)) ? b : a));
@@ -834,6 +836,7 @@ function checkSpikeAndDoor() {
                 : maze.theme.dino ? 'Ouch! A bone spike sent you back to the start.'
                 : maze.theme.pirate ? 'Ouch! A splinter spike sent you back to the start.'
                 : maze.theme.skyland ? 'Ouch! A storm cloud sent you back to the start.'
+                : maze.theme.mushroom ? 'Ouch! An Ouch mushroom sent you back to the start.'
                 : 'Ouch! A spike sent you back to the start.');
     }
 
@@ -853,6 +856,7 @@ function checkSpikeAndDoor() {
                 : maze.theme.desert ? 'Ouch! You fell in the sand pit. Back to the start.'
                 : maze.theme.dino ? 'Ouch! You fell in the pit. Back to the start.'
                 : maze.theme.skyland ? 'Ouch! You fell off the island. Back to the start.'
+                : maze.theme.mushroom ? 'Ouch! You fell in the acid. Back to the start.'
                 : 'Whoops! You fell off. Back to the start.');
     }
 
