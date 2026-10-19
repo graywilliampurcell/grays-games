@@ -56,6 +56,11 @@ const RULES = {
     // hallways (4 cells each, blowing back toward the start) and a path
     // storm-cloud spike ('X', Level 56's gap)
     level139: { name: 'Level 139', depth: 3, deadEnds: 24, pathCane: true, vents: 1, platforms: 2, platformCells: 3, winds: 2, windCells: 4, windAgainst: true, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // The Sky World finale (Gray's design): every dead end 3 deep, two windy
+    // hallways (4 cells each, blowing back toward the start), one thick fog
+    // (3 cells, 'g'), one slow propeller ('H'), one big storm-cloud spike
+    // ('Y'), two cloud trampolines ('k') and two 3-cell rainbow bridge gaps ('O')
+    level140: { name: 'Level 140', depth: 3, deadEnds: 24, winds: 2, windCells: 4, windAgainst: true, fogs: 1, fogCells: 3, vents: 1, bigCane: true, trampoline: true, trampolines: 2, platforms: 2, platformCells: 3, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

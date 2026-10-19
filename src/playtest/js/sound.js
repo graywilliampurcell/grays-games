@@ -3843,6 +3843,36 @@ const TUNES = {
             birds: [[14, 90], [30, 86], [50, 93], [62, 88]],
         },
     },
+    // Level 140 (the Sky World finale): the sneakiest and most mysterious
+    // Sky World tune, still half and half, in C-sharp minor at 76 bpm: a
+    // soft triangle lead creeps up one half step at a time, stops, then
+    // leaps up high and floats back down through a strange A major and a
+    // bright G-sharp major, like peeking out over the clouds. Wind and
+    // far-off birdsong in the background, quieter than the melody, with
+    // three big gusts.
+    skyfinale: {
+        tempo: 76,
+        bars: [[37, 'min'], [37, 'min'], [33, 'maj'], [32, 'maj'], [37, 'min'], [30, 'min'], [33, 'maj'], [32, 'maj']],
+        bass: [0, null, null, null, null, null, 7, null],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            61, null, 62, null, 63, null, 64, null,
+            null, null, 61, null, null, null, null, null,
+            73, null, null, 71, 69, null, null, null,
+            68, null, null, null, 64, null, null, null,
+            61, null, 62, null, 63, null, 64, null,
+            null, null, 66, null, 69, null, null, null,
+            73, null, 76, null, 75, null, 73, null,
+            68, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.2, length: 0.28, brightness: 1300 },
+        sky: {
+            winds: [[0, 3.6], [24, 3.2], [48, 3.6]],
+            birds: [[12, 91], [34, 87], [58, 94]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

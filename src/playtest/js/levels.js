@@ -8271,6 +8271,87 @@ export const LEVELS = [
         '#####################################################',
         ],
     },
+    {
+        name: 'Level 140',
+        // The Sky World finale (Gray's design). `SEEDS=40 node
+        // tools/find-sky-level.mjs level140 24 1400080`, seed 1400085. 13 x 13
+        // corridors. Correct path 97 cells (start west in row 3, golden door
+        // east in row 11); 24 wrong ways, every one 3 cells deep. Along the
+        // path: k the first cloud trampoline in path cell 22 (bounces you
+        // south over the wall to path cell 23); O the first rainbow bridge's
+        // gap over path cells 34-36 (row 12, crossed heading east); v the
+        // first windy hallway over path cells 41-44 (column 6, walked heading
+        // north; the wind blows south, back toward the start); k the second
+        // cloud trampoline in path cell 51 (bounces you north to path cell
+        // 52); Y the big storm-cloud spike filling the opening of the
+        // straight wrong way off path cell 57; O the second rainbow bridge's
+        // gap over path cells 62-64 (column 12, crossed heading south); g the
+        // thick fog over path cells 67-69 (column 12, heading south); ^ the
+        // second windy hallway over path cells 82-85 (column 7, walked
+        // heading south; the wind blows north); H the slow propeller in path
+        // cell 90 (row 12, heading east), pushing you back to Q in path cell
+        // 89. No path or sneaky spike. Golden door, confetti, the extra-long
+        // cheer and "You beat Sky World!" + "More levels coming soon!".
+        // Music: the sneakiest, most mysterious Sky World tune.
+        theme: SKY,
+        music: 'skyfinale',
+        finale: 'You beat Sky World!',
+        layout: [
+        '#####################################################',
+        '#                           #           #           #',
+        '#                           #           #           #',
+        '#                           #           #           #',
+        '#   #   #####   #####################   #   #########',
+        '#   #   #   #           #                           #',
+        '#   #   #   #           #                           #',
+        '#   #   #   #           #                           #',
+        '#   #   #   #   #####   #############   #########   #',
+        '#   #   #   #       #   #               #       #OOO#',
+        '#   #   #   #       #   #          Y    #       #OOO#',
+        '#   #   #   #       #   #               #       #OOO#',
+        '#####   #   #   #   #################   #   #   #OOO#',
+        '#           #   #       #                   #   #OOO#',
+        '# S         #   #       #                   #   #OOO#',
+        '#           #   #       #                   #   #OOO#',
+        '#############   #################################OOO#',
+        '#               #   #           #           #   #OOO#',
+        '#               #   #           #           # k #OOO#',
+        '#               #   #           #           #   #OOO#',
+        '#   #############   #########   #   #########   #   #',
+        '#   #           #       #                       #   #',
+        '#   #           #       #                       #   #',
+        '#   #           #       #                       #   #',
+        '#   #   #############   #   #############   #####   #',
+        '#                       #vvv#       #       #   #   #',
+        '#                       #vvv#       #       #   #   #',
+        '#                       #vvv#       #       #   #   #',
+        '#########   #   #####   #vvv#   #   #   #####   #   #',
+        '#           #       #   #vvv#^^^#   #   #   #   #ggg#',
+        '#           #       # k #vvv#^^^#   #   #   #   #ggg#',
+        '#           #       #   #vvv#^^^#   #   #   #   #ggg#',
+        '#################   #####vvv#^^^#   #####   #   #ggg#',
+        '#   #           #   #   #vvv#^^^#           #    ggg#',
+        '#   #           #   #   #vvv#^^^#           #    ggg#',
+        '#   #           #   #   #vvv#^^^#           #    ggg#',
+        '#   #   #############   #vvv#^^^#   #############ggg#',
+        '#   #                   #vvv#^^^#   #           #ggg#',
+        '#   #                   #vvv#^^^#   #           #ggg#',
+        '#   #                   #vvv#^^^#   #           #ggg#',
+        '#   #   #########   #####   #^^^#   #########   #   #',
+        '#       #       #   #       #^^^#   #               #',
+        '#       #       #   #       #^^^#   #               #',
+        '#       #       #   #       #^^^#   #               #',
+        '#####   #   #####   #   #####   #   #   #############',
+        '#           #       #   #       #       #       #   #',
+        '#           #       #   #       #       #       #   D',
+        '#           #       #   #       #       #       #   #',
+        '#   #################   #   #############   #   #   #',
+        '#        OOOOOOOOOOO    #        HHH        #       #',
+        '#        OOOOOOOOOOO    #     Q  HHH        #       #',
+        '#        OOOOOOOOOOO    #        HHH        #       #',
+        '#####################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
