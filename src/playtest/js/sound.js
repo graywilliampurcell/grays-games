@@ -4046,6 +4046,31 @@ const TUNES = {
         ],
         lead: { wave: 'square', level: 0.11, length: 0.18, brightness: 1400 },
     },
+    // Level 148 (two cap rides): sneaky and mysterious, half and half, in
+    // E minor at 88 bpm: a soft triangle lead that rocks back and forth
+    // between a low note and a high one, like a cap ride going over and
+    // coming back, twice, then a sleepy mysterious bar that sinks slowly
+    // through a C major chord and a strange D-sharp before it creeps back
+    // up, with tiptoe ticks underneath.
+    mushroomrides: {
+        tempo: 88,
+        bars: [[40, 'min'], [40, 'min'], [36, 'maj'], [35, 'maj'], [40, 'min'], [45, 'min'], [36, 'maj'], [35, 'maj']],
+        bass: [0, null, 7, null, 0, null, 7, null],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            64, null, null, 72, null, null, 64, null,
+            71, null, null, 64, null, null, null, null,
+            64, null, null, 72, null, null, 64, null,
+            76, null, null, null, 75, null, null, null,
+            72, null, 71, null, 69, null, 67, null,
+            64, null, null, null, 63, null, null, null,
+            60, null, null, 63, null, null, 67, null,
+            71, null, null, null, 64, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.13, length: 0.24, brightness: 1300 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

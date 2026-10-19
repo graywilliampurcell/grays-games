@@ -9,6 +9,7 @@
 //   SEEDS=40 node tools/find-mushroom-level.mjs level145 30 1450000   # a firefly swarm ('g', 3 cells) + the sneaky Ouch mushroom + a sleepy mushroom
 //   SEEDS=40 node tools/find-mushroom-level.mjs level146 30 1460000   # a path Ouch mushroom (Level 54's squeeze) + a bright firefly + a mushroom cap ride
 //   SEEDS=40 node tools/find-mushroom-level.mjs level147 30 1470000   # two trench bounces + a firefly swarm + a big Ouch mushroom
+//   SEEDS=40 node tools/find-mushroom-level.mjs level148 30 1480000   # two mushroom cap rides + two sleepy mushrooms + a bright firefly
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -53,6 +54,10 @@ const RULES = {
     // Two trench bounces ('b', each its own straight stretch), one firefly
     // swarm ('g', 3 cells) and one big Ouch mushroom ('Y')
     level147: { name: 'Level 147', depth: 3, deadEnds: 30, trenches: 2, fogs: 1, fogCells: 3, bigCane: true, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // Two mushroom cap rides ('O', each its own 3-cell gap in its own
+    // straight stretch), two sleepy mushrooms ('z', rule.sleepies) and one
+    // bright firefly ('e')
+    level148: { name: 'Level 148', depth: 3, deadEnds: 30, platforms: 2, platformCells: 3, ownStretch: true, sleepies: 2, fireflies: 1, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -595,6 +600,19 @@ function place(path, hung, random) {
         out.pathCane = options[Math.floor(random() * options.length)];
         spans.push([out.pathCane, out.pathCane]);
     }
+    // Sleepy mushrooms (rule.sleepies, Level 148 on): each placed like the
+    // path spike, a plain cell in a straight stretch visible on approach
+    out.sleepies = [];
+    for (let n = 0; n < (rule.sleepies ?? 0); n++) {
+        const options = [];
+        for (let k = Math.ceil(path.length * 0.15); k <= Math.floor(path.length * 0.85); k++) {
+            if (plain(k) && step(path[k - 2], path[k - 1]) === step(path[k - 1], path[k]) && fits([k, k])) options.push(k);
+        }
+        if (options.length === 0) return null;
+        const k = options[Math.floor(random() * options.length)];
+        out.sleepies.push(k);
+        spans.push([k, k]);
+    }
     // The big spike: a straight dead end (all DEPTH cells in a line from its opening)
     if (rule.bigCane) {
         const options = hung.chains.map((chain, c) => ({ chain, at: hung.roots[c] }))
@@ -795,6 +813,7 @@ const layout = toLayout(hung.links, { startCell: best.startCell, exitCell: best.
 const put = ([x, z], ch) => { layout[z][x] = ch; };
 if (hung.sneaky && placed.pathCane !== undefined) put([4 * path[placed.pathCane].i + 2, 4 * path[placed.pathCane].j + 2], 'Z');
 if (rule.sleepy && placed.pathCane !== undefined) put([4 * path[placed.pathCane].i + 2, 4 * path[placed.pathCane].j + 2], 'z');
+for (const k of placed.sleepies) put([4 * path[k].i + 2, 4 * path[k].j + 2], 'z');
 if (placed.bigCane) put(rowBlock(path[placed.bigCane.at], placed.bigCane.chain[0]), 'Y');
 if (placed.current) {
     const cell = path[placed.current.index];
@@ -906,6 +925,7 @@ if (placed.caramel.length) console.log(`caramel on the path: cells ${[...placed.
 placed.winds.forEach((w) => console.log(`windy hallway: path cells ${w + 1}-${w + (rule.windCells ?? 4)} (${key(path[w])} ${key(path[w + (rule.windCells ?? 4) - 1])}), walked heading ${dir(w + 1)}, wind '${windLetter(w)}' ${rule.windAgainst ? 'against you' : 'with you'}`));
 placed.fogs.forEach((f) => console.log(`thick fog: path cells ${f + 1}-${f + (rule.fogCells ?? 3)} (${key(path[f])} ${key(path[f + (rule.fogCells ?? 3) - 1])}), walked heading ${dir(f + 1)}, wrong ways off it: ${hung.roots.filter((at) => at >= f && at < f + (rule.fogCells ?? 3)).length}`));
 if (placed.pathCane !== undefined) console.log(`${rule.sleepy ? 'sleepy mushroom' : 'path spike'}: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
+[...placed.sleepies].sort((a, b) => a - b).forEach((k) => console.log(`sleepy mushroom: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}`));
 if (placed.current) console.log(`water current: path cell ${placed.current.index + 1} (${key(path[placed.current.index])}), heading ${dir(placed.current.index)}, shoves into ${key(placed.current.into)}`);
 if (placed.bigCane) console.log(`big spike: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);
 placed.buttonDoors.forEach((door, n) => console.log(`button door ${n ? 'j' : 'J'}: between path cells ${door.door + 1} and ${door.door + 2} (${key(path[door.door])} -> ${key(path[door.door + 1])}), heading ${dir(door.door + 1)}; button ${n ? 'u' : 'U'} wrong way off path cell ${door.at + 1} (${key(path[door.at])}), button in ${key(door.chain[door.chain.length - 1])}`));
