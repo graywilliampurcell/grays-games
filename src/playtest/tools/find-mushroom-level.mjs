@@ -3,12 +3,14 @@
 // find-sky-level.mjs (Levels 131-140), at 14 x 14.
 //
 //   SEEDS=400 node tools/find-mushroom-level.mjs level141 30 1   # the sneaky Ouch mushroom + a mushroom cap ride
+//   SEEDS=40 node tools/find-mushroom-level.mjs level142 30 1420000   # a trench bounce ('b', 4 cells) + a path Ouch mushroom
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
 //
 // Layout letters (see js/Maze.js): as in find-sky-level.mjs. Mushroom Forest World reads 'X' as an Ouch mushroom and 'O' as a
-// mushroom cap ride's acid gap (3 corridor cells, full corridor width).
+// mushroom cap ride's acid gap (3 corridor cells, full corridor width), and
+// 'b' as a trench bounce's trench (4 corridor cells, full corridor width).
 //
 // Rules for every level: 14 x 14, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -22,6 +24,9 @@ const RULES = {
     // Welcome to Mushroom Forest World: every dead end 3 deep, the sneaky
     // Ouch mushroom ('X') and one 3-cell mushroom cap ride gap ('O')
     level141: { name: 'Level 141', depth: 3, deadEnds: 30, sneaky: true, platforms: 1, platformCells: 3, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // The first trench bounce: one 4-cell trench ('b') and one path Ouch
+    // mushroom ('X', Level 53's squeeze)
+    level142: { name: 'Level 142', depth: 3, deadEnds: 30, trenches: 1, pathCane: true, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -38,6 +43,7 @@ const SNOWMAN_CELLS = 4; // a snowman's hallway is 4 corridor cells long
 const ARM_BELT_CELLS = 6; // a robot-arm belt is 6 corridor cells long, in the middle of its hallway
 const DEPTH = rule.depth;
 const PLATFORM_CELLS = rule.platformCells ?? 2; // a platform gap's length in corridor cells
+const TRENCH_CELLS = 4; // a trench bounce's trench is 4 corridor cells long
 const PATH_LENGTH = COLS * ROWS - DEAD_ENDS * DEPTH - (rule.sneaky ? 3 : 0);
 const SEEDS = Number(process.env.SEEDS ?? 4000);
 const STEPS_PER_SEED = 200000;
@@ -354,7 +360,9 @@ function place(path, hung, random) {
     };
     // Each gap: rule.gaps lists them one by one (cells, cannon or plank);
     // otherwise rule.platforms gaps of PLATFORM_CELLS, all cannon or all not
-    const gapRules = rule.gaps ?? [...Array(rule.platforms ?? 0)].map(() => ({ cells: PLATFORM_CELLS, cannon: !!rule.cannon }));
+    // (rule.trenches: trench bounces, TRENCH_CELLS long, after the platform gaps)
+    const gapRules = rule.gaps ?? [...[...Array(rule.platforms ?? 0)].map(() => ({ cells: PLATFORM_CELLS, cannon: !!rule.cannon })),
+        ...[...Array(rule.trenches ?? 0)].map(() => ({ cells: TRENCH_CELLS, trench: true }))];
     out.gapKinds = [];
     for (const gapRule of gapRules) {
         const options = [];
@@ -748,8 +756,8 @@ if (placed.current) {
 }
 const platformOrder = [...placed.platforms].sort((a, b) => a - b);
 placed.platforms.forEach((g, n) => {
-    const { cells, plank } = placed.gapKinds[n];
-    for (const b of gapBlocks([path[g], path[g + cells - 1]])) put(b, (rule.fast ?? []).includes(platformOrder.indexOf(g)) || (rule.gaps && plank) ? 'F' : 'O');
+    const { cells, plank, trench } = placed.gapKinds[n];
+    for (const b of gapBlocks([path[g], path[g + cells - 1]])) put(b, trench ? 'b' : (rule.fast ?? []).includes(platformOrder.indexOf(g)) || (rule.gaps && plank) ? 'F' : 'O');
 });
 for (const c of placed.caramel) for (const b of gapBlocks([path[c]])) put(b, 'C');
 const WIND_LETTERS = { '1,0': '>', '-1,0': '<', '0,1': 'v', '0,-1': '^' };
@@ -830,8 +838,8 @@ console.log(`\n${rule.name}: seed ${best.seed}, 14x14, start row ${best.startCel
     `path ${best.solution.length} cells, ${best.deadEnds.length} dead ends (depths ${best.deadEnds.map((d) => d.depth).join(',')})`);
 if (hung.sneaky) console.log(`sneaky spike: dead end off path cell ${hung.sneaky.index + 1}, bone spike in cell ${key(hung.sneaky.s)}`);
 platformOrder.forEach((g, n) => {
-    const { cells, plank, cannon } = placed.gapKinds[placed.platforms.indexOf(g)];
-    console.log(`platform gap${(rule.fast ?? []).includes(n) ? ' (fast)' : ''}${plank ? ' (plank)' : cannon ? ' (cannon)' : ''}: path cells ${g + 1}-${g + cells} (${key(path[g])} ${key(path[g + cells - 1])}), crossed heading ${dir(g)}`);
+    const { cells, plank, cannon, trench } = placed.gapKinds[placed.platforms.indexOf(g)];
+    console.log(`${trench ? 'trench' : 'platform gap'}${(rule.fast ?? []).includes(n) ? ' (fast)' : ''}${plank ? ' (plank)' : cannon ? ' (cannon)' : ''}: path cells ${g + 1}-${g + cells} (${key(path[g])} ${key(path[g + cells - 1])}), crossed heading ${dir(g)}`);
 });
 if (placed.door !== undefined) console.log(`space door: between path cells ${placed.door + 1} and ${placed.door + 2} (${key(path[placed.door])} -> ${key(path[placed.door + 1])}), heading ${dir(placed.door + 1)}`);
 placed.slippery.forEach((k) => console.log(`slippery spot: path cell ${k + 1} (${key(path[k])}), heading ${dir(k)}`));

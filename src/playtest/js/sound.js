@@ -3897,6 +3897,30 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.18, length: 0.26, brightness: 1150 },
     },
+    // Level 142 (the first trench bounce): sneaky and mysterious, half and
+    // half, in E minor at 88 bpm: a triangle lead that drops a whole octave
+    // (the drop into the trench) and bounces back up in two hops (the two
+    // mushrooms), then leans on a strange B-flat and, later, an F natural
+    // over a slow F major bar (the mysterious part), with tiptoe ticks.
+    mushroomtrench: {
+        tempo: 88,
+        bars: [[40, 'min'], [40, 'min'], [36, 'maj'], [35, 'maj'], [40, 'min'], [41, 'maj'], [35, 'maj'], [40, 'min']],
+        bass: [0, null, null, 7, null, null, 0, null],
+        bassLength: 0.3,
+        stabs: [],
+        ticks: true,
+        melody: [
+            76, null, 64, null, null, 67, null, 71,
+            null, null, 70, null, 69, null, null, null,
+            72, null, 60, null, null, 64, null, 67,
+            66, null, null, null, null, null, null, null,
+            76, null, 64, null, 67, null, 71, null,
+            77, null, null, 76, null, 74, null, null,
+            71, null, 70, null, 67, null, 66, null,
+            64, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.19, length: 0.24, brightness: 1250 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

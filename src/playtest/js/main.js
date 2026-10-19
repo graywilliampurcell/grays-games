@@ -755,6 +755,27 @@ function step(deltaTime) {
     if (platformEvent === 'depart' && maze.theme.dino) sound.whoosh(0.7, 0.4);
     // The mushroom cap ride (Mushroom Forest World): a soft whoosh as it sets off with you
     if (platformEvent === 'depart' && maze.theme.mushroom) sound.whoosh(0.5, 0.4);
+    // The trench bounce (Mushroom Forest World, Level 142 on): walk off the
+    // trench's edge in the middle of the hallway and you drop onto the
+    // nearer giant mushroom, which bounces you onto the other one, which
+    // bounces you onto the floor past the far edge (a boing on each). You
+    // can look around but not steer or fall. Off the middle you miss and
+    // fall in the acid (checkSpikeAndDoor).
+    for (const p of maze.platforms) {
+        if (!p.trench) continue;
+        const free = !p.ride && !player.shove && !player.carried && !player.spinning && !escaped;
+        const event = maze.updateTrench(p, deltaTime, player.position, free);
+        if (event === 'bounce') sound.boing();
+        if (event) testHooks?.emit('trench', { what: event });
+        if (p.ride || event === 'land') {
+            player.position.x = p.rideAt.x;
+            player.position.z = p.rideAt.z;
+            player.velocity.set(0, 0, 0);
+            player.slide = null;
+            player.camera.position.set(player.position.x, player.position.y + 1.6 + p.rideAt.y, player.position.z);
+        }
+        if (p.ride) player.carried = true;
+    }
     // The rainbow bridge (Sky World): a soft shimmer as it appears, quieter the further you are
     if (platformEvent === 'appear' && maze.theme.skyland) {
         const p = maze.eventPlatform ?? maze.platforms.reduce((a, b) => (horizontalDistance(player.position, platformMiddle(b)) < horizontalDistance(player.position, platformMiddle(a)) ? b : a));

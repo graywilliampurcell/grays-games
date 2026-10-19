@@ -737,6 +737,30 @@ export const CAP_RING = 0.5;
 const CAP_OVERHANG = 0.4;
 const CAP_LANDING = 1.0;
 const ACID_DEPTH = 3;
+// The trench bounce (Level 142 on): a trench ('b' blocks, 4 corridor cells
+// long, full corridor width) with acid TRENCH_DEPTH down. Two giant bouncy
+// mushrooms stand in the acid, one near each edge (their middles
+// TRENCH_CAP_FROM_EDGE in from it), their caps TRENCH_CAP_RADIUS across
+// (the middle half of the 3-wide corridor) and well below the floor: the
+// one on the start's side lower (TRENCH_CAP_LOW), the other TRENCH_CAP_HIGH.
+// Walk off an edge with your middle over the middle half of the corridor's
+// width (TRENCH_AIM) and you drop onto the nearer cap (TRENCH_DROP_TIME),
+// which bounces you in one arc onto the other cap (TRENCH_BOUNCE_1), which
+// bounces you in one arc onto the floor TRENCH_LANDING past the far edge
+// (TRENCH_BOUNCE_2): about 2.5 s for both bounces (starting value Gray will
+// judge). Off the middle half you miss and fall in the acid.
+const TRENCH_DEPTH = 4;
+export const TRENCH_CAP_RADIUS = 0.75;
+export const TRENCH_AIM = 0.5;
+const TRENCH_CAP_FROM_EDGE = 1.3;
+const TRENCH_CAP_LOW = -2.2;
+const TRENCH_CAP_HIGH = -1.3;
+export const TRENCH_DROP_TIME = 0.45;
+export const TRENCH_BOUNCE_1 = 1.35;
+export const TRENCH_BOUNCE_2 = 1.15;
+const TRENCH_HOP_1 = 3.2;
+const TRENCH_HOP_2 = 2.3;
+const TRENCH_LANDING = 1.0;
 const MUSHROOM_GLOWS = [0x5ff2d8, 0xc79bff, 0xb8ff6a, 0xffa860, 0x7fc8ff];
 const RAINBOW_COLORS = [0xff3b3b, 0xff9a1f, 0xffe03a, 0x3ddc5a, 0x2fa8ff, 0x4b5cff, 0xa64dff];
 // The cannon ride (Level 121 on): a big cannon on each side of a 4-cell
@@ -2610,6 +2634,7 @@ export class Maze {
                 if (ch === 'I') this.slipperyBlocks.add(`${x},${z}`);
                 if (ch === 'C') this.caramelBlocks.add(`${x},${z}`);
                 if (ch === 'O' || ch === 'F') gapBlocks.push({ x, z, fast: ch === 'F' });
+                if (ch === 'b') gapBlocks.push({ x, z, trench: true });
                 if (ch === 'W') currentBlocks.push({ x, z });
                 if (ch === 'V') currentTargets.push(center);
                 if (ch === 'H') ventBlocks.push({ x, z });
@@ -6597,7 +6622,14 @@ export class Maze {
         // Sky World: a rainbow bridge that comes and goes on its own cycle
         const rainbow = !!this.theme.skyland;
         // Mushroom Forest World: a mushroom cap ride (it reaches a little over each edge it waits at)
-        const cap = !!this.theme.mushroom;
+        // Mushroom Forest World: a trench bounce ('b' blocks, Level 142 on);
+        // its start's side mushroom is the lower one
+        const trench = blocks.some((b) => b.trench);
+        const trenchCaps = trench ? [
+            { along: TRENCH_CAP_FROM_EDGE, top: lowSideReached ? TRENCH_CAP_LOW : TRENCH_CAP_HIGH, squish: 0 },
+            { along: span - TRENCH_CAP_FROM_EDGE, top: lowSideReached ? TRENCH_CAP_HIGH : TRENCH_CAP_LOW, squish: 0 },
+        ] : [];
+        const cap = !!this.theme.mushroom && !trench;
         const width = alongX ? gap.maxZ - gap.minZ : gap.maxX - gap.minX;
         // Pirate Ship World: a cannon on each side, aimed across, and where its shot lands (inside the other)
         const cannons = cannon ? [-CANNON_REACH, span + CANNON_REACH].map((along) => {
@@ -6632,6 +6664,10 @@ export class Maze {
             cannons,
             rainbow, // Sky World: a rainbow bridge across the gap, solid / fading / gone on its own cycle
             cap, // Mushroom Forest World: a round mushroom cap that carries you once you stand in the ring round its stem
+            trench, // Mushroom Forest World: a trench bounce (two bouncy mushrooms in an acid trench)
+            trenchCaps, // trench: its two mushrooms' caps, at the low end and the high end
+            ride: null, // trench: the drop and bounces while they carry you
+            acidDepth: trench ? TRENCH_DEPTH : ACID_DEPTH,
             rainbowPhase: 'solid', // rainbow: 'solid' | 'fading' | 'gone'
             rainbowTime: 0, // rainbow: seconds into its phase
             held: false, // rainbow: kept from going because you're on it
@@ -6663,6 +6699,11 @@ export class Maze {
         for (const p of this.platforms) {
             // The plank never moves; the rainbow keeps its cycle
             if (p.plank || p.rainbow) continue;
+            // The trench bounce: whatever bounce was going on stops
+            if (p.trench) {
+                Object.assign(p, { ride: null, riding: false });
+                continue;
+            }
             // The cannons: empty, fuses out
             if (p.cannon) {
                 for (const c of p.cannons) Object.assign(c, { phase: 'empty', time: 0, mustLeave: false });
@@ -6739,6 +6780,8 @@ export class Maze {
         if (p.cannon) return true;
         // The rainbow bridge: only while it's gone (it spans the whole gap)
         if (p.rainbow) return p.rainbowPhase === 'gone';
+        // The trench: never while the mushrooms bounce you (see updateTrench)
+        if (p.trench) return !p.riding;
         // The mushroom cap: never while it carries you; otherwise your middle off the round cap
         if (p.cap) {
             if (p.riding) return false;
@@ -6798,6 +6841,7 @@ export class Maze {
     updateOnePlatform(p, dt, position, velocity, radius) {
         if (p.bubble) return this.updateBubble(p, dt, position, velocity, radius);
         if (p.chocolate) return null; // nothing moves: the marshmallows bounce you (see marshmallowAt)
+        if (p.trench) return null; // the mushrooms bounce you over (see updateTrench)
         if (p.cannon) return null; // the cannons fire you over (see updateCannons)
         if (p.plank) return null; // the plank never moves
         if (p.rainbow) return this.updateRainbow(p, dt, position, radius);
@@ -7371,6 +7415,11 @@ export class Maze {
     // along each edge, and the shiny metal platform with glowing trim and
     // little thruster lights underneath
     createPlatform(p) {
+        if (p.trench) {
+            this.createAcidPit(p);
+            this.createTrenchMushrooms(p);
+            return;
+        }
         if (p.cap) {
             this.createAcidPit(p);
             this.createMushroomCap(p);
@@ -9383,6 +9432,7 @@ export class Maze {
     // to a pool of bright, glowing green acid, bubbling now and then
     createAcidPit(p) {
         const g = p.gap;
+        const depth = p.acidDepth ?? ACID_DEPTH;
         const cx = (g.minX + g.maxX) / 2;
         const cz = (g.minZ + g.maxZ) / 2;
         const sizeX = g.maxX - g.minX;
@@ -9392,21 +9442,21 @@ export class Maze {
             [sizeX, 0.05, cx, g.minZ], [sizeX, 0.05, cx, g.maxZ],
             [0.05, sizeZ, g.minX, cz], [0.05, sizeZ, g.maxX, cz],
         ]) {
-            const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ACID_DEPTH, d), earth);
-            wall.position.set(x, -0.2 - ACID_DEPTH / 2, z);
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(w, depth, d), earth);
+            wall.position.set(x, -0.2 - depth / 2, z);
             this.root.add(wall);
         }
         const map = acidTexture();
         map.repeat.set(sizeX / 3, sizeZ / 3);
         const acid = new THREE.Mesh(new THREE.PlaneGeometry(sizeX, sizeZ), new THREE.MeshBasicMaterial({ map }));
         acid.rotation.x = -Math.PI / 2;
-        acid.position.set(cx, -ACID_DEPTH, cz);
+        acid.position.set(cx, -depth, cz);
         this.root.add(acid);
         p.acidMap = map;
         // A green glow rising off the acid, seen from above
         const haze = new THREE.Mesh(new THREE.PlaneGeometry(sizeX, sizeZ), new THREE.MeshBasicMaterial({ color: 0x7dff5a, transparent: true, opacity: 0.18, depthWrite: false }));
         haze.rotation.x = -Math.PI / 2;
-        haze.position.set(cx, -ACID_DEPTH * 0.45, cz);
+        haze.position.set(cx, -depth * 0.45, cz);
         this.root.add(haze);
         // Bubbles that swell and pop
         let r = 71;
@@ -9415,7 +9465,7 @@ export class Maze {
         p.acidBubbles = [];
         for (let k = 0; k < 8; k++) {
             const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2), bubble);
-            mesh.position.set(g.minX + random() * sizeX, -ACID_DEPTH, g.minZ + random() * sizeZ);
+            mesh.position.set(g.minX + random() * sizeX, -depth, g.minZ + random() * sizeZ);
             this.root.add(mesh);
             p.acidBubbles.push({ mesh, time: random() * 3, every: 1.5 + random() * 2 });
         }
@@ -9482,6 +9532,127 @@ export class Maze {
         this.root.add(group);
         p.object = group;
         p.capRing = ring;
+    }
+
+    // A point on the trench's middle line (world x, z), `along` from its low end
+    trenchPoint(p, along) {
+        const g = p.gap;
+        return p.alongX ? { x: g.minX + along, z: (g.minZ + g.maxZ) / 2 } : { x: (g.minX + g.maxX) / 2, z: g.minZ + along };
+    }
+
+    // The trench bounce's two giant bouncy mushrooms: a thick cream stem
+    // from the acid up to a big round purple cap (TRENCH_CAP_RADIUS) with
+    // glowing pink spots and a glowing rim, so it shows from the edge above
+    createTrenchMushrooms(p) {
+        const depth = p.acidDepth ?? ACID_DEPTH;
+        const stemMaterial = new THREE.MeshStandardMaterial({ color: 0xf2e6c8, roughness: 0.8 });
+        const capMaterial = new THREE.MeshStandardMaterial({ color: 0x9a4fe0, roughness: 0.5, emissive: 0x3a1066, emissiveIntensity: 0.7 });
+        const rimMaterial = new THREE.MeshBasicMaterial({ color: 0xff9ae8 });
+        const spotMaterial = new THREE.MeshBasicMaterial({ color: 0xffd0f4 });
+        const gillMaterial = new THREE.MeshStandardMaterial({ color: 0xe8d8b0, roughness: 0.9 });
+        for (const c of p.trenchCaps) {
+            const at = this.trenchPoint(p, c.along);
+            const group = new THREE.Group();
+            group.position.set(at.x, c.top, at.z);
+            const stemLength = depth + c.top + 0.2;
+            const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.36, stemLength, 16), stemMaterial);
+            stem.position.y = -0.2 - stemLength / 2;
+            group.add(stem);
+            // The cap: a squashed dome whose top is the bounce spot; it squishes when you land
+            const cap = new THREE.Group();
+            const dome = new THREE.Mesh(new THREE.SphereGeometry(TRENCH_CAP_RADIUS, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2), capMaterial);
+            dome.scale.y = 0.35;
+            dome.position.y = -0.26;
+            cap.add(dome);
+            const gills = new THREE.Mesh(new THREE.CircleGeometry(TRENCH_CAP_RADIUS, 32), gillMaterial);
+            gills.rotation.x = Math.PI / 2;
+            gills.position.y = -0.26;
+            cap.add(gills);
+            const rim = new THREE.Mesh(new THREE.TorusGeometry(TRENCH_CAP_RADIUS - 0.03, 0.04, 8, 48), rimMaterial);
+            rim.rotation.x = Math.PI / 2;
+            rim.position.y = -0.25;
+            cap.add(rim);
+            for (let k = 0; k < 7; k++) {
+                const a = k * 0.9 + 0.3;
+                const d = k === 0 ? 0 : 0.42;
+                const spot = new THREE.Mesh(new THREE.CircleGeometry(0.08, 10), spotMaterial);
+                spot.rotation.x = -Math.PI / 2;
+                spot.position.set(Math.cos(a) * d, k === 0 ? 0.005 : -0.06, Math.sin(a) * d);
+                cap.add(spot);
+            }
+            group.add(cap);
+            this.root.add(group);
+            c.object = cap;
+        }
+    }
+
+    // Run one trench bounce (called every game step after the player has
+    // moved; `free` = nothing else is moving the player). Walking off an edge
+    // (your middle over the trench) with your middle over the middle half of
+    // the corridor's width drops you onto the nearer mushroom's cap, which
+    // bounces you onto the other cap, which bounces you onto the floor past
+    // the far edge. You can't steer or fall meanwhile. Walking off nearer a
+    // wall, nothing catches you (fallsIntoGap: into the acid). Returns
+    // 'drop', 'bounce' (on each cap) or 'land'; while it carries you,
+    // p.rideAt is where you are ({ x, z, y }: y how far your feet are above
+    // the floor, below it in the trench).
+    updateTrench(p, dt, position, free) {
+        let event = null;
+        if (!p.ride && free) {
+            const { along, across, width } = this.gapCoords(position, p);
+            if (along >= 0 && along < p.span && across >= 0 && across < width && Math.abs(across - width / 2) <= (width * TRENCH_AIM) / 2) {
+                const fromLow = along < p.span / 2;
+                const [first, second] = fromLow ? p.trenchCaps : [...p.trenchCaps].reverse();
+                const spot = (c) => ({ ...this.trenchPoint(p, c.along), y: c.top });
+                const land = { ...this.trenchPoint(p, fromLow ? p.span + TRENCH_LANDING : -TRENCH_LANDING), y: 0 };
+                p.ride = {
+                    leg: 0,
+                    time: 0,
+                    legs: [
+                        { from: { x: position.x, z: position.z, y: 0 }, to: spot(first), length: TRENCH_DROP_TIME, fall: true, onto: first },
+                        { from: spot(first), to: spot(second), length: TRENCH_BOUNCE_1, hop: TRENCH_HOP_1, onto: second },
+                        { from: spot(second), to: land, length: TRENCH_BOUNCE_2, hop: TRENCH_HOP_2 },
+                    ],
+                    dir: fromLow ? 1 : -1,
+                };
+                p.riding = true;
+                event = 'drop';
+            }
+        }
+        if (p.ride) {
+            const r = p.ride;
+            r.time += dt;
+            while (p.ride && r.time >= r.legs[r.leg].length) {
+                const leg = r.legs[r.leg];
+                r.time -= leg.length;
+                if (leg.onto) {
+                    leg.onto.squish = 1;
+                    event = 'bounce';
+                }
+                r.leg++;
+                if (r.leg >= r.legs.length) {
+                    p.rideAt = { ...leg.to };
+                    p.ride = null;
+                    p.riding = false;
+                    event = 'land';
+                }
+            }
+            if (p.ride) {
+                const leg = r.legs[r.leg];
+                const t = r.time / leg.length;
+                const y = leg.fall ? leg.from.y + (leg.to.y - leg.from.y) * t * t : leg.from.y + (leg.to.y - leg.from.y) * t + leg.hop * 4 * t * (1 - t);
+                p.rideAt = { x: leg.from.x + (leg.to.x - leg.from.x) * t, z: leg.from.z + (leg.to.z - leg.from.z) * t, y };
+            }
+        }
+        // A cap squishes down when you land on it and springs back
+        for (const c of p.trenchCaps) {
+            c.squish = Math.max(0, c.squish - dt * 3);
+            if (c.object) {
+                const s = c.squish;
+                c.object.scale.set(1 + 0.15 * s, 1 - 0.45 * s, 1 + 0.15 * s);
+            }
+        }
+        return event;
     }
 
     // The middle of a mushroom cap (world x, z), where its stem is
