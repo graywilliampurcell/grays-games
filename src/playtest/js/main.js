@@ -755,7 +755,7 @@ function step(deltaTime) {
     if (platformEvent === 'depart' && maze.theme.dino) sound.whoosh(0.7, 0.4);
     // The rainbow bridge (Sky World): a soft shimmer as it appears, quieter the further you are
     if (platformEvent === 'appear' && maze.theme.skyland) {
-        const p = maze.platforms.reduce((a, b) => (horizontalDistance(player.position, platformMiddle(b)) < horizontalDistance(player.position, platformMiddle(a)) ? b : a));
+        const p = maze.eventPlatform ?? maze.platforms.reduce((a, b) => (horizontalDistance(player.position, platformMiddle(b)) < horizontalDistance(player.position, platformMiddle(a)) ? b : a));
         sound.shimmer(Math.max(0, 1 - horizontalDistance(player.position, platformMiddle(p)) / RAINBOW_HEAR_DISTANCE));
     }
     // The cannons (Pirate Ship World): fully inside one, its fuse fizzes;

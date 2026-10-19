@@ -2630,6 +2630,12 @@ export class Maze {
         // Each separate gap (a group of touching 'O' blocks) gets its own platform (Level 23 has two)
         this.plankGapsMarked = gapBlocks.some((b) => b.fast);
         this.platforms = groupBlocks(gapBlocks).map((blocks) => this.setUpPlatform(blocks));
+        // Two rainbow bridges (Level 139 on) keep their own cycles: each later
+        // one starts where the one before it is about to vanish, so they're
+        // never solid and gone at the same moments
+        this.platforms.filter((p) => p.rainbow).forEach((p, n) => {
+            if (n % 2 === 1) Object.assign(p, { rainbowPhase: 'gone', rainbowTime: 0 });
+        });
         this.platforms.filter((p) => p.carpet).forEach((p, index) => {
             p.time = (index % 2) * CARPET_OFFSET;
         });
@@ -6632,7 +6638,11 @@ export class Maze {
     // Returns 'depart' or 'arrive' when that happens on any of them.
     updatePlatform(dt, position, velocity, radius) {
         let event = null;
-        for (const p of this.platforms) event = this.updateOnePlatform(p, dt, position, velocity, radius) ?? event;
+        this.eventPlatform = null; // which platform the event came from (two rainbows have their own cycles)
+        for (const p of this.platforms) {
+            const e = this.updateOnePlatform(p, dt, position, velocity, radius);
+            if (e) [event, this.eventPlatform] = [e, p];
+        }
         return event;
     }
 

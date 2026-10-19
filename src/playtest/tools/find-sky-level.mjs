@@ -51,6 +51,11 @@ const RULES = {
     // trampolines ('k', each at its own wall), one thick fog (3 cells, 'g')
     // and one 3-cell rainbow bridge gap ('O')
     level138: { name: 'Level 138', depth: 3, deadEnds: 24, trampoline: true, trampolines: 2, fogs: 1, fogCells: 3, platforms: 1, platformCells: 3, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // Two rainbows and two winds (Gray's design): every dead end 3 deep, one
+    // slow propeller ('H'), two 3-cell rainbow bridge gaps ('O'), two windy
+    // hallways (4 cells each, blowing back toward the start) and a path
+    // storm-cloud spike ('X', Level 56's gap)
+    level139: { name: 'Level 139', depth: 3, deadEnds: 24, pathCane: true, vents: 1, platforms: 2, platformCells: 3, winds: 2, windCells: 4, windAgainst: true, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

@@ -3815,6 +3815,34 @@ const TUNES = {
             birds: [[10, 92], [26, 88], [42, 94], [60, 89]],
         },
     },
+    // Level 139 (two rainbows and two winds): sneaky and mysterious, half and
+    // half, in F-sharp minor at 112 bpm: a soft sine lead climbs a rainbow
+    // arpeggio up and slides back down, twice, then tiptoes along in a
+    // mysterious D major and C-sharp major turn. Wind and far-off birdsong in
+    // the background, quieter than the melody, with two big gusts.
+    skytworainbows: {
+        tempo: 112,
+        bars: [[42, 'min'], [38, 'maj'], [42, 'min'], [37, 'maj'], [40, 'maj'], [38, 'maj'], [37, 'maj'], [42, 'min']],
+        bass: [0, null, 7, null, 0, null, null, 7],
+        bassLength: 0.2,
+        stabs: [],
+        ticks: true,
+        melody: [
+            66, 69, 73, 78, null, 76, 73, null,
+            74, null, 69, null, 66, null, null, null,
+            66, 69, 73, 78, null, 81, 78, null,
+            77, null, 73, null, 68, null, null, null,
+            71, null, 68, 71, 76, null, 71, null,
+            74, null, 78, null, 74, null, 69, null,
+            73, null, null, 77, 80, null, 77, null,
+            78, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.24, length: 0.24, brightness: 1700 },
+        sky: {
+            winds: [[4, 3.2], [36, 3.2]],
+            birds: [[14, 90], [30, 86], [50, 93], [62, 88]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
