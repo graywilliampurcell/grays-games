@@ -4021,6 +4021,31 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.13, length: 0.2, brightness: 1500 },
     },
+    // Level 147 (two trench bounces): sneaky and mysterious, half and half,
+    // in D minor at 100 bpm: a soft square lead that drops low and then
+    // bounces up twice in big leaps (boing, BOING), each bounce higher than
+    // the last, then a mysterious bar that hangs on a high B-flat over a
+    // B-flat major chord and a strange G-sharp, before tiptoeing back down,
+    // with tiptoe ticks underneath.
+    mushroomdouble: {
+        tempo: 100,
+        bars: [[38, 'min'], [38, 'min'], [34, 'maj'], [33, 'maj'], [38, 'min'], [43, 'min'], [34, 'maj'], [33, 'maj']],
+        bass: [0, null, null, 7, null, null, 0, null],
+        bassLength: 0.26,
+        stabs: [],
+        ticks: true,
+        melody: [
+            62, null, 57, null, null, 69, null, null,
+            62, null, null, 74, null, null, null, null,
+            65, null, 64, null, 62, null, 61, null,
+            62, null, null, null, null, null, null, null,
+            57, null, null, 69, null, null, 74, null,
+            77, null, null, null, 76, null, 74, null,
+            82, null, null, null, 80, null, null, 81,
+            69, null, null, 65, null, 61, null, null,
+        ],
+        lead: { wave: 'square', level: 0.11, length: 0.18, brightness: 1400 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

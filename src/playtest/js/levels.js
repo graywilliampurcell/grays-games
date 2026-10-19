@@ -8801,6 +8801,81 @@ export const LEVELS = [
         '#########################################################',
         ],
     },
+    {
+        name: 'Level 147',
+        // Two trench bounces. `SEEDS=40 node
+        // tools/find-mushroom-level.mjs level147 30 1470040`, seed 1470050.
+        // 14 x 14 corridors. Correct path 106 cells (start west in row 5,
+        // door east in row 3); 30 wrong ways, every one 3 cells deep. g: the
+        // firefly swarm over path cells 27-29 (column 0, walked heading
+        // south). b: the first trench bounce's 4-cell trench over path cells
+        // 34-37 (row 13, crossed heading east). Y: the big Ouch mushroom
+        // filling the opening of the straight wrong way off path cell 49.
+        // b: the second trench over path cells 79-82 (column 4, crossed
+        // heading north). Nothing else. A sneaky, mysterious tune that
+        // bounces twice.
+        theme: MUSHROOM,
+        music: 'mushroomdouble',
+        layout: [
+        '#########################################################',
+        '#                       #                               #',
+        '#                       #                               #',
+        '#                       #                               #',
+        '#   #   #############   #   #########################   #',
+        '#   #       #       #       #                       #   #',
+        '#   #       #       #       #                       #   #',
+        '#   #       #       #       #                       #   #',
+        '#   #   #   #   #   #########   #########   #####   #   #',
+        '#   #   #       #bbb#           #           #       #   #',
+        '#   #   #       #bbb#           #           #       #   #',
+        '#   #   #       #bbb#           #           #       #   #',
+        '#####   #########bbb#   #####   #############   #   #   #',
+        '#       #       #bbb#   #               #       #   #   #',
+        '#       #       #bbb#   #               #       #   #   D',
+        '#       #       #bbb#   #               #       #   #   #',
+        '#############   #bbb#####   #########   #########   #####',
+        '#           #   #bbb#   #       #       #   #   #   #   #',
+        '#           #   #bbb#   #       #       #   #   #   #   #',
+        '#           #   #bbb#   #       #       #   #   #   #   #',
+        '#   #########   #bbb#   #########   #   #   #   #   #   #',
+        '#               #bbb#       #       #   #   #   #   #   #',
+        '# S             #bbb#       #       #   #   #   #   #   #',
+        '#               #bbb#       #       #   #   #   #   #   #',
+        '#############   #   #####   #########   #   #   #   #   #',
+        '#           #   #                           #           #',
+        '#           #   #                           #           #',
+        '#           #   #                           #           #',
+        '#   #####   #   #################   #   #########   #####',
+        '#ggg#       #   #       #           #       #   #       #',
+        '#ggg#       #   #       #           #       #   #       #',
+        '#ggg#       #   #       #           #       #   #       #',
+        '#ggg#   #####   #####   #################   #   #   #   #',
+        '#ggg#   #   #           #           #   #   #       #   #',
+        '#ggg#   #   #           #           #   #   #       #   #',
+        '#ggg#   #   #           #           #   #   #       #   #',
+        '#ggg#   #   #####   #####   #########   #############   #',
+        '#ggg#   #           #   #       #       #           #   #',
+        '#ggg#   #           #   #       #       #           #   #',
+        '#ggg#   #           #   #       #       #           #   #',
+        '#   #   #########   #   #   #   #   #####   #########   #',
+        '#   #   #           #   #   #                           #',
+        '#   #   #           #   #   #                           #',
+        '#   #   #           #   #   #                           #',
+        '#   #   #   #########   #   #   #   #   #   #   #   #   #',
+        '#   #   #       #   #       #   #   #   #   # Y #   #   #',
+        '#   #   #       #   #       #   #   #   #   #   #   #   #',
+        '#   #   #       #   #       #   #   #   #   #   #   #   #',
+        '#   #   #####   #   #####   #   #   #   #   #   #   #   #',
+        '#   #           #       #   #   #   #   #   #   #   #   #',
+        '#   #           #       #   #   #   #   #   #   #   #   #',
+        '#   #           #       #   #   #   #   #   #   #   #   #',
+        '#   #################   #   #   #   #   #   #   #   #   #',
+        '#    bbbbbbbbbbbbbbb        #   #   #   #   #   #   #   #',
+        '#    bbbbbbbbbbbbbbb        #   #   #   #   #   #   #   #',
+        '#    bbbbbbbbbbbbbbb        #   #   #   #   #   #   #   #',
+        '#########################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
