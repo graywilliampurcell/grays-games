@@ -97,7 +97,8 @@ export function installTestHooks(game) {
             propellers: (maze.propellers ?? []).map((p) => ({ minX: p.minX, maxX: p.maxX, minZ: p.minZ, maxZ: p.maxZ, alongX: p.alongX, angle: round(p.angle), touching: p.touching, center: { x: p.center.x, z: p.center.z }, target: { x: p.target.x, z: p.target.z } })),
             fogs: (maze.fogs ?? []).map((f) => ({ minX: f.minX, maxX: f.maxX, minZ: f.minZ, maxZ: f.maxZ, alongX: f.alongX })),
             fogView: round(game.getFogView?.() ?? 0),
-            trampoline: maze.trampoline ? { center: { x: maze.trampoline.center.x, z: maze.trampoline.center.z }, landing: { x: maze.trampoline.landing.x, z: maze.trampoline.landing.z }, dir: maze.trampoline.dir, bouncing: !!maze.trampoline.bouncing, view: maze.trampoline.view, squish: round(maze.trampoline.squish) } : null,
+            trampoline: maze.trampoline ? trampolineState(maze.trampoline) : null,
+            trampolines: (maze.trampolines ?? []).map(trampolineState),
             spaceDoor: maze.spaceDoor ? { phase: maze.spaceDoor.phase, shut: round(maze.spaceDoor.shut), solid: maze.spaceDoor.solid } : null,
             platform: maze.platform ? platformState(maze.platform) : null,
             platforms: maze.platforms.map(platformState),
@@ -215,6 +216,10 @@ export function installTestHooks(game) {
 
 function round(v) {
     return Math.round(v * 1e6) / 1e6;
+}
+
+function trampolineState(t) {
+    return { center: { x: t.center.x, z: t.center.z }, landing: { x: t.landing.x, z: t.landing.z }, dir: t.dir, bouncing: !!t.bouncing, view: t.view, squish: round(t.squish) };
 }
 
 function platformState(p) {

@@ -2680,19 +2680,19 @@ export class Maze {
                 });
             }
         }
-        this.trampoline = null;
+        this.trampolines = [];
         for (const { x, z } of trampolineCells) {
             const open = [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([dx, dz]) => this.grid[x + 2 * dx]?.[z + 2 * dz] === 0);
             if (open.length !== 1) continue;
             const dir = { x: -open[0][0], z: -open[0][1] };
-            this.trampoline = {
+            this.trampolines.push({
                 x, z, dir,
                 center: new THREE.Vector3(x + 0.5, 0, z + 0.5),
                 landing: new THREE.Vector3(x + 0.5 + 4 * dir.x, 0, z + 0.5 + 4 * dir.z),
                 squish: 0,
                 bouncing: null,
                 view: false,
-            };
+            });
         }
         // Each thick fog stretch: its blocks' box, and which way it runs
         this.fogs = groupBlocks(fogBlocks).map((blocks) => {
@@ -2912,7 +2912,7 @@ export class Maze {
         if (this.spinWall) this.createSpinWall();
         for (const f of this.fossils) this.createFossil(f);
         for (const w of this.winds) this.createWind(w);
-        if (this.trampoline) this.createTrampoline();
+        for (const t of this.trampolines) this.createTrampoline(t);
         for (const f of this.fogs) this.createFog(f);
         this.scene.add(this.root);
     }
@@ -8636,8 +8636,7 @@ export class Maze {
     // underneath, bobbing gently. Plus what you see from the air while it
     // bounces you (hidden till then): just its cell, the wall and the
     // landing cell beyond.
-    createTrampoline() {
-        const t = this.trampoline;
+    createTrampoline(t) {
         const group = new THREE.Group();
         group.position.copy(t.center);
         const puff = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, emissive: 0xe8f0ff, emissiveIntensity: 0.35 });
@@ -8685,17 +8684,21 @@ export class Maze {
         t.viewGroup = view;
     }
 
-    // Standing on the cloud trampoline: your middle is inside its cell
+    // The first cloud trampoline (most levels with one have just one)
+    get trampoline() {
+        return this.trampolines?.[0] ?? null;
+    }
+
+    // Standing on a cloud trampoline: your middle is inside its cell (gives
+    // that trampoline, or null)
     onTrampoline(point) {
-        const t = this.trampoline;
-        return !!t && Math.abs(point.x - t.center.x) < 1.5 && Math.abs(point.z - t.center.z) < 1.5;
+        return (this.trampolines ?? []).find((t) => Math.abs(point.x - t.center.x) < 1.5 && Math.abs(point.z - t.center.z) < 1.5) ?? null;
     }
 
     // In the air over the trampoline's wall, only its cell, the wall and the
     // landing cell show (so nobody can see the maze from above); on landing
     // everything shows again
-    setTrampolineView(on) {
-        const t = this.trampoline;
+    setTrampolineView(on, t = (this.trampolines ?? []).find((x) => x.view)) {
         if (!t || t.view === on) return;
         if (on) {
             t.saved = new Map(this.root.children.map((o) => [o, o.visible]));
@@ -8715,8 +8718,10 @@ export class Maze {
     // One game step: the cloud squishes down when bounced on, then puffs
     // back up, and bobs a little
     updateTrampoline(dt) {
-        const t = this.trampoline;
-        if (!t) return;
+        for (const t of this.trampolines ?? []) this.updateOneTrampoline(t, dt);
+    }
+
+    updateOneTrampoline(t, dt) {
         t.squish = Math.max(0, t.squish - dt * 2);
         t.clock = (t.clock ?? 0) + dt;
         if (!t.cushion) return;
@@ -9052,7 +9057,7 @@ export class Maze {
     showRainbow(p) {
         const r = p.rainbowObject;
         if (!r) return;
-        r.group.visible = p.rainbowPhase !== 'gone' && !this.trampoline?.view;
+        r.group.visible = p.rainbowPhase !== 'gone' && !(this.trampolines ?? []).some((t) => t.view);
         let k = 1;
         if (p.rainbowPhase === 'fading') {
             // Flickering, faster and fainter toward the end

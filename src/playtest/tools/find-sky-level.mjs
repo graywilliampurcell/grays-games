@@ -47,6 +47,10 @@ const RULES = {
     // windy hallway (4 cells, blowing back toward the start) and a big
     // storm-cloud spike ('Y')
     level137: { name: 'Level 137', depth: 3, deadEnds: 24, vents: 1, winds: 1, windCells: 4, windAgainst: true, bigCane: true, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // Two trampolines (Gray's design): every dead end 3 deep, two cloud
+    // trampolines ('k', each at its own wall), one thick fog (3 cells, 'g')
+    // and one 3-cell rainbow bridge gap ('O')
+    level138: { name: 'Level 138', depth: 3, deadEnds: 24, trampoline: true, trampolines: 2, fogs: 1, fogCells: 3, platforms: 1, platformCells: 3, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -456,16 +460,22 @@ function place(path, hung, random) {
     // A cloud trampoline is placed the same way: the wall gap between path
     // cells w and w + 1 is shut (an ordinary wall), and the trampoline fills
     // cell w, so the corridor seems to end at that wall
-    if (rule.spinWall || rule.trampoline) {
+    // (rule.trampolines: how many, each at its own wall)
+    out.spinWalls = [];
+    for (let n = 0; n < (rule.spinWall || rule.trampoline ? rule.trampolines ?? 1 : 0); n++) {
         const options = [];
+        const [low, high] = (rule.trampolines ?? 1) > 1 ? [0.15, 0.9] : [0.25, 0.85];
         for (let w = 2; w < path.length - 3; w++) {
-            if (w < path.length * 0.25 || w > path.length * 0.85) continue;
+            if (w < path.length * low || w > path.length * high) continue;
             if (plain(w) && plain(w + 1) && fits([w, w + 1])) options.push(w);
         }
         if (options.length === 0) return null;
-        out.spinWall = options[Math.floor(random() * options.length)];
-        spans.push([out.spinWall, out.spinWall + 1]);
+        const w = options[Math.floor(random() * options.length)];
+        out.spinWalls.push(w);
+        spans.push([w, w + 1]);
     }
+    out.spinWalls.sort((a, b) => a - b);
+    out.spinWall = out.spinWalls[0];
     // Slippery spots (Level 13's): a plain path cell, kept well away from the
     // door (at least 6 path cells between)
     for (let n = 0; n < (rule.slippery ?? 0); n++) {
@@ -818,9 +828,9 @@ for (const { chain } of placed.fossils) {
     const end = chain[chain.length - 1];
     put([4 * end.i + 2, 4 * end.j + 2], 'f');
 }
-if (placed.spinWall !== undefined) {
-    const a = path[placed.spinWall];
-    const b = path[placed.spinWall + 1];
+for (const w of placed.spinWalls) {
+    const a = path[w];
+    const b = path[w + 1];
     for (const d of [1, 2, 3]) put(a.i !== b.i ? [4 * Math.max(a.i, b.i), 4 * a.j + d] : [4 * a.i + d, 4 * Math.max(a.j, b.j)], rule.trampoline ? '#' : 'E');
     if (rule.trampoline) put([4 * a.i + 2, 4 * a.j + 2], 'k');
 }
@@ -868,6 +878,6 @@ if (placed.pathCane !== undefined) console.log(`path spike: path cell ${placed.p
 if (placed.current) console.log(`water current: path cell ${placed.current.index + 1} (${key(path[placed.current.index])}), heading ${dir(placed.current.index)}, shoves into ${key(placed.current.into)}`);
 if (placed.bigCane) console.log(`big spike: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);
 placed.buttonDoors.forEach((door, n) => console.log(`button door ${n ? 'j' : 'J'}: between path cells ${door.door + 1} and ${door.door + 2} (${key(path[door.door])} -> ${key(path[door.door + 1])}), heading ${dir(door.door + 1)}; button ${n ? 'u' : 'U'} wrong way off path cell ${door.at + 1} (${key(path[door.at])}), button in ${key(door.chain[door.chain.length - 1])}`));
-if (placed.spinWall !== undefined) console.log(`${rule.trampoline ? "cloud trampoline in the first cell, wall" : "spinning wall"}: between path cells ${placed.spinWall + 1} and ${placed.spinWall + 2} (${key(path[placed.spinWall])} -> ${key(path[placed.spinWall + 1])}), heading ${dir(placed.spinWall + 1)}`);
+for (const w of placed.spinWalls) console.log(`${rule.trampoline ? "cloud trampoline in the first cell, wall" : "spinning wall"}: between path cells ${w + 1} and ${w + 2} (${key(path[w])} -> ${key(path[w + 1])}), heading ${dir(w + 1)}`);
 if (rule.finaleOrder) console.log(`wrong ways after the spinning wall: off path cells ${hung.roots.filter((at) => at > placed.spinWall + 1).sort((a, b) => a - b).map((at) => at + 1).join(', ')}`);
 placed.fossils.forEach(({ chain, at }, n) => console.log(`fossil ${n + 1}: wrong way off path cell ${at + 1} (${key(path[at])}), fossil in ${key(chain[chain.length - 1])}`));

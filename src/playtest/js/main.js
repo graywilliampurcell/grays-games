@@ -510,15 +510,14 @@ function step(deltaTime) {
     // with a boing, landing you in the middle of the cell beyond, turned to
     // face the way you were going. You can't steer or fall. In the air you
     // see only its cell, the wall and the landing cell.
-    if (maze.trampoline) {
-        const t = maze.trampoline;
-        maze.updateTrampoline(deltaTime);
-        if (!t.bouncing && !player.shove && !player.carried && !player.spinning && !escaped && maze.onTrampoline(player.position)) {
+    if (maze.trampolines?.length) maze.updateTrampoline(deltaTime);
+    for (const t of maze.trampolines ?? []) {
+        if (!t.bouncing && !player.shove && !player.carried && !player.spinning && !escaped && maze.onTrampoline(player.position) === t) {
             t.squish = 1;
             player.euler.setFromQuaternion(player.camera.quaternion);
             t.bouncing = { time: 0, fromYaw: player.euler.y, toYaw: Math.atan2(-t.dir.x, -t.dir.z) };
             player.startShove(t.landing, TRAMPOLINE_TIME, TRAMPOLINE_HEIGHT);
-            maze.setTrampolineView(true);
+            maze.setTrampolineView(true, t);
             sound.boing();
             testHooks?.emit('trampoline', { what: 'bounce' });
         }
@@ -532,7 +531,7 @@ function step(deltaTime) {
             player.camera.quaternion.setFromEuler(player.euler);
             if (!player.shove) {
                 t.bouncing = null;
-                maze.setTrampolineView(false);
+                maze.setTrampolineView(false, t);
                 testHooks?.emit('trampoline', { what: 'land' });
             }
         }
@@ -1052,9 +1051,9 @@ function backToStart() {
     maze.resetPlatform();
     maze.resetButtonDoor?.();
     maze.resetSpinWall?.();
-    if (maze.trampoline) {
-        maze.trampoline.bouncing = null;
-        maze.setTrampolineView(false);
+    for (const t of maze.trampolines ?? []) {
+        t.bouncing = null;
+        maze.setTrampolineView(false, t);
     }
     buddy?.backToStart();
 }

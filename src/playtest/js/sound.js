@@ -3787,6 +3787,34 @@ const TUNES = {
             birds: [[14, 86], [38, 90], [58, 84]],
         },
     },
+    // Level 138 (two trampolines): sneaky and mysterious, half and half, in
+    // D minor at 108 bpm: a light triangle lead that creeps along low, then
+    // bounces up an octave twice, boing and boing again, each time drifting
+    // back down, with a mysterious B-flat major and A major turn. Wind and
+    // far-off birdsong in the background, quieter than the melody.
+    skytwobounce: {
+        tempo: 108,
+        bars: [[38, 'min'], [38, 'min'], [34, 'maj'], [33, 'maj'], [38, 'min'], [34, 'maj'], [33, 'maj'], [38, 'min']],
+        bass: [0, null, null, 7, 0, null, null, null],
+        bassLength: 0.22,
+        stabs: [],
+        ticks: true,
+        melody: [
+            62, null, 64, null, 65, null, null, null,
+            74, null, 72, null, 69, null, null, null,
+            62, null, 64, null, 65, null, null, null,
+            77, null, 74, null, 70, null, null, null,
+            69, null, null, 67, 65, null, 64, null,
+            70, null, null, null, 74, null, 70, null,
+            69, null, 73, null, 76, null, 73, null,
+            74, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'triangle', level: 0.2, length: 0.22, brightness: 1500 },
+        sky: {
+            winds: [[0, 2.6], [24, 3.0], [44, 2.4]],
+            birds: [[10, 92], [26, 88], [42, 94], [60, 89]],
+        },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

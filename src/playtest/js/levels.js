@@ -8124,6 +8124,76 @@ export const LEVELS = [
         '#                            <<<<<<<<<<<<<<<    #   #',
         '#####################################################',
         ],
+    },    {
+        name: 'Level 138',
+        // Two trampolines (Gray's design). `SEEDS=40 node
+        // tools/find-sky-level.mjs level138 24 1380000`, seed 1380005. 13 x 13
+        // corridors. Correct path 97 cells (start west in row 5, door east in
+        // row 9); 24 wrong ways, every one 3 cells deep. O: the rainbow
+        // bridge's gap over path cells 35-37 (column 12, crossed heading
+        // south). k: the first cloud trampoline in path cell 49 (heading
+        // north), bouncing you over the wall into path cell 50. g: the thick
+        // fog over path cells 62-64 (column 5, walked heading south). k: the
+        // second cloud trampoline in path cell 78 (column 0, heading south),
+        // bouncing you over the wall into path cell 79. No windy hallway, no
+        // propeller, no storm-cloud spikes.
+        theme: SKY,
+        music: 'skytwobounce',
+        layout: [
+        '#####################################################',
+        '#               #               #                   #',
+        '#               #               #                   #',
+        '#               #               #                   #',
+        '#   #########   #   #########   #   #############   #',
+        '#       #   #       #       #   #               #OOO#',
+        '#       #   #       #       #   #               #OOO#',
+        '#       #   #       #       #   #               #OOO#',
+        '#####   #   #############   #   #############   #OOO#',
+        '#       #   #           #                       #OOO#',
+        '#       #   #           #                       #OOO#',
+        '#       #   #           #                       #OOO#',
+        '#   #   #   #   #################   #########   #OOO#',
+        '#   #   #           #           #   #           #OOO#',
+        '#   #   #           #           #   #           #OOO#',
+        '#   #   #           #           #   #           #OOO#',
+        '#   #   #####   #   #   #########   #############   #',
+        '#   #       #   #               #       #           #',
+        '#   #       #   #               #       #           #',
+        '#   #       #   #               #       #           #',
+        '#########   #   #########   #   #########   #####   #',
+        '#           #           #   #       #   #   #       #',
+        '# S         #           #   #       #   #   #       #',
+        '#           #           #   #       #   #   #       #',
+        '#########   #   #####   #   #########   #####   #####',
+        '#           #       #   #   #       #           #   #',
+        '#           #       #   #   #       #           #   #',
+        '#           #       #   #   #       #           #   #',
+        '#################   #   #####   #############   #   #',
+        '#               #   #ggg#   #   #               #   #',
+        '#               #   #ggg# k #   #               #   #',
+        '#               #   #ggg#   #   #               #   #',
+        '#   #########   #####ggg#   #   #############   #   #',
+        '#   #           #   #ggg#                       #   #',
+        '# k #           #   #ggg#                       #   #',
+        '#   #           #   #ggg#                       #   #',
+        '#####   #########   #ggg#########################   #',
+        '#   #               #ggg#                           #',
+        '#   #               #ggg#                           D',
+        '#   #               #ggg#                           #',
+        '#   #####   #########   #   #############   #   #   #',
+        '#       #               #               #   #   #   #',
+        '#       #               #               #   #   #   #',
+        '#       #               #               #   #   #   #',
+        '#####   #############   #   #############   #   #   #',
+        '#   #       #           #               #   #   #   #',
+        '#   #       #           #               #   #   #   #',
+        '#   #       #           #               #   #   #   #',
+        '#   #   #   #############   #############   #   #   #',
+        '#       #                               #   #   #   #',
+        '#       #                               #   #   #   #',
+        '#       #                               #   #   #   #',
+        '#####################################################',
+        ],
     },
 ];
 
