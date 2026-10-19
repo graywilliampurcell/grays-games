@@ -594,6 +594,50 @@
             font-size: 44px;
         }
 
+        /* Sleepy (a sleepy mushroom, Level 143 on): a soft blue glow round
+           the edges of the view, with Zzz bubbles floating up each side */
+        #sleepy {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s;
+            background: radial-gradient(ellipse at center, rgba(40, 70, 170, 0) 55%, rgba(40, 70, 170, 0.45) 100%);
+            overflow: hidden;
+        }
+        body.sleepy #sleepy {
+            opacity: 1;
+        }
+        #sleepy span {
+            position: absolute;
+            bottom: -60px;
+            width: 52px;
+            height: 52px;
+            line-height: 52px;
+            border-radius: 50%;
+            text-align: center;
+            font: bold 32px sans-serif;
+            color: #1d3f9a;
+            background: rgba(200, 222, 255, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            animation: zzz-up 3s linear infinite;
+        }
+        #sleepy span:nth-child(1) { left: 3%; animation-delay: 0s; }
+        #sleepy span:nth-child(2) { left: 8%; animation-delay: 1s; font-size: 24px; width: 40px; height: 40px; line-height: 40px; }
+        #sleepy span:nth-child(3) { left: 4%; animation-delay: 2s; }
+        #sleepy span:nth-child(4) { right: 3%; animation-delay: 0.5s; }
+        #sleepy span:nth-child(5) { right: 8%; animation-delay: 1.5s; font-size: 24px; width: 40px; height: 40px; line-height: 40px; }
+        #sleepy span:nth-child(6) { right: 4%; animation-delay: 2.5s; }
+        @keyframes zzz-up {
+            0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+            15% { opacity: 1; }
+            50% { transform: translate(14px, -45vh) scale(1); }
+            100% { transform: translate(-6px, -95vh) scale(1.2); opacity: 0; }
+        }
+        body.paused #sleepy span {
+            animation-play-state: paused;
+        }
+
         #message {
             position: absolute;
             top: 20%;
@@ -817,6 +861,7 @@
     </div>
     <div id="level"></div>
     <div id="fossils" hidden></div>
+    <div id="sleepy" aria-hidden="true"><span>Z</span><span>z</span><span>Z</span><span>Z</span><span>z</span><span>Z</span></div>
     <div id="message" hidden></div>
     <div id="walk-circle" class="touch-ctl touch-circle left"><div class="knob"><div class="icon">🚶</div></div></div>
     <div id="look-circle" class="touch-ctl touch-circle right"><div class="knob"><div class="icon">👀</div></div></div>

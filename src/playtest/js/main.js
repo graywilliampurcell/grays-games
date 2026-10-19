@@ -88,6 +88,14 @@ const skyLook = { color: new THREE.Color(), near: 200, far: 500 };
 let fogVeil = null; // a white shell around you, hiding what the scene's fog doesn't (the sun, the clouds far below)
 // Sticky caramel (Level 52 on): you walk at half speed while you're on it
 const CARAMEL_SPEED = 0.5;
+// A sleepy mushroom (Level 143 on): touching it makes you walk at half speed
+// for SLEEPY_TIME seconds (touching it again starts the time over). It's
+// counted in game time, so it freezes while paused; going back to the start
+// ends it.
+const SLEEPY_SPEED = 0.5;
+const SLEEPY_TIME = 5;
+let sleepyLeft = 0;
+let touchingSleepy = false;
 // A steam vent's puff (Volcano World) pushes you one square back, taking this long
 const VENT_PUSH_TIME = 0.45;
 // A tail swish (Dinosaur World, Level 112 on) pushes you one square back,
@@ -277,6 +285,7 @@ function init() {
         playAgain,
         getBuddy: () => buddy,
         getFogView: () => fogView,
+        getSleepy: () => ({ left: sleepyLeft, touching: touchingSleepy }),
     });
 
     // Start animation loop
@@ -287,6 +296,9 @@ function init() {
 // (-1 for a test layout). Doesn't move the player.
 function loadLevel(level, index) {
     levelIndex = index;
+    sleepyLeft = 0;
+    touchingSleepy = false;
+    showSleepy(false);
     // The old level's snowmen stop being heard
     for (const s of maze?.snowmen ?? []) s.voice?.gain.disconnect();
     sound?.stopWind(windVoice);
@@ -723,7 +735,8 @@ function step(deltaTime) {
         }
     }
     // Sticky caramel (Level 52 on): half speed while on it, normal as soon as you're off
-    player.sticky = maze.onCaramel(player.position) ? CARAMEL_SPEED : 1;
+    updateSleepy(deltaTime);
+    player.sticky = (maze.onCaramel(player.position) ? CARAMEL_SPEED : 1) * (sleepyLeft > 0 ? SLEEPY_SPEED : 1);
     // Marshmallow (Level 52 on): stepping onto one bounces you over the
     // chocolate river in one arc, landing safely on the far bank
     if (!player.shove) {
@@ -1067,8 +1080,36 @@ function updateWaterFall(deltaTime) {
     }
 }
 
+// Sleepy mushrooms (Level 143 on): you can't walk through one; touching it
+// makes you sleepy (half speed, Zzz bubbles round the edges of the view)
+function updateSleepy(deltaTime) {
+    sleepyLeft = sleepyLeft - deltaTime > 1e-6 ? sleepyLeft - deltaTime : 0;
+    if (maze.sleepies?.length && !escaped) {
+        if (maze.pushOutOfSleepy(player.position)) player.camera.position.set(player.position.x, player.camera.position.y, player.position.z);
+        const touching = maze.touchesSleepy(player.position);
+        if (touching) {
+            if (!touchingSleepy) {
+                sound.sleepy();
+                testHooks?.emit('sleepy');
+            }
+            sleepyLeft = SLEEPY_TIME;
+        }
+        touchingSleepy = touching;
+    } else {
+        touchingSleepy = false;
+    }
+    showSleepy(sleepyLeft > 0);
+}
+
+function showSleepy(on) {
+    if (document.body.classList.contains('sleepy') !== on) document.body.classList.toggle('sleepy', on);
+}
+
 function backToStart() {
     falling = null;
+    sleepyLeft = 0;
+    touchingSleepy = false;
+    showSleepy(false);
     player.resetTo(maze.getStartPosition(), maze.getStartYaw());
     player.sticky = 1;
     player.carried = false;

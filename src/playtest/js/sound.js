@@ -3921,6 +3921,31 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.19, length: 0.24, brightness: 1250 },
     },
+    // Level 143 (the first sleepy mushroom): sneaky and mysterious, half and
+    // half, in G minor at 72 bpm: a drowsy sine lead like a lullaby that
+    // keeps nodding off (long held notes that sag down a half step, a slow
+    // yawn of a falling sixth), then wakes with a sneaky tiptoe climb to a
+    // strange C-sharp over a D major bar (the mysterious part), with tiptoe
+    // ticks underneath.
+    mushroomsleepy: {
+        tempo: 72,
+        bars: [[43, 'min'], [43, 'min'], [39, 'maj'], [38, 'maj'], [43, 'min'], [36, 'min'], [38, 'maj'], [43, 'min']],
+        bass: [0, null, null, null, 7, null, null, null],
+        bassLength: 0.4,
+        stabs: [],
+        ticks: true,
+        melody: [
+            74, null, null, null, 73, null, null, null,
+            70, null, 67, null, null, null, null, null,
+            75, null, null, 74, null, null, 67, null,
+            66, null, null, null, null, null, null, null,
+            67, 69, 70, null, 72, null, 74, null,
+            75, null, null, 72, null, 69, null, null,
+            73, null, null, null, 74, null, 69, null,
+            67, null, null, null, null, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.18, length: 0.34, brightness: 1000 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {
@@ -4680,6 +4705,47 @@ export class Sound {
     }
 
     // The cloud trampoline (Sky World, Level 133 on): a soft, springy
+    // A sleepy mushroom touched you (Level 143 on): a soft, slow yawn that
+    // slides down and wobbles, then a tiny sleepy "mm"
+    sleepy() {
+        if (!this.settings.sfx || !this.ctx) return;
+        this.onEvent('sleepy');
+        const t = this.ctx.currentTime + 0.01;
+        const o = this.ctx.createOscillator();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(520, t);
+        o.frequency.exponentialRampToValueAtTime(620, t + 0.25);
+        o.frequency.exponentialRampToValueAtTime(240, t + 1.1);
+        const wobble = this.ctx.createOscillator();
+        wobble.frequency.value = 5;
+        const wobbleDepth = this.ctx.createGain();
+        wobbleDepth.gain.value = 12;
+        wobble.connect(wobbleDepth).connect(o.frequency);
+        const f = this.ctx.createBiquadFilter();
+        f.type = 'lowpass';
+        f.frequency.value = 1400;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.22, t + 0.15);
+        g.gain.setValueAtTime(0.22, t + 0.7);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+        o.connect(f).connect(g).connect(this.sfxBus);
+        o.start(t);
+        o.stop(t + 1.25);
+        wobble.start(t);
+        wobble.stop(t + 1.25);
+        const m = this.ctx.createOscillator();
+        m.type = 'sine';
+        m.frequency.value = 200;
+        const mg = this.ctx.createGain();
+        mg.gain.setValueAtTime(0.0001, t + 1.25);
+        mg.gain.exponentialRampToValueAtTime(0.12, t + 1.32);
+        mg.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+        m.connect(mg).connect(this.sfxBus);
+        m.start(t + 1.25);
+        m.stop(t + 1.65);
+    }
+
     // "boing" that wobbles up and settles, with a little puff of air
     boing() {
         if (!this.settings.sfx || !this.ctx) return;

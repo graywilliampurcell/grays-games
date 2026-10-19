@@ -737,6 +737,16 @@ export const CAP_RING = 0.5;
 const CAP_OVERHANG = 0.4;
 const CAP_LANDING = 1.0;
 const ACID_DEPTH = 3;
+// Mushroom Forest World's sleepy mushroom ('z', Level 143 on): a blue cap as
+// wide as Level 53's squeeze spike (so the same gaps each side). You touch
+// it when your middle comes within SLEEPY_TOUCH of its middle (like touching
+// a spike); it's solid, so your middle never gets closer than SLEEPY_SOLID.
+const SLEEPY_RADIUS = 0.64;
+const SLEEPY_TOUCH = SLEEPY_RADIUS + 0.25;
+const SLEEPY_SOLID = SLEEPY_TOUCH - 0.03;
+// Its "Zzz" bubbles: this many float up from the cap, each taking this long
+const ZZZ_COUNT = 3;
+const ZZZ_TIME = 2.4;
 // The trench bounce (Level 142 on): a trench ('b' blocks, 4 corridor cells
 // long, full corridor width) with acid TRENCH_DEPTH down. Two giant bouncy
 // mushrooms stand in the acid, one near each edge (their middles
@@ -2565,6 +2575,10 @@ export class Maze {
         this.slipperyBlocks = new Set();
         // Blocks of sticky caramel ('C', Candy World, Level 52 on), keyed "x,z"
         this.caramelBlocks = new Set();
+        // Sleepy mushrooms ('z', Mushroom Forest World, Level 143 on): the
+        // middle of the corridor cell each stands in
+        this.sleepyPositions = [];
+        this.sleepies = [];
         // Blocks with no floor ('O'), crossed on moving platforms (one per gap);
         // 'F' is the same but its platform is a fast one (Level 27 on); in
         // Pirate Ship World a level with both kinds walks the plank over its
@@ -2633,6 +2647,7 @@ export class Maze {
                 if (ch === 'G') doorBlocks.push({ x, z });
                 if (ch === 'I') this.slipperyBlocks.add(`${x},${z}`);
                 if (ch === 'C') this.caramelBlocks.add(`${x},${z}`);
+                if (ch === 'z') this.sleepyPositions.push(center);
                 if (ch === 'O' || ch === 'F') gapBlocks.push({ x, z, fast: ch === 'F' });
                 if (ch === 'b') gapBlocks.push({ x, z, trench: true });
                 if (ch === 'W') currentBlocks.push({ x, z });
@@ -3050,6 +3065,7 @@ export class Maze {
         if (this.spaceDoor) this.createSpaceDoor();
         if (this.slipperyBlocks.size) this.createSlipperySpots();
         if (this.caramelBlocks.size) this.createCaramelSpots();
+        this.sleepies = this.sleepyPositions.map((position) => this.createSleepyMushroom(position));
         for (const p of this.platforms) this.createPlatform(p);
         for (const row of this.spikeRows) this.createSpikeRow(row);
         for (const c of this.currents) this.createCurrent(c);
@@ -9389,6 +9405,98 @@ export class Maze {
                 b.mesh.scale.setScalar(t < 0.8 ? 0.4 + t : 0.01);
             }
         }
+        // The sleepy mushrooms' Zzz bubbles float up, swaying, growing and fading
+        for (const m of this.sleepies) {
+            m.clock += dt;
+            m.zzz.forEach((z, n) => {
+                const t = ((m.clock + (n * ZZZ_TIME) / ZZZ_COUNT) % ZZZ_TIME) / ZZZ_TIME;
+                z.position.set(Math.sin(t * Math.PI * 2 + n) * 0.25, 1.05 + t * 1.6, Math.cos(t * Math.PI * 2 + n) * 0.1);
+                z.scale.setScalar(0.22 + t * 0.3);
+                z.material.opacity = t < 0.15 ? t / 0.15 : 1 - (t - 0.15) / 0.85;
+            });
+        }
+    }
+
+    // The sleepy mushroom: a blue cap with pale spots on a cream stem, with
+    // little "Zzz" bubbles floating up from it. It's solid (you go round it);
+    // touching it isn't an Ouch, it makes you sleepy (main.js).
+    createSleepyMushroom(position) {
+        const radius = SLEEPY_RADIUS;
+        const group = new THREE.Group();
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.3, radius * 0.38, 0.75, 14), new THREE.MeshStandardMaterial({ color: 0xf2e6c8, roughness: 0.8 }));
+        stem.position.y = 0.375;
+        stem.castShadow = true;
+        group.add(stem);
+        const cap = new THREE.Mesh(new THREE.SphereGeometry(radius, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x3f73ee, roughness: 0.45, emissive: 0x0c2a7a, emissiveIntensity: 0.6 }));
+        cap.scale.y = 0.6;
+        cap.position.y = 0.7;
+        cap.castShadow = true;
+        group.add(cap);
+        const under = new THREE.Mesh(new THREE.CircleGeometry(radius, 24), new THREE.MeshStandardMaterial({ color: 0xe8d8b0, side: THREE.DoubleSide }));
+        under.rotation.x = Math.PI / 2;
+        under.position.y = 0.7;
+        group.add(under);
+        // Pale blue spots on the cap
+        const spot = new THREE.MeshStandardMaterial({ color: 0xcfe0ff, roughness: 0.6 });
+        const spotGeometry = new THREE.SphereGeometry(1, 8, 6);
+        for (const [a, up] of [[0, 1.2], [1.3, 0.75], [2.6, 0.7], [3.9, 0.8], [5.2, 0.72], [0.65, 0.35], [3.25, 0.4]]) {
+            const sp = new THREE.Mesh(spotGeometry, spot);
+            const sz = radius * 0.12;
+            sp.scale.set(sz, sz * 0.5, sz);
+            const tilt = Math.min(up, Math.PI / 2) * 0.9;
+            const ring = Math.cos(Math.PI / 2 - tilt);
+            sp.position.set(Math.cos(a) * radius * ring, 0.7 + radius * 0.6 * Math.sin(Math.PI / 2 - tilt), Math.sin(a) * radius * ring);
+            group.add(sp);
+        }
+        // The Zzz bubbles: round pale-blue bubbles with a Z in each
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 64;
+        const c = canvas.getContext('2d');
+        c.fillStyle = 'rgba(200, 222, 255, 0.55)';
+        c.beginPath();
+        c.arc(32, 32, 29, 0, Math.PI * 2);
+        c.fill();
+        c.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+        c.lineWidth = 3;
+        c.stroke();
+        c.fillStyle = '#1d3f9a';
+        c.font = 'bold 40px sans-serif';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText('Z', 32, 34);
+        const map = new THREE.CanvasTexture(canvas);
+        const zzz = [];
+        for (let n = 0; n < ZZZ_COUNT; n++) {
+            const z = new THREE.Sprite(new THREE.SpriteMaterial({ map, transparent: true, depthWrite: false }));
+            group.add(z);
+            zzz.push(z);
+        }
+        group.position.set(position.x, 0, position.z);
+        this.root.add(group);
+        return { position: new THREE.Vector3(position.x, 0, position.z), group, zzz, clock: 0 };
+    }
+
+    // Is this point touching a sleepy mushroom?
+    touchesSleepy(point) {
+        return this.sleepies.some((m) => Math.hypot(point.x - m.position.x, point.z - m.position.z) < SLEEPY_TOUCH);
+    }
+
+    // Sleepy mushrooms are solid: push a point that got too close back out
+    // (straight away from the mushroom's middle). Returns true if it moved.
+    pushOutOfSleepy(point) {
+        let moved = false;
+        for (const m of this.sleepies) {
+            const dx = point.x - m.position.x;
+            const dz = point.z - m.position.z;
+            const d = Math.hypot(dx, dz);
+            if (d >= SLEEPY_SOLID) continue;
+            const ux = d > 1e-6 ? dx / d : 1;
+            const uz = d > 1e-6 ? dz / d : 0;
+            point.x = m.position.x + ux * SLEEPY_SOLID;
+            point.z = m.position.z + uz * SLEEPY_SOLID;
+            moved = true;
+        }
+        return moved;
     }
 
     // The Ouch mushroom (the spike): a red cap with white spots on a cream

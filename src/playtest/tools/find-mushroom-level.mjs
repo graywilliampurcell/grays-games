@@ -4,13 +4,15 @@
 //
 //   SEEDS=400 node tools/find-mushroom-level.mjs level141 30 1   # the sneaky Ouch mushroom + a mushroom cap ride
 //   SEEDS=40 node tools/find-mushroom-level.mjs level142 30 1420000   # a trench bounce ('b', 4 cells) + a path Ouch mushroom
+//   SEEDS=40 node tools/find-mushroom-level.mjs level143 30 1430000   # a sleepy mushroom ('z') + a mushroom cap ride
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
 //
 // Layout letters (see js/Maze.js): as in find-sky-level.mjs. Mushroom Forest World reads 'X' as an Ouch mushroom and 'O' as a
 // mushroom cap ride's acid gap (3 corridor cells, full corridor width), and
-// 'b' as a trench bounce's trench (4 corridor cells, full corridor width).
+// 'b' as a trench bounce's trench (4 corridor cells, full corridor width),
+// and 'z' as a sleepy mushroom (Level 143 on).
 //
 // Rules for every level: 14 x 14, one solution path from the west edge to
 // the east edge, start and door on opposite edges, a layout clearly
@@ -27,6 +29,9 @@ const RULES = {
     // The first trench bounce: one 4-cell trench ('b') and one path Ouch
     // mushroom ('X', Level 53's squeeze)
     level142: { name: 'Level 142', depth: 3, deadEnds: 30, trenches: 1, pathCane: true, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // The first sleepy mushroom: the path spike's spot holds a sleepy
+    // mushroom ('z', Level 53's gaps) instead, plus one 3-cell cap ride ('O')
+    level143: { name: 'Level 143', depth: 3, deadEnds: 30, pathCane: true, sleepy: true, platforms: 1, platformCells: 3, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {
@@ -748,6 +753,7 @@ const { path, hung, placed } = best;
 const layout = toLayout(hung.links, { startCell: best.startCell, exitCell: best.exitCell, spikeCell: hung.sneaky ? hung.sneaky.s : placed.pathCane !== undefined ? path[placed.pathCane] : null }).map((r) => r.split(''));
 const put = ([x, z], ch) => { layout[z][x] = ch; };
 if (hung.sneaky && placed.pathCane !== undefined) put([4 * path[placed.pathCane].i + 2, 4 * path[placed.pathCane].j + 2], 'Z');
+if (rule.sleepy && placed.pathCane !== undefined) put([4 * path[placed.pathCane].i + 2, 4 * path[placed.pathCane].j + 2], 'z');
 if (placed.bigCane) put(rowBlock(path[placed.bigCane.at], placed.bigCane.chain[0]), 'Y');
 if (placed.current) {
     const cell = path[placed.current.index];
@@ -853,7 +859,7 @@ placed.thinIce.forEach((n) => console.log(`thin ice: path cell ${n + 1} (${key(p
 if (placed.caramel.length) console.log(`caramel on the path: cells ${[...placed.caramel].sort((a, b) => a - b).map((c) => `${c + 1} (${key(path[c])}, heading ${dir(c)})`).join(', ')}`);
 placed.winds.forEach((w) => console.log(`windy hallway: path cells ${w + 1}-${w + (rule.windCells ?? 4)} (${key(path[w])} ${key(path[w + (rule.windCells ?? 4) - 1])}), walked heading ${dir(w + 1)}, wind '${windLetter(w)}' ${rule.windAgainst ? 'against you' : 'with you'}`));
 placed.fogs.forEach((f) => console.log(`thick fog: path cells ${f + 1}-${f + (rule.fogCells ?? 3)} (${key(path[f])} ${key(path[f + (rule.fogCells ?? 3) - 1])}), walked heading ${dir(f + 1)}, wrong ways off it: ${hung.roots.filter((at) => at >= f && at < f + (rule.fogCells ?? 3)).length}`));
-if (placed.pathCane !== undefined) console.log(`path spike: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
+if (placed.pathCane !== undefined) console.log(`${rule.sleepy ? 'sleepy mushroom' : 'path spike'}: path cell ${placed.pathCane + 1} (${key(path[placed.pathCane])}), heading ${dir(placed.pathCane)}`);
 if (placed.current) console.log(`water current: path cell ${placed.current.index + 1} (${key(path[placed.current.index])}), heading ${dir(placed.current.index)}, shoves into ${key(placed.current.into)}`);
 if (placed.bigCane) console.log(`big spike: dead end off path cell ${placed.bigCane.at + 1}, first cell ${key(placed.bigCane.chain[0])}`);
 placed.buttonDoors.forEach((door, n) => console.log(`button door ${n ? 'j' : 'J'}: between path cells ${door.door + 1} and ${door.door + 2} (${key(path[door.door])} -> ${key(path[door.door + 1])}), heading ${dir(door.door + 1)}; button ${n ? 'u' : 'U'} wrong way off path cell ${door.at + 1} (${key(path[door.at])}), button in ${key(door.chain[door.chain.length - 1])}`));
