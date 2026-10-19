@@ -9639,8 +9639,10 @@ export class Maze {
         this.root.add(pool);
         const center = new THREE.Vector3(position.x, FIREFLY_HEIGHT, position.z);
         group.position.copy(center);
+        // A second firefly (Level 149 on) starts half a cycle on, so the two
+        // are out of step: they're never bright at the same time
         this.root.add(group);
-        const f = { position: center, group, glow, tail, wings, pool, time: 0, bright: false, shine: 0, clock: n * 1.7 };
+        const f = { position: center, group, glow, tail, wings, pool, time: (n % 2) * ((FIREFLY_DIM_TIME + FIREFLY_BRIGHT_TIME) / 2), bright: false, shine: 0, clock: n * 1.7 };
         this.showFirefly(f);
         return f;
     }

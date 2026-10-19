@@ -4071,6 +4071,30 @@ const TUNES = {
         ],
         lead: { wave: 'triangle', level: 0.13, length: 0.24, brightness: 1300 },
     },
+    // Level 149 (two bright fireflies): sneaky and mysterious, half and
+    // half, in C-sharp minor at 76 bpm: a soft sine lead where one firefly
+    // blinks twice up high and another answers twice down low, taking turns
+    // like the two fireflies, then a slow mysterious bar that drifts down
+    // and ends on a strange B-sharp, with tiptoe ticks underneath.
+    mushroomblinks: {
+        tempo: 76,
+        bars: [[37, 'min'], [37, 'min'], [45, 'maj'], [44, 'maj'], [37, 'min'], [42, 'min'], [45, 'maj'], [44, 'maj']],
+        bass: [0, null, null, null, 7, null, null, null],
+        bassLength: 0.4,
+        stabs: [],
+        ticks: true,
+        melody: [
+            73, null, 73, null, null, null, null, null,
+            null, null, null, null, 61, null, 61, null,
+            76, null, 76, null, null, null, null, null,
+            null, null, null, null, 63, null, 63, null,
+            80, null, null, 78, 76, null, 73, null,
+            69, null, null, null, 66, null, null, null,
+            64, null, null, 69, null, null, 73, null,
+            72, null, null, null, 68, null, null, null,
+        ],
+        lead: { wave: 'sine', level: 0.17, length: 0.22, brightness: 1200 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

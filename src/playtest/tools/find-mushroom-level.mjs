@@ -10,6 +10,7 @@
 //   SEEDS=40 node tools/find-mushroom-level.mjs level146 30 1460000   # a path Ouch mushroom (Level 54's squeeze) + a bright firefly + a mushroom cap ride
 //   SEEDS=40 node tools/find-mushroom-level.mjs level147 30 1470000   # two trench bounces + a firefly swarm + a big Ouch mushroom
 //   SEEDS=40 node tools/find-mushroom-level.mjs level148 30 1480000   # two mushroom cap rides + two sleepy mushrooms + a bright firefly
+//   SEEDS=40 node tools/find-mushroom-level.mjs level149 30 1490000   # two bright fireflies + a firefly swarm + a trench bounce + the sneaky Ouch mushroom
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -58,6 +59,10 @@ const RULES = {
     // straight stretch), two sleepy mushrooms ('z', rule.sleepies) and one
     // bright firefly ('e')
     level148: { name: 'Level 148', depth: 3, deadEnds: 30, platforms: 2, platformCells: 3, ownStretch: true, sleepies: 2, fireflies: 1, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // Two bright fireflies ('e', each its own hallway; Maze.js puts the
+    // second one half a cycle out of step), one firefly swarm ('g', 3
+    // cells), one trench bounce ('b') and the sneaky Ouch mushroom ('X')
+    level149: { name: 'Level 149', depth: 3, deadEnds: 30, sneaky: true, fireflies: 2, fogs: 1, fogCells: 3, trenches: 1, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

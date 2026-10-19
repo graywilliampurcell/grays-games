@@ -8953,6 +8953,84 @@ export const LEVELS = [
         '#########################################################',
         ],
     },
+    {
+        name: 'Level 149',
+        // Two bright fireflies. `SEEDS=40 node
+        // tools/find-mushroom-level.mjs level149 30 1490200`, seed 1490208.
+        // 14 x 14 corridors. Correct path 103 cells (start west in row 13,
+        // door east in row 0); 31 wrong ways, every one 3 cells deep. X: the
+        // sneaky Ouch mushroom in the last cell of a 3-deep wrong way with
+        // one turn off path cell 1. e: the first bright firefly at the far
+        // end of the hallway over path cells 40-43 (row 1, heading west; the
+        // path turns north out of it). b: the trench bounce over path cells
+        // 46-49 (row 0, crossed heading east). g: the firefly swarm over
+        // path cells 54-56 (column 9, heading south). e: the second bright
+        // firefly at the far end of the hallway over path cells 98-101 (row
+        // 2, heading east; the path turns north out of it), half a cycle out
+        // of step with the first. Nothing else. A sneaky, mysterious tune
+        // where one firefly blinks high and the other answers low.
+        theme: MUSHROOM,
+        music: 'mushroomblinks',
+        layout: [
+        '#########################################################',
+        '#        bbbbbbbbbbbbbbb                #               #',
+        '#        bbbbbbbbbbbbbbb                #               D',
+        '#        bbbbbbbbbbbbbbb                #               #',
+        '#   #########################   #   #   #############   #',
+        '#                   #       #   #   #ggg#               #',
+        '# e                 #       #   #   #ggg#               #',
+        '#                   #       #   #   #ggg#               #',
+        '#################   #   #####   #   #ggg#############   #',
+        '#                       #       #   #ggg#               #',
+        '#                       #       #   #ggg#             e #',
+        '#                       #       #   #ggg#               #',
+        '#   #   #####   #################   #ggg#   #############',
+        '#   #       #           #   #   #   #ggg#   #           #',
+        '#   #       #           #   #   #   #ggg#   #           #',
+        '#   #       #           #   #   #   #ggg#   #           #',
+        '#   #####   #############   #   #####   #   #   #########',
+        '#   #   #   #           #   #           #   #           #',
+        '#   #   #   #           #   #           #   #           #',
+        '#   #   #   #           #   #           #   #           #',
+        '#   #   #############   #   #########   #   #   #####   #',
+        '#   #       #           #               #   #   #       #',
+        '#   #       #           #               #   #   #       #',
+        '#   #       #           #               #   #   #       #',
+        '#   #####   #   #####   #####   #########   #   #   #   #',
+        '#                   #   #       #           #   #   #   #',
+        '#                   #   #       #           #   #   #   #',
+        '#                   #   #       #           #   #   #   #',
+        '#   #############   #   #   #   #   #####   #   #   #   #',
+        '#           #       #   #   #   #   #   #       #   #   #',
+        '#           #       #   #   #   #   #   #       #   #   #',
+        '#           #       #   #   #   #   #   #       #   #   #',
+        '#####################   #   #   #####   #   #########   #',
+        '#           #           #   #           #           #   #',
+        '#           #           #   #           #           #   #',
+        '#           #           #   #           #           #   #',
+        '#   #########   #############   #####################   #',
+        '#                           #   #           #       #   #',
+        '#                           #   #           #       #   #',
+        '#                           #   #           #       #   #',
+        '#   #########################   #########   #####   #   #',
+        '#                           #   #           #   #       #',
+        '#                           #   #           #   #       #',
+        '#                           #   #           #   #       #',
+        '#####################   #   #   #   #####   #   #####   #',
+        '#       #               #   #   #       #   #           #',
+        '#     X #               #   #   #       #   #           #',
+        '#       #               #   #   #       #   #           #',
+        '#   #####   #   #####   #   #   #####   #   #########   #',
+        '#   #       #   #       #   #           #               #',
+        '#   #       #   #       #   #           #               #',
+        '#   #       #   #       #   #           #               #',
+        '#   #########   #   #########   #   #################   #',
+        '#               #   #           #           #           #',
+        '# S             #   #           #           #           #',
+        '#               #   #           #           #           #',
+        '#########################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
