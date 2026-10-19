@@ -11,6 +11,7 @@
 //   SEEDS=40 node tools/find-mushroom-level.mjs level147 30 1470000   # two trench bounces + a firefly swarm + a big Ouch mushroom
 //   SEEDS=40 node tools/find-mushroom-level.mjs level148 30 1480000   # two mushroom cap rides + two sleepy mushrooms + a bright firefly
 //   SEEDS=40 node tools/find-mushroom-level.mjs level149 30 1490000   # two bright fireflies + a firefly swarm + a trench bounce + the sneaky Ouch mushroom
+//   SEEDS=40 node tools/find-mushroom-level.mjs level150 30 1500000   # the finale: two trench bounces, two cap rides, a sleepy mushroom, two bright fireflies, a swarm, a path ('Z'), a big and the sneaky Ouch mushroom
 //
 // Arguments: rule, [dead ends], [first seed]; SEEDS=n sets how many seeds to
 // try. Run many first seeds in parallel.
@@ -63,6 +64,13 @@ const RULES = {
     // second one half a cycle out of step), one firefly swarm ('g', 3
     // cells), one trench bounce ('b') and the sneaky Ouch mushroom ('X')
     level149: { name: 'Level 149', depth: 3, deadEnds: 30, sneaky: true, fireflies: 2, fogs: 1, fogCells: 3, trenches: 1, straight: 0.5, relink: true, prune: true, placeTries: 40 },
+    // The Mushroom Forest World finale: two mushroom cap rides ('O') and two
+    // trench bounces ('b'), each its own straight stretch; one sleepy
+    // mushroom ('z'); two bright fireflies ('e'); one firefly swarm ('g', 3
+    // cells); the path Ouch mushroom ('Z', Level 60's squeeze, written as Z
+    // because the sneaky one is X); one big Ouch mushroom ('Y'); the sneaky
+    // Ouch mushroom ('X')
+    level150: { name: 'Level 150', depth: 3, deadEnds: 30, sneaky: true, platforms: 2, platformCells: 3, trenches: 2, ownStretch: true, sleepies: 1, fireflies: 2, fogs: 1, fogCells: 3, pathCane: true, bigCane: true, straight: 0.5, relink: true, prune: true, placeTries: 40 },
 };
 const rule = RULES[process.argv[2]];
 if (!rule) {

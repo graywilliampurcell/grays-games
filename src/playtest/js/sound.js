@@ -4095,6 +4095,31 @@ const TUNES = {
         ],
         lead: { wave: 'sine', level: 0.17, length: 0.22, brightness: 1200 },
     },
+    // Level 150 (the Mushroom Forest World finale): the sneakiest Mushroom
+    // Forest tune, still sneaky and mysterious, in F minor at 104 bpm: a
+    // quiet square lead that creeps along in half steps (F, G-flat, F), leans
+    // on a strange B natural against the C major bar, wobbles in tiny
+    // chromatic steps and leaves the last bar hanging on a low E, with
+    // tiptoe ticks underneath.
+    mushroomfinale: {
+        tempo: 104,
+        bars: [[41, 'min'], [41, 'min'], [37, 'maj'], [36, 'maj'], [41, 'min'], [46, 'min'], [37, 'maj'], [36, 'maj']],
+        bass: [0, null, null, null, 7, null, null, null],
+        bassLength: 0.4,
+        stabs: [],
+        ticks: true,
+        melody: [
+            65, null, 66, null, 65, null, null, null,
+            68, null, null, 67, null, null, 65, null,
+            77, null, null, null, 73, null, 72, null,
+            71, null, null, null, 72, null, null, null,
+            65, 66, null, 65, null, null, 64, null,
+            70, null, null, null, 73, null, null, 71,
+            77, null, 76, null, 73, null, null, null,
+            72, null, null, null, null, null, 64, null,
+        ],
+        lead: { wave: 'square', level: 0.12, length: 0.2, brightness: 1100 },
+    },
     // Iteration 6's sneaky "dun dun dun dun" tune, D minor. Not on any level
     // yet; kept for Levels 31-40.
     sneaky: {

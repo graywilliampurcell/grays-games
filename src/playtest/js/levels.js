@@ -9031,6 +9031,95 @@ export const LEVELS = [
         '#########################################################',
         ],
     },
+    {
+        name: 'Level 150',
+        // The Mushroom Forest World finale. `SEEDS=40 node
+        // tools/find-mushroom-level.mjs level150 30 1500240`, seed 1500246.
+        // 14 x 14 corridors. Correct path 103 cells (start west in row 11,
+        // golden door east in row 10); 31 wrong ways, every one 3 cells deep.
+        // X: the sneaky Ouch mushroom in the last cell of a 3-deep wrong way
+        // with one turn off path cell 3. Along the path: e the first bright
+        // firefly at the far end of the hallway over path cells 8-11 (row 13,
+        // heading east; the path turns north out of it); z the sleepy
+        // mushroom, path cell 25 (row 3, heading west); b the first trench
+        // bounce over path cells 35-38 (row 1, crossed heading east); O the
+        // first mushroom cap ride's acid gap over path cells 42-44 (row 0,
+        // crossed heading east); Z the path Ouch mushroom, path cell 47
+        // (column 13, heading south), with Level 60's squeeze gap
+        // (spike2Radius 0.72, the tightest); b the second trench bounce over
+        // path cells 50-53 (row 3, crossed heading west); O the second cap
+        // ride's gap over path cells 61-63 (column 9, crossed heading south);
+        // Y the big Ouch mushroom filling the opening of the straight wrong
+        // way off path cell 71; g the firefly swarm over path cells 74-76
+        // (row 11, heading west); e the second bright firefly at the far end
+        // of the hallway over path cells 81-84 (column 8, heading north),
+        // half a cycle out of step with the first. Golden door, confetti, the
+        // extra-long cheer and "You beat Mushroom Forest World!" + "More
+        // levels coming soon!". Music: the sneakiest Mushroom Forest tune.
+        theme: MUSHROOM,
+        music: 'mushroomfinale',
+        spike2Radius: 0.72,
+        finale: 'You beat Mushroom Forest World!',
+        layout: [
+        '#########################################################',
+        '#           #           #           #    OOOOOOOOOOO    #',
+        '#           #           #           #    OOOOOOOOOOO    #',
+        '#           #           #           #    OOOOOOOOOOO    #',
+        '#   #########   #################   #   #############   #',
+        '#                bbbbbbbbbbbbbbb            #       #   #',
+        '#                bbbbbbbbbbbbbbb            #       #   #',
+        '#                bbbbbbbbbbbbbbb            #       #   #',
+        '#   #################################   #   #####   #   #',
+        '#   #           #           #           #       #   #   #',
+        '#   #           #           #           #       #   # Z #',
+        '#   #           #           #           #       #   #   #',
+        '#   #########   #   #############################   #   #',
+        '#   #               #   #        bbbbbbbbbbbbbbb        #',
+        '#   #     z         #   #        bbbbbbbbbbbbbbb        #',
+        '#   #               #   #        bbbbbbbbbbbbbbb        #',
+        '#   #   #########   #   #   #   #################   #   #',
+        '#       #       #   #   #   #           #   #       #   #',
+        '#       #       #   #   #   #           #   #       #   #',
+        '#       #       #   #   #   #           #   #       #   #',
+        '#   #   #####   #   #   #   #############   #   #####   #',
+        '#   #   #   #       #                   #   #   #       #',
+        '#   #   #   #       #                   #   #   #       #',
+        '#   #   #   #       #                   #   #   #       #',
+        '#   #   #   #####   #################   #   #############',
+        '#   #   #           #       #       #OOO#   #           #',
+        '#   #   #           #       #     e #OOO#   #           #',
+        '#   #   #           #       #       #OOO#   #           #',
+        '#   #   #########   #   #   #   #   #OOO#   #   #########',
+        '#   #   #               #   #   #   #OOO#       #       #',
+        '#   #   #               #   #   #   #OOO#       #       #',
+        '#   #   #               #   #   #   #OOO#       #       #',
+        '#########   #########   #####   #   #OOO#   #   #   #####',
+        '#   #   #   #       #   #       #   #OOO#   #       #   #',
+        '#   #   #   #       #   #       #   #OOO#   #       #   #',
+        '#   #   #   #       #   #       #   #OOO#   #       #   #',
+        '#   #   #########   #   #   #####   #   #   #   #####   #',
+        '#   #   #       #   #   #   #       #       #           #',
+        '#   #   #     X #   #   #   #       #       #           #',
+        '#   #   #       #   #   #   #       #       #           #',
+        '#   #   #   #####   #   #   #   #############   #########',
+        '#   #   #   #           #   #   #                   #   #',
+        '#   #   #   #           #   #   #          Y        #   D',
+        '#   #   #   #           #   #   #                   #   #',
+        '#   #   #   #   #   #####   #   #################   #   #',
+        '#           #   #       #   #        ggggggggggg    #   #',
+        '# S         #   #       #   #        ggggggggggg    #   #',
+        '#           #   #       #   #        ggggggggggg    #   #',
+        '#########   #   #   #   #   #############   #########   #',
+        '#           #   #   #   #               #           #   #',
+        '#           #   #   #   #               #           #   #',
+        '#           #   #   #   #               #           #   #',
+        '#   #############   #   #   #########################   #',
+        '#                   #   #                               #',
+        '#                 e #   #                               #',
+        '#                   #   #                               #',
+        '#########################################################',
+        ],
+    },
 ];
 
 // The worlds, for Pick a level: each run of levels in the same world, with
