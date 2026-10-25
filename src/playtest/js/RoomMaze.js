@@ -179,6 +179,7 @@ export class RoomMaze {
         }
         return null;
     }
+    walkLift(point) { return this.mazes.reduce((h, m) => Math.max(h, m.walkLift(point)), 0); }
     touchesSpike(point, margin) { return this.mazes.some((m) => m.touchesSpike(point, margin)); }
     fallsIntoGap(point) { return this.mazes.some((m) => m.fallsIntoGap(point)); }
     overGap(point) { return this.mazes.some((m) => m.overGap(point)); }

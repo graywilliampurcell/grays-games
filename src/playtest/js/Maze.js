@@ -726,6 +726,15 @@ export const FOG_EDGE = 1;
 export const RAINBOW_SOLID = 4;
 export const RAINBOW_FADE = 1;
 export const RAINBOW_GONE = 3;
+// The rainbow is an arch (Iteration 171, Gray 2026-10-25): its walking
+// surface is at floor level at both edges of the gap and rises smoothly
+// (half a sine wave) to one peak at the middle. The peak is as high as it
+// can be while your eye (EYE_HEIGHT above your feet) stays RAINBOW_EYE_MARGIN
+// below the wall tops, so you never see over the walls.
+export const EYE_HEIGHT = 1.6;
+export const RAINBOW_EYE_MARGIN = 0.25;
+const RAINBOW_THICKNESS = 0.12;
+const RAINBOW_OVERHANG = 0.2; // how far it rests on each edge (flat, at floor level)
 // Mushroom Forest World (Level 141 on): the mushroom cap ride. The cap is
 // round, PLATFORM_LENGTH across (CAP_RADIUS = half that), so acid shows
 // round it in the 3-wide corridor; it reaches CAP_OVERHANG over the edge
@@ -9302,33 +9311,56 @@ export class Maze {
     createRainbow(p) {
         const g = p.gap;
         const width = p.alongX ? g.maxZ - g.minZ : g.maxX - g.minX;
-        const length = p.span + 0.4;
+        const length = p.span + 2 * RAINBOW_OVERHANG;
         const group = new THREE.Group();
         const materials = [];
         const stripe = width / RAINBOW_COLORS.length;
+        // Height of the arch's top at a spot measured from the gap's middle along it
+        const top = (a) => this.rainbowHeight(p, a + p.span / 2);
+        const STEPS = 64;
+        // The arch's side view: its top curve, then its underside back
+        const shape = new THREE.Shape();
+        for (let n = 0; n <= STEPS; n++) {
+            const a = -length / 2 + (length * n) / STEPS;
+            if (n === 0) shape.moveTo(a, top(a));
+            else shape.lineTo(a, top(a));
+        }
+        for (let n = STEPS; n >= 0; n--) {
+            const a = -length / 2 + (length * n) / STEPS;
+            shape.lineTo(a, top(a) - RAINBOW_THICKNESS);
+        }
+        const bandGeometry = new THREE.ExtrudeGeometry(shape, { depth: stripe, bevelEnabled: false, curveSegments: 1 });
         RAINBOW_COLORS.forEach((color, k) => {
             const material = new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.55, roughness: 0.4, transparent: true, opacity: 0.92 });
-            const band = new THREE.Mesh(new THREE.BoxGeometry(stripe, 0.12, length), material);
-            band.position.set(-width / 2 + stripe * (k + 0.5), -0.06, 0);
+            const band = new THREE.Mesh(bandGeometry, material);
+            // The side view runs along the group's z; the stripe's width along x
+            band.rotation.y = -Math.PI / 2;
+            band.position.set(-width / 2 + stripe * (k + 1), 0, 0);
             band.receiveShadow = true;
             group.add(band);
             materials.push(material);
         });
-        // A soft glow under it
-        const glowMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25, depthWrite: false });
-        const glow = new THREE.Mesh(new THREE.PlaneGeometry(width + 0.6, length + 0.6), glowMaterial);
+        // A soft glow under it, following the arch
+        const glowMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25, depthWrite: false, side: THREE.DoubleSide });
+        const glowGeometry = new THREE.PlaneGeometry(width + 0.6, length + 0.6, 1, STEPS);
+        const position = glowGeometry.attributes.position;
+        for (let n = 0; n < position.count; n++) position.setZ(n, top(-position.getY(n)));
+        glowGeometry.computeVertexNormals();
+        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
         glow.rotation.x = -Math.PI / 2;
         glow.position.y = -0.2;
         group.add(glow);
         materials.push(glowMaterial);
-        // Sparkles
+        // Sparkles, floating just over the arch
         const sparkles = [];
         const sparkleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
         for (let k = 0; k < 14; k++) {
             const s = new THREE.Mesh(new THREE.OctahedronGeometry(0.06), sparkleMaterial);
-            s.position.set((Math.random() - 0.5) * width, 0.2 + Math.random() * 0.8, (Math.random() - 0.5) * length);
+            const along = (Math.random() - 0.5) * length;
+            const base = top(along);
+            s.position.set((Math.random() - 0.5) * width, base + 0.2 + Math.random() * 0.8, along);
             group.add(s);
-            sparkles.push({ mesh: s, phase: Math.random() * 6 });
+            sparkles.push({ mesh: s, phase: Math.random() * 6, base });
         }
         materials.push(sparkleMaterial);
         group.position.set((g.minX + g.maxX) / 2, 0, (g.minZ + g.maxZ) / 2);
@@ -9336,6 +9368,28 @@ export class Maze {
         this.root.add(group);
         p.object = null; // (nothing moves)
         p.rainbowObject = { group, materials, sparkles, opacity: materials.map((m) => m.opacity) };
+    }
+
+    // The rainbow arch's highest point (above the floor)
+    rainbowPeak() {
+        return this.height - EYE_HEIGHT - RAINBOW_EYE_MARGIN;
+    }
+
+    // How high the rainbow arch's walking surface is at this spot along its
+    // gap (0 at both edges and past them, the peak at the middle)
+    rainbowHeight(p, along) {
+        if (along <= 0 || along >= p.span) return 0;
+        return this.rainbowPeak() * Math.sin((Math.PI * along) / p.span);
+    }
+
+    // How high you're standing on a rainbow arch here (0 when you're not on one)
+    walkLift(position) {
+        for (const p of this.platforms) {
+            if (!p.rainbow || p.rainbowPhase === 'gone') continue;
+            const { along, across, width } = this.gapCoords(position, p);
+            if (across >= 0 && across < width && along > 0 && along < p.span) return this.rainbowHeight(p, along);
+        }
+        return 0;
     }
 
     // Run one rainbow bridge's cycle (a game step, so it stops while paused).
@@ -9388,7 +9442,7 @@ export class Maze {
         for (const p of this.platforms) {
             for (const s of p.rainbowObject?.sparkles ?? []) {
                 s.phase += dt * 2;
-                s.mesh.position.y = 0.2 + ((s.phase * 0.15) % 1);
+                s.mesh.position.y = (s.base ?? 0) + 0.2 + ((s.phase * 0.15) % 1);
                 s.mesh.rotation.y += dt * 3;
                 s.mesh.scale.setScalar(0.6 + 0.4 * Math.sin(s.phase * 2));
             }

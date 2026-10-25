@@ -779,6 +779,10 @@ function step(deltaTime) {
     const lift = maze.rideLift();
     player.carried = lift !== null;
     if (lift !== null) player.camera.position.set(player.position.x, player.position.y + 1.6 + lift, player.position.z);
+    // The rainbow arch (Sky World, Iteration 171): walking over it you go up
+    // and down with its surface (your speed across the ground is unchanged)
+    const arch = lift === null ? maze.walkLift?.(player.position) ?? 0 : 0;
+    if (arch > 0) player.camera.position.y = player.position.y + 1.6 + arch;
     if (platformEvent === 'land') player.startShove(maze.landing, BALLOON_STEP_OUT_TIME);
     // The long-neck (Dinosaur World): a soft friendly rumble as it swings you across
     if (platformEvent === 'depart' && maze.theme.dino) sound.whoosh(0.7, 0.4);
