@@ -1,0 +1,35 @@
+import { chromium, BASE, SHOTS } from '../playwright.mjs';
+const SP = SHOTS;
+const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1024, height: 640 } });
+const errors = [];
+page.on('pageerror', (e) => errors.push(String(e)));
+page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+const load = async (level = 46) => { await page.goto(`${BASE}/?test=1&level=${level}`, { waitUntil: 'domcontentloaded', timeout: 90000 }); await page.waitForFunction(() => window.__game?.ready); };
+const shot = (name) => page.screenshot({ path: SP + 'l47-' + name + '.png' });
+const EAST = -Math.PI / 2, WEST = Math.PI / 2, SOUTH = Math.PI, NORTH = 0;
+await load();
+let s = await page.evaluate(() => window.__game.state());
+console.log(s.level, 'start', JSON.stringify(s.start), 'door', JSON.stringify(s.door), 'current', JSON.stringify(s.current), 'music', s.music);
+await page.evaluate(() => window.__game.step(10));
+await shot('start');
+const walkHit = (p) => page.evaluate((p) => { const g = window.__game; g.teleport(p); g.step(1); g.setInput({ forward: true }); let hit = '', st; for (let i = 0; i < 200; i++) { st = g.step(1); const m = document.getElementById('message'); if (m && !m.hidden) { hit = m.textContent; break; } } g.clearInput(); return { hit, pos: st.pos }; }, p);
+await load(); console.log('urchin X', JSON.stringify(await walkHit({ x: 6.5, z: 22.5, yaw: EAST })));
+await load(); console.log('urchin Z', JSON.stringify(await walkHit({ x: 14.5, z: 18.5, yaw: WEST })));
+await load();
+await page.evaluate((EAST) => { const g = window.__game; g.teleport({ x: 7.0, z: 22.5, yaw: EAST }); g.step(3); }, EAST);
+await shot('urchinX');
+await page.evaluate((WEST) => { const g = window.__game; g.teleport({ x: 14.0, z: 18.5, yaw: WEST }); g.step(3); }, WEST);
+await shot('urchinZ');
+await load();
+const cur = await page.evaluate((SOUTH) => { const g = window.__game; g.teleport({ x: 34.5, z: 19.5, yaw: SOUTH }); g.step(1); g.setInput({ forward: true }); let st; let shoved = null; for (let i = 0; i < 300; i++) { st = g.step(1); if (st.shoved && !shoved) shoved = g.time(); if (shoved && !st.shoved) break; } g.clearInput(); return { end: st.pos, shoved: !!shoved, events: g.events.filter((e) => e.type === 'current').length }; }, SOUTH);
+console.log('current', JSON.stringify(cur));
+await page.evaluate((SOUTH) => { const g = window.__game; g.teleport({ x: 34.5, z: 21.0, yaw: SOUTH }); g.step(3); }, SOUTH);
+await shot('current');
+for (const lv of [45, 46]) {
+    await load(lv);
+    const d = await page.evaluate(() => { const g = window.__game; const s = g.state(); g.teleport({ x: s.door.x - 1.2, z: s.door.z, yaw: -Math.PI / 2 }); g.setInput({ forward: true }); for (let i = 0; i < 100; i++) { if (g.step(1).escaped) break; } g.clearInput(); return g.text(); });
+    console.log('door', lv, JSON.stringify(d));
+}
+console.log('errors', errors);
+await browser.close();

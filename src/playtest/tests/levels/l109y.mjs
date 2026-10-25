@@ -1,0 +1,10 @@
+import { chromium, BASE, SHOTS } from '../playwright.mjs';
+const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await (await browser.newContext({ viewport: { width: 1024, height: 640 } })).newPage();
+await page.goto(BASE + '/?test=1&level=108', { waitUntil: 'domcontentloaded', timeout: 90000 });
+await page.waitForFunction(() => window.__game?.ready, null, { timeout: 90000 });
+await page.evaluate(() => { const g = window.__game; g.teleport({ x: 38.5, z: 10.5, yaw: Math.PI / 2 }); g.step(1); });
+await page.screenshot({ path: new URL('./shots/l109-big-cactus.png', import.meta.url).pathname });
+await page.evaluate(() => { const g = window.__game; g.teleport({ x: 38.5, z: 7.0, yaw: Math.PI * 0.8 }); g.step(1); });
+await page.screenshot({ path: new URL('./shots/l109-big-cactus-approach.png', import.meta.url).pathname });
+await browser.close();

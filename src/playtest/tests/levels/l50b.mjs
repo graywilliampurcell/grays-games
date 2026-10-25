@@ -1,0 +1,10 @@
+import { chromium, BASE, SHOTS } from '../playwright.mjs';
+const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1024, height: 640 } });
+const load = async (level = 49) => { await page.goto(`${BASE}/?test=1&level=${level}`, { waitUntil: 'domcontentloaded', timeout: 90000 }); await page.waitForFunction(() => window.__game?.ready); };
+await load();
+const r = await page.evaluate(() => { const g = window.__game; g.teleport({ x: 18.5, z: 15.5, yaw: 0 }); g.step(1); g.setInput({ forward: true }); let st; for (let i = 0; i < 40; i++) st = g.step(1); const mid = st.pos; g.teleport({ yaw: -Math.PI / 2 }); for (let i = 0; i < 60; i++) st = g.step(1); g.clearInput(); return { mid, end: st.pos, events: g.events.filter((e) => e.type === 'current').length }; });
+console.log('back out', JSON.stringify(r));
+const d = await page.evaluate(() => { const g = window.__game; const s = g.state(); g.teleport({ x: s.door.x - 1.2, z: s.door.z, yaw: -Math.PI / 2 }); g.setInput({ forward: true }); for (let i = 0; i < 100; i++) { if (g.step(1).escaped) break; } g.clearInput(); const n = document.getElementById('finish-note'); return { note: n && !n.hidden ? n.textContent : null }; });
+console.log('finale note', JSON.stringify(d));
+await browser.close();

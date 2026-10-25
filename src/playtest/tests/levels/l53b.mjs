@@ -1,0 +1,10 @@
+import { chromium, BASE, SHOTS } from '../playwright.mjs';
+const SP = SHOTS;
+const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1024, height: 640 } });
+await page.goto(`${BASE}/?test=1&level=52`, { waitUntil: 'domcontentloaded', timeout: 90000 }); await page.waitForFunction(() => window.__game?.ready);
+await page.evaluate(() => { const g = window.__game; g.teleport({ x: 13.2, z: 38.5, yaw: -Math.PI / 2 }); g.step(2); });
+await page.screenshot({ path: SP + 'l53-river.png' });
+await page.evaluate(() => { const g = window.__game; g.teleport({ x: 13.5, z: 38.5, yaw: -Math.PI / 2 }); g.setInput({ forward: true }); for (let i = 0; i < 200; i++) { g.step(1); if (g.events.some((e) => e.type === 'bounce')) break; } g.clearInput(); g.step(Math.round(0.55 / g.dt)); });
+await page.screenshot({ path: SP + 'l53-midbounce.png' });
+await browser.close();

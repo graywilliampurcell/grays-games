@@ -1,0 +1,12 @@
+import { chromium, BASE, SHOTS } from '../playwright.mjs';
+const SP=SHOTS;
+const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1024, height: 640 } });
+const load = async () => { await page.goto(BASE + '/?test=1&level=39'); await page.waitForFunction(() => window.__game?.ready); };
+const walk = async (from) => { await load(); return page.evaluate((f) => { const g=window.__game; g.teleport(f); g.step(1); g.setInput({forward:true}); const msgs=[]; for (let i=0;i<120;i++){ g.step(2); const m=document.getElementById('message')?.textContent; if (m && !msgs.includes(m)) msgs.push(m);} g.clearInput(); return {end: g.state().pos, msgs}; }, from); };
+console.log('hidden', JSON.stringify(await walk({ x: 2.5, z: 18.5, yaw: -Math.PI / 2 })));
+console.log('big Y west', JSON.stringify(await walk({ x: 18.5, z: 14.5, yaw: Math.PI / 2 })));
+await load();
+await page.evaluate(() => { window.__game.teleport({ x: 18.5, z: 14.5, yaw: Math.PI / 2 }); window.__game.step(5); });
+await page.screenshot({ path: SP + 'l40-bigY.png' });
+await browser.close();

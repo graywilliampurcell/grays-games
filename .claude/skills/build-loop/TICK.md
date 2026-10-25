@@ -60,10 +60,12 @@ Plan page: https://app.notion.com/p/3e762b14e6ba81e48999c2df1942a56f
 - `js/testHooks.js`: `?test=1` exposes `window.__game` (state, teleport, step, setRealtime) for the playbot. Test mode uses default settings and ignores saved progress.
 - Docs: `docs/games/mazle/` (PLAN.md, PLAYTEST_MAP_ONLY.md, TOUCH_CONTROLS.md). The Notion page outranks them.
 
-**Testing:** use Playwright from tools/playbot/node_modules (import it by the absolute path of `tools/playbot/node_modules/playwright/index.mjs` in this checkout) with `--use-gl=swiftshader`.
+**Testing:** every level's checks live in the repo, in `src/playtest/tests/levels/l<level>.mjs` (extra files for the same level: `l<level>-<what>.mjs`). Write the new level's test there and commit it with the level. Never leave a test only in a scratchpad.
+- Start a new test by copying the nearest earlier one. Import `chromium`, `BASE` and `SHOTS` from `../playwright.mjs` (it loads Playwright from tools/playbot, so run `npm ci` there first), and launch with `--use-gl=swiftshader`. Print one `PASS <name>` or `FAIL <name>` line per check.
+- Run tests with `npm run test:levels -- l150` from src/playtest after a `dist/` build (no filter runs them all; `JOBS=4` runs four at once). The runner serves `dist/` on 9173 itself.
 - For the iPad, use `devices['iPad (gen 7) landscape']` and send multi-touch through CDP `Input.dispatchTouchEvent`.
 - For exact timing, use `__game.step(n)`. Real-time measurements through CDP are slow and blurry.
-- Screenshot the important views and look at them yourself. Put scratch scripts and screenshots in the session scratchpad, not the repo.
+- Screenshot the important views and look at them yourself. Screenshots go to `tests/shots/` (gitignored). One-off probes and logs can stay in the scratchpad, but anything a later builder would want to rerun goes in `tests/levels/`.
 
 ## Rolly Bally (src/rolly-bally): Build plan steps
 Plan page (Pathways mode) is 3e962b14-e6ba-81fa-9c9a-e8396354050b; the hub page is "2026-09-27-rolly-bally".
@@ -76,10 +78,10 @@ Plan page (Pathways mode) is 3e962b14-e6ba-81fa-9c9a-e8396354050b; the hub page 
 
 ## Shipping (both games): every build is committed, pushed and deployed
 Every finished build goes live before you report it done. Master is the only remote branch, and each push to master runs "Build & deploy site" (`.github/workflows/deploy-site.yml`). That workflow runs the Rolly Bally tests, builds both games, runs the playbot deploy gate, and publishes to GitHub Pages.
-1. **Work in a worktree on origin/master.** Do all code changes, tests and commits there, never in the main checkout. Run `git fetch origin`, then `git worktree add --detach <scratchpad>/master-wt origin/master`, or reuse it with `git checkout --detach origin/master` after a fetch. Use `git rm` for deleted or renamed files.
+1. **Work in a worktree on origin/master.** Do all code changes, tests and commits there, never in the main checkout. The worktree lives at `../grays-games-master-wt` (next to the main checkout, never in a scratchpad, so it outlives the session). Run `git fetch origin`; if it exists, reuse it with `git checkout --detach origin/master`, otherwise `git worktree add --detach ../grays-games-master-wt origin/master`. Use `git rm` for deleted or renamed files.
 2. **Stage only this game's files.**
 3. **Run the CI checks locally first,** from inside the worktree:
-   - Mazle: `cd src/playtest && npm install --no-audit --no-fund && npx vite build --base ./ --minify esbuild --outDir dist`.
+   - Mazle: `cd src/playtest && npm install --no-audit --no-fund && npx vite build --base ./ --minify esbuild --outDir dist`, then `npm run test:levels -- l<new level>` (plus the level before it, whose door now leads to the new one). If you changed shared game code, run them all.
    - Both games: `cd tools/playbot && npm ci && PLAYBOT_HOST=127.0.0.1 PLAYBOT_PORT=9180 node bin/playbot.js ci <mazle|rolly-bally> --dist ../../src/<playtest|rolly-bally>/dist [--hook-optional] --out out/ci/<game>`.
    - If a check fails, fix the problem and don't push.
 4. **Commit with explicit paths** (`git commit -m … -- <paths>`). Never use `git commit -- .`, `git add -A` or a bare commit. Check `git show --stat HEAD` before pushing. Then `git push origin HEAD:master`.

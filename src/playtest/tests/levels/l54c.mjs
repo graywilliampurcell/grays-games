@@ -1,0 +1,10 @@
+import { chromium, BASE, SHOTS } from '../playwright.mjs';
+const SP = SHOTS;
+const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1024, height: 640 } });
+await page.goto(`${BASE}/?test=1&level=52`, { waitUntil: 'domcontentloaded', timeout: 90000 }); await page.waitForFunction(() => window.__game?.ready);
+console.log(JSON.stringify(await page.evaluate(() => { const g = window.__game; const d = g.state().door; g.teleport({ x: d.x - 2.5, z: d.z, yaw: -Math.PI / 2 }); g.setInput({ forward: true }); g.step(120); g.clearInput(); return { d, s: g.state().pos, ev: g.events.map((e) => e.type) }; })));
+await page.waitForTimeout(800);
+console.log('l53 finish', await page.evaluate(() => [...document.querySelectorAll('#menu, #menu *')].filter((e) => e.offsetParent && e.children.length === 0).map((e) => e.textContent.trim()).filter(Boolean).join(' | ')));
+await page.screenshot({ path: SP + 'l54-l53finish.png' });
+await browser.close();

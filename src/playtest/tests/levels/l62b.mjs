@@ -1,0 +1,15 @@
+import { chromium, BASE, SHOTS } from '../playwright.mjs';
+const SP = SHOTS;
+const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1024, height: 640 } });
+const errors = []; page.on('pageerror', (e) => errors.push(String(e)));
+await page.goto(BASE + '/?test=1&level=61', { waitUntil: 'domcontentloaded' }); await page.waitForFunction(() => window.__game?.ready);
+const E = -Math.PI / 2, W = Math.PI / 2;
+await page.evaluate(({ W }) => { const g = window.__game; g.teleport({ x: 2.5, z: 10.5, yaw: 0 }); g.step(5); }, { W });
+await page.screenshot({ path: SP + 'l62-approach.png' });
+const r = await page.evaluate(({ E }) => { const g = window.__game; g.teleport({ x: 3.3, z: 2.5, yaw: E }); g.setInput({ forward: true }); for (let i = 0; i < 60 && g.state().platforms[0].phase !== 'wait'; i++) g.step(1); g.clearInput(); const st = g.step(500);
+  const maze = null; return { p: st.platforms[0], pos: st.pos }; }, { E });
+await page.evaluate(({ W }) => { const g = window.__game; g.teleport({ yaw: W }); g.step(2); }, { W });
+await page.screenshot({ path: SP + 'l62-after-landing-look-back.png' });
+console.log(JSON.stringify(r), errors);
+await browser.close();

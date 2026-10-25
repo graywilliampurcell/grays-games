@@ -1,0 +1,28 @@
+import { chromium, BASE, SHOTS } from '../playwright.mjs';
+const SP=SHOTS;
+const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1024, height: 640 } });
+const errors = [];
+page.on('pageerror', (e) => errors.push(String(e)));
+page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+await page.goto(BASE + '/?test=1&level=34');
+await page.waitForFunction(() => window.__game?.ready);
+const s = await page.evaluate(() => window.__game.state());
+console.log(s.level, 'start', JSON.stringify(s.start), 'spike', JSON.stringify(s.spike), 'rows', JSON.stringify(s.spikeRows), 'door', JSON.stringify(s.door));
+await page.evaluate(() => window.__game.step(10));
+await page.screenshot({ path: SP + 'l35-start.png' });
+// path crater Z at x 2.5 z 10.5; walk north (z decreasing) along x
+const walk = (x, z0) => page.evaluate(([x, z0]) => { window.__game.teleport({ x, z: z0, yaw: 0 }); window.__game.step(1); window.__game.setInput({forward:true}); let st; for (let i=0;i<60;i++){ st=window.__game.step(2); if (st.pos.z < 5 || Math.abs(st.pos.z-z0)>12) break;} window.__game.clearInput(); const e=window.__game.state(); return {end: e.pos, msg: document.getElementById('message')?.textContent}; }, [x, z0]);
+for (const x of [2.5, 1.45, 1.4, 3.55, 3.6]) console.log('north x', x, JSON.stringify(await walk(x, 17.5)));
+await page.evaluate(() => { window.__game.teleport({ x: 2.5, z: 18.5, yaw: 0 }); window.__game.step(5); });
+await page.screenshot({ path: SP + 'l35-approach.png' });
+const r = await page.evaluate(() => { window.__game.teleport({ x: 17.5, z: 30.5, yaw: -Math.PI/2 }); window.__game.step(1); window.__game.setInput({forward:true}); let st; for (let i=0;i<40;i++){ st=window.__game.step(2); if (st.pos.x>26 || Math.abs(st.pos.z-30.5)>3) break;} window.__game.clearInput(); return {end: window.__game.state().pos, msg: document.getElementById('message')?.textContent}; });
+console.log('big', JSON.stringify(r));
+await page.evaluate(() => { window.__game.teleport({ x: 6.5, z: 30.5, yaw: -Math.PI/2 }); window.__game.step(5); });
+await page.screenshot({ path: SP + 'l35-big.png' });
+const h = await page.evaluate(() => { window.__game.teleport({ x: 6.5, z: 26.5, yaw: -Math.PI/2 }); window.__game.step(1); window.__game.setInput({forward:true}); let st; for (let i=0;i<40;i++){ st=window.__game.step(2); if (st.pos.x>12 || Math.abs(st.pos.z-26.5)>3) break;} window.__game.clearInput(); return {end: window.__game.state().pos, msg: document.getElementById('message')?.textContent}; });
+console.log('hidden', JSON.stringify(h));
+await page.evaluate(() => { window.__game.teleport({ x: 2.5, z: 26.5, yaw: -Math.PI/2 }); window.__game.step(5); });
+await page.screenshot({ path: SP + 'l35-sneaky.png' });
+console.log('errors', errors);
+await browser.close();

@@ -1,0 +1,11 @@
+import { chromium, BASE, SHOTS } from '../playwright.mjs';
+const SP=SHOTS;
+const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1024, height: 640 } });
+await page.goto(BASE + '/?test=1&level=33');
+await page.waitForFunction(() => window.__game?.ready);
+await page.evaluate(() => { window.__game.teleport({ x: 26.5, z: 6.5, yaw: 0 }); window.__game.step(5); });
+await page.screenshot({ path: SP + 'l34-big-from-path.png' });
+await page.evaluate(() => { window.__game.teleport({ x: 27.5, z: 10.5, yaw: Math.PI/2 }); window.__game.step(5); });
+await page.screenshot({ path: SP + 'l34-big.png' });
+await browser.close();
