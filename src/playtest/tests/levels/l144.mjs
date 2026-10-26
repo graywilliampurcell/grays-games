@@ -82,8 +82,8 @@ if (!ONLY || ONLY === 'stare') {
     check('17 deg off: not in your eyes, safe', r.ouchAt === null, r);
     r = await stare({ x: f.x + 16, steps: 110 });
     check('the wall at the hallway end blocks it (standing in the next cell east, facing it)', r.ouchAt === null && r.maxStare === 0, r);
-    r = await stare({ x: f.x + 1, steps: 110 });
-    check('right under it (1 away, it is up high): not in front of you, safe', r.ouchAt === null, r);
+    r = await stare({ x: f.x + 0.6, steps: 110 });
+    check('right under it (0.6 away, it is overhead): not in front of you, safe', r.ouchAt === null, r);
 }
 if (!ONLY || ONLY === 'walk') {
     // Walk the hallway straight at it, setting off the moment it goes dim

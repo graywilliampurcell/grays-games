@@ -81,8 +81,8 @@ if (!ONLY || ONLY === 'stare') {
     check('17 deg off: not in your eyes, safe', r.ouchAt === null, r);
     r = await stare({ x: f.x - 16, z: f.z + 8, steps: 110 });
     check('walls block it (standing two rows south and further west, facing east)', r.ouchAt === null && r.maxStare === 0, r);
-    r = await stare({ x: f.x - 1, steps: 110 });
-    check('right under it (1 away, it is up high): not in front of you, safe', r.ouchAt === null, r);
+    r = await stare({ x: f.x - 0.6, steps: 110 });
+    check('right under it (0.6 away, it is overhead): not in front of you, safe', r.ouchAt === null, r);
 }
 if (!ONLY || ONLY === 'pause') {
     r = await page.evaluate(([f]) => { const g = window.__game; g.restore(); g.teleport({ x: f.x - 9, z: f.z, yaw: Math.PI / 2 }); g.step(1); return g.state().fireflies[0]; }, [f]);

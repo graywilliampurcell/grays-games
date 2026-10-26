@@ -761,12 +761,14 @@ const ZZZ_TIME = 2.4;
 // hallway on the path (no collision; you walk right under it). It blinks on
 // a fixed cycle, dim FIREFLY_DIM_TIME then bright FIREFLY_BRIGHT_TIME, over
 // and over (starting values Gray will judge), counted in game time so it
-// freezes while paused. It's "in your eyes" while it's bright, within
-// FIREFLY_VIEW_ANGLE of straight ahead and no wall is in between (main.js
+// freezes while paused. It's "in your eyes" while it's bright, you're heading
+// within FIREFLY_VIEW_ANGLE of it (seen from above) and no wall is in between (main.js
 // sends you back to the start after about a second of that).
 export const FIREFLY_DIM_TIME = 3;
 export const FIREFLY_BRIGHT_TIME = 2;
 export const FIREFLY_VIEW_ANGLE = 15; // degrees
+// Right under it (closer than this along the floor) it's overhead, not in front of you
+export const FIREFLY_UNDER = 1.0;
 const FIREFLY_HEIGHT = 2.3;
 // The firefly swarm (Level 145 on): a 'g' stretch under the Mushroom Forest
 // look. It works like Sky World's thick fog (main.js closes the view in to
@@ -9732,19 +9734,27 @@ export class Maze {
         for (const { wing, side } of f.wings) wing.rotation.z = side * (0.3 + Math.sin(f.clock * 40) * 0.35);
     }
 
-    // The bright firefly that's in your eyes right now (bright, within
-    // FIREFLY_VIEW_ANGLE of where the camera faces, no wall in between), or null
+    // The bright firefly that's in your eyes right now, or null. It's in your
+    // eyes when it's bright, the way you're heading points within
+    // FIREFLY_VIEW_ANGLE of it (seen from above: looking up or down doesn't
+    // matter, and neither does how far away it is), you're not right under
+    // it (at least FIREFLY_UNDER away along the floor) and no wall is in
+    // between. (Iteration 172: it used to be measured in 3D from your eyes,
+    // and since it hovers above eye height that missed it in the last few
+    // squares of its hallway, so walking at it you were nearly always past
+    // before a whole second went by; looking a little down missed it too.)
     fireflyInEyes(camera) {
         if (!this.fireflies.length) return null;
         const eye = camera.getWorldPosition(new THREE.Vector3());
-        const facing = camera.getWorldDirection(new THREE.Vector3());
+        const yaw = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion).y;
+        const hx = -Math.sin(yaw), hz = -Math.cos(yaw);
         const cos = Math.cos((FIREFLY_VIEW_ANGLE * Math.PI) / 180);
         for (const f of this.fireflies) {
             if (!f.bright) continue;
-            const to = f.group.position.clone().sub(eye);
-            const d = to.length();
-            if (d < 1e-6 || to.dot(facing) / d < cos) continue;
-            if (this.wallBetween(eye, f.group.position)) continue;
+            const dx = f.position.x - eye.x, dz = f.position.z - eye.z;
+            const d = Math.hypot(dx, dz);
+            if (d < FIREFLY_UNDER || (dx * hx + dz * hz) / d < cos) continue;
+            if (this.wallBetween(eye, f.position)) continue;
             return f;
         }
         return null;
